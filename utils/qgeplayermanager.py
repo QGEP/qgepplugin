@@ -1,12 +1,15 @@
-from PyQt4.QtCore import (QObject, pyqtSlot, pyqtSignal)
+"""
+This module helps managing the QGEP project layers.
+"""
+from PyQt4.QtCore import (QObject, pyqtSignal)
 
-from qgis.core import (QgsMapLayerRegistry, QgsProject)
+from qgis.core import (QgsMapLayerRegistry, )
 
 
 class QgepLayerNotifier(QObject):
-    '''
+    """
     This class sends out notification when a given set of layers is available or unavailable.
-    '''
+    """
     layersAvailable = pyqtSignal([dict])
     layersUnavailable = pyqtSignal()
 
@@ -19,45 +22,61 @@ class QgepLayerNotifier(QObject):
         QgsMapLayerRegistry.instance().layersWillBeRemoved.connect(self.layersWillBeRemoved)
         QgsMapLayerRegistry.instance().layersAdded.connect(self.layersAdded)
 
-    def layersWillBeRemoved(self, layerList):
-        '''
+    def layersWillBeRemoved(self, _):
+        """
         Gets called when a layer is removed
 
-        @param layerList: The layers about to be removed
-        '''
+        @param _: The layers about to be removed
+        """
 
         if self.available:
-            for qgepId in self.layers:
-                l = [lyr for (id, lyr) in QgsMapLayerRegistry.instance().mapLayers().iteritems() if
-                     id.startswith(qgepId)]
-                if len(l) == 0:
+            for qgep_id in self.layers:
+                lyrs = [lyr for (lyr_id, lyr)
+                        in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+                        if lyr_id.startswith(qgep_id)]
+                if len(lyrs) == 0:
                     self.layersUnavailable.emit()
                     self.available = False
                     return
 
-    def layersAdded(self, layers):
-        '''
+    def layersAdded(self, _):
+        """
         Gets called when a layer is added
-        @param layers: the layers to check
-        '''
+        @param _: the layers to check
+        """
         if not self.available:
             lyrlist = dict()
-            for qgepId in self.layers:
-                l = [lyr for (id, lyr) in QgsMapLayerRegistry.instance().mapLayers().iteritems() if
-                     id.startswith(qgepId)]
-                if len(l) == 0:
+            for qgep_id in self.layers:
+                lyr = [lyr for (lyr_id, lyr)
+                       in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+                       if lyr_id.startswith(qgep_id)]
+                if len(lyr) == 0:
                     return
-                lyrlist[qgepId] = l[0]
+                lyrlist[qgep_id] = lyr[0]
 
             self.available = True
             self.layersAvailable.emit(lyrlist)
 
 
-class QgepLayerManager():
+# pylint: disable=too-few-public-methods
+class QgepLayerManager(object):
+    """
+    Gives access to QGEP layers by the table name.
+    """
+    def __init__(self):
+        pass
+
     @staticmethod
-    def layer(qgepId):
-        l = [lyr for (id, lyr) in QgsMapLayerRegistry.instance().mapLayers().iteritems() if id.startswith(qgepId)]
-        if len(l) == 0:
+    def layer(qgep_id):
+        """
+        Get a layer by its table name. Searches for the layer in the map layer registry.
+        :param qgep_id:  The id of the layer to look for
+        :return:         A layer matching this id or None
+        """
+        lyr = [lyr for (lyr_id, lyr)
+               in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+               if lyr_id.startswith(qgep_id)]
+        if len(lyr) == 0:
             return None
         else:
-            return l[0]
+            return lyr[0]

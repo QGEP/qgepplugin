@@ -1,5 +1,8 @@
-from PyQt4.QtCore import QSettings, QLocale, QTranslator, QCoreApplication, pyqtSlot, QObject
+"""
+This module is used for translation of the QGEP project
+"""
 from PyQt4.QtGui import QApplication
+from PyQt4.QtCore import QSettings, QLocale, QTranslator, QCoreApplication, pyqtSlot, QObject
 import logging
 
 
@@ -47,8 +50,22 @@ def setupI18n(thePreferredLocale=None):
     if myResult:
         QCoreApplication.instance().installTranslator(translator)
 
-
+# pylint: disable=too-few-public-methods
 class QgepJsTranslator(QObject):
+    """
+    Provides a callback method for the javascript code to support translation
+    """
+
+    def __init__(self):
+        pass
+
+    # pylint: disable=R0201
     @pyqtSlot(unicode, unicode, name='qsTr', result=unicode)
     def qsTr(self, context, sourceText):
+        """
+        Will be called by javascript code to perform translation of strings
+        :param context:    The translation context
+        :param sourceText: The string to translate
+        :return:
+        """
         return QApplication.translate(context, sourceText)
