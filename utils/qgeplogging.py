@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 #
 # Profile
 # Copyright (C) 2013  Matthias Kuhn
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 #
 # licensed under the terms of GNU GPL 2
 #
@@ -21,25 +21,26 @@
 # with this progsram; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 
 import logging
 from qgis.core import QgsMessageLog
 
-class QgepQgsLogHandler( logging.Handler ):
+
+class QgepQgsLogHandler(logging.Handler):
     '''
     A class acting as a translator between pythons log system and the QGIS log
     system.
     '''
     qgsMessageLog = QgsMessageLog.instance()
-    
-    def emit( self, record ):
+
+    def emit(self, record):
         '''
         Will be called by pythons logging and is the actual bridge
         @param record: The record to be logged
         '''
-        
+
         # Should be adjusted to translate the levelno to QGIS debug levels once
         # QGIS agreed on standards. 
         # See http://hub.qgis.org/issues/6965
-        QgsMessageLog.logMessage( record.name + ':' + record.msg, 'qgep', record.levelno )        
+        QgsMessageLog.logMessage(record.name + ':' + record.msg, 'qgep', record.levelno)

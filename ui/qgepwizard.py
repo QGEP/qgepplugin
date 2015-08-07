@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 #
 # Qgep
 # Copyright (C) 2014  Matthias Kuhn
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 #
 # licensed under the terms of GNU GPL 2
 #
@@ -21,7 +21,7 @@
 # with this program; if not, print to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 
 from PyQt4.QtGui import (QDockWidget)
 from PyQt4.QtCore import pyqtSlot
@@ -30,20 +30,21 @@ from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 from qgepplugin.tools.qgepmaptooladdfeature import QgepMapToolAddReach
 import logging
 
-class QgepWizard( QDockWidget, Ui_QgepDockWidget ):
-    logger = logging.getLogger( __name__ )
 
-    def __init__(self,parent,iface):
-        QDockWidget.__init__( self, parent )
-        self.setupUi( self )
-        self.layerComboBox.currentIndexChanged.connect( self.layerChanged )
+class QgepWizard(QDockWidget, Ui_QgepDockWidget):
+    logger = logging.getLogger(__name__)
+
+    def __init__(self, parent, iface):
+        QDockWidget.__init__(self, parent)
+        self.setupUi(self)
+        self.layerComboBox.currentIndexChanged.connect(self.layerChanged)
         self.stateButton.clicked.connect(self.stateChanged)
         self.iface = iface
 
         self.mapToolAddReach = QgepMapToolAddReach(self.iface, QgepLayerManager.layer('vw_qgep_reach'))
 
     @pyqtSlot(int)
-    def layerChanged(self,index):
+    def layerChanged(self, index):
         for lyr in [QgepLayerManager.layer('vw_qgep_cover'), QgepLayerManager.layer('vw_qgep_reach')]:
             lyr.commitChanges()
 
@@ -56,17 +57,17 @@ class QgepWizard( QDockWidget, Ui_QgepDockWidget ):
         elif self.layerComboBox.currentText() == 'Reach':
             lyr = QgepLayerManager.layer('vw_qgep_reach')
             lyr.startEditing()
-            self.iface.mapCanvas().setMapTool( self.mapToolAddReach )
+            self.iface.mapCanvas().setMapTool(self.mapToolAddReach)
 
     @pyqtSlot()
     def stateChanged(self):
         if self.stateButton.text() == 'Start Data Entry':
             self.layerComboBox.setEnabled(True)
             self.layerChanged(0)
-            self.stateButton.setText( 'Stop Data Entry' )
+            self.stateButton.setText('Stop Data Entry')
         else:
-            for lyr in [ QgepLayerManager.layer('vw_qgep_reach')
-                       , QgepLayerManager.layer('vw_qgep_cover') ]:
+            for lyr in [QgepLayerManager.layer('vw_qgep_reach')
+                , QgepLayerManager.layer('vw_qgep_cover')]:
                 lyr.commitChanges()
                 self.layerComboBox.setEnabled(False)
-                self.stateButton.setText( 'Start Data Entry' )
+                self.stateButton.setText('Start Data Entry')
