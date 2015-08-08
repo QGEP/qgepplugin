@@ -33,6 +33,7 @@ import time
 import re
 
 import qgis
+
 from qgis.core import (
     QgsTolerance,
     QgsSnapper,
@@ -144,12 +145,12 @@ class QgepGraphManager(object):
                 ptId1 = self.vertexIds[fromObjId]
                 ptId2 = self.vertexIds[toObjId]
 
-                props = { \
-                    'weight': length, \
-                    'feature': feat.id(), \
-                    'baseFeature': objId, \
-                    'objType': objType \
-                    }
+                props = {
+                    'weight': length,
+                    'feature': feat.id(),
+                    'baseFeature': objId,
+                    'objType': objType
+                }
                 self.graph.add_edge(ptId1, ptId2, props)
             except KeyError as e:
                 print e
@@ -243,25 +244,30 @@ class QgepGraphManager(object):
             nodeFeatures = self.getFeaturesById(self.getNodeLayer(), pointIds)
 
             # Filter wastewater nodes
-            filteredFeatures = {id: nodeFeatures.featureById(id) for id in nodeFeatures.asDict() if
-                                nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'}
+            filtered_features = {
+                id: nodeFeatures.featureById(id)
+                for id in nodeFeatures.asDict()
+                if  nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'
+            }
 
             # Only one wastewater node left: return this
-            if len(filteredFeatures) == 1:
-                return \
-                [point for point in snappedPoints if point.snappedAtGeometry == filteredFeatures.iterkeys().next()][0]
+            if len(filtered_features) == 1:
+                return [point for point
+                        in snappedPoints
+                        if point.snappedAtGeometry == filtered_features.iterkeys().next()
+                ][0]
 
             # Still not sure which point to take?
             # Are there no wastewater nodes filtered? Let the user choose from the reach points
-            if len(filteredFeatures) == 0:
-                filteredFeatures = nodeFeatures.asDict()
+            if len(filtered_features) == 0:
+                filtered_features = nodeFeatures.asDict()
 
             # Ask the user which point he wants to use
             actions = dict()
 
             menu = QMenu(self.iface.mapCanvas())
 
-            for _, feature in filteredFeatures.iteritems():
+            for _, feature in filtered_features.iteritems():
                 try:
                     title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
                 except TypeError:
@@ -270,10 +276,10 @@ class QgepGraphManager(object):
                 actions[action] = point
                 menu.addAction(action)
 
-            clickedAction = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))
+            clicked_action = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))
 
-            if clickedAction is not None:
-                return actions[clickedAction]
+            if clicked_action is not None:
+                return actions[clicked_action]
 
             return None
 
@@ -311,13 +317,13 @@ class QgepGraphManager(object):
             self.createGraph()
 
         if reverse:
-            myGraph = self.graph.reverse()
+            my_graph = self.graph.reverse()
         else:
-            myGraph = self.graph
+            my_graph = self.graph
 
         # Returns pred, weight
-        pred, _ = nx.bellman_ford(myGraph, node)
-        edges = [(v, u, myGraph[v][u]) for (u, v) in pred.items() if v is not None]
+        pred, _ = nx.bellman_ford(my_graph, node)
+        edges = [(v, u, my_graph[v][u]) for (u, v) in pred.items() if v is not None]
 
         return edges
 
@@ -336,33 +342,33 @@ class QgepGraphManager(object):
         """
         Get some features by their id
         """
-        featCache = QgepFeatureCache(layer)
-        dataProvider = layer.dataProvider()
+        feat_cache = QgepFeatureCache(layer)
+        data_provider = layer.dataProvider()
 
-        features = dataProvider.getFeatures()
+        features = data_provider.getFeatures()
 
         for feat in features:
             if feat.id() in ids:
-                featCache.addFeature(feat)
+                feat_cache.addFeature(feat)
 
-        return featCache
+        return feat_cache
 
     # pylint: disable=no-self-use
     def getFeaturesByAttr(self, layer, attr, values):
         """
         Get some features by an attribute value
         """
-        featCache = QgepFeatureCache(layer)
-        dataProvider = layer.dataProvider()
+        feat_cache = QgepFeatureCache(layer)
+        data_provider = layer.dataProvider()
 
         # Batch query and filter locally
-        features = dataProvider.getFeatures()
+        features = data_provider.getFeatures()
 
         for feat in features:
-            if featCache.attrAsUnicode(feat, attr) in values:
-                featCache.addFeature(feat)
+            if feat_cache.attrAsUnicode(feat, attr) in values:
+                feat_cache.addFeature(feat)
 
-        return featCache
+        return feat_cache
 
     def print_profile(self):
         """

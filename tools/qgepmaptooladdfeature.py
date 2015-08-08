@@ -27,25 +27,35 @@
 Some map tools for digitizing features
 """
 
-from qgis.gui import (QgsMapTool,
-                      QgsRubberBand,
-                      QgsMessageBar)
-from qgis.core import (QgsFeature,
-                       QgsPoint,
-                       QgsSnapper,
-                       QgsTolerance,
-                       QgsFeatureRequest,
-                       QGis,
-                       QgsGeometry)
-from PyQt4.QtGui import (QCursor,
-                         QColor,
-                         QApplication,
-                         QDialog,
-                         QGridLayout,
-                         QLabel,
-                         QLineEdit,
-                         QDialogButtonBox)
-from PyQt4.QtCore import (Qt, pyqtSignal)
+from qgis import core
+from qgis.gui import (
+    QgsMapTool,
+    QgsRubberBand,
+    QgsMessageBar
+)
+from qgis.core import (
+    QgsFeature,
+    QgsPoint,
+    QgsSnapper,
+    QgsTolerance,
+    QgsFeatureRequest,
+    QGis,
+    QgsGeometry
+)
+from PyQt4.QtGui import (
+    QCursor,
+    QColor,
+    QApplication,
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QLineEdit,
+    QDialogButtonBox
+)
+from PyQt4.QtCore import (
+    Qt,
+    pyqtSignal
+)
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
 

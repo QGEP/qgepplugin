@@ -27,22 +27,32 @@
 This module implements several map tools for QGEP
 """
 
-from qgis.core import (QgsGeometry,
-                       QgsPoint)
-from qgis.gui import (QgsMapTool,
-                      QgsRubberBand,
-                      QgsVertexMarker,
-                      QgsMessageBar)
-from PyQt4.QtGui import (QCursor,
-                         QColor)
-from PyQt4.QtCore import (Qt,
-                          QPoint,
-                          pyqtSignal,
-                          QSettings)
-from .qgepprofile import (QgepProfile,
-                          QgepProfileNodeElement,
-                          QgepProfileReachElement,
-                          QgepProfileSpecialStructureElement)
+from qgis.core import (
+    QgsGeometry,
+    QgsPoint
+)
+from qgis.gui import (
+    QgsMapTool,
+    QgsRubberBand,
+    QgsVertexMarker,
+    QgsMessageBar
+)
+from PyQt4.QtGui import (
+    QCursor,
+    QColor,
+    QApplication)
+from PyQt4.QtCore import (
+    Qt,
+    QPoint,
+    pyqtSignal,
+    QSettings
+)
+from .qgepprofile import (
+    QgepProfile,
+    QgepProfileNodeElement,
+    QgepProfileReachElement,
+    QgepProfileSpecialStructureElement
+)
 
 import logging
 
@@ -137,18 +147,18 @@ class QgepProfileMapTool(QgepMapTool):
         QgepMapTool.__init__(self, canvas, button)
         settings = QSettings()
 
-        helperLineColor = settings.value("/QGEP/HelperLineColor", u'#FFD900')
-        highlightColor = settings.value("/QGEP/HighlightColor", u'#40FF40')
+        helper_line_color = settings.value("/QGEP/HelperLineColor", u'#FFD900')
+        highlight_color = settings.value("/QGEP/HighlightColor", u'#40FF40')
 
         self.networkAnalyzer = networkAnalyzer
 
         # Init rubberband to visualize current status
         self.rbHelperLine = QgsRubberBand(self.canvas)
-        self.rbHelperLine.setColor(QColor(helperLineColor))
+        self.rbHelperLine.setColor(QColor(helper_line_color))
         self.rbHelperLine.setWidth(2)
 
         self.rbHighlight = QgsRubberBand(self.canvas)
-        self.rbHighlight.setColor(QColor(highlightColor))
+        self.rbHighlight.setColor(QColor(highlight_color))
         self.rbHighlight.setWidth(5)
 
         self.profile.setRubberband(self.rbHighlight)
@@ -183,14 +193,13 @@ class QgepProfileMapTool(QgepMapTool):
         @param pStart: The id of the start point of the path
         @param pEnd:   The id of the end point of the path
         """
-        backupCursor = self.canvas.cursor()
-        self.canvas.setCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         # try:
         (vertices, edges) = self.networkAnalyzer.shortestPath(pStart, pEnd)
         self.appendProfile(vertices, edges)
         #        except:
         #            pass
-        self.canvas.setCursor(backupCursor)
+        QApplication.restoreOverrideCursor()
         if len(vertices) > 0:
             return True
         else:
@@ -213,70 +222,70 @@ class QgepProfileMapTool(QgepMapTool):
             self.logger.debug('   *' + `e`)
 
         # Fetch all the needed edges in one batch
-        edgeLayer = self.networkAnalyzer.getReachLayer()
-        edgeAttrs = edgeLayer.dataProvider().attributeIndexes()
-        edgeIds = [edge['feature'] for p1, p2, edge in edges]
+        edge_layer = self.networkAnalyzer.getReachLayer()
+        edge_attrs = edge_layer.dataProvider().attributeIndexes()
+        edge_ids = [edge['feature'] for p1, p2, edge in edges]
 
-        edgeFeatures = self.networkAnalyzer.getFeaturesById(edgeLayer, edgeAttrs, edgeIds, True)
+        edgeFeatures = self.networkAnalyzer.getFeaturesById(edge_layer, edge_attrs, edge_ids, True)
 
         # We need some additional nodes, where we need to interpolate...
-        interpolateNodesFrom = [edgeFeatures.attrAsUnicode(feat, u'from_obj_id_interpolate')
+        interpolate_nodes_from = [edgeFeatures.attrAsUnicode(feat, u'from_obj_id_interpolate')
+                                  for feat in edgeFeatures.asDict().values()]
+        interpolate_nodes_to = [edgeFeatures.attrAsUnicode(feat, u'to_obj_id_interpolate')
                                 for feat in edgeFeatures.asDict().values()]
-        interpolateNodesTo = [edgeFeatures.attrAsUnicode(feat, u'to_obj_id_interpolate')
-                              for feat in edgeFeatures.asDict().values()]
-        additionalIds = [self.networkAnalyzer.vertexIds[node] for node in interpolateNodesFrom]
-        additionalIds += [self.networkAnalyzer.vertexIds[node] for node in interpolateNodesTo]
+        additional_ids = [self.networkAnalyzer.vertexIds[node] for node in interpolate_nodes_from]
+        additional_ids += [self.networkAnalyzer.vertexIds[node] for node in interpolate_nodes_to]
 
         # Now, fetch the nodes we need
-        nodeLayer = self.networkAnalyzer.getNodeLayer()
-        nodeIds = vertices + additionalIds
-        nodeAttrs = nodeLayer.dataProvider().attributeIndexes()
-        nodeFeatures = self.networkAnalyzer.getFeaturesById(nodeLayer, nodeAttrs, nodeIds, False)
+        node_layer = self.networkAnalyzer.getNodeLayer()
+        node_ids = vertices + additional_ids
+        node_attrs = node_layer.dataProvider().attributeIndexes()
+        node_features = self.networkAnalyzer.getFeaturesById(node_layer, node_attrs, node_ids, False)
 
         if len(vertices) > 1:
             self.rubberBand.reset()
 
-            elem = QgepProfileNodeElement(vertices[0], nodeFeatures, 0)
+            elem = QgepProfileNodeElement(vertices[0], node_features, 0)
             self.profile.addElement(vertices[0], elem)
 
             for p1, p2, edge in edges:
-                fromOffset = self.segmentOffset
-                toOffset = self.segmentOffset + edge['weight']
+                from_offset = self.segmentOffset
+                to_offset = self.segmentOffset + edge['weight']
 
                 if 'reach' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
                         self.profile[edge['baseFeature']]\
-                            .addSegment(p1, p2, edge['feature'], nodeFeatures,
-                                        edgeFeatures, fromOffset, toOffset)
+                            .addSegment(p1, p2, edge['feature'], node_features,
+                                        edgeFeatures, from_offset, to_offset)
                     else:
                         elem = QgepProfileReachElement(p1, p2, edge['feature'],
-                                                       nodeFeatures, edgeFeatures,
-                                                       fromOffset, toOffset)
+                                                       node_features, edgeFeatures,
+                                                       from_offset, to_offset)
                         self.profile.addElement(elem.objId, elem)
 
                 elif 'special_structure' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
                         self.profile[edge['baseFeature']]\
-                            .addSegment(p1, p2, edge['feature'], nodeFeatures,
-                                        edgeFeatures, fromOffset, toOffset)
+                            .addSegment(p1, p2, edge['feature'], node_features,
+                                        edgeFeatures, from_offset, to_offset)
                     else:
                         elem = QgepProfileSpecialStructureElement(p1, p2, edge['feature'],
-                                                                  nodeFeatures, edgeFeatures,
-                                                                  fromOffset, toOffset)
+                                                                  node_features, edgeFeatures,
+                                                                  from_offset, to_offset)
                         self.profile.addElement(elem.objId, elem)
 
-                elem = QgepProfileNodeElement(p2, nodeFeatures, toOffset)
+                elem = QgepProfileNodeElement(p2, node_features, to_offset)
                 self.profile.addElement(p2, elem)
 
-                self.segmentOffset = toOffset
+                self.segmentOffset = to_offset
 
             self.profileChanged.emit(self.profile)
 
             # Create rubberband geometry
-            for featId in edgeIds:
+            for featId in edge_ids:
                 self.pathPolyline.extend(edgeFeatures[featId].geometry().asPolyline())
 
-            self.rubberBand.addGeometry(QgsGeometry.fromPolyline(self.pathPolyline), nodeLayer)
+            self.rubberBand.addGeometry(QgsGeometry.fromPolyline(self.pathPolyline), node_layer)
             self.profileChanged.emit(self.profile)
             return True
         else:
@@ -292,9 +301,9 @@ class QgepProfileMapTool(QgepMapTool):
             self.rbHelperLine.reset()
             for point in self.selectedPathPoints:
                 self.rbHelperLine.addPoint(point[1])
-            mousePos = self.canvas.getCoordinateTransform()\
+            mouse_pos = self.canvas.getCoordinateTransform()\
                 .toMapCoordinates(event.pos().x(), event.pos().y())
-            self.rbHelperLine.addPoint(mousePos)
+            self.rbHelperLine.addPoint(mouse_pos)
 
     def rightClicked(self, _):
         """
@@ -314,20 +323,20 @@ class QgepProfileMapTool(QgepMapTool):
 
         @param event: The mouse event with coordinates and all
         """
-        snappedPoint = self.networkAnalyzer.snapPoint(event)
+        snapped_point = self.networkAnalyzer.snapPoint(event)
 
-        if snappedPoint is not None:
+        if snapped_point is not None:
             if len(self.selectedPathPoints) > 0:
-                pf = self.findPath(self.selectedPathPoints[-1][0], snappedPoint.snappedAtGeometry)
+                pf = self.findPath(self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
                 if pf:
                     self.selectedPathPoints.append(
-                        (snappedPoint.snappedAtGeometry, QgsPoint(snappedPoint.snappedVertex)))
+                        (snapped_point.snappedAtGeometry, QgsPoint(snapped_point.snappedVertex)))
                 else:
                     msg = self.msgBar.createMessage('No path found')
                     self.msgBar.pushWidget(msg, QgsMessageBar.WARNING)
             else:
-                self.selectedPathPoints.append(snappedPoint.snappedAtGeometry,
-                                               QgsPoint(snappedPoint.snappedVertex))
+                self.selectedPathPoints.append(snapped_point.snappedAtGeometry,
+                                               QgsPoint(snapped_point.snappedVertex))
 
 
 class QgepTreeMapTool(QgepMapTool):
