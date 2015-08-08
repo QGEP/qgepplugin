@@ -27,18 +27,18 @@
 This module implements several map tools for QGEP
 """
 
-from PyQt4.QtCore import (Qt,
-                          QPoint,
-                          pyqtSignal,
-                          QSettings)
-from PyQt4.QtGui import (QCursor,
-                         QColor)
 from qgis.core import (QgsGeometry,
                        QgsPoint)
 from qgis.gui import (QgsMapTool,
                       QgsRubberBand,
                       QgsVertexMarker,
                       QgsMessageBar)
+from PyQt4.QtGui import (QCursor,
+                         QColor)
+from PyQt4.QtCore import (Qt,
+                          QPoint,
+                          pyqtSignal,
+                          QSettings)
 from .qgepprofile import (QgepProfile,
                           QgepProfileNodeElement,
                           QgepProfileReachElement,

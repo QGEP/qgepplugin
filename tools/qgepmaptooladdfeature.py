@@ -27,15 +27,6 @@
 Some map tools for digitizing features
 """
 
-from PyQt4.QtCore import (Qt, pyqtSignal)
-from PyQt4.QtGui import (QCursor,
-                         QColor,
-                         QApplication,
-                         QDialog,
-                         QGridLayout,
-                         QLabel,
-                         QLineEdit,
-                         QDialogButtonBox)
 from qgis.gui import (QgsMapTool,
                       QgsRubberBand,
                       QgsMessageBar)
@@ -46,6 +37,15 @@ from qgis.core import (QgsFeature,
                        QgsFeatureRequest,
                        QGis,
                        QgsGeometry)
+from PyQt4.QtGui import (QCursor,
+                         QColor,
+                         QApplication,
+                         QDialog,
+                         QGridLayout,
+                         QLabel,
+                         QLineEdit,
+                         QDialogButtonBox)
+from PyQt4.QtCore import (Qt, pyqtSignal)
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
 

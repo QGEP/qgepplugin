@@ -23,6 +23,7 @@
 # ---------------------------------------------------------------------
 
 import os
+import qgis
 from PyQt4.QtCore import QSettings, QLocale
 from qgis.utils import qgsfunction
 

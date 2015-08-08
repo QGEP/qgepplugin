@@ -5,7 +5,7 @@
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook='from PyQt4 import QtGui; from qgis import core'
+init-hook='import qgis; from qgis import core; from PyQt4 import QtGui'
 
 # Profiled execution.
 profile=no

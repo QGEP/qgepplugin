@@ -32,9 +32,20 @@ from collections import defaultdict
 import time
 import re
 
-from PyQt4.QtCore import QPoint, QPyNullVariant
-from PyQt4.QtGui import QMenu, QAction
-from qgis.core import QgsTolerance, QgsSnapper, QgsGeometry
+import qgis
+from qgis.core import (
+    QgsTolerance,
+    QgsSnapper,
+    QgsGeometry
+)
+from PyQt4.QtCore import (
+    QPoint,
+    QPyNullVariant
+)
+from PyQt4.QtGui import (
+    QMenu,
+    QAction
+)
 import networkx as nx
 
 
