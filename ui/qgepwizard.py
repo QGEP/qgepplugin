@@ -66,8 +66,8 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
             self.layerChanged(0)
             self.stateButton.setText('Stop Data Entry')
         else:
-            for lyr in [QgepLayerManager.layer('vw_qgep_reach')
-                , QgepLayerManager.layer('vw_qgep_cover')]:
+            for lyr in [QgepLayerManager.layer('vw_qgep_reach'),
+                        QgepLayerManager.layer('vw_qgep_cover')]:
                 lyr.commitChanges()
                 self.layerComboBox.setEnabled(False)
                 self.stateButton.setText('Start Data Entry')

@@ -23,12 +23,11 @@
 #
 # ---------------------------------------------------------------------
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import os
+from PyQt4.QtCore import QSettings
+from PyQt4.QtGui import QDialog
 
 from ui_dlgabout import Ui_DlgAbout
-import platform
-import os
 
 
 class DlgAbout(QDialog, Ui_DlgAbout):

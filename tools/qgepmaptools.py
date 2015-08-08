@@ -214,12 +214,12 @@ class QgepProfileMapTool(QgepMapTool):
         @param edges:    A collection of edges which connect the vertices
         """
         self.logger.debug('Append profile')
-        self.logger.info(' * ' + `len(vertices)` + ' vertices')
+        self.logger.info(' * ' + repr(len(vertices)) + ' vertices')
         for v in vertices:
-            self.logger.debug('   *' + `v`)
-        self.logger.info(' * ' + `len(edges)` + ' edges')
+            self.logger.debug('   *' + repr(v))
+        self.logger.info(' * ' + repr(len(edges)) + ' edges')
         for e in edges:
-            self.logger.debug('   *' + `e`)
+            self.logger.debug('   *' + repr(e))
 
         # Fetch all the needed edges in one batch
         edge_layer = self.networkAnalyzer.getReachLayer()
@@ -254,7 +254,7 @@ class QgepProfileMapTool(QgepMapTool):
 
                 if 'reach' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
-                        self.profile[edge['baseFeature']]\
+                        self.profile[edge['baseFeature']] \
                             .addSegment(p1, p2, edge['feature'], node_features,
                                         edgeFeatures, from_offset, to_offset)
                     else:
@@ -265,7 +265,7 @@ class QgepProfileMapTool(QgepMapTool):
 
                 elif 'special_structure' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
-                        self.profile[edge['baseFeature']]\
+                        self.profile[edge['baseFeature']] \
                             .addSegment(p1, p2, edge['feature'], node_features,
                                         edgeFeatures, from_offset, to_offset)
                     else:
@@ -301,7 +301,7 @@ class QgepProfileMapTool(QgepMapTool):
             self.rbHelperLine.reset()
             for point in self.selectedPathPoints:
                 self.rbHelperLine.addPoint(point[1])
-            mouse_pos = self.canvas.getCoordinateTransform()\
+            mouse_pos = self.canvas.getCoordinateTransform() \
                 .toMapCoordinates(event.pos().x(), event.pos().y())
             self.rbHelperLine.addPoint(mouse_pos)
 

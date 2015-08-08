@@ -23,8 +23,13 @@
 #
 # ---------------------------------------------------------------------
 
-from PyQt4.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt4.QtCore import (
+    Qt,
+    pyqtSignal,
+    pyqtSlot
+)
 from PyQt4.QtGui import QDockWidget
+
 from ui_qgepdockwidget import Ui_QgepDockWidget
 
 
@@ -34,19 +39,18 @@ class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
     canvas = None
     addDockWidget = None
     # Lookup table for vertical exaggeration values
-    veLUT = \
-        { \
-            1: 1, \
-            2: 2, \
-            3: 3, \
-            4: 5, \
-            5: 10, \
-            6: 20, \
-            7: 30, \
-            8: 50, \
-            9: 100, \
-            10: 500 \
-            }
+    veLUT = {
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 5,
+        5: 10,
+        6: 20,
+        7: 30,
+        8: 50,
+        9: 100,
+        10: 500
+    }
 
     def __init__(self, parent, canvas, addDockWidget):
         QDockWidget.__init__(self, parent)

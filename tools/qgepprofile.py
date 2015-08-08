@@ -95,13 +95,13 @@ class QgepProfileEdgeElement(QgepProfileElement):
         :param startOffset: The offset of the start node relative to the start of the profile
         :param endOffset:   The offset of the end node relative to the start of the profile
         """
-        fromPoint = nodeCache.featureById(fromPointId)
-        toPoint = nodeCache.featureById(toPointId)
+        from_point = nodeCache.featureById(fromPointId)
+        to_point = nodeCache.featureById(toPointId)
         edge = edgeCache.featureById(edgeId)
 
-        if not self.reachPoints.has_key(fromPointId):
+        if fromPointId not in self.reachPoints:
             self.reachPoints[fromPointId] = {}
-        if not self.reachPoints.has_key(toPointId):
+        if toPointId not in self.reachPoints:
             self.reachPoints[toPointId] = {}
 
         fromPos = edgeCache.attrAsFloat(edge, u'from_pos')
@@ -115,8 +115,8 @@ class QgepProfileEdgeElement(QgepProfileElement):
         interpolateToLevel = nodeCache.attrAsFloat(interpolateTo, u'level')
 
         if fromPos == 0 and toPos == 1:
-            fromLevel = nodeCache.attrAsFloat(fromPoint, u'level')
-            toLevel = nodeCache.attrAsFloat(toPoint, u'level')
+            fromLevel = nodeCache.attrAsFloat(from_point, u'level')
+            toLevel = nodeCache.attrAsFloat(to_point, u'level')
         else:
             try:
                 fromLevel = interpolateFromLevel + (fromPos * (interpolateToLevel - interpolateFromLevel))
@@ -133,12 +133,12 @@ class QgepProfileEdgeElement(QgepProfileElement):
         self.reachPoints[fromPointId]['offset'] = startOffset
         self.reachPoints[fromPointId]['level'] = fromLevel
         self.reachPoints[fromPointId]['pos'] = fromPos
-        self.reachPoints[fromPointId]['objId'] = nodeCache.attrAsUnicode(fromPoint, u'obj_id')
+        self.reachPoints[fromPointId]['objId'] = nodeCache.attrAsUnicode(from_point, u'obj_id')
 
         self.reachPoints[toPointId]['offset'] = endOffset
         self.reachPoints[toPointId]['level'] = toLevel
         self.reachPoints[toPointId]['pos'] = toPos
-        self.reachPoints[toPointId]['objId'] = nodeCache.attrAsUnicode(toPoint, u'obj_id')
+        self.reachPoints[toPointId]['objId'] = nodeCache.attrAsUnicode(to_point, u'obj_id')
 
     def asDict(self):
         """
@@ -376,7 +376,7 @@ class QgepProfile(object):
         :param key: An object id
         :return:    Boolean
         """
-        return self.elements.has_key(key)
+        return key in self.elements
 
     def addElement(self, key, elem):
         """

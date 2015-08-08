@@ -1,7 +1,6 @@
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QPushButton, QTabWidget, QComboBox
 import qgis
 from qgis.core import QgsMapLayerRegistry
-from qgis.gui import QgsEditorWidgetWrapper
 
 from ..tools.qgepmaptooladdfeature import QgepMapToolDigitizeDrainageChannel
 

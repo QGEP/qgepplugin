@@ -27,7 +27,6 @@
 Some map tools for digitizing features
 """
 
-from qgis import core
 from qgis.gui import (
     QgsMapTool,
     QgsRubberBand,

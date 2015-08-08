@@ -4,9 +4,7 @@ import psycopg2 as pg
 import xml.etree.ElementTree as ET
 import os
 import json
-import io
 import codecs
-from pprint import pprint
 
 force = False
 
@@ -66,7 +64,6 @@ def sync_language(lang_code):
             cur.execute('SELECT * FROM qgep.is_dictionary_od_table;')
 
             cols = [desc[0] for desc in cur.description]
-            # print(' * Dealing with the following fields from is_dictionary_od_table: \n  * {}'.format('\n  * '.join(cols)))
             nameidx = cols.index('name_{}'.format(lang_code))
             abbridx = cols.index('shortcut_{}'.format(lang_code))
 

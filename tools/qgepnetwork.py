@@ -32,8 +32,6 @@ from collections import defaultdict
 import time
 import re
 
-import qgis
-
 from qgis.core import (
     QgsTolerance,
     QgsSnapper,
@@ -247,15 +245,15 @@ class QgepGraphManager(object):
             filtered_features = {
                 id: nodeFeatures.featureById(id)
                 for id in nodeFeatures.asDict()
-                if  nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'
+                if nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'
             }
 
             # Only one wastewater node left: return this
             if len(filtered_features) == 1:
-                return [point for point
-                        in snappedPoints
-                        if point.snappedAtGeometry == filtered_features.iterkeys().next()
-                ][0]
+                points = (point for point
+                          in snappedPoints
+                          if point.snappedAtGeometry == filtered_features.iterkeys().next())
+                return points[0]
 
             # Still not sure which point to take?
             # Are there no wastewater nodes filtered? Let the user choose from the reach points

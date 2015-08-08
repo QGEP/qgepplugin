@@ -25,7 +25,7 @@
 
 from ui_qgepsettingsdialog import Ui_QgepSettingsDialog
 from PyQt4.QtCore import QSettings, pyqtSlot
-from PyQt4.QtGui import QDialog, QFileDialog, QColorDialog, QColor
+from PyQt4.QtGui import QDialog, QFileDialog, QColor
 from qgis.core import QgsMapLayerRegistry, QgsProject
 import logging
 

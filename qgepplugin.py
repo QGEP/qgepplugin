@@ -25,11 +25,28 @@
 
 import logging
 import os
-import resources  # @UnusedImport needed to make icons etc. appear
 
-from PyQt4.QtCore import pyqtSlot, QSettings, Qt
-from PyQt4.QtGui import QAction, QIcon, QApplication
-from tools.qgepmaptools import QgepProfileMapTool, QgepTreeMapTool
+from PyQt4.QtSql import (
+    QSqlDatabase,
+    QSqlQuery
+)
+from qgis._core import QgsDataSourceURI
+from PyQt4.QtCore import (
+    pyqtSlot,
+    QSettings,
+    Qt
+)
+from PyQt4.QtGui import (
+    QAction,
+    QIcon,
+    QApplication
+)
+from qgis.gui import QgsMessageBar
+
+from tools.qgepmaptools import (
+    QgepProfileMapTool,
+    QgepTreeMapTool
+)
 from tools.qgepnetwork import QgepGraphManager
 from ui.qgepprofiledockwidget import QgepProfileDockWidget
 from ui.qgepplotsvgwidget import QgepPlotSVGWidget
@@ -39,9 +56,7 @@ from utils.qgeplogging import QgepQgsLogHandler
 from utils.translation import setupI18n
 from utils.qgeplayermanager import QgepLayerNotifier
 
-from qgis.gui import QgsMessageBar
-from qgis.core import *
-from PyQt4.QtSql import *
+import resources  # NOQA
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
@@ -256,7 +271,7 @@ class QgepPlugin:
 
         if not db.open():
             self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
-                                                level=QgsMessageBar.CRITICAL)  # INFO = 0, WARNING = 1, CRITICAL = 2, SUCCESS = 3
+                                                level=QgsMessageBar.CRITICAL)
 
         query_template = ("""REFRESH MATERIALIZED VIEW qgep.vw_network_segment;""")
         query = QSqlQuery(db)
