@@ -23,45 +23,53 @@
 #
 # ---------------------------------------------------------------------
 
+"""
+This module provides objects which manage a QGEP profile.
+"""
+
 import json
 
 
-class QgepProfileElement():
-    '''
+class QgepProfileElement(object):
+    """
     Base class for all profile elements
-    '''
-
-    type = 'undefined'
+    """
     feat = None
 
     def __init__(self, elementType):
         self.type = elementType
 
     def asDict(self):
-        return \
-            { \
-                'type': self.type \
-                }
+        """
+        Returns this element as a dict.
+        """
+        return {
+            'type': self.type
+        }
 
     def feature(self):
+        """
+        Return the feature which is managed by this element
+        """
         return self.feat
 
     def highlight(self, rubberband):
+        """
+        Override this method and update the rubberband so it will represent
+        the feature which this element represents
+        """
         pass
 
-    def type(self):
-        return type
-
-
 class QgepProfileEdgeElement(QgepProfileElement):
-    '''
+    """
     Define the base attributes for all edge elements (reaches and special structures)
-    '''
+    """
     objId = None
     gid = None
     blindConnections = None
 
-    def __init__(self, fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset, endOffset, elemType):
+    def __init__(self, fromPointId, toPointId, edgeId,
+                 nodeCache, edgeCache, startOffset, endOffset, elemType):
         QgepProfileElement.__init__(self, elemType)
         self.reachPoints = {}
 
@@ -71,20 +79,22 @@ class QgepProfileEdgeElement(QgepProfileElement):
         self.objId = edgeCache.attrAsUnicode(edge, u'obj_id')
         self.gid = edge.id()
 
-        self.addSegment(fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset, endOffset)
+        self.addSegment(fromPointId, toPointId, edgeId,
+                        nodeCache, edgeCache, startOffset, endOffset)
 
-    def addSegment(self, fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset, endOffset):
-        '''
+    def addSegment(self, fromPointId, toPointId, edgeId,
+                   nodeCache, edgeCache, startOffset, endOffset):
+        """
         Adds a segment to the profile
-        
-        @param fromPointId: The id of the from node of this edge
-        @param toPointId:   The id of the to node of this edge
-        @param edgeId:      The id of this edge
-        @param nodeCache:   A reference to the cache where the nodes are cached
-        @param edgeCache:   A reference to the cache where the edges are cached
-        @param startOffset: The offset of the start node relative to the start of the profile
-        @param endOffset:   The offset of the end node relative to the start of the profile
-        '''
+
+        :param fromPointId: The id of the from node of this edge
+        :param toPointId:   The id of the to node of this edge
+        :param edgeId:      The id of this edge
+        :param nodeCache:   A reference to the cache where the nodes are cached
+        :param edgeCache:   A reference to the cache where the edges are cached
+        :param startOffset: The offset of the start node relative to the start of the profile
+        :param endOffset:   The offset of the end node relative to the start of the profile
+        """
         fromPoint = nodeCache.featureById(fromPointId)
         toPoint = nodeCache.featureById(toPointId)
         edge = edgeCache.featureById(edgeId)
@@ -131,31 +141,35 @@ class QgepProfileEdgeElement(QgepProfileElement):
         self.reachPoints[toPointId]['objId'] = nodeCache.attrAsUnicode(toPoint, u'obj_id')
 
     def asDict(self):
+        """
+        Returns this element as a dict.
+        """
         startOffset = min([p['offset'] for p in self.reachPoints.values()])
         endOffset = max([p['offset'] for p in self.reachPoints.values()])
         fromLevel = max([p['level'] for p in self.reachPoints.values()])
         toLevel = min([p['level'] for p in self.reachPoints.values()])
 
         el = QgepProfileElement.asDict(self)
-        el.update( \
-            { \
-                'startOffset': startOffset, \
-                'endOffset': endOffset, \
-                'startLevel': fromLevel, \
-                'endLevel': toLevel, \
-                'globStartLevel': self.fromLevel, \
-                'globEndLevel': self.toLevel, \
-                'objId': self.objId, \
-                'gid': self.gid, \
-                'reachPoints': self.reachPoints.values() \
-                })
+        el.update(
+            {
+                'startOffset': startOffset,
+                'endOffset': endOffset,
+                'startLevel': fromLevel,
+                'endLevel': toLevel,
+                'globStartLevel': self.fromLevel,
+                'globEndLevel': self.toLevel,
+                'objId': self.objId,
+                'gid': self.gid,
+                'reachPoints': self.reachPoints.values()
+            }
+        )
         return el
 
 
 class QgepProfileReachElement(QgepProfileEdgeElement):
-    '''
-    Define the profile for the REACH element    
-    '''
+    """
+    Define the profile for the REACH element
+    """
     usageCurrent = None
     width = None
     length = None
@@ -164,15 +178,15 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
     material = None
 
     def __init__(self, fromPointId, toPointId, reachId, nodeCache, edgeCache, startOffset, endOffset):
-        '''
-        @param fromPointId: The id of the from node of this edge
-        @param toPointId:   The id of the to node of this edge
-        @param edgeId:      The id of this edge
-        @param nodeCache:   A reference to the cache where the nodes are cached
-        @param edgeCache:   A reference to the cache where the edges are cached
-        @param startOffset: The offset of the start node relative to the start of the profile
-        @param endOffset:   The offset of the end node relative to the start of the profile
-        '''
+        """
+        :param fromPointId: The id of the from node of this edge
+        :param toPointId:   The id of the to node of this edge
+        :param edgeId:      The id of this edge
+        :param nodeCache:   A reference to the cache where the nodes are cached
+        :param edgeCache:   A reference to the cache where the edges are cached
+        :param startOffset: The offset of the start node relative to the start of the profile
+        :param endOffset:   The offset of the end node relative to the start of the profile
+        """
         QgepProfileEdgeElement.__init__(self, fromPointId, toPointId, reachId, nodeCache, edgeCache, startOffset,
                                         endOffset, 'reach')
         reach = edgeCache.featureById(reachId)
@@ -189,35 +203,41 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
 
         self.detailGeometry = edgeCache.attrAsGeometry(reach, u'detail_geometry')
 
-        try:
-            self.gradient = (self.fromLevel - self.toLevel) / self.length
-        except:
-            pass
+#        try:
+        self.gradient = (self.fromLevel - self.toLevel) / self.length
+#        except:
+#            pass
 
     def asDict(self):
+        """
+        Returns this element as a dict.
+        """
         el = QgepProfileEdgeElement.asDict(self)
 
         # Global length: whole reach
-        el.update( \
-            { \
-                'usageCurrent': self.usageCurrent, \
-                'width_m': self.width, \
-                'gradient': self.gradient, \
-                'length': self.length, \
-                'material': self.material \
-                })
+        el.update(
+            {
+                'usageCurrent': self.usageCurrent,
+                'width_m': self.width,
+                'gradient': self.gradient,
+                'length': self.length,
+                'material': self.material
+            })
         return el
 
     def highlight(self, rubberband):
+        """
+        Highlights this element
+        """
         rubberband.setToGeometry(self.detailGeometry, None)
 
 
 class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
-    '''
+    """
     The profile element for STRUCTURE elements.
     It's also responsible for manholes, as there is no particular
     reason to distinguish these here.
-    '''
+    """
     bottomLevel = None
     coverLevel = None
     description = None
@@ -234,18 +254,18 @@ class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
         self.addSegment(fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset, endOffset)
 
     def addSegment(self, fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset, endOffset):
-        '''
+        """
         Adds a segment to the special structure. There are normally two parts:
         From the start to the wastewater node and from there to the end
-        
-        @param fromPointId: The id of the from node of this edge
-        @param toPointId:   The id of the to node of this edge
-        @param edgeId:      The id of this edge
-        @param nodeCache:   A reference to the cache where the nodes are cached
-        @param edgeCache:   A reference to the cache where the edges are cached
-        @param startOffset: The offset of the start node relative to the start of the profile
-        @param endOffset:   The offset of the end node relative to the start of the profile
-        '''
+
+        :param fromPointId: The id of the from node of this edge
+        :param toPointId:   The id of the to node of this edge
+        :param edgeId:      The id of this edge
+        :param nodeCache:   A reference to the cache where the nodes are cached
+        :param edgeCache:   A reference to the cache where the edges are cached
+        :param startOffset: The offset of the start node relative to the start of the profile
+        :param endOffset:   The offset of the end node relative to the start of the profile
+        """
         QgepProfileEdgeElement.addSegment(self, fromPointId, toPointId, edgeId, nodeCache, edgeCache, startOffset,
                                           endOffset)
         fromPoint = nodeCache.featureById(fromPointId)
@@ -272,26 +292,30 @@ class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
             self.detailGeometry = nodeCache.attrAsGeometry(definingWasteWaterNode, u'detail_geometry')
 
     def highlight(self, rubberband):
+        """
+        Highlights this element
+        """
         rubberband.setToGeometry(self.detailGeometry, None)
 
     def asDict(self):
         el = QgepProfileEdgeElement.asDict(self)
-        el.update( \
-            { \
-                'bottomLevel': self.bottomLevel, \
-                'description': self.description, \
-                'coverLevel': self.coverLevel, \
-                'usageCurrent': self.usageCurrent, \
-                'wwNodeOffset': self.wwNodeOffset, \
-                'nodeType': self.nodeType \
-                })
+        el.update(
+            {
+                'bottomLevel': self.bottomLevel,
+                'description': self.description,
+                'coverLevel': self.coverLevel,
+                'usageCurrent': self.usageCurrent,
+                'wwNodeOffset': self.wwNodeOffset,
+                'nodeType': self.nodeType
+            }
+        )
         return el
 
 
 class QgepProfileNodeElement(QgepProfileElement):
-    '''
+    """
     A node (wastewater node or reach point)
-    '''
+    """
     coverLevel = None
     offset = None
 
@@ -306,28 +330,39 @@ class QgepProfileNodeElement(QgepProfileElement):
 
     def asDict(self):
         el = QgepProfileElement.asDict(self)
-        el.update( \
-            { \
-                'offset': self.offset, \
-                'coverLevel': self.coverLevel, \
+        el.update(
+            {
+                'offset': self.offset,
+                'coverLevel': self.coverLevel,
                 'backflowLevel': self.backflowLevel
-                })
+            }
+        )
         return el
 
 
-class QgepProfile():
-    '''
+class QgepProfile(object):
+    """
     Manages a profile of reaches and special structures
-    '''
+    """
     rubberband = None
 
-    def __init__(self, elements={}):
+    def __init__(self, elements=None):
+        if elements is None:
+            elements = {}
         self.elements = elements
 
     def setRubberband(self, rubberband):
+        """
+        Well... this sets the rubberband
+        :param rubberband:  A QgsRubberBand
+        """
         self.rubberband = rubberband
 
     def copy(self):
+        """
+        Create a deep copy of the profile
+        :return: A copy of this profile
+        """
         newProfile = QgepProfile(self.elements.copy())
         newProfile.setRubberband(self.rubberband)
         return newProfile
@@ -336,28 +371,46 @@ class QgepProfile():
         return self.elements[key]
 
     def hasElement(self, key):
+        """
+        Check if an element with a given object id is already present in the profile
+        :param key: An object id
+        :return:    Boolean
+        """
         return self.elements.has_key(key)
 
     def addElement(self, key, elem):
+        """
+        Add an element to this profile
+        :param key:  The object id
+        :param elem: A subclass of QgepProfileElement
+        """
         self.elements[key] = elem
 
     def getElements(self):
+        """
+        Get all elements of this profile
+        :return: A list of elements
+        """
         return self.elements.values()
 
     def asJson(self):
-        '''
+        """
         Prepare profile as JSON string, so the javascript responsible for the
         svg will know what to do with the data.
-        '''
+        """
         return json.dumps([element.asDict() for element in self.elements.values()])
 
     def reset(self):
-        '''
+        """
         Reset the profile ( forget about all elements )
-        '''
+        """
         self.elements = {}
 
     def highlight(self, objId):
+        """
+        Update a rubberband to highlight a given object
+        :param objId: the object id of the object to hihglight
+        """
         if objId is not None:
             self.elements[objId].highlight(self.rubberband)
         else:

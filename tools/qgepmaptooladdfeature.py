@@ -23,32 +23,37 @@
 #
 # ---------------------------------------------------------------------
 
+"""
+Some map tools for digitizing features
+"""
 
 from PyQt4.QtCore import (Qt, pyqtSignal)
-from PyQt4.QtGui import (QCursor
-, QColor
-, QMessageBox
-, QApplication
-, QDialog
-, QGridLayout
-, QLabel
-, QLineEdit
-, QDialogButtonBox)
-from qgis.gui import (QgsMapTool
-, QgsRubberBand
-, QgsMessageBar)
-from qgis.core import (QgsFeature
-, QgsPoint
-, QgsSnapper
-, QgsTolerance
-, QgsFeatureRequest
-, QGis
-, QgsGeometry)
+from PyQt4.QtGui import (QCursor,
+                         QColor,
+                         QApplication,
+                         QDialog,
+                         QGridLayout,
+                         QLabel,
+                         QLineEdit,
+                         QDialogButtonBox)
+from qgis.gui import (QgsMapTool,
+                      QgsRubberBand,
+                      QgsMessageBar)
+from qgis.core import (QgsFeature,
+                       QgsPoint,
+                       QgsSnapper,
+                       QgsTolerance,
+                       QgsFeatureRequest,
+                       QGis,
+                       QgsGeometry)
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
 
 
 class QgepMapToolAddFeature(QgsMapTool):
+    """
+    Base class for adding features
+    """
     def __init__(self, iface, layer):
         QgsMapTool.__init__(self, iface.mapCanvas())
         self.iface = iface
@@ -63,37 +68,56 @@ class QgepMapToolAddFeature(QgsMapTool):
         self.tempRubberband.setLineStyle(Qt.DotLine)
 
     def activate(self):
+        """
+        When activating the map tool
+        """
         QgsMapTool.activate(self)
         self.canvas.setCursor(QCursor(Qt.CrossCursor))
-        pass
 
     def deactivate(self):
+        """
+        On deactivating the map tool
+        """
         QgsMapTool.deactivate(self)
         self.canvas.unsetCursor()
-        pass
 
+    # pylint: disable=no-self-use
     def isZoomTool(self):
+        """
+        This is no zoom tool
+        """
         return False
 
     # ===========================================================================
     # Events
     # ===========================================================================
 
-    def canvasMoveEvent(self, event):
-        self.mouseMoved(event)
-
     def canvasReleaseEvent(self, event):
+        """
+        Called when a mouse button is
+        :param event:
+        :return:
+        """
         if event.button() == Qt.RightButton:
             self.rightClicked(event)
         else:
             self.leftClicked(event)
 
     def leftClicked(self, event):
-        mousePos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+        """
+        When the canvas is left clicked we add a new point to the rubberband.
+        :type event: QMouseEvent
+        """
+        mousePos = self.canvas.getCoordinateTransform()\
+            .toMapCoordinates(event.pos().x(), event.pos().y())
         self.rubberband.addPoint(mousePos)
         self.tempRubberband.reset()
 
-    def rightClicked(self, event):
+    def rightClicked(self, _):
+        """
+        On a right click we create a new feature from the existing rubberband and show the add
+        dialog
+        """
         f = QgsFeature(self.layer.pendingFields())
         f.setGeometry(self.rubberband.asGeometry())
         dlg = self.iface.getFeatureForm(self.layer, f)
@@ -102,12 +126,22 @@ class QgepMapToolAddFeature(QgsMapTool):
         self.rubberband.reset()
         self.tempRubberband.reset()
 
-    def mouseMoved(self, event):
-        mousePos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+    def canvasMoveEvent(self, event):
+        """
+        When the mouse is moved the rubberband needs to be updated
+        :param event: The coordinates etc.
+        """
+        mousePos = self.canvas.getCoordinateTransform()\
+            .toMapCoordinates(event.pos().x(), event.pos().y())
         self.tempRubberband.movePoint(mousePos)
 
 
 class QgepMapToolAddReach(QgepMapToolAddFeature):
+    """
+    Create a new reach with the mouse.
+    Will snap to wastewater nodes for the first and last point and auto-connect
+    these.
+    """
     currentSnappingResult = None
     firstSnappingResult = None
     lastSnappingResult = None
@@ -119,24 +153,41 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.reachLayer = QgepLayerManager.layer('vw_qgep_reach')
         assert self.reachLayer
 
-    def mouseMoved(self, event):
-        mousePos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+    def canvasMoveEvent(self, event):
+        """
+        When the mouse is moved the rubberband needs to be updated
+        :param event: The coordinates etc.
+        """
+        mousePos = self.canvas.getCoordinateTransform()\
+            .toMapCoordinates(event.pos().x(), event.pos().y())
         self.tempRubberband.movePoint(mousePos)
 
     def leftClicked(self, event):
-        p = self.snap(event.pos())
+        """
+        The mouse is clicked: snap to neary points which are on the wastewater node layer
+        and update the rubberband
+        :param event: The coordinates etc.
+        """
+        self.snap(event.pos())
         if self.rubberband.numberOfVertices() == 0:
             self.firstSnappingResult = self.currentSnappingResult
         self.lastSnappingResult = self.currentSnappingResult
         if self.currentSnappingResult:
             pt = self.currentSnappingResult.snappedVertex
         else:
-            pt = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+            pt = self.canvas.getCoordinateTransform()\
+                .toMapCoordinates(event.pos().x(), event.pos().y())
         self.rubberband.addPoint(pt)
         self.tempRubberband.reset()
         self.tempRubberband.addPoint(pt)
 
     def snap(self, pos):
+        """
+        Snap to nearby points on the wastewater node layer which may be used as connection
+        points for this reach.
+        :param pos: The position to snap
+        :return: The snapped position
+        """
         snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
         snapNodeLayer = QgsSnapper.SnapLayer()
         snapNodeLayer.mLayer = self.nodeLayer
@@ -164,7 +215,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 self.currentSnappingResult = None
                 return pos
 
-    def rightClicked(self, event):
+    def rightClicked(self, _):
+        """
+        The party is over, the reach digitized. Create a feature from the rubberband and
+        show the feature form.
+        """
         self.tempRubberband.reset()
 
         f = QgsFeature(self.layer.pendingFields())
@@ -173,7 +228,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         if self.firstSnappingResult is not None:
             req = QgsFeatureRequest(self.firstSnappingResult.snappedAtGeometry)
             fromNetworkElement = self.firstSnappingResult.layer.getFeatures(req).next()
-            fromfield = self.layer.pendingFields().indexFromName('rp_from_fk_wastewater_networkelement')
+            fromfield = self.layer.pendingFields()\
+                .indexFromName('rp_from_fk_wastewater_networkelement')
             f.setAttribute(fromfield, fromNetworkElement.attribute('obj_id'))
 
         if self.lastSnappingResult is not None:
@@ -223,16 +279,25 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         self.rubberband.setColor(QColor("#ee5555"))
         self.rubberband.setWidth(2)
         self.firstPoint = None
+        self.messageBarItem = None
+        self.geometry = None
 
     def activate(self):
+        """
+        Map tool is activated
+        """
         QgsMapTool.activate(self)
         self.canvas.setCursor(QCursor(Qt.CrossCursor))
-        self.messageBarItem = QgsMessageBar.createMessage(self.tr('Digitizing Drainage Channel'),
-                                                          self.tr('Digitize start and end point. Rightclick to abort.'))
+        msgtitle = self.tr('Digitizing Drainage Channel')
+        msg = self.tr('Digitize start and end point. Rightclick to abort.')
+        self.messageBarItem = QgsMessageBar.createMessage(msgtitle,
+                                                          msg)
         self.iface.messageBar().pushItem(self.messageBarItem)
-        pass
 
     def deactivate(self):
+        """
+        Map tool is deactivated
+        """
         QgsMapTool.deactivate(self)
         self.iface.messageBar().popWidget(self.messageBarItem)
         try:
@@ -244,14 +309,27 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         self.canvas.unsetCursor()
 
     def canvasMoveEvent(self, event):
-        mousePos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+        """
+        Mouse is moved: Update rubberband
+        :param event: coordinates etc.
+        """
+        mousePos = self.canvas.getCoordinateTransform()\
+            .toMapCoordinates(event.pos().x(), event.pos().y())
         self.rubberband.movePoint(mousePos)
 
     def canvasReleaseEvent(self, event):
+        """
+        Canvas is released. This means:
+          * start digitizing
+          * stop digitizing (create a rectangle
+            * if the Ctrl-modifier is pressed, ask for the rectangle width
+        :param event: coordinates etc.
+        """
         if event.button() == Qt.RightButton:
             self.deactivate()
         else:
-            mousePos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+            mousePos = self.canvas.getCoordinateTransform()\
+                .toMapCoordinates(event.pos().x(), event.pos().y())
             self.rubberband.addPoint(mousePos)
             if self.firstPoint:  # If the first point was set before, we are doing the second one
                 lp1 = self.rubberband.asGeometry().asPolyline()[0]
@@ -260,7 +338,7 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
                 if QApplication.keyboardModifiers() & Qt.ControlModifier:
                     dlg = QDialog()
                     dlg.setLayout(QGridLayout())
-                    dlg.layout().addWidget(QLabel('Enter width'))
+                    dlg.layout().addWidget(QLabel(self.tr('Enter width')))
                     txt = QLineEdit('0.2')
                     dlg.layout().addWidget(txt)
                     bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

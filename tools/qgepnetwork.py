@@ -23,22 +23,29 @@
 #
 # ---------------------------------------------------------------------
 
-from PyQt4.QtCore import QPoint, QPyNullVariant
-from PyQt4.QtGui import QMenu, QAction
+"""
+Manages a graph of a wastewater network
+"""
+
+# pylint: disable=no-name-in-module
 from collections import defaultdict
-from qgis.core import QgsTolerance, QgsSnapper, QgsFeature, QgsRectangle, QgsGeometry, QgsFeatureRequest
-import networkx as nx
 import time
 import re
 
+from PyQt4.QtCore import QPoint, QPyNullVariant
+from PyQt4.QtGui import QMenu, QAction
+from qgis.core import QgsTolerance, QgsSnapper, QgsGeometry
+import networkx as nx
 
-class QgepGraphManager():
+
+class QgepGraphManager(object):
+    """
+    Manages a graph
+    """
     reachLayer = None
     reachLayerId = -1
     nodeLayer = None
     nodeLayerId = -1
-    specialStructureLayer = None
-    specialStructureLayerId = -1
     dirty = True
     graph = None
     vertexIds = {}
@@ -48,8 +55,12 @@ class QgepGraphManager():
 
     def __init__(self, iface):
         self.iface = iface
+        self.snapper = None
 
     def setReachLayer(self, reachLayer):
+        """
+        Set the reach layer (edges)
+        """
         self.reachLayer = reachLayer
         self.dirty = True
 
@@ -62,6 +73,9 @@ class QgepGraphManager():
             self.createGraph()
 
     def setNodeLayer(self, nodeLayer):
+        """
+        Set the node layer
+        """
         self.dirty = True
 
         self.nodeLayer = nodeLayer
@@ -75,13 +89,10 @@ class QgepGraphManager():
         if self.nodeLayer and self.reachLayer:
             self.createGraph()
 
-    def setSpecialStructureLayer(self, specialStructureLayer):
-        self.specialStructureLayer = specialStructureLayer
-
-        if specialStructureLayer:
-            self.specialStructureLayerId = specialStructureLayer.id()
-
     def _addVertices(self):
+        """
+        Initializes the graph with the vertices from the node layer
+        """
         nodeProvider = self.nodeLayer.dataProvider()
 
         features = nodeProvider.getFeatures()
@@ -101,6 +112,9 @@ class QgepGraphManager():
         self._profile("add vertices")
 
     def _addEdges(self):
+        """
+        Initializes the graph with the edges
+        """
         # Add all edges (reach)
         reachProvider = self.reachLayer.dataProvider()
 
@@ -132,6 +146,9 @@ class QgepGraphManager():
         self._profile("add edges")
 
     def _profile(self, name):
+        """
+        Adds a performance profile snapshot with the given name
+        """
         spenttime = 0
         if len(self.timings) != 0:
             spenttime = time.clock() - self.timings[-1][1]
@@ -139,6 +156,9 @@ class QgepGraphManager():
 
     # Creates a network graph
     def createGraph(self):
+        """
+        Create a graph
+        """
         self._profile("create graph")
         # try:
         self.vertexIds = {}
@@ -155,24 +175,41 @@ class QgepGraphManager():
         self.dirty = False
 
     def getNodeLayer(self):
+        """
+        Getter for the node layer
+        """
         return self.nodeLayer
 
-    def getSpecialStructureLayer(self):
-        return self.specialStructureLayer
-
     def getReachLayer(self):
+        """
+        Getter for the reach layer
+        :return:
+        """
         return self.reachLayer
 
     def getNodeLayerId(self):
+        """
+        Getter for the node layer's id
+        """
         return self.nodeLayerId
 
     def getReachLayerId(self):
+        """
+        Getter for the reach layer's id
+        """
         return self.reachLayerId
 
     def getSnapper(self):
+        """
+        Getter for the snapper
+        """
         return self.snapper
 
     def snapPoint(self, event):
+        """
+        Snap to a point on this network
+        :param event: A QMouseEvent
+        """
         pClicked = QPoint(event.pos().x(), event.pos().y())
 
         self.snapper = QgsSnapper(self.iface.mapCanvas().mapRenderer())
@@ -190,15 +227,11 @@ class QgepGraphManager():
         elif len(snappedPoints) == 1:
             return snappedPoints[0]
         elif len(snappedPoints) > 1:
-            attrObjId = self.getNodeLayer().dataProvider().fieldNameIndex('obj_id')
-            attrType = self.getNodeLayer().dataProvider().fieldNameIndex('type')
-            attrDescr = self.getNodeLayer().dataProvider().fieldNameIndex('description')
 
-            attributes = [attrObjId, attrType, attrDescr]
             pointIds = [point.snappedAtGeometry for point in snappedPoints]
-            nodeFeatures = self.getFeaturesById(self.getNodeLayer(), attributes, pointIds, True)
+            nodeFeatures = self.getFeaturesById(self.getNodeLayer(), pointIds)
 
-            # Filter wastewater nodes            
+            # Filter wastewater nodes
             filteredFeatures = {id: nodeFeatures.featureById(id) for id in nodeFeatures.asDict() if
                                 nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'}
 
@@ -212,12 +245,12 @@ class QgepGraphManager():
             if len(filteredFeatures) == 0:
                 filteredFeatures = nodeFeatures.asDict()
 
-            # Ask the user which point he wants to use 
+            # Ask the user which point he wants to use
             actions = dict()
 
             menu = QMenu(self.iface.mapCanvas())
 
-            for id, feature in filteredFeatures.iteritems():
+            for _, feature in filteredFeatures.iteritems():
                 try:
                     title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
                 except TypeError:
@@ -233,9 +266,14 @@ class QgepGraphManager():
 
             return None
 
-    # Finds the shortes path from the start point
-    # to the end point
     def shortestPath(self, pStart, pEnd):
+        """
+        Finds the shortes path from the start point
+        to the end point
+        :param pStart: The start node
+        :param pEnd:   The end node
+        :return:       A (path, edges) tuple
+        """
         if self.dirty:
             self.createGraph()
 
@@ -252,6 +290,12 @@ class QgepGraphManager():
         return p
 
     def getTree(self, node, reverse=False):
+        """
+        Get
+        :param node:    A start node
+        :param reverse: Should the graph be reversed (upstream search)
+        :return:        A list of edges
+        """
         if self.dirty:
             self.createGraph()
 
@@ -267,11 +311,20 @@ class QgepGraphManager():
         return edges
 
     def getEdgeGeometry(self, edges):
-        cache = self.getFeaturesById(self.reachLayer, self.reachLayer.dataProvider().attributeIndexes(), edges, True)
+        """
+        Get the geometry for some edges
+        :param edges:  A list of edges
+        :return:       A list of polylines
+        """
+        cache = self.getFeaturesById(self.reachLayer, edges)
         polylines = [feat.geometry().asPolyline() for feat in cache.asDict().values()]
         return polylines
 
-    def getFeaturesById(self, layer, attributes, ids, fetchGeometry):
+    # pylint: disable=no-self-use
+    def getFeaturesById(self, layer, ids):
+        """
+        Get some features by their id
+        """
         featCache = QgepFeatureCache(layer)
         dataProvider = layer.dataProvider()
 
@@ -283,7 +336,11 @@ class QgepGraphManager():
 
         return featCache
 
-    def getFeaturesByAttr(self, layer, attributes, attr, values, fetchGeometry):
+    # pylint: disable=no-self-use
+    def getFeaturesByAttr(self, layer, attr, values):
+        """
+        Get some features by an attribute value
+        """
         featCache = QgepFeatureCache(layer)
         dataProvider = layer.dataProvider()
 
@@ -293,24 +350,24 @@ class QgepGraphManager():
         for feat in features:
             if featCache.attrAsUnicode(feat, attr) in values:
                 featCache.addFeature(feat)
-                feat = QgsFeature()
 
         return featCache
 
     def print_profile(self):
+        """
+        Will print some performance profiling information
+        """
         for (name, spenttime) in self.timings:
             print name + ":" + str(spenttime)
 
-            # ===============================================================================
-
-
-# A feature cache.
-# The DB can be slow sometimes, so if we know, that we'll be using some features
-# several times consecutively it's better to keep it in memory.
-# There is no check done for maximum size. You have to care for your memory
-# yourself, when using this class! 
-# ===============================================================================
-class QgepFeatureCache:
+class QgepFeatureCache(object):
+    """
+    A feature cache.
+    The DB can be slow sometimes, so if we know, that we'll be using some features
+    several times consecutively it's better to keep it in memory.
+    There is no check done for maximum size. You have to care for your memory
+    yourself, when using this class!
+    """
     _featuresById = None
     _featuresByObjId = None
     objIdField = None
@@ -326,25 +383,44 @@ class QgepFeatureCache:
         return self.featureById(key)
 
     def addFeature(self, feat):
+        """
+        Add a feature to the cache
+        """
         self._featuresById[feat.id()] = feat
         self._featuresByObjId[self.attrAsUnicode(feat, self.objIdField)] = feat
 
     def featureById(self, featId):
+        """
+        Get a feature by its feature id
+        """
         return self._featuresById[featId]
 
     def featureByObjId(self, objId):
+        """
+        Get a feature by its object id
+        """
         return self._featuresByObjId[objId]
 
     def attrAsFloat(self, feat, attr):
+        """
+        Get an attribute as float
+        """
         try:
             return float(self.attr(feat, attr))
         except TypeError:
             return None
 
     def attrAsUnicode(self, feat, attr):
+        """
+        Get an attribute as unicode string
+        """
         return self.attr(feat, attr)
 
+    # pylint: disable=no-self-use
     def attr(self, feat, attr):
+        """
+        Get an attribute
+        """
         try:
             if isinstance(feat[attr], QPyNullVariant):
                 return None
@@ -354,13 +430,22 @@ class QgepFeatureCache:
             return None
 
     def attrAsGeometry(self, feat, attr):
+        """
+        Get an attribute as geometry
+        """
         ewktString = self.attrAsUnicode(feat, attr)
         # Strip SRID=21781; token, TODO: Fix this upstream
         m = re.search('(.*;)?(.*)', ewktString)
-        return (QgsGeometry.fromWkt(m.group(2)))
+        return QgsGeometry.fromWkt(m.group(2))
 
     def asDict(self):
+        """
+        Returns all features a s a dictionary with ids as keys
+        """
         return self._featuresById
 
     def asObjIdDict(self):
+        """
+        Returns all features as a dictionary with object ids as keys.
+        """
         return self._featuresById
