@@ -2,7 +2,14 @@
 This module is used for translation of the QGEP project
 """
 from PyQt4.QtGui import QApplication
-from PyQt4.QtCore import QSettings, QLocale, QTranslator, QCoreApplication, pyqtSlot, QObject
+from PyQt4.QtCore import (
+    QSettings,
+    QLocale,
+    QTranslator,
+    QCoreApplication,
+    pyqtSlot,
+    QObject
+)
 import logging
 
 
@@ -19,21 +26,21 @@ def setupI18n(thePreferredLocale=None):
 
     logger = logging.getLogger(__name__)
 
-    myOverrideFlag = QSettings().value('locale/overrideFlag', False, type=bool)
+    my_override_flag = QSettings().value('locale/overrideFlag', False, type=bool)
 
-    myLocaleName = None
+    my_locale_name = None
     if thePreferredLocale is not None:
-        myLocaleName = thePreferredLocale
-        logger.info('Using preferred locale: ' + myLocaleName)
-    elif myOverrideFlag:
-        myLocaleName = QSettings().value('locale/userLocale', u'')
-        logger.info('Using QGIS override locale: ' + myLocaleName)
+        my_locale_name = thePreferredLocale
+        logger.info('Using preferred locale: ' + my_locale_name)
+    elif my_override_flag:
+        my_locale_name = QSettings().value('locale/userLocale', u'')
+        logger.info('Using QGIS override locale: ' + my_locale_name)
     else:
-        myLocaleName = QLocale.system().name()
+        my_locale_name = QLocale.system().name()
         # NOTES: we split the locale name because we need the first two
         # character i.e. 'id', 'af, etc
-        myLocaleName = str(myLocaleName)
-        logger.info('Using system default locale: ' + myLocaleName)
+        my_locale_name = str(my_locale_name)
+        logger.info('Using system default locale: ' + my_locale_name)
 
     # Insert into QT's translation system
     # As soon as translator gets deleted, the translation will stop
@@ -42,13 +49,14 @@ def setupI18n(thePreferredLocale=None):
     # the same translation twice)
     translator = QTranslator(QCoreApplication.instance())
 
-    myTranslatorFile = 'qgepplugin_' + myLocaleName
+    my_translator_file = 'qgepplugin_' + my_locale_name
 
-    myResult = translator.load(myTranslatorFile, ':/plugins/qgepplugin/i18n')
-    # myResult = translator.load( myTranslatorFile, '/home/kk/dev/python/QGEP/qgepplugin/i18n' )
+    myResult = translator.load(my_translator_file, ':/plugins/qgepplugin/i18n')
+    # myResult = translator.load( my_translator_file, '/home/kk/dev/python/QGEP/qgepplugin/i18n' )
 
     if myResult:
         QCoreApplication.instance().installTranslator(translator)
+
 
 # pylint: disable=too-few-public-methods
 class QgepJsTranslator(QObject):
@@ -61,11 +69,11 @@ class QgepJsTranslator(QObject):
 
     # pylint: disable=R0201
     @pyqtSlot(unicode, unicode, name='qsTr', result=unicode)
-    def qsTr(self, context, sourceText):
+    def qsTr(self, context, source_text):
         """
         Will be called by javascript code to perform translation of strings
         :param context:    The translation context
-        :param sourceText: The string to translate
+        :param source_text: The string to translate
         :return:
         """
-        return QApplication.translate(context, sourceText)
+        return QApplication.translate(context, source_text)

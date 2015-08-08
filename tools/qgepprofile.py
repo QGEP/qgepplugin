@@ -60,6 +60,7 @@ class QgepProfileElement(object):
         """
         pass
 
+
 class QgepProfileEdgeElement(QgepProfileElement):
     """
     Define the base attributes for all edge elements (reaches and special structures)

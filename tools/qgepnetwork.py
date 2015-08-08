@@ -375,6 +375,7 @@ class QgepGraphManager(object):
         for (name, spenttime) in self.timings:
             print name + ":" + str(spenttime)
 
+
 class QgepFeatureCache(object):
     """
     A feature cache.

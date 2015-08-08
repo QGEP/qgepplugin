@@ -1,3 +1,4 @@
 pip==7.1.0
 networkx
 flake8
+pep8-naming
