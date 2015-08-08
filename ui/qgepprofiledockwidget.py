@@ -52,13 +52,13 @@ class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
         10: 500
     }
 
-    def __init__(self, parent, canvas, addDockWidget):
+    def __init__(self, parent, canvas, add_dock_widget):
         QDockWidget.__init__(self, parent)
         self.setupUi(self)
 
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.canvas = canvas
-        self.addDockWidget = addDockWidget
+        self.addDockWidget = add_dock_widget
 
     def showIt(self):
         # self.setLocation( Qt.BottomDockWidgetArea )
@@ -80,17 +80,17 @@ class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
         self.closed.emit()
         return QDockWidget.closeEvent(self, event)
 
-    def addPlotWidget(self, plotWidget):
-        self.plotWidget = plotWidget
+    def addPlotWidget(self, plot_widget):
+        self.plotWidget = plot_widget
         self.verticalLayoutForPlot.addWidget(self.plotWidget)
-        veVal = self.veLUT[self.mSliderVerticalExaggeration.value()]
-        self.plotWidget.changeVerticalExaggeration(veVal)
+        ve_val = self.veLUT[self.mSliderVerticalExaggeration.value()]
+        self.plotWidget.changeVerticalExaggeration(ve_val)
 
     @pyqtSlot(int)
     def onVerticalExaggerationChanged(self, value):
-        veVal = self.veLUT[value]
-        self.mLblVerticalExaggeration.setText(unicode(veVal) + 'x')
-        self.plotWidget.changeVerticalExaggeration(veVal)
+        ve_val = self.veLUT[value]
+        self.mLblVerticalExaggeration.setText(unicode(ve_val) + 'x')
+        self.plotWidget.changeVerticalExaggeration(ve_val)
 
     @pyqtSlot()
     def onPrintButtonClicked(self):

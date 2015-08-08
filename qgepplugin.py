@@ -53,7 +53,7 @@ from ui.qgepplotsvgwidget import QgepPlotSVGWidget
 from ui.qgepsettingsdialog import QgepSettingsDialog
 from ui.qgepwizard import QgepWizard
 from utils.qgeplogging import QgepQgsLogHandler
-from utils.translation import setupI18n
+from utils.translation import setup_i18n
 from utils.qgeplayermanager import QgepLayerNotifier
 
 import resources  # NOQA
@@ -88,10 +88,10 @@ class QgepPlugin:
         self.canvas = iface.mapCanvas()
 
         self.initLogger()
-        setupI18n()
+        setup_i18n()
 
-    def tr(self, sourceText):
-        return QApplication.translate('QgepPlugin', sourceText)
+    def tr(self, source_text):
+        return QApplication.translate('QgepPlugin', source_text)
 
     def initLogger(self):
         '''
@@ -111,11 +111,11 @@ class QgepPlugin:
         self.logger.addHandler(QgepQgsLogHandler())
 
         if logfile:
-            hLog = logging.FileHandler(logfile)
+            log_handler = logging.FileHandler(logfile)
             fmt = logging.Formatter(LOGFORMAT)
-            hLog.setFormatter(fmt)
-            self.logger.addHandler(hLog)
-            self.logger.fileHandler = hLog
+            log_handler.setFormatter(fmt)
+            self.logger.addHandler(log_handler)
+            self.logger.fileHandler = log_handler
 
         if 'Debug' == loglevel:
             self.logger.setLevel(logging.DEBUG)
@@ -128,8 +128,8 @@ class QgepPlugin:
 
         fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), "metadata.txt")
 
-        iniText = QSettings(fp, QSettings.IniFormat)
-        verno = iniText.value("version")
+        ini_text = QSettings(fp, QSettings.IniFormat)
+        verno = ini_text.value("version")
 
         self.logger.info('QGEP plugin version ' + verno + ' started')
 
@@ -342,9 +342,9 @@ class QgepPlugin:
             self.plotWidget.setProfile(profile)
 
     @pyqtSlot(unicode)
-    def highlightProfileElement(self, objId):
+    def highlightProfileElement(self, obj_id):
         if self.profile is not None:
-            self.profile.highlight(unicode(objId))
+            self.profile.highlight(unicode(obj_id))
 
     @pyqtSlot()
     def unhighlightProfileElement(self):
@@ -357,5 +357,5 @@ class QgepPlugin:
         DlgAbout(self.iface.mainWindow()).exec_()
 
     def showSettings(self):
-        settingsDlg = QgepSettingsDialog(self.iface.mainWindow())
-        settingsDlg.exec_()
+        settings_dlg = QgepSettingsDialog(self.iface.mainWindow())
+        settings_dlg.exec_()

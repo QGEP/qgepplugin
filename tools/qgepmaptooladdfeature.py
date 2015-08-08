@@ -117,9 +117,9 @@ class QgepMapToolAddFeature(QgsMapTool):
         When the canvas is left clicked we add a new point to the rubberband.
         :type event: QMouseEvent
         """
-        mousePos = self.canvas.getCoordinateTransform()\
+        mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.rubberband.addPoint(mousePos)
+        self.rubberband.addPoint(mousepos)
         self.tempRubberband.reset()
 
     def rightClicked(self, _):
@@ -140,9 +140,9 @@ class QgepMapToolAddFeature(QgsMapTool):
         When the mouse is moved the rubberband needs to be updated
         :param event: The coordinates etc.
         """
-        mousePos = self.canvas.getCoordinateTransform()\
+        mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.tempRubberband.movePoint(mousePos)
+        self.tempRubberband.movePoint(mousepos)
 
 
 class QgepMapToolAddReach(QgepMapToolAddFeature):
@@ -167,9 +167,9 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         When the mouse is moved the rubberband needs to be updated
         :param event: The coordinates etc.
         """
-        mousePos = self.canvas.getCoordinateTransform()\
+        mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.tempRubberband.movePoint(mousePos)
+        self.tempRubberband.movePoint(mousepos)
 
     def leftClicked(self, event):
         """
@@ -198,24 +198,24 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         :return: The snapped position
         """
         snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
-        snapNodeLayer = QgsSnapper.SnapLayer()
-        snapNodeLayer.mLayer = self.nodeLayer
-        snapNodeLayer.mTolerance = 10
-        snapNodeLayer.mUnitType = QgsTolerance.Pixels
-        snapNodeLayer.mSnapTo = QgsSnapper.SnapToVertex
-        snapper.setSnapLayers([snapNodeLayer])
+        snap_nodelayer = QgsSnapper.SnapLayer()
+        snap_nodelayer.mLayer = self.nodeLayer
+        snap_nodelayer.mTolerance = 10
+        snap_nodelayer.mUnitType = QgsTolerance.Pixels
+        snap_nodelayer.mSnapTo = QgsSnapper.SnapToVertex
+        snapper.setSnapLayers([snap_nodelayer])
         (_, snappedPoints) = snapper.snapPoint(pos)
         if len(snappedPoints) >= 1:
             self.currentSnappingResult = snappedPoints[0]
             return self.currentSnappingResult.snappedVertex
         else:
             snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
-            snapReachLayer = QgsSnapper.SnapLayer()
-            snapReachLayer.mLayer = self.reachLayer
-            snapReachLayer.mTolerance = 10
-            snapReachLayer.mUnitType = QgsTolerance.Pixels
-            snapReachLayer.mSnapTo = QgsSnapper.SnapToVertexAndSegment
-            snapper.setSnapLayers([snapReachLayer])
+            snap_reachlayer = QgsSnapper.SnapLayer()
+            snap_reachlayer.mLayer = self.reachLayer
+            snap_reachlayer.mTolerance = 10
+            snap_reachlayer.mUnitType = QgsTolerance.Pixels
+            snap_reachlayer.mSnapTo = QgsSnapper.SnapToVertexAndSegment
+            snapper.setSnapLayers([snap_reachlayer])
             (_, snappedPoints) = snapper.snapPoint(pos)
             if len(snappedPoints) >= 1:
                 self.currentSnappingResult = snappedPoints[0]
@@ -236,16 +236,16 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
         if self.firstSnappingResult is not None:
             req = QgsFeatureRequest(self.firstSnappingResult.snappedAtGeometry)
-            fromNetworkElement = self.firstSnappingResult.layer.getFeatures(req).next()
-            fromfield = self.layer.pendingFields()\
+            from_networkelement = self.firstSnappingResult.layer.getFeatures(req).next()
+            from_field = self.layer.pendingFields()\
                 .indexFromName('rp_from_fk_wastewater_networkelement')
-            f.setAttribute(fromfield, fromNetworkElement.attribute('obj_id'))
+            f.setAttribute(from_field, from_networkelement.attribute('obj_id'))
 
         if self.lastSnappingResult is not None:
             req = QgsFeatureRequest(self.lastSnappingResult.snappedAtGeometry)
-            toNetworkElement = self.lastSnappingResult.layer.getFeatures(req).next()
-            tofield = self.layer.pendingFields().indexFromName('rp_to_fk_wastewater_networkelement')
-            f.setAttribute(tofield, toNetworkElement.attribute('obj_id'))
+            to_networkelement = self.lastSnappingResult.layer.getFeatures(req).next()
+            to_field = self.layer.pendingFields().indexFromName('rp_to_fk_wastewater_networkelement')
+            f.setAttribute(to_field, to_networkelement.attribute('obj_id'))
 
         dlg = self.iface.getFeatureForm(self.layer, f)
         dlg.setIsAddDialog(True)
@@ -322,9 +322,9 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         Mouse is moved: Update rubberband
         :param event: coordinates etc.
         """
-        mousePos = self.canvas.getCoordinateTransform()\
+        mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.rubberband.movePoint(mousePos)
+        self.rubberband.movePoint(mousepos)
 
     def canvasReleaseEvent(self, event):
         """
@@ -337,9 +337,9 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         if event.button() == Qt.RightButton:
             self.deactivate()
         else:
-            mousePos = self.canvas.getCoordinateTransform()\
+            mousepos = self.canvas.getCoordinateTransform()\
                 .toMapCoordinates(event.pos().x(), event.pos().y())
-            self.rubberband.addPoint(mousePos)
+            self.rubberband.addPoint(mousepos)
             if self.firstPoint:  # If the first point was set before, we are doing the second one
                 lp1 = self.rubberband.asGeometry().asPolyline()[0]
                 lp2 = self.rubberband.asGeometry().asPolyline()[1]
@@ -373,4 +373,4 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
 
                 self.geometryDigitized.emit()
 
-            self.firstPoint = mousePos
+            self.firstPoint = mousepos

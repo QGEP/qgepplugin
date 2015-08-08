@@ -13,7 +13,7 @@ from PyQt4.QtCore import (
 import logging
 
 
-def setupI18n(thePreferredLocale=None):
+def setup_i18n(the_preferred_locale=None):
     """
     Setup internationalisation for the plugin.
 
@@ -21,7 +21,7 @@ def setupI18n(thePreferredLocale=None):
     and then see if we can get a valid translation file
     for whatever locale is effectively being used.
 
-    @param thePreferredLocale will override any other locale setting
+    @param the_preferred_locale will override any other locale setting
     """
 
     logger = logging.getLogger(__name__)
@@ -29,8 +29,8 @@ def setupI18n(thePreferredLocale=None):
     my_override_flag = QSettings().value('locale/overrideFlag', False, type=bool)
 
     my_locale_name = None
-    if thePreferredLocale is not None:
-        my_locale_name = thePreferredLocale
+    if the_preferred_locale is not None:
+        my_locale_name = the_preferred_locale
         logger.info('Using preferred locale: ' + my_locale_name)
     elif my_override_flag:
         my_locale_name = QSettings().value('locale/userLocale', u'')
@@ -51,10 +51,10 @@ def setupI18n(thePreferredLocale=None):
 
     my_translator_file = 'qgepplugin_' + my_locale_name
 
-    myResult = translator.load(my_translator_file, ':/plugins/qgepplugin/i18n')
-    # myResult = translator.load( my_translator_file, '/home/kk/dev/python/QGEP/qgepplugin/i18n' )
+    my_result = translator.load(my_translator_file, ':/plugins/qgepplugin/i18n')
+    # my_result = translator.load( my_translator_file, '/home/kk/dev/python/QGEP/qgepplugin/i18n' )
 
-    if myResult:
+    if my_result:
         QCoreApplication.instance().installTranslator(translator)
 
 

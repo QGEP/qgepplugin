@@ -67,31 +67,31 @@ class QgepGraphManager(object):
         self.iface = iface
         self.snapper = None
 
-    def setReachLayer(self, reachLayer):
+    def setReachLayer(self, reach_layer):
         """
         Set the reach layer (edges)
         """
-        self.reachLayer = reachLayer
+        self.reachLayer = reach_layer
         self.dirty = True
 
-        if reachLayer:
-            self.reachLayerId = reachLayer.id()
+        if reach_layer:
+            self.reachLayerId = reach_layer.id()
         else:
             self.reachLayerId = 0
 
         if self.nodeLayer and self.reachLayer:
             self.createGraph()
 
-    def setNodeLayer(self, nodeLayer):
+    def setNodeLayer(self, node_layer):
         """
         Set the node layer
         """
         self.dirty = True
 
-        self.nodeLayer = nodeLayer
+        self.nodeLayer = node_layer
 
-        if nodeLayer:
-            self.nodeLayerId = nodeLayer.id()
+        if node_layer:
+            self.nodeLayerId = node_layer.id()
 
         else:
             self.nodeLayerId = 0
@@ -103,21 +103,21 @@ class QgepGraphManager(object):
         """
         Initializes the graph with the vertices from the node layer
         """
-        nodeProvider = self.nodeLayer.dataProvider()
+        node_provider = self.nodeLayer.dataProvider()
 
-        features = nodeProvider.getFeatures()
+        features = node_provider.getFeatures()
 
         # Add all vertices
         for feat in features:
-            featId = feat.id()
+            fid = feat.id()
 
-            objId = feat['obj_id']
-            objType = feat['type']
+            obj_id = feat['obj_id']
+            obj_type = feat['type']
 
             vertex = feat.geometry().asPoint()
-            self.graph.add_node(featId, dict(point=vertex, objType=objType))
+            self.graph.add_node(fid, dict(point=vertex, objType=obj_type))
 
-            self.vertexIds[unicode(objId)] = featId
+            self.vertexIds[unicode(obj_id)] = fid
 
         self._profile("add vertices")
 
@@ -126,30 +126,30 @@ class QgepGraphManager(object):
         Initializes the graph with the edges
         """
         # Add all edges (reach)
-        reachProvider = self.reachLayer.dataProvider()
+        reach_provider = self.reachLayer.dataProvider()
 
-        features = reachProvider.getFeatures()
+        features = reach_provider.getFeatures()
 
         # Loop through all reaches
         for feat in features:
             try:
-                objId = feat['obj_id']
-                objType = feat['type']
-                fromObjId = feat['from_obj_id']
-                toObjId = feat['to_obj_id']
+                obj_id = feat['obj_id']
+                obj_type = feat['type']
+                from_obj_id = feat['from_obj_id']
+                to_obj_id = feat['to_obj_id']
 
                 length = feat['length_calc']
 
-                ptId1 = self.vertexIds[fromObjId]
-                ptId2 = self.vertexIds[toObjId]
+                pt_id1 = self.vertexIds[from_obj_id]
+                pt_id2 = self.vertexIds[to_obj_id]
 
                 props = {
                     'weight': length,
                     'feature': feat.id(),
-                    'baseFeature': objId,
-                    'objType': objType
+                    'baseFeature': obj_id,
+                    'obj_type': obj_type
                 }
-                self.graph.add_edge(ptId1, ptId2, props)
+                self.graph.add_edge(pt_id1, pt_id2, props)
             except KeyError as e:
                 print e
 
@@ -220,45 +220,45 @@ class QgepGraphManager(object):
         Snap to a point on this network
         :param event: A QMouseEvent
         """
-        pClicked = QPoint(event.pos().x(), event.pos().y())
+        clicked_point = QPoint(event.pos().x(), event.pos().y())
 
         self.snapper = QgsSnapper(self.iface.mapCanvas().mapRenderer())
-        snapLayer = QgsSnapper.SnapLayer()
-        snapLayer.mLayer = self.nodeLayer
-        snapLayer.mTolerance = 10
-        snapLayer.mUnitType = QgsTolerance.Pixels
-        snapLayer.mSnapTo = QgsSnapper.SnapToVertex
-        self.snapper.setSnapLayers([snapLayer])
+        snap_layer = QgsSnapper.SnapLayer()
+        snap_layer.mLayer = self.nodeLayer
+        snap_layer.mTolerance = 10
+        snap_layer.mUnitType = QgsTolerance.Pixels
+        snap_layer.mSnapTo = QgsSnapper.SnapToVertex
+        self.snapper.setSnapLayers([snap_layer])
 
-        (_, snappedPoints) = self.snapper.snapPoint(pClicked, [])
+        (_, snapped_points) = self.snapper.snapPoint(clicked_point, [])
 
-        if len(snappedPoints) == 0:
+        if len(snapped_points) == 0:
             return None
-        elif len(snappedPoints) == 1:
-            return snappedPoints[0]
-        elif len(snappedPoints) > 1:
+        elif len(snapped_points) == 1:
+            return snapped_points[0]
+        elif len(snapped_points) > 1:
 
-            pointIds = [point.snappedAtGeometry for point in snappedPoints]
-            nodeFeatures = self.getFeaturesById(self.getNodeLayer(), pointIds)
+            point_ids = [point.snappedAtGeometry for point in snapped_points]
+            node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
 
             # Filter wastewater nodes
             filtered_features = {
-                id: nodeFeatures.featureById(id)
-                for id in nodeFeatures.asDict()
-                if nodeFeatures.attrAsUnicode(nodeFeatures.featureById(id), u'type') == u'wastewater_node'
+                id: node_features.featureById(id)
+                for id in node_features.asDict()
+                if node_features.attrAsUnicode(node_features.featureById(id), u'type') == u'wastewater_node'
             }
 
             # Only one wastewater node left: return this
             if len(filtered_features) == 1:
                 points = (point for point
-                          in snappedPoints
+                          in snapped_points
                           if point.snappedAtGeometry == filtered_features.iterkeys().next())
                 return points[0]
 
             # Still not sure which point to take?
             # Are there no wastewater nodes filtered? Let the user choose from the reach points
             if len(filtered_features) == 0:
-                filtered_features = nodeFeatures.asDict()
+                filtered_features = node_features.asDict()
 
             # Ask the user which point he wants to use
             actions = dict()
@@ -281,19 +281,19 @@ class QgepGraphManager(object):
 
             return None
 
-    def shortestPath(self, pStart, pEnd):
+    def shortestPath(self, start_point, end_point):
         """
         Finds the shortes path from the start point
         to the end point
-        :param pStart: The start node
-        :param pEnd:   The end node
+        :param start_point: The start node
+        :param end_point:   The end node
         :return:       A (path, edges) tuple
         """
         if self.dirty:
             self.createGraph()
 
         try:
-            path = nx.algorithms.dijkstra_path(self.graph, pStart, pEnd)
+            path = nx.algorithms.dijkstra_path(self.graph, start_point, end_point)
             edges = [(u, v, self.graph[u][v]) for (u, v) in zip(path[0:], path[1:])]
 
             p = (path, edges)
@@ -389,10 +389,10 @@ class QgepFeatureCache(object):
     objIdField = None
     layer = None
 
-    def __init__(self, layer, objIdField='obj_id'):
+    def __init__(self, layer, obj_id_field='obj_id'):
         self._featuresById = {}
         self._featuresByObjId = {}
-        self.objIdField = objIdField
+        self.objIdField = obj_id_field
         self.layer = layer
 
     def __getitem__(self, key):
@@ -405,17 +405,17 @@ class QgepFeatureCache(object):
         self._featuresById[feat.id()] = feat
         self._featuresByObjId[self.attrAsUnicode(feat, self.objIdField)] = feat
 
-    def featureById(self, featId):
+    def featureById(self, fid):
         """
         Get a feature by its feature id
         """
-        return self._featuresById[featId]
+        return self._featuresById[fid]
 
-    def featureByObjId(self, objId):
+    def featureByObjId(self, obj_id):
         """
         Get a feature by its object id
         """
-        return self._featuresByObjId[objId]
+        return self._featuresByObjId[obj_id]
 
     def attrAsFloat(self, feat, attr):
         """
@@ -449,9 +449,9 @@ class QgepFeatureCache(object):
         """
         Get an attribute as geometry
         """
-        ewktString = self.attrAsUnicode(feat, attr)
+        ewktstring = self.attrAsUnicode(feat, attr)
         # Strip SRID=21781; token, TODO: Fix this upstream
-        m = re.search('(.*;)?(.*)', ewktString)
+        m = re.search('(.*;)?(.*)', ewktstring)
         return QgsGeometry.fromWkt(m.group(2))
 
     def asDict(self):

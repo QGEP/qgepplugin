@@ -61,13 +61,13 @@ class QgepPlotSVGWidget(QWidget):
     profileChanged = pyqtSignal([unicode], name='profileChanged')
     verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
 
-    def __init__(self, parent, networkAnalyzer, url=None):
+    def __init__(self, parent, network_analyzer, url=None):
         QWidget.__init__(self, parent)
 
         self.webView = QWebView()
         self.webView.setPage(QgepWebPage(self.webView))
 
-        self.networkAnalyzer = networkAnalyzer
+        self.networkAnalyzer = network_analyzer
 
         settings = QSettings()
 
@@ -75,9 +75,9 @@ class QgepPlotSVGWidget(QWidget):
         if url is None:
             url = settings.value("/QGEP/SvgProfilePath", u'qrc:///plugins/qgepplugin/svgprofile/index.html')
 
-        developerMode = settings.value("/QGEP/DeveloperMode", False, type=bool)
+        developermode = settings.value("/QGEP/DeveloperMode", False, type=bool)
 
-        if developerMode is True:
+        if developermode is True:
             self.webView.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
         else:
             self.webView.setContextMenuPolicy(Qt.NoContextMenu)
@@ -107,50 +107,50 @@ class QgepPlotSVGWidget(QWidget):
         printer.setPaperSize(QPrinter.A4)
         printer.setOrientation(QPrinter.Landscape)
 
-        printPreviewDlg = QPrintPreviewDialog()
-        printPreviewDlg.paintRequested.connect(self.printRequested)
+        printpreviewdlg = QPrintPreviewDialog()
+        printpreviewdlg.paintRequested.connect(self.printRequested)
 
-        printPreviewDlg.exec_()
+        printpreviewdlg.exec_()
 
     @pyqtSlot(QPrinter)
     def printRequested(self, printer):
         self.webView.print_(printer)
 
     @pyqtSlot(unicode)
-    def onReachClicked(self, objId):
-        self.reachClicked.emit(objId)
+    def onReachClicked(self, obj_id):
+        self.reachClicked.emit(obj_id)
 
     @pyqtSlot(unicode)
-    def onReachMouseOver(self, objId):
-        self.reachMouseOver.emit(objId)
+    def onReachMouseOver(self, obj_id):
+        self.reachMouseOver.emit(obj_id)
 
     @pyqtSlot(unicode)
-    def onReachMouseOut(self, objId):
-        self.reachMouseOut.emit(objId)
+    def onReachMouseOut(self, obj_id):
+        self.reachMouseOut.emit(obj_id)
 
     @pyqtSlot(unicode, unicode)
-    def onReachPointClicked(self, objId, reachObjId):
-        self.reachPointClicked.emit(objId, reachObjId)
+    def onReachPointClicked(self, obj_id, reach_obj_id):
+        self.reachPointClicked.emit(obj_id, reach_obj_id)
 
     @pyqtSlot(unicode, unicode)
-    def onReachPointMouseOver(self, objId, reachObjId):
-        self.reachPointMouseOver.emit(objId, reachObjId)
+    def onReachPointMouseOver(self, obj_id, reach_obj_id):
+        self.reachPointMouseOver.emit(obj_id, reach_obj_id)
 
     @pyqtSlot(unicode, unicode)
-    def onReachPointMouseOut(self, objId, reachObjId):
-        self.reachPointMouseOut.emit(objId, reachObjId)
+    def onReachPointMouseOut(self, obj_id, reach_obj_id):
+        self.reachPointMouseOut.emit(obj_id, reach_obj_id)
 
     @pyqtSlot(unicode)
-    def onSpecialStructureClicked(self, objId):
-        self.specialStructureClicked.emit(objId)
+    def onSpecialStructureClicked(self, obj_id):
+        self.specialStructureClicked.emit(obj_id)
 
     @pyqtSlot(unicode)
-    def onSpecialStructureMouseOver(self, objId):
-        self.specialStructureMouseOver.emit(objId)
+    def onSpecialStructureMouseOver(self, obj_id):
+        self.specialStructureMouseOver.emit(obj_id)
 
     @pyqtSlot(unicode)
-    def onSpecialStructureMouseOut(self, objId):
-        self.specialStructureMouseOut.emit(objId)
+    def onSpecialStructureMouseOut(self, obj_id):
+        self.specialStructureMouseOut.emit(obj_id)
 
     # Is called from the webView when it's been reloaded and wants to have the
     # profile information resent

@@ -41,15 +41,15 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
 
         project = QgsProject.instance()
 
-        svgProfilePath = self.settings.value("/QGEP/SvgProfilePath", None)
-        if svgProfilePath:
+        svgprofile_path = self.settings.value("/QGEP/SvgProfilePath", None)
+        if svgprofile_path:
             self.mGbOverrideDefaultProfileTemplate.setChecked(True)
-            self.mProfileTemplateFile.setText(svgProfilePath)
+            self.mProfileTemplateFile.setText(svgprofile_path)
         else:
             self.mGbOverrideDefaultProfileTemplate.setChecked(False)
 
-        develMode = self.settings.value("/QGEP/DeveloperMode", False, type=bool)
-        self.mCbDevelMode.setChecked(develMode)
+        develmode = self.settings.value("/QGEP/DeveloperMode", False, type=bool)
+        self.mCbDevelMode.setChecked(develmode)
 
         lyrSpecialStructures, _ = project.readEntry('QGEP', 'SpecialStructureLayer')
         lyrGraphEdges, _ = project.readEntry('QGEP', 'GraphEdgeLayer')
@@ -90,7 +90,7 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
 
     @pyqtSlot()
     def onAccept(self):
-        qgepLogger = logging.getLogger('qgep')
+        qgeplogger = logging.getLogger('qgep')
         # General settings
         if self.mGbOverrideDefaultProfileTemplate.isChecked() \
                 and self.mProfileTemplateFile.text():
@@ -101,32 +101,32 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
         self.settings.setValue("/QGEP/DeveloperMode", self.mCbDevelMode.checkState())
 
         # Logging
-        if hasattr(qgepLogger, 'qgepFileHandler'):
-            qgepLogger.removeHandler(qgepLogger.qgepFileHandler)
-            del qgepLogger.qgepFileHandler
+        if hasattr(qgeplogger, 'qgepFileHandler'):
+            qgeplogger.removeHandler(qgeplogger.qgepFileHandler)
+            del qgeplogger.qgepFileHandler
 
         if self.mGbLogToFile.isChecked():
             logfile = unicode(self.mLogFile.text())
-            hLog = logging.FileHandler(logfile)
+            log_handler = logging.FileHandler(logfile)
             fmt = logging.Formatter(LOGFORMAT)
-            hLog.setFormatter(fmt)
-            qgepLogger.addHandler(hLog)
-            qgepLogger.qgepFileHandler = hLog
+            log_handler.setFormatter(fmt)
+            qgeplogger.addHandler(log_handler)
+            qgeplogger.qgepFileHandler = log_handler
             self.settings.setValue("/QGEP/LogFile", logfile)
         else:
             self.settings.setValue("/QGEP/LogFile", None)
 
         if self.tr('Debug') == self.mCbLogLevel.currentText():
-            qgepLogger.setLevel(logging.DEBUG)
+            qgeplogger.setLevel(logging.DEBUG)
             self.settings.setValue("/QGEP/LogLevel", 'Debug')
         elif self.tr('Info') == self.mCbLogLevel.currentText():
-            qgepLogger.setLevel(logging.INFO)
+            qgeplogger.setLevel(logging.INFO)
             self.settings.setValue("/QGEP/LogLevel", 'Info')
         elif self.tr('Warning') == self.mCbLogLevel.currentText():
-            qgepLogger.setLevel(logging.WARNING)
+            qgeplogger.setLevel(logging.WARNING)
             self.settings.setValue("/QGEP/LogLevel", 'Warning')
         elif self.tr('Error') == self.mCbLogLevel.currentText():
-            qgepLogger.setLevel(logging.ERROR)
+            qgeplogger.setLevel(logging.ERROR)
             self.settings.setValue("/QGEP/LogLevel", 'Error')
 
         # Save colors
@@ -137,21 +137,21 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
         # Project specific settings
         project = QgsProject.instance()
 
-        specialStructureIdx = self.mCbSpecialStructures.currentIndex()
-        graphEdgeLayerIdx = self.mCbGraphEdges.currentIndex()
-        graphNodeLayerIdx = self.mCbGraphNodes.currentIndex()
+        specialstructure_idx = self.mCbSpecialStructures.currentIndex()
+        graph_edgelayer_idx = self.mCbGraphEdges.currentIndex()
+        graph_nodelayer_idx = self.mCbGraphNodes.currentIndex()
 
-        project.writeEntry('QGEP', 'SpecialStructureLayer', self.mCbSpecialStructures.itemData(specialStructureIdx))
-        project.writeEntry('QGEP', 'GraphEdgeLayer', self.mCbGraphEdges.itemData(graphEdgeLayerIdx))
-        project.writeEntry('QGEP', 'GraphNodeLayer', self.mCbGraphNodes.itemData(graphNodeLayerIdx))
+        project.writeEntry('QGEP', 'SpecialStructureLayer', self.mCbSpecialStructures.itemData(specialstructure_idx))
+        project.writeEntry('QGEP', 'GraphEdgeLayer', self.mCbGraphEdges.itemData(graph_edgelayer_idx))
+        project.writeEntry('QGEP', 'GraphNodeLayer', self.mCbGraphNodes.itemData(graph_nodelayer_idx))
 
     @pyqtSlot()
     def onChooseProfileTemplateFileClicked(self):
-        fileName = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
+        filename = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
                                                self.tr('HTML files(*.htm *.html)'))
-        self.mProfileTemplateFile.setText(fileName)
+        self.mProfileTemplateFile.setText(filename)
 
     @pyqtSlot()
     def onChooseLogFileClicked(self):
-        fileName = QFileDialog.getSaveFileName(self, self.tr('Select log file'), '', self.tr('Log files(*.log)'))
-        self.mLogFile.setText(fileName)
+        filename = QFileDialog.getSaveFileName(self, self.tr('Select log file'), '', self.tr('Log files(*.log)'))
+        self.mLogFile.setText(filename)
