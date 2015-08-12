@@ -26,11 +26,6 @@
 import logging
 import os
 
-from PyQt4.QtSql import (
-    QSqlDatabase,
-    QSqlQuery
-)
-from qgis._core import QgsDataSourceURI
 from PyQt4.QtCore import (
     pyqtSlot,
     QSettings,
@@ -41,7 +36,6 @@ from PyQt4.QtGui import (
     QIcon,
     QApplication
 )
-from qgis.gui import QgsMessageBar
 
 from tools.qgepmaptools import (
     QgepProfileMapTool,
