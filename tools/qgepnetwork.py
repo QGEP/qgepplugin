@@ -31,11 +31,16 @@ Manages a graph of a wastewater network
 from collections import defaultdict
 import time
 import re
+from PyQt4.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
     QgsTolerance,
     QgsSnapper,
-    QgsGeometry
+    QgsGeometry,
+    QgsDataSourceURI
+)
+from qgis.gui import (
+    QgsMessageBar
 )
 from PyQt4.QtCore import (
     QPoint,
@@ -155,6 +160,43 @@ class QgepGraphManager(object):
 
         self._profile("add edges")
 
+    def refresh(self):
+        """
+        Refreshes the network graph. It will force a refresh of the materialized views in the database and then reload
+        and recreate the graph.
+        """
+        uri = QgsDataSourceURI(self.nodeLayer.dataProvider().dataSourceUri())
+
+        db = QSqlDatabase.addDatabase("QPSQL")  # Name of the driver -- doesn't change
+
+        str_connect_option = "requiressl=0;service=" + uri.service()
+        db.setConnectOptions(str_connect_option)
+
+        if not db.open():
+            self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
+                                                level=QgsMessageBar.CRITICAL)
+
+        query_template = "REFRESH MATERIALIZED VIEW qgep.vw_network_segment;"
+        query = QSqlQuery(db)
+        if not query.exec_(query_template):
+            str_result = query.lastError().text()
+            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
+        else:
+            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_segment successfully updated",
+                                                level=QgsMessageBar.SUCCESS, duration=2)
+
+        query_template = "REFRESH MATERIALIZED VIEW qgep.vw_network_node;"
+        query = QSqlQuery(db)
+        if not query.exec_(query_template):
+            str_result = query.lastError().text()
+            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
+        else:
+            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_node successfully updated",
+                                                level=QgsMessageBar.SUCCESS, duration=2)
+        # recreate networkx graph
+        self.network_analyzer.graph.clear()
+        self.network_analyzer.createGraph()
+
     def _profile(self, name):
         """
         Adds a performance profile snapshot with the given name
@@ -213,6 +255,13 @@ class QgepGraphManager(object):
         """
         Getter for the snapper
         """
+        self.snapper = QgsSnapper(self.iface.mapCanvas().mapRenderer())
+        snap_layer = QgsSnapper.SnapLayer()
+        snap_layer.mLayer = self.nodeLayer
+        snap_layer.mTolerance = 10
+        snap_layer.mUnitType = QgsTolerance.Pixels
+        snap_layer.mSnapTo = QgsSnapper.SnapToVertex
+        self.snapper.setSnapLayers([snap_layer])
         return self.snapper
 
     def snapPoint(self, event):
@@ -222,13 +271,7 @@ class QgepGraphManager(object):
         """
         clicked_point = QPoint(event.pos().x(), event.pos().y())
 
-        self.snapper = QgsSnapper(self.iface.mapCanvas().mapRenderer())
-        snap_layer = QgsSnapper.SnapLayer()
-        snap_layer.mLayer = self.nodeLayer
-        snap_layer.mTolerance = 10
-        snap_layer.mUnitType = QgsTolerance.Pixels
-        snap_layer.mSnapTo = QgsSnapper.SnapToVertex
-        self.snapper.setSnapLayers([snap_layer])
+        self.snapper = self.getSnapper()
 
         (_, snapped_points) = self.snapper.snapPoint(clicked_point, [])
 
@@ -243,9 +286,9 @@ class QgepGraphManager(object):
 
             # Filter wastewater nodes
             filtered_features = {
-                id: node_features.featureById(id)
-                for id in node_features.asDict()
-                if node_features.attrAsUnicode(node_features.featureById(id), u'type') == u'wastewater_node'
+                fid: node_features.featureById(fid)
+                for fid in node_features.asDict()
+                if node_features.attrAsUnicode(node_features.featureById(fid), u'type') == u'wastewater_node'
             }
 
             # Only one wastewater node left: return this

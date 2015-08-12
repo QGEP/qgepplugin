@@ -62,12 +62,12 @@ LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
 
 class QgepPlugin:
-    '''
+    """
     A plugin for wastewater management
     http://www.github.com/qgep/QGEP
-    '''
+    """
     # The networkAnalyzer will manage the networklayers and pathfinding
-    networkAnalyzer = None
+    network_analyzer = None
 
     # Remember not to reopen the dock if there's already one opened
     profileDock = None
@@ -91,12 +91,19 @@ class QgepPlugin:
         setup_i18n()
 
     def tr(self, source_text):
+        """
+        This does not inherit from QObject but for the translation to work (in particular to have translatable strings
+        picked up) we need a tr method.
+        :rtype : unicode
+        :param source_text: The text to translate
+        :return: The translated text
+        """
         return QApplication.translate('QgepPlugin', source_text)
 
     def initLogger(self):
-        '''
+        """
         Initializes the logger
-        '''
+        """
         self.logger = logging.getLogger(__package__)
 
         settings = QSettings()
@@ -134,9 +141,9 @@ class QgepPlugin:
         self.logger.info('QGEP plugin version ' + verno + ' started')
 
     def initGui(self):
-        '''
+        """
         Called to setup the plugin GUI
-        '''
+        """
         self.network_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
                                                         ['vw_network_node', 'vw_network_segment'])
         self.toolbarButtons = []
@@ -170,7 +177,7 @@ class QgepPlugin:
         self.wizardAction.triggered.connect(self.wizard)
 
         self.refreshNetworkTopologyAction = QAction(QIcon(":/plugins/qgepplugin/icons/refresh-network.svg"),
-                                                    "Refresh netwok topology", self.iface.mainWindow())
+                                                    "Refresh network topology", self.iface.mainWindow())
         self.refreshNetworkTopologyAction.setWhatsThis(self.tr("Refresh network topology"))
         self.refreshNetworkTopologyAction.setEnabled(False)
         self.refreshNetworkTopologyAction.setCheckable(False)
@@ -204,20 +211,20 @@ class QgepPlugin:
         self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
 
         # Init the object maintaining the network
-        self.networkAnalyzer = QgepGraphManager(self.iface)
+        self.network_analyzer = QgepGraphManager(self.iface)
         # Create the map tool for profile selection
-        self.profileTool = QgepProfileMapTool(self.iface, self.profileAction, self.networkAnalyzer)
-        self.profileTool.profileChanged.connect(self.onProfileChanged)
+        self.profile_tool = QgepProfileMapTool(self.iface, self.profileAction, self.network_analyzer)
+        self.profile_tool.profileChanged.connect(self.onProfileChanged)
 
-        self.upstreamTreeTool = QgepTreeMapTool(self.iface, self.upstreamAction, self.networkAnalyzer)
-        self.upstreamTreeTool.setDirection("upstream")
-        self.downstreamTreeTool = QgepTreeMapTool(self.iface, self.downstreamAction, self.networkAnalyzer)
-        self.downstreamTreeTool.setDirection("downstream")
+        self.upstream_tree_tool = QgepTreeMapTool(self.iface, self.upstreamAction, self.network_analyzer)
+        self.upstream_tree_tool.setDirection("upstream")
+        self.downstream_tree_tool = QgepTreeMapTool(self.iface, self.downstreamAction, self.network_analyzer)
+        self.downstream_tree_tool.setDirection("downstream")
 
     def unload(self):
-        '''
+        """
         Called when unloading
-        '''
+        """
         self.iface.removeToolBarIcon(self.profileAction)
         self.iface.removeToolBarIcon(self.upstreamAction)
         self.iface.removeToolBarIcon(self.downstreamAction)
@@ -231,74 +238,42 @@ class QgepPlugin:
         for b in self.toolbarButtons:
             b.setEnabled(True)
 
-        self.networkAnalyzer.setReachLayer(layers['vw_network_segment'])
-        self.networkAnalyzer.setNodeLayer(layers['vw_network_node'])
+        self.network_analyzer.setReachLayer(layers['vw_network_segment'])
+        self.network_analyzer.setNodeLayer(layers['vw_network_node'])
 
     def onLayersUnavailable(self):
         for b in self.toolbarButtons:
             b.setEnabled(False)
 
     def profileToolClicked(self):
-        '''
+        """
         Is executed when the profile button is clicked
-        '''
+        """
         self.openDock()
         # Set the profile map tool
-        self.profileTool.setActive()
+        self.profile_tool.setActive()
 
     def upstreamToolClicked(self):
-        '''
+        """
         Is executed when the user clicks the upstream search tool
-        '''
-        self.upstreamTreeTool.setActive()
+        """
+        self.upstream_tree_tool.setActive()
 
     def downstreamToolClicked(self):
-        '''
+        """
         Is executed when the user clicks the downstream search tool
-        '''
-        self.downstreamTreeTool.setActive()
+        """
+        self.downstream_tree_tool.setActive()
 
     def refreshNetworkTopologyActionClicked(self):
-        '''
+        """
         Is executed when the user clicks the refreshNetworkTopologyAction tool
-        '''
-        uri = QgsDataSourceURI(self.networkAnalyzer.getNodeLayer().dataProvider().dataSourceUri())
-
-        db = QSqlDatabase.addDatabase("QPSQL")  # Name of the driver -- doesn't change
-
-        str_connect_option = "requiressl=0;service=" + uri.service()
-        db.setConnectOptions(str_connect_option)
-
-        if not db.open():
-            self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
-                                                level=QgsMessageBar.CRITICAL)
-
-        query_template = ("""REFRESH MATERIALIZED VIEW qgep.vw_network_segment;""")
-        query = QSqlQuery(db)
-        if not query.exec_(query_template):
-            str_result = query.lastError().text()
-            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
-        else:
-            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_segment successfully updated",
-                                                level=QgsMessageBar.SUCCESS, duration=2)
-
-        query_template = ("""REFRESH MATERIALIZED VIEW qgep.vw_network_node;""")
-        query = QSqlQuery(db)
-        if not query.exec_(query_template):
-            str_result = query.lastError().text()
-            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
-        else:
-            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_node successfully updated",
-                                                level=QgsMessageBar.SUCCESS, duration=2)
-        # recreate networkx graph
-        self.networkAnalyzer.graph.clear()
-        self.networkAnalyzer.createGraph()
+        """
+        self.network_analyzer.refresh()
 
     def wizard(self):
-        '''
-
-        :return:
-        '''
+        """
+        """
         if not self.wizarddock:
             self.wizarddock = QgepWizard(self.iface.mainWindow(), self.iface)
         self.logger.debug('Opening Wizard')
@@ -306,9 +281,9 @@ class QgepPlugin:
         self.wizarddock.show()
 
     def openDock(self):
-        '''
+        """
         Opens the dock
-        '''
+        """
         if self.profileDock is None:
             self.logger.debug('Open dock')
             self.profileDock = QgepProfileDockWidget(self.iface.mainWindow(), self.iface.mapCanvas(),
@@ -316,7 +291,7 @@ class QgepPlugin:
             self.profileDock.closed.connect(self.onDockClosed)
             self.profileDock.showIt()
 
-            self.plotWidget = QgepPlotSVGWidget(self.profileDock, self.networkAnalyzer)
+            self.plotWidget = QgepPlotSVGWidget(self.profileDock, self.network_analyzer)
             self.plotWidget.specialStructureMouseOver.connect(self.highlightProfileElement)
             self.plotWidget.specialStructureMouseOut.connect(self.unhighlightProfileElement)
             self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
@@ -325,17 +300,17 @@ class QgepPlugin:
 
     @pyqtSlot()
     def onDockClosed(self):  # used when Dock dialog is closed
-        '''
+        """
         Gets called when the dock is closed
         All the cleanup of the dock has to be done here
-        '''
+        """
         self.profileDock = None
 
     def onProfileChanged(self, profile):
-        '''
+        """
         The profile changed: update the plot
         @param profile: The profile to plot
-        '''
+        """
         self.profile = profile.copy()
 
         if self.plotWidget:
