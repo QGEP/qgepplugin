@@ -44,7 +44,8 @@ from qgis.gui import (
 )
 from PyQt4.QtCore import (
     QPoint,
-    QPyNullVariant
+    QPyNullVariant,
+    QObject
 )
 from PyQt4.QtGui import (
     QMenu,
@@ -53,7 +54,7 @@ from PyQt4.QtGui import (
 import networkx as nx
 
 
-class QgepGraphManager(object):
+class QgepGraphManager(QObject):
     """
     Manages a graph
     """
@@ -69,6 +70,7 @@ class QgepGraphManager(object):
     timings = []
 
     def __init__(self, iface):
+        QObject.__init__(self)
         self.iface = iface
         self.snapper = None
 
@@ -194,8 +196,8 @@ class QgepGraphManager(object):
             self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_node successfully updated",
                                                 level=QgsMessageBar.SUCCESS, duration=2)
         # recreate networkx graph
-        self.network_analyzer.graph.clear()
-        self.network_analyzer.createGraph()
+        self.graph.clear()
+        self.createGraph()
 
     def _profile(self, name):
         """
