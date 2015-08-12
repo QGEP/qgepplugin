@@ -65,7 +65,7 @@ class QgepJsTranslator(QObject):
     """
 
     def __init__(self):
-        pass
+        QObject.__init__(self)
 
     # pylint: disable=R0201
     @pyqtSlot(unicode, unicode, name='qsTr', result=unicode)

@@ -154,7 +154,7 @@ class QgepGraphManager(QObject):
                     'weight': length,
                     'feature': feat.id(),
                     'baseFeature': obj_id,
-                    'obj_type': obj_type
+                    'objType': obj_type
                 }
                 self.graph.add_edge(pt_id1, pt_id2, props)
             except KeyError as e:

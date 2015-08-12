@@ -223,10 +223,9 @@ class QgepProfileMapTool(QgepMapTool):
 
         # Fetch all the needed edges in one batch
         edge_layer = self.networkAnalyzer.getReachLayer()
-        edge_attrs = edge_layer.dataProvider().attributeIndexes()
         edge_ids = [edge['feature'] for p1, p2, edge in edges]
 
-        edge_features = self.networkAnalyzer.getFeaturesById(edge_layer, edge_attrs, edge_ids, True)
+        edge_features = self.networkAnalyzer.getFeaturesById(edge_layer, edge_ids)
 
         # We need some additional nodes, where we need to interpolate...
         interpolate_nodes_from = [edge_features.attrAsUnicode(feat, u'from_obj_id_interpolate')
@@ -239,8 +238,7 @@ class QgepProfileMapTool(QgepMapTool):
         # Now, fetch the nodes we need
         node_layer = self.networkAnalyzer.getNodeLayer()
         node_ids = vertices + additional_ids
-        node_attrs = node_layer.dataProvider().attributeIndexes()
-        node_features = self.networkAnalyzer.getFeaturesById(node_layer, node_attrs, node_ids, False)
+        node_features = self.networkAnalyzer.getFeaturesById(node_layer, node_ids)
 
         if len(vertices) > 1:
             self.rubberBand.reset()
@@ -335,8 +333,8 @@ class QgepProfileMapTool(QgepMapTool):
                     msg = self.msgBar.createMessage('No path found')
                     self.msgBar.pushWidget(msg, QgsMessageBar.WARNING)
             else:
-                self.selectedPathPoints.append(snapped_point.snappedAtGeometry,
-                                               QgsPoint(snapped_point.snappedVertex))
+                self.selectedPathPoints.append((snapped_point.snappedAtGeometry,
+                                               QgsPoint(snapped_point.snappedVertex)))
 
 
 class QgepTreeMapTool(QgepMapTool):
