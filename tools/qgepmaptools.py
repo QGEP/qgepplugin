@@ -259,7 +259,7 @@ class QgepProfileMapTool(QgepMapTool):
                         elem = QgepProfileReachElement(p1, p2, edge['feature'],
                                                        node_features, edge_features,
                                                        from_offset, to_offset)
-                        self.profile.addElement(elem.objId, elem)
+                        self.profile.addElement(elem.obj_id, elem)
 
                 elif 'special_structure' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
@@ -270,7 +270,7 @@ class QgepProfileMapTool(QgepMapTool):
                         elem = QgepProfileSpecialStructureElement(p1, p2, edge['feature'],
                                                                   node_features, edge_features,
                                                                   from_offset, to_offset)
-                        self.profile.addElement(elem.objId, elem)
+                        self.profile.addElement(elem.obj_id, elem)
 
                 elem = QgepProfileNodeElement(p2, node_features, to_offset)
                 self.profile.addElement(p2, elem)

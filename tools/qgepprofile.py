@@ -65,9 +65,9 @@ class QgepProfileEdgeElement(QgepProfileElement):
     """
     Define the base attributes for all edge elements (reaches and special structures)
     """
-    objId = None
+    obj_id = None
     gid = None
-    blindConnections = None
+    blind_connections = None
 
     def __init__(self, from_point_id, to_point_oid, edge_id,
                  node_cache, edge_cache, start_offset, end_offset, elem_type):
@@ -77,7 +77,7 @@ class QgepProfileEdgeElement(QgepProfileElement):
         edge = edge_cache.featureById(edge_id)
 
         # Read the identifiers
-        self.objId = edge_cache.attrAsUnicode(edge, u'obj_id')
+        self.obj_id = edge_cache.attrAsUnicode(edge, u'obj_id')
         self.gid = edge.id()
 
         self.addSegment(from_point_id, to_point_oid, edge_id,
@@ -159,7 +159,7 @@ class QgepProfileEdgeElement(QgepProfileElement):
                 'endLevel': tolevel,
                 'globStartLevel': self.fromLevel,
                 'globEndLevel': self.toLevel,
-                'objId': self.objId,
+                'objId': self.obj_id,
                 'gid': self.gid,
                 'reachPoints': self.reachPoints.values()
             }
@@ -175,7 +175,7 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
     width = None
     length = None
     gradient = None
-    detailGeometry = None
+    detail_geometry = None
     material = None
 
     def __init__(self, from_point_id, to_point_id, reach_id, node_cache, edge_cache, start_offset, end_offset):
@@ -202,7 +202,7 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
         self.material = edge_cache.attrAsUnicode(reach, u'material')
         self.length = edge_cache.attrAsFloat(reach, u'length_full')
 
-        self.detailGeometry = edge_cache.attrAsGeometry(reach, u'detail_geometry')
+        self.detail_geometry = edge_cache.attrAsGeometry(reach, u'detail_geometry')
 
 #        try:
         self.gradient = (self.fromLevel - self.toLevel) / self.length
@@ -230,7 +230,7 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
         """
         Highlights this element
         """
-        rubberband.setToGeometry(self.detailGeometry, None)
+        rubberband.setToGeometry(self.detail_geometry, None)
 
 
 class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
@@ -239,10 +239,10 @@ class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
     It's also responsible for manholes, as there is no particular
     reason to distinguish these here.
     """
-    bottomLevel = None
-    coverLevel = None
+    bottom_level = None
+    cover_level = None
     description = None
-    wwNodeOffset = None
+    ww_node_offset = None
     detailGeometry = None
     type = None
 
@@ -273,21 +273,21 @@ class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
         to_point = node_cache.featureById(to_point_id)
         specialstructure = edge_cache.featureById(edge_id)
 
-        self.bottomLevel = edge_cache.attrAsFloat(specialstructure, u'bottom_level')
+        self.bottom_level = edge_cache.attrAsFloat(specialstructure, u'bottom_level')
 
         defining_wastewater_node = None
 
         if u'wastewater_node' == node_cache.attrAsUnicode(from_point, u'type'):
             defining_wastewater_node = from_point
-            self.wwNodeOffset = start_offset
+            self.ww_node_offset = start_offset
         elif u'wastewater_node' == node_cache.attrAsUnicode(to_point, u'type'):
             defining_wastewater_node = to_point
-            self.wwNodeOffset = end_offset
+            self.ww_node_offset = end_offset
 
         # There should always be a wastewater node but checking does not hurt
         if defining_wastewater_node is not None:
             self.node_type = node_cache.attrAsUnicode(defining_wastewater_node, u'node_type')
-            self.coverLevel = node_cache.attrAsFloat(defining_wastewater_node, u'cover_level')
+            self.cover_level = node_cache.attrAsFloat(defining_wastewater_node, u'cover_level')
             self.description = node_cache.attrAsUnicode(defining_wastewater_node, u'description')
             self.usage_current = node_cache.attrAsFloat(defining_wastewater_node, u'usage_current')
             self.detailGeometry = node_cache.attrAsGeometry(defining_wastewater_node, u'detail_geometry')
@@ -302,11 +302,11 @@ class QgepProfileSpecialStructureElement(QgepProfileEdgeElement):
         el = QgepProfileEdgeElement.asDict(self)
         el.update(
             {
-                'bottomLevel': self.bottomLevel,
+                'bottomLevel': self.bottom_level,
                 'description': self.description,
-                'coverLevel': self.coverLevel,
+                'coverLevel': self.cover_level,
                 'usageCurrent': self.usage_current,
-                'wwNodeOffset': self.wwNodeOffset,
+                'wwNodeOffset': self.ww_node_offset,
                 'nodeType': self.node_type
             }
         )
@@ -317,7 +317,7 @@ class QgepProfileNodeElement(QgepProfileElement):
     """
     A node (wastewater node or reach point)
     """
-    coverLevel = None
+    cover_level = None
     offset = None
 
     def __init__(self, point_id, node_cache, offset):
@@ -326,16 +326,16 @@ class QgepProfileNodeElement(QgepProfileElement):
         point = node_cache.featureById(point_id)
 
         self.offset = offset
-        self.coverLevel = node_cache.attrAsFloat(point, u'cover_level')
-        self.backflowLevel = node_cache.attrAsFloat(point, u'backflow_level')
+        self.cover_level = node_cache.attrAsFloat(point, u'cover_level')
+        self.backflow_level = node_cache.attrAsFloat(point, u'backflow_level')
 
     def asDict(self):
         el = QgepProfileElement.asDict(self)
         el.update(
             {
                 'offset': self.offset,
-                'coverLevel': self.coverLevel,
-                'backflowLevel': self.backflowLevel
+                'coverLevel': self.cover_level,
+                'backflowLevel': self.backflow_level
             }
         )
         return el
