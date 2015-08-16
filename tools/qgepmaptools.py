@@ -295,7 +295,7 @@ class QgepProfileMapTool(QgepMapTool):
 
         @param event: The mouse event with coordinates and all
         """
-        if len(self.selectedPathPoints) > 0:
+        if self.selectedPathPoints:
             self.rbHelperLine.reset()
             for point in self.selectedPathPoints:
                 self.rbHelperLine.addPoint(point[1])
@@ -324,7 +324,7 @@ class QgepProfileMapTool(QgepMapTool):
         snapped_point = self.networkAnalyzer.snapPoint(event)
 
         if snapped_point is not None:
-            if len(self.selectedPathPoints) > 0:
+            if self.selectedPathPoints:
                 pf = self.findPath(self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
                 if pf:
                     self.selectedPathPoints.append(
@@ -372,7 +372,7 @@ class QgepTreeMapTool(QgepMapTool):
         polylines = self.networkAnalyzer.getEdgeGeometry([edge[2]['feature'] for edge in edges])
 
         # Fix for QGIS < 2.0
-        filtered_polylines = [pl for pl in polylines if len(pl) > 0]
+        filtered_polylines = [pl for pl in polylines if pl]
 
         self.rubberBand.addGeometry(QgsGeometry.fromMultiPolyline(filtered_polylines),
                                     self.networkAnalyzer.getNodeLayer())
@@ -392,7 +392,7 @@ class QgepTreeMapTool(QgepMapTool):
 
         self.highLightedPoints = []
 
-        if len(snapped_points) > 0:
+        if snapped_points:
             for point in snapped_points:
                 marker = QgsVertexMarker(self.canvas)
                 marker.setCenter(point.snappedVertex)

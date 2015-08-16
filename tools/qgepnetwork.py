@@ -204,7 +204,7 @@ class QgepGraphManager(QObject):
         Adds a performance profile snapshot with the given name
         """
         spenttime = 0
-        if len(self.timings) != 0:
+        if self.timings:
             spenttime = time.clock() - self.timings[-1][1]
         self.timings.append((name, spenttime))
 
@@ -277,7 +277,7 @@ class QgepGraphManager(QObject):
 
         (_, snapped_points) = self.snapper.snapPoint(clicked_point, [])
 
-        if len(snapped_points) == 0:
+        if not snapped_points:
             return None
         elif len(snapped_points) == 1:
             return snapped_points[0]
@@ -302,7 +302,7 @@ class QgepGraphManager(QObject):
 
             # Still not sure which point to take?
             # Are there no wastewater nodes filtered? Let the user choose from the reach points
-            if len(filtered_features) == 0:
+            if not filtered_features:
                 filtered_features = node_features.asDict()
 
             # Ask the user which point he wants to use

@@ -205,7 +205,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         snap_nodelayer.mSnapTo = QgsSnapper.SnapToVertex
         snapper.setSnapLayers([snap_nodelayer])
         (_, snappedPoints) = snapper.snapPoint(pos)
-        if len(snappedPoints) >= 1:
+        if snappedPoints:
             self.currentSnappingResult = snappedPoints[0]
             return self.currentSnappingResult.snappedVertex
         else:
@@ -217,7 +217,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             snap_reachlayer.mSnapTo = QgsSnapper.SnapToVertexAndSegment
             snapper.setSnapLayers([snap_reachlayer])
             (_, snappedPoints) = snapper.snapPoint(pos)
-            if len(snappedPoints) >= 1:
+            if snappedPoints:
                 self.currentSnappingResult = snappedPoints[0]
                 return self.currentSnappingResult.snappedVertex
             else:

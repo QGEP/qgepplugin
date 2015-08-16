@@ -34,7 +34,7 @@ class QgepLayerNotifier(QObject):
                 lyrs = [lyr for (lyr_id, lyr)
                         in QgsMapLayerRegistry.instance().mapLayers().iteritems()
                         if lyr_id.startswith(qgep_id)]
-                if len(lyrs) == 0:
+                if not lyrs:
                     self.layersUnavailable.emit()
                     self.available = False
                     return
@@ -50,7 +50,7 @@ class QgepLayerNotifier(QObject):
                 lyr = [lyr for (lyr_id, lyr)
                        in QgsMapLayerRegistry.instance().mapLayers().iteritems()
                        if lyr_id.startswith(qgep_id)]
-                if len(lyr) == 0:
+                if not lyr:
                     return
                 lyrlist[qgep_id] = lyr[0]
 
@@ -76,7 +76,7 @@ class QgepLayerManager(object):
         lyr = [lyr for (lyr_id, lyr)
                in QgsMapLayerRegistry.instance().mapLayers().iteritems()
                if lyr_id.startswith(qgep_id)]
-        if len(lyr) == 0:
-            return None
-        else:
+        if lyr:
             return lyr[0]
+        else:
+            return None
