@@ -204,10 +204,11 @@ class QgepProfileReachElement(QgepProfileEdgeElement):
 
         self.detail_geometry = edge_cache.attrAsGeometry(reach, u'detail_geometry')
 
-#        try:
-        self.gradient = (self.fromLevel - self.toLevel) / self.length
-#        except:
-#            pass
+        # The levels can be unset (None). Catch it
+        try:
+            self.gradient = (self.fromLevel - self.toLevel) / self.length
+        except TypeError:
+            pass
 
     def asDict(self):
         """
