@@ -28,6 +28,7 @@ Some map tools for digitizing features
 """
 
 from qgis.gui import (
+    QgsMapToolAdvancedDigitizing,
     QgsMapTool,
     QgsRubberBand,
     QgsMessageBar
@@ -59,35 +60,35 @@ from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
 
 
-class QgepMapToolAddFeature(QgsMapTool):
+class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
     """
     Base class for adding features
     """
     def __init__(self, iface, layer):
-        QgsMapTool.__init__(self, iface.mapCanvas())
+        QgsMapToolAdvancedDigitizing.__init__(self, iface.mapCanvas(), iface.cadDockWidget())
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.layer = layer
         self.rubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
         self.rubberband.setColor(QColor("#ee5555"))
-        self.rubberband.setWidth(2)
+        self.rubberband.setWidth(1)
         self.tempRubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
         self.tempRubberband.setColor(QColor("#ee5555"))
-        self.tempRubberband.setWidth(2)
+        self.tempRubberband.setWidth(1)
         self.tempRubberband.setLineStyle(Qt.DotLine)
 
     def activate(self):
         """
         When activating the map tool
         """
-        QgsMapTool.activate(self)
+        QgsMapToolAdvancedDigitizing.activate(self)
         self.canvas.setCursor(QCursor(Qt.CrossCursor))
 
     def deactivate(self):
         """
         On deactivating the map tool
         """
-        QgsMapTool.deactivate(self)
+        QgsMapToolAdvancedDigitizing.deactivate(self)
         self.canvas.unsetCursor()
 
     # pylint: disable=no-self-use
@@ -101,7 +102,7 @@ class QgepMapToolAddFeature(QgsMapTool):
     # Events
     # ===========================================================================
 
-    def canvasReleaseEvent(self, event):
+    def cadCanvasReleaseEvent(self, event):
         """
         Called when a mouse button is
         :param event:
@@ -135,14 +136,19 @@ class QgepMapToolAddFeature(QgsMapTool):
         self.rubberband.reset()
         self.tempRubberband.reset()
 
-    def canvasMoveEvent(self, event):
+    def cadCanvasMoveEvent(self, event):
         """
         When the mouse is moved the rubberband needs to be updated
         :param event: The coordinates etc.
         """
-        mousepos = self.canvas.getCoordinateTransform()\
-            .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.tempRubberband.movePoint(mousepos)
+
+        # When a generated event arrives it's a QMoveEvent... No idea why, but this prevents from an exception
+        try:
+            QgsMapToolAdvancedDigitizing.cadCanvasMoveEvent(self, event)
+            mousepos = event.mapPoint()
+            self.tempRubberband.movePoint(mousepos)
+        except TypeError:
+            pass
 
 
 class QgepMapToolAddReach(QgepMapToolAddFeature):
@@ -161,15 +167,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         assert self.nodeLayer
         self.reachLayer = QgepLayerManager.layer('vw_qgep_reach')
         assert self.reachLayer
-
-    def canvasMoveEvent(self, event):
-        """
-        When the mouse is moved the rubberband needs to be updated
-        :param event: The coordinates etc.
-        """
-        mousepos = self.canvas.getCoordinateTransform()\
-            .toMapCoordinates(event.pos().x(), event.pos().y())
-        self.tempRubberband.movePoint(mousepos)
+        self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
 
     def leftClicked(self, event):
         """
@@ -184,8 +182,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         if self.currentSnappingResult:
             pt = self.currentSnappingResult.snappedVertex
         else:
-            pt = self.canvas.getCoordinateTransform()\
-                .toMapCoordinates(event.pos().x(), event.pos().y())
+            pt = event.mapPoint()
         self.rubberband.addPoint(pt)
         self.tempRubberband.reset()
         self.tempRubberband.addPoint(pt)
@@ -322,8 +319,7 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         Mouse is moved: Update rubberband
         :param event: coordinates etc.
         """
-        mousepos = self.canvas.getCoordinateTransform()\
-            .toMapCoordinates(event.pos().x(), event.pos().y())
+        mousepos = event.mapPoint()
         self.rubberband.movePoint(mousepos)
 
     def canvasReleaseEvent(self, event):
