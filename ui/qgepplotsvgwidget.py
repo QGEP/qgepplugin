@@ -35,7 +35,7 @@ class QgepWebPage(QWebPage):
     logger = logging.getLogger(__name__)
 
     def javaScriptConsoleMessage(self, msg, line, source):
-        self.logger.debug('%s line %d: %s' % (source, line, msg))
+        self.logger.debug('{} line {}: {}'.format(source, line, msg))
 
 
 class QgepPlotSVGWidget(QWidget):
