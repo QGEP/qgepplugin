@@ -23,7 +23,9 @@ sed "s/__version__/$1/" <../scripts/data/plugins.xml.template >plugins.xml
 NOW=`date -Iseconds -u`
 sed -i "s/__now__/$NOW/" plugins.xml
 
-git archive HEAD --prefix=qgepplugin/ --format=zip -o qgepplugin-$1.zip
+ln -s .. qgepplugin
+zip -r qgepplugin-$1.zip qgepplugin/ -x qgepplugin/repository\* qgepplugin/.gitignore
+rm qgepplugin
 
 git add .
 git commit -m "Release $1"
