@@ -3,7 +3,7 @@
   <name>fld_vw_qgep_cover</name>
   <message>
    <source>special_structure_function</source>
-   <translation>Funktion</translation>
+   <translation>Spezialbauwerk_Funktion</translation>
   </message>
   <message>
    <source>diameter</source>
@@ -59,7 +59,7 @@
   </message>
   <message>
    <source>manhole_orientation</source>
-   <translation type="unfinished" />
+   <translation>Normschacht_Orientierung</translation>
   </message>
   <message>
    <source>rv_construction_type</source>
@@ -71,7 +71,7 @@
   </message>
   <message>
    <source>channel_function_hierarchic</source>
-   <translation type="unfinished" />
+   <translation>Kanal_Funktion_Hierarchisch</translation>
   </message>
   <message>
    <source>financing</source>
@@ -91,7 +91,7 @@
   </message>
   <message>
    <source>manhole_function</source>
-   <translation>Funktion</translation>
+   <translation>Normschacht_Funktion</translation>
   </message>
   <message>
    <source>upper_elevation</source>
@@ -99,7 +99,7 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>kind</source>
@@ -123,7 +123,7 @@
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>relevance</source>
@@ -159,11 +159,11 @@
   </message>
   <message>
    <source>ws_type</source>
-   <translation type="unfinished" />
+   <translation>ws_Typ</translation>
   </message>
   <message>
    <source>ws_obj_id</source>
-   <translation type="unfinished" />
+   <translation>ws_OBJ_ID</translation>
   </message>
   <message>
    <source>records</source>
@@ -211,15 +211,15 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>channel_usage_current</source>
-   <translation type="unfinished" />
+   <translation>Kanal_Nutzungsart_IST</translation>
   </message>
   <message>
    <source>fk_operator</source>
-   <translation type="unfinished" />
+   <translation>fs_Betreiber</translation>
   </message>
   <message>
    <source>cover_shape</source>
@@ -235,7 +235,7 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>year_of_construction</source>
@@ -255,35 +255,35 @@
   </message>
   <message>
    <source>wn_provider</source>
-   <translation type="unfinished" />
+   <translation>wn_Datenlieferant</translation>
   </message>
   <message>
    <source>wn_last_modification</source>
-   <translation type="unfinished" />
+   <translation>wn_Letzte_Aenderung</translation>
   </message>
   <message>
    <source>bottom_level</source>
-   <translation type="unfinished" />
+   <translation>Sohlenkote</translation>
   </message>
   <message>
    <source>backflow_level</source>
-   <translation type="unfinished" />
+   <translation>Rueckstaukote</translation>
   </message>
   <message>
    <source>wn_obj_id</source>
-   <translation type="unfinished" />
+   <translation>wn_OBJ_ID</translation>
   </message>
   <message>
    <source>wn_remark</source>
-   <translation type="unfinished" />
+   <translation>wn_Bemerkung</translation>
   </message>
   <message>
    <source>wn_dataowner</source>
-   <translation type="unfinished" />
+   <translation>wn_Datenherr</translation>
   </message>
   <message>
    <source>wn_identifier</source>
-   <translation type="unfinished" />
+   <translation>wn_Bezeichnung</translation>
   </message>
  </context>
  <context>
@@ -294,7 +294,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -302,11 +302,11 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>remark</source>
@@ -314,22 +314,22 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
   <name>lyr_od_pipe_profile</name>
   <message>
    <source>od_pipe_profile</source>
-   <translation type="unfinished" />
+   <translation>OD_Rohrprofil</translation>
   </message>
  </context>
  <context>
@@ -340,7 +340,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -348,7 +348,7 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>material</source>
@@ -356,26 +356,26 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_qgep_reach</name>
   <message>
    <source>vw_qgep_reach</source>
-   <translation type="unfinished" />
+   <translation>vw_qgep_Haltung</translation>
   </message>
  </context>
  <context>
@@ -394,15 +394,15 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>data_details</source>
@@ -410,7 +410,7 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>remark</source>
@@ -438,7 +438,7 @@
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>duration</source>
@@ -465,7 +465,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -473,7 +473,7 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>brand</source>
@@ -485,7 +485,7 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>sludge_bucket</source>
@@ -509,11 +509,11 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>fastening</source>
@@ -521,7 +521,7 @@
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
@@ -536,23 +536,23 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>old_obj_id</source>
-   <translation type="unfinished" />
+   <translation>old_OBJ_ID</translation>
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
@@ -575,7 +575,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -583,37 +583,37 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_backflow_prevention</name>
   <message>
    <source>vw_backflow_prevention</source>
-   <translation type="unfinished" />
+   <translation>vw_Rueckstausicherung</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_channel</name>
   <message>
    <source>vw_channel</source>
-   <translation type="unfinished" />
+   <translation>vw_Kanal</translation>
   </message>
  </context>
  <context>
@@ -632,7 +632,7 @@
   </message>
   <message>
    <source>fk_owner</source>
-   <translation type="unfinished" />
+   <translation>fs_Eigentuemer</translation>
   </message>
   <message>
    <source>reliner_nominal_size</source>
@@ -684,7 +684,7 @@
   </message>
   <message>
    <source>progression_3d_geometry</source>
-   <translation type="unfinished" />
+   <translation>Verlauf3D</translation>
   </message>
   <message>
    <source>rp_to_identifier</source>
@@ -692,7 +692,7 @@
   </message>
   <message>
    <source>fk_operator</source>
-   <translation type="unfinished" />
+   <translation>fs_Betreiber</translation>
   </message>
   <message>
    <source>connection_type</source>
@@ -700,7 +700,7 @@
   </message>
   <message>
    <source>rp_to_obj_id</source>
-   <translation type="unfinished" />
+   <translation>rp_bis_OBJ_ID</translation>
   </message>
   <message>
    <source>replacement_value</source>
@@ -720,23 +720,23 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>fk_pipe_profile</source>
-   <translation type="unfinished" />
+   <translation>fs_Rohrprofil</translation>
   </message>
   <message>
    <source>width</source>
-   <translation type="unfinished" />
+   <translation>Breite</translation>
   </message>
   <message>
    <source>rp_from_provider</source>
-   <translation type="unfinished" />
+   <translation>rp_von_Datenlieferant</translation>
   </message>
   <message>
    <source>rp_to_position_of_connection</source>
-   <translation type="unfinished" />
+   <translation>rp_von_Verbindungsposition</translation>
   </message>
   <message>
    <source>elevation_determination</source>
@@ -744,7 +744,7 @@
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>rp_from_level</source>
@@ -752,7 +752,7 @@
   </message>
   <message>
    <source>rp_from_last_modification</source>
-   <translation type="unfinished" />
+   <translation>rp_von_Letzte_Aenderung</translation>
   </message>
   <message>
    <source>function_hydraulic</source>
@@ -760,7 +760,7 @@
   </message>
   <message>
    <source>rp_from_dataowner</source>
-   <translation type="unfinished" />
+   <translation>rp_von_Datenherr</translation>
   </message>
   <message>
    <source>rv_base_year</source>
@@ -772,7 +772,7 @@
   </message>
   <message>
    <source>slope_per_mill</source>
-   <translation type="unfinished" />
+   <translation>Gefaelle_Promill</translation>
   </message>
   <message>
    <source>remark</source>
@@ -788,11 +788,11 @@
   </message>
   <message>
    <source>rp_to_provider</source>
-   <translation type="unfinished" />
+   <translation>rp_bis_Datenlieferant</translation>
   </message>
   <message>
    <source>ws_obj_id</source>
-   <translation type="unfinished" />
+   <translation>ws_obj_id</translation>
   </message>
   <message>
    <source>pipe_length</source>
@@ -804,11 +804,11 @@
   </message>
   <message>
    <source>rp_from_obj_id</source>
-   <translation type="unfinished" />
+   <translation>rp_von_OBJ_ID</translation>
   </message>
   <message>
    <source>rp_from_position_of_connection</source>
-   <translation type="unfinished" />
+   <translation>rp_von_Verbindungsposition</translation>
   </message>
   <message>
    <source>relining_construction</source>
@@ -816,11 +816,11 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>rp_to_fk_wastewater_networkelement</source>
-   <translation type="unfinished" />
+   <translation>rp_bis_fs_Abwassernetzelement</translation>
   </message>
   <message>
    <source>rp_from_elevation_accuracy</source>
@@ -836,11 +836,11 @@
   </message>
   <message>
    <source>rp_to_last_modification</source>
-   <translation type="unfinished" />
+   <translation>rp_bis_Letzte_Aenderung</translation>
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>function_hierarchic</source>
@@ -868,7 +868,7 @@
   </message>
   <message>
    <source>rp_to_dataowner</source>
-   <translation type="unfinished" />
+   <translation>rp_bis_Datenherr</translation>
   </message>
   <message>
    <source>relining_kind</source>
@@ -892,7 +892,7 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>usage_planned</source>
@@ -900,7 +900,7 @@
   </message>
   <message>
    <source>rp_from_fk_wastewater_networkelement</source>
-   <translation type="unfinished" />
+   <translation>rp_von_fs_Abwassernetzelement</translation>
   </message>
   <message>
    <source>identifier</source>
@@ -915,14 +915,14 @@
   <name>lyr_vw_dryweather_downspout</name>
   <message>
    <source>vw_dryweather_downspout</source>
-   <translation type="unfinished" />
+   <translation>vw_Trockenwetterfallrohr</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_benching</name>
   <message>
    <source>vw_benching</source>
-   <translation type="unfinished" />
+   <translation>vw_Bankett</translation>
   </message>
  </context>
  <context>
@@ -937,7 +937,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -945,11 +945,11 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>remark</source>
@@ -961,29 +961,29 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_qgep_cover</name>
   <message>
    <source>vw_qgep_cover</source>
-   <translation type="unfinished" />
+   <translation>vw_qgep_Deckel</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_access_aid</name>
   <message>
    <source>vw_access_aid</source>
-   <translation type="unfinished" />
+   <translation>vw_Einstiegshilfe</translation>
   </message>
  </context>
  <context>
@@ -998,7 +998,7 @@
   </message>
   <message>
    <source>fk_owner</source>
-   <translation type="unfinished" />
+   <translation>fs_Eigentuemer</translation>
   </message>
   <message>
    <source>subsidies</source>
@@ -1038,11 +1038,11 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>function_hydraulic</source>
@@ -1050,7 +1050,7 @@
   </message>
   <message>
    <source>detail_geometry_geometry</source>
-   <translation type="unfinished" />
+   <translation>Detailgeometrie</translation>
   </message>
   <message>
    <source>rv_base_year</source>
@@ -1078,7 +1078,7 @@
   </message>
   <message>
    <source>detail_geometry_3d_geometry</source>
-   <translation type="unfinished" />
+   <translation>Detailgeometrie3D</translation>
   </message>
   <message>
    <source>financing</source>
@@ -1090,7 +1090,7 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>function_hierarchic</source>
@@ -1102,7 +1102,7 @@
   </message>
   <message>
    <source>fk_operator</source>
-   <translation type="unfinished" />
+   <translation>fs_Betreiber</translation>
   </message>
   <message>
    <source>jetting_interval</source>
@@ -1114,7 +1114,7 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>usage_planned</source>
@@ -1129,21 +1129,21 @@
   <name>lyr_vw_dryweather_flume</name>
   <message>
    <source>vw_dryweather_flume</source>
-   <translation type="unfinished" />
+   <translation>vw_Trockenwetterrinne</translation>
   </message>
  </context>
  <context>
   <name>lyr_vw_cover</name>
   <message>
    <source>vw_cover</source>
-   <translation type="unfinished" />
+   <translation>vw_Deckel</translation>
   </message>
  </context>
  <context>
   <name>lyr_od_maintenance_event</name>
   <message>
    <source>od_maintenance_event</source>
-   <translation type="unfinished" />
+   <translation>OD_Erhaltungsereignis</translation>
   </message>
  </context>
  <context>
@@ -1154,7 +1154,7 @@
   </message>
   <message>
    <source>fk_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>fs_Abwasserbauwerk</translation>
   </message>
   <message>
    <source>renovation_demand</source>
@@ -1162,11 +1162,11 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>remark</source>
@@ -1174,22 +1174,22 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>identifier</source>
-   <translation type="unfinished" />
+   <translation>Bezeichnung</translation>
   </message>
  </context>
  <context>
   <name>lyr_od_wastewater_structure</name>
   <message>
    <source>od_wastewater_structure</source>
-   <translation type="unfinished" />
+   <translation>OD_Abwasserbauwerk</translation>
   </message>
  </context>
  <context>
@@ -1204,7 +1204,7 @@
   </message>
   <message>
    <source>fk_owner</source>
-   <translation type="unfinished" />
+   <translation>fs_Eigentuemer</translation>
   </message>
   <message>
    <source>subsidies</source>
@@ -1236,19 +1236,19 @@
   </message>
   <message>
    <source>dataowner</source>
-   <translation type="unfinished" />
+   <translation>Datenherr</translation>
   </message>
   <message>
    <source>old_obj_id</source>
-   <translation type="unfinished" />
+   <translation>old_OBJ_ID</translation>
   </message>
   <message>
    <source>provider</source>
-   <translation type="unfinished" />
+   <translation>Datenlieferant</translation>
   </message>
   <message>
    <source>_function_hierarchic</source>
-   <translation type="unfinished" />
+   <translation>_Funktion_Hierarchisch</translation>
   </message>
   <message>
    <source>rv_base_year</source>
@@ -1268,7 +1268,7 @@
   </message>
   <message>
    <source>detail_geometry_3d_geometry</source>
-   <translation type="unfinished" />
+   <translation>Detailgeometrie3D</translation>
   </message>
   <message>
    <source>financing</source>
@@ -1280,15 +1280,15 @@
   </message>
   <message>
    <source>obj_id</source>
-   <translation type="unfinished" />
+   <translation>OBJ_ID</translation>
   </message>
   <message>
    <source>_usage_current</source>
-   <translation type="unfinished" />
+   <translation>_Nutzungsart_IST</translation>
   </message>
   <message>
    <source>fk_operator</source>
-   <translation type="unfinished" />
+   <translation>fs_Betreiber</translation>
   </message>
   <message>
    <source>status</source>
@@ -1296,7 +1296,7 @@
   </message>
   <message>
    <source>last_modification</source>
-   <translation type="unfinished" />
+   <translation>Letzte_Aenderung</translation>
   </message>
   <message>
    <source>year_of_construction</source>
@@ -1319,7 +1319,7 @@
   </message>
   <message>
    <source>Wastewater Networkelement</source>
-   <translation type="unfinished" />
+   <translation>Abwassernetzelement</translation>
   </message>
   <message>
    <source>Reach</source>
@@ -1339,7 +1339,7 @@
   </message>
   <message>
    <source>Maintenance</source>
-   <translation type="unfinished" />
+   <translation>Unterhalt</translation>
   </message>
   <message>
    <source>Channel</source>
@@ -1350,7 +1350,7 @@
   <name>frm_vw_qgep_cover</name>
   <message>
    <source>Dryweather Flume</source>
-   <translation type="unfinished" />
+   <translation>Trockenwetterrinne</translation>
   </message>
   <message>
    <source>Special Structure</source>
@@ -1362,7 +1362,7 @@
   </message>
   <message>
    <source>Wastewater Node</source>
-   <translation type="unfinished" />
+   <translation>Abwasserknoten</translation>
   </message>
   <message>
    <source>Cover</source>
@@ -1378,11 +1378,11 @@
   </message>
   <message>
    <source>Infiltration Installation</source>
-   <translation type="unfinished" />
+   <translation>Versickerungsanlage</translation>
   </message>
   <message>
    <source>Dryweather Downspout</source>
-   <translation type="unfinished" />
+   <translation>Trockenwetterfallrohr</translation>
   </message>
   <message>
    <source>Manhole</source>
@@ -1390,23 +1390,23 @@
   </message>
   <message>
    <source>Maintenance</source>
-   <translation type="unfinished" />
+   <translation>Unterhalt</translation>
   </message>
   <message>
    <source>Benching</source>
-   <translation type="unfinished" />
+   <translation>Bankett</translation>
   </message>
   <message>
    <source>Access Aid</source>
-   <translation type="unfinished" />
+   <translation>Einstiegshilfe</translation>
   </message>
   <message>
    <source>Backflow Prevention</source>
-   <translation type="unfinished" />
+   <translation>Rueckstausicherung</translation>
   </message>
   <message>
    <source>Discharge Point</source>
-   <translation type="unfinished" />
+   <translation>Einleitstelle</translation>
   </message>
  </context>
 </TS>

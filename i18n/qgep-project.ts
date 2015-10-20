@@ -299,6 +299,10 @@
    <source>manhole_label</source>
    <translation>manhole_label</translation>
   </message>
+  <message>
+   <source>_label</source>
+   <translation>_label</translation>
+  </message>
  </context>
  <context>
   <name>fld_vw_access_aid</name>
@@ -462,6 +466,18 @@
    <source>identifier</source>
    <translation>identifier</translation>
   </message>
+  <message>
+   <source>fk_operator_company</source>
+   <translation>fk_operator_company</translation>
+  </message>
+  <message>
+   <source>fk_provider</source>
+   <translation>fk_provider</translation>
+  </message>
+  <message>
+   <source>fk_dataowner</source>
+   <translation>fk_dataowner</translation>
+  </message>
  </context>
  <context>
   <name>fld_vw_cover</name>
@@ -575,6 +591,14 @@
   <message>
    <source>height_width_ratio</source>
    <translation>height_width_ratio</translation>
+  </message>
+  <message>
+   <source>fk_provider</source>
+   <translation>fk_provider</translation>
+  </message>
+  <message>
+   <source>fk_dataowner</source>
+   <translation>fk_dataowner</translation>
   </message>
  </context>
  <context>
@@ -927,6 +951,18 @@
   <message>
    <source>bedding_encasement</source>
    <translation>bedding_encasement</translation>
+  </message>
+  <message>
+   <source>material_abbr_fr</source>
+   <translation>material_abbr_fr</translation>
+  </message>
+  <message>
+   <source>material_abbr_en</source>
+   <translation>material_abbr_en</translation>
+  </message>
+  <message>
+   <source>material_abbr_de</source>
+   <translation>material_abbr_de</translation>
   </message>
  </context>
  <context>

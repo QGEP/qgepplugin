@@ -15,7 +15,7 @@
     <message>
         <source>Width:</source>
         <comment>Width:</comment>
-        <translation type="unfinished"/>
+        <translation>Breite:</translation>
     </message>
     <message>
         <source>Length:</source>
@@ -30,12 +30,12 @@
     <message>
         <source>Entry level:</source>
         <comment>Entry level:</comment>
-        <translation type="unfinished"/>
+        <translation>Einlaufkote:</translation>
     </message>
     <message>
         <source>Exit level:</source>
         <comment>Exit level:</comment>
-        <translation type="unfinished"/>
+        <translation>Auslaufkote:</translation>
     </message>
 </context>
 <context>
@@ -58,12 +58,12 @@
     <message>
         <source>Entry level:</source>
         <comment>Entry level:</comment>
-        <translation type="unfinished"/>
+        <translation>Einlaufkote:</translation>
     </message>
     <message>
         <source>Exit level:</source>
         <comment>Exit level:</comment>
-        <translation type="unfinished"/>
+        <translation>Auslaufkote:</translation>
     </message>
 </context>
 </TS>
