@@ -121,7 +121,11 @@ class QgepGraphManager(QObject):
             obj_id = feat['obj_id']
             obj_type = feat['type']
 
-            vertex = feat.geometry().asPoint()
+            try:
+                vertex = feat.geometry().asPoint()
+            except AttributeError:
+                # TODO Add to problem log
+                pass
             self.graph.add_node(fid, dict(point=vertex, objType=obj_type))
 
             self.vertexIds[unicode(obj_id)] = fid
