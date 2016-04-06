@@ -48,8 +48,8 @@ def manholeOpen(form, layer, feature):
         )
         btn.setEnabled(layer.isEditable())
 
-        enable_button = lambda: btn.setEnabled(True)
-        disable_button = lambda: btn.setEnabled(False)
+        enable_button = lambda: btn.setEnabled(True)  # NOQA
+        disable_button = lambda: btn.setEnabled(False)  # NOQA
 
         layer.editingStarted.connect(
             enable_button
