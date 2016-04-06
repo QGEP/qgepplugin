@@ -33,7 +33,7 @@ before_script:
   - export LD_LIBRARY_PATH=${QGIS_PREFIX_PATH}/lib
 
 script:
-  - flake8
+  - flake8 --jobs=1
 
 after_success:
   - scripts/ci/make_release.sh
