@@ -39,7 +39,8 @@ from PyQt4.QtGui import (
 
 from tools.qgepmaptools import (
     QgepProfileMapTool,
-    QgepTreeMapTool
+    QgepTreeMapTool,
+    QgepMapToolConnectNetworkElements
 )
 from tools.qgepnetwork import QgepGraphManager
 from ui.qgepprofiledockwidget import QgepProfileDockWidget
@@ -140,6 +141,8 @@ class QgepPlugin:
         """
         self.network_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
                                                         ['vw_network_node', 'vw_network_segment'])
+        self.wastewater_networkelement_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
+                                                        ['vw_wastewater_node', 'vw_qgep_reach'])
         self.toolbarButtons = []
 
         # Create toolbar button
@@ -170,6 +173,13 @@ class QgepPlugin:
         self.wizardAction.setCheckable(True)
         self.wizardAction.triggered.connect(self.wizard)
 
+        self.connectNetworkElementsAction = QAction(
+            QIcon(":/plugins/qgepplugin/icons/link-wastewater-networkelement.svg"),
+            QApplication.translate('qgepplugin', 'Connect wastewater networkelements'), self.iface.mainWindow())
+        self.connectNetworkElementsAction.setEnabled(False)
+        self.connectNetworkElementsAction.setCheckable(True)
+        self.connectNetworkElementsAction.triggered.connect(self.connectNetworkElements)
+
         self.refreshNetworkTopologyAction = QAction(QIcon(":/plugins/qgepplugin/icons/refresh-network.svg"),
                                                     "Refresh network topology", self.iface.mainWindow())
         self.refreshNetworkTopologyAction.setWhatsThis(self.tr("Refresh network topology"))
@@ -189,6 +199,7 @@ class QgepPlugin:
         self.iface.addToolBarIcon(self.downstreamAction)
         self.iface.addToolBarIcon(self.wizardAction)
         self.iface.addToolBarIcon(self.refreshNetworkTopologyAction)
+        self.iface.addToolBarIcon(self.connectNetworkElementsAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
@@ -215,6 +226,10 @@ class QgepPlugin:
         self.downstream_tree_tool = QgepTreeMapTool(self.iface, self.downstreamAction, self.network_analyzer)
         self.downstream_tree_tool.setDirection("downstream")
 
+        self.maptool_connect_networkelements = QgepMapToolConnectNetworkElements(self.iface, self.connectNetworkElementsAction)
+
+        self.wastewater_networkelement_layer_notifier.layersAvailableChanged.connect(self.connectNetworkElementsAction.setEnabled)
+
     def unload(self):
         """
         Called when unloading
@@ -224,6 +239,7 @@ class QgepPlugin:
         self.iface.removeToolBarIcon(self.downstreamAction)
         self.iface.removeToolBarIcon(self.wizardAction)
         self.iface.removeToolBarIcon(self.refreshNetworkTopologyAction)
+        self.iface.removeToolBarIcon(self.connectNetworkElementsAction)
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
@@ -273,6 +289,11 @@ class QgepPlugin:
         self.logger.debug('Opening Wizard')
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.wizarddock)
         self.wizarddock.show()
+
+    @pyqtSlot()
+    def connectNetworkElements(self):
+        print 'Copnnet them'
+        self.iface.mapCanvas().setMapTool(self.maptool_connect_networkelements)
 
     def openDock(self):
         """

@@ -29,23 +29,36 @@ This module implements several map tools for QGEP
 
 from qgis.core import (
     QgsGeometry,
-    QgsPoint
+    QgsPoint,
+    QGis,
+    QgsFeatureRequest,
+    QgsSnappingUtils,
+    QgsTolerance,
+    QgsPointLocator
 )
 from qgis.gui import (
     QgsMapTool,
     QgsRubberBand,
     QgsVertexMarker,
-    QgsMessageBar
+    QgsMessageBar,
+    QgsMapMouseEvent,
+    QgsMapCanvasSnappingUtils
 )
 from PyQt4.QtGui import (
     QCursor,
     QColor,
-    QApplication)
+    QApplication,
+    QDialog,
+    QFormLayout,
+    QCheckBox,
+    QDialogButtonBox
+)
 from PyQt4.QtCore import (
     Qt,
     QPoint,
     pyqtSignal,
-    QSettings
+    QSettings,
+    QCoreApplication
 )
 from .qgepprofile import (
     QgepProfile,
@@ -53,9 +66,9 @@ from .qgepprofile import (
     QgepProfileReachElement,
     QgepProfileSpecialStructureElement
 )
+from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 
 import logging
-
 
 class QgepMapTool(QgsMapTool):
     """
@@ -437,3 +450,153 @@ class QgepTreeMapTool(QgepMapTool):
             self.canvas.scene().removeItem(marker)
 
         self.highLightedPoints = []
+
+
+class QgepMapToolConnectNetworkElements(QgsMapTool):
+    """
+    This map tool connects wastewater networkelements.
+
+    It works on two lists of layers:
+      source layers with fields with a foreign key to a networkelement
+      target layers which depict networkelements (reaches and network nodes)
+
+    The tool will snap to source layers first and once one is chosen to a target layer.
+
+    It will then ask which field(s) should be connected and perform the update on the database
+    """
+
+    def __init__(self, iface, action):
+        QgsMapTool.__init__(self, iface.mapCanvas())
+        self.iface = iface
+        self.action = action
+
+        self.rbline = QgsRubberBand(self.iface.mapCanvas(), QGis.Line)
+        self.rbline.setColor(QColor('#f4530e'))
+        self.rbline.setWidth(3)
+        self.rbmarkers = QgsRubberBand(self.iface.mapCanvas(), QGis.Point)
+        self.rbmarkers.setColor(QColor('#f4530e'))
+
+        self.source_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+        self.target_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+
+    def activate(self):
+        source_snap_layers = list()
+        target_snap_layers = list()
+
+        # A dict of layers and the fields that are foreign keys
+        # pointing to wastewater networkelements
+        self.network_element_sources = {
+            QgepLayerManager.layer('vw_qgep_reach'): [
+                ('rp_to_fk_wastewater_networkelement',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
+                ('rp_from_fk_wastewater_networkelement',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
+            ]
+        }
+
+        # A list of layers that can be used as wastewater networkelement targets
+        self.network_element_targets = [
+            QgepLayerManager.layer('vw_wastewater_node'),
+            QgepLayerManager.layer('vw_qgep_reach')
+        ]
+
+        for layer in self.network_element_sources.keys():
+            if layer:
+                snap_layer = QgsSnappingUtils.LayerConfig(layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
+                source_snap_layers.append(snap_layer)
+
+        for layer in self.network_element_targets:
+            if layer:
+                snap_layer = QgsSnappingUtils.LayerConfig(layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
+                target_snap_layers.append(snap_layer)
+
+        self.source_snapper.setLayers(source_snap_layers)
+        self.source_snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+
+        self.target_snapper.setLayers(target_snap_layers)
+        self.target_snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+
+        self.reset()
+
+        self.action.setChecked(True)
+
+        self.iface.mapCanvas().setCursor(QCursor(Qt.CrossCursor))
+
+    def canvasMoveEvent(self, event):
+        pt = event.originalMapPoint()
+        snap_match = self.snapper.snapToMap(pt)
+
+        if snap_match.isValid():
+            pt = snap_match.point()
+
+            if self.source_match:
+                self.rbmarkers.movePoint(pt)
+            else:
+                self.rbmarkers.movePoint(pt, 0)
+            self.rbmarkers.show()
+        else:
+            self.rbmarkers.hide()
+
+        self.rbline.movePoint(pt)
+
+        self.snapresult = snap_match
+
+    def canvasReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            if self.snapresult.isValid():
+                if self.source_match:
+                    self.connect_features(self.source_match, self.snapresult)
+                else:
+                    self.rbline.show()
+                    self.rbline.addPoint(self.snapresult.point())
+                    self.source_match = self.snapresult
+                    self.snapper = self.target_snapper
+        else:
+            self.reset()
+
+    def deactivate(self):
+        self.reset()
+        self.action.setChecked(False)
+
+    def reset(self):
+        self.source_match = None
+        self.rbline.hide()
+        self.rbline.reset()
+        self.rbmarkers.hide()
+        self.rbmarkers.reset(QGis.Point)
+        self.rbmarkers.addPoint(QgsPoint())
+        self.snapresult = None
+        self.source_match = None
+        self.snapper = self.source_snapper
+
+    def connect_features(self, source, target):
+        dlg = QDialog(self.iface.mainWindow())
+        dlg.setWindowTitle(self.tr('Select properties to connect'))
+        dlg.setLayout(QFormLayout())
+
+        properties = list()
+
+        for prop in self.network_element_sources[source.layer()]:
+            cbx = QCheckBox(prop[1])
+            cbx.setObjectName(prop[0])
+            properties.append(cbx)
+            dlg.layout().addWidget(cbx)
+
+        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        dlg.layout().addWidget(btn_box)
+        btn_box.accepted.connect(dlg.accept)
+        btn_box.rejected.connect(dlg.reject)
+
+        source_feature = next(source.layer().getFeatures(QgsFeatureRequest().setFilterFid(source.featureId())))
+        target_feature = next(target.layer().getFeatures(QgsFeatureRequest().setFilterFid(target.featureId())))
+
+        if dlg.exec_():
+            for cbx in properties:
+                if cbx.isChecked():
+                    source_feature[cbx.objectName()] = target_feature['obj_id']
+            if source.layer().updateFeature(source_feature):
+                self.iface.messageBar().pushMessage('QGEP', self.tr('Connected {} to {}').format(source_feature['identifier'], target_feature['identifier']), QgsMessageBar.INFO, 5)
+            else:
+                self.iface.messageBar().pushMessage('QGEP', self.tr('Error connecting features'), QgsMessageBar.WARNING, 5)
+
+        self.reset()

@@ -13,6 +13,8 @@ class QgepLayerNotifier(QObject):
     layersAvailable = pyqtSignal([dict])
     layersUnavailable = pyqtSignal()
 
+    layersAvailableChanged = pyqtSignal(bool)
+
     available = False
 
     def __init__(self, parent, layers):
@@ -36,8 +38,8 @@ class QgepLayerNotifier(QObject):
                         if lyr_id.startswith(qgep_id)]
                 if not lyrs:
                     self.layersUnavailable.emit()
+                    self.layersAvailableChanged.emit(False)
                     self.available = False
-                    return
 
     def layersAdded(self, _):
         """
@@ -55,6 +57,7 @@ class QgepLayerNotifier(QObject):
                 lyrlist[qgep_id] = lyr[0]
 
             self.available = True
+            self.layersAvailableChanged.emit(True)
             self.layersAvailable.emit(lyrlist)
 
 
