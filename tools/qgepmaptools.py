@@ -34,7 +34,8 @@ from qgis.core import (
     QgsFeatureRequest,
     QgsSnappingUtils,
     QgsTolerance,
-    QgsPointLocator
+    QgsPointLocator,
+    QgsFeature
 )
 from qgis.gui import (
     QgsMapTool,
@@ -475,11 +476,24 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.rbline.setWidth(3)
         self.rbmarkers = QgsRubberBand(self.iface.mapCanvas(), QGis.Point)
         self.rbmarkers.setColor(QColor('#f4530e'))
+        self.rbmarkers.setIconSize(6)
 
         self.source_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
         self.target_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
 
+        self.source_feature = QgsFeature()
+        self.rb_source_feature = QgsRubberBand(self.iface.mapCanvas())
+        self.rb_source_feature.setColor(QColor('#f49e79'))
+        self.rb_source_feature.setWidth(3)
+        self.target_feature = QgsFeature()
+        self.rb_target_feature = QgsRubberBand(self.iface.mapCanvas())
+        self.rb_target_feature.setColor(QColor('#f49e79'))
+        self.rb_target_feature.setWidth(3)
+
     def activate(self):
+        """
+        Called by QGIS whenever the tool is activated.
+        """
         source_snap_layers = list()
         target_snap_layers = list()
 
@@ -523,6 +537,9 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.iface.mapCanvas().setCursor(QCursor(Qt.CrossCursor))
 
     def canvasMoveEvent(self, event):
+        """
+        When the mouse moves, update the rubberbands.
+        """
         pt = event.originalMapPoint()
         snap_match = self.snapper.snapToMap(pt)
 
@@ -530,18 +547,34 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             pt = snap_match.point()
 
             if self.source_match:
+                if self.target_feature.id() != snap_match.featureId():
+                    self.target_feature = self.get_feature_for_match(snap_match)
+                    print 'Got geometry ' + self.target_feature.geometry().exportToGeoJSON()
+                    self.rb_target_feature.setToGeometry(self.target_feature.geometry(), snap_match.layer())
+                    self.rb_target_feature.show()
                 self.rbmarkers.movePoint(pt)
             else:
+                if self.source_feature.id() != snap_match.featureId():
+                    self.source_feature = self.get_feature_for_match(snap_match)
+                    self.rb_source_feature.setToGeometry(self.source_feature.geometry(), snap_match.layer())
+                    self.rb_source_feature.show()
                 self.rbmarkers.movePoint(pt, 0)
             self.rbmarkers.show()
         else:
             self.rbmarkers.hide()
+            if self.source_match:
+                self.rb_target_feature.hide()
+            else:
+                self.rb_source_feature.hide()
 
         self.rbline.movePoint(pt)
 
         self.snapresult = snap_match
 
     def canvasReleaseEvent(self, event):
+        """
+        On a click update the rubberbands and the snapping results if it's a left click. Reset if it's a right click.
+        """
         if event.button() == Qt.LeftButton:
             if self.snapresult.isValid():
                 if self.source_match:
@@ -555,10 +588,16 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             self.reset()
 
     def deactivate(self):
+        """
+        Called by QGIS whenever this tool is deactivated.
+        """
         self.reset()
         self.action.setChecked(False)
 
     def reset(self):
+        """
+        Resets the tool to a pristine state
+        """
         self.source_match = None
         self.rbline.hide()
         self.rbline.reset()
@@ -568,8 +607,28 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.snapresult = None
         self.source_match = None
         self.snapper = self.source_snapper
+        self.source_feature = QgsFeature()
+        self.target_feature = QgsFeature()
+        self.rb_source_feature.reset()
+        self.rb_target_feature.reset()
+
+    def get_feature_for_match(self, match):
+        """
+        Get the feature for a snapping result
+        @param match: The QgsPointLocator.SnapMatch object
+        @return: A feature
+        """
+        return next(match.layer().getFeatures(QgsFeatureRequest().setFilterFid(match.featureId())))
 
     def connect_features(self, source, target):
+        """
+        Connects the source feature with the target feature.
+
+        @param source: A QgsPointLocator.Match object. Its foreign key will be updated.
+                       A dialog will be opened which asks the user for which foreign key(s) he wants to update.
+        @param target: A QgsPointLocator.Match object. This feature will be used as link target.
+                       Its obj_id attribute will be used as primary key.
+        """
         dlg = QDialog(self.iface.mainWindow())
         dlg.setWindowTitle(self.tr('Select properties to connect'))
         dlg.setLayout(QFormLayout())
@@ -587,8 +646,8 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         btn_box.accepted.connect(dlg.accept)
         btn_box.rejected.connect(dlg.reject)
 
-        source_feature = next(source.layer().getFeatures(QgsFeatureRequest().setFilterFid(source.featureId())))
-        target_feature = next(target.layer().getFeatures(QgsFeatureRequest().setFilterFid(target.featureId())))
+        source_feature = self.get_feature_for_match(source)
+        target_feature = self.get_feature_for_match(target)
 
         if dlg.exec_():
             for cbx in properties:
