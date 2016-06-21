@@ -549,15 +549,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             if self.source_match:
                 if self.target_feature.id() != snap_match.featureId():
                     self.target_feature = self.get_feature_for_match(snap_match)
-                    print 'Got geometry ' + self.target_feature.geometry().exportToGeoJSON()
                     self.rb_target_feature.setToGeometry(self.target_feature.geometry(), snap_match.layer())
-                    self.rb_target_feature.show()
+                self.rb_target_feature.show()
                 self.rbmarkers.movePoint(pt)
             else:
                 if self.source_feature.id() != snap_match.featureId():
                     self.source_feature = self.get_feature_for_match(snap_match)
                     self.rb_source_feature.setToGeometry(self.source_feature.geometry(), snap_match.layer())
-                    self.rb_source_feature.show()
+                self.rb_source_feature.show()
                 self.rbmarkers.movePoint(pt, 0)
             self.rbmarkers.show()
         else:
