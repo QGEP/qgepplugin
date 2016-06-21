@@ -142,7 +142,7 @@ class QgepPlugin:
         self.network_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
                                                         ['vw_network_node', 'vw_network_segment'])
         self.wastewater_networkelement_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
-                                                        ['vw_wastewater_node', 'vw_qgep_reach'])
+                                                                          ['vw_wastewater_node', 'vw_qgep_reach'])
         self.toolbarButtons = []
 
         # Create toolbar button
@@ -226,9 +226,11 @@ class QgepPlugin:
         self.downstream_tree_tool = QgepTreeMapTool(self.iface, self.downstreamAction, self.network_analyzer)
         self.downstream_tree_tool.setDirection("downstream")
 
-        self.maptool_connect_networkelements = QgepMapToolConnectNetworkElements(self.iface, self.connectNetworkElementsAction)
+        self.maptool_connect_networkelements = QgepMapToolConnectNetworkElements(
+            self.iface, self.connectNetworkElementsAction)
 
-        self.wastewater_networkelement_layer_notifier.layersAvailableChanged.connect(self.connectNetworkElementsAction.setEnabled)
+        self.wastewater_networkelement_layer_notifier.layersAvailableChanged.connect(
+            self.connectNetworkElementsAction.setEnabled)
 
     def unload(self):
         """

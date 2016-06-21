@@ -41,7 +41,6 @@ from qgis.gui import (
     QgsRubberBand,
     QgsVertexMarker,
     QgsMessageBar,
-    QgsMapMouseEvent,
     QgsMapCanvasSnappingUtils
 )
 from PyQt4.QtGui import (
@@ -69,6 +68,7 @@ from .qgepprofile import (
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 
 import logging
+
 
 class QgepMapTool(QgsMapTool):
     """
@@ -595,8 +595,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                 if cbx.isChecked():
                     source_feature[cbx.objectName()] = target_feature['obj_id']
             if source.layer().updateFeature(source_feature):
-                self.iface.messageBar().pushMessage('QGEP', self.tr('Connected {} to {}').format(source_feature['identifier'], target_feature['identifier']), QgsMessageBar.INFO, 5)
+                self.iface.messageBar().pushMessage('QGEP',
+                                                    self.tr('Connected {} to {}').format(
+                                                        source_feature['identifier'],
+                                                        target_feature['identifier']),
+                                                    QgsMessageBar.INFO, 5)
             else:
-                self.iface.messageBar().pushMessage('QGEP', self.tr('Error connecting features'), QgsMessageBar.WARNING, 5)
+                self.iface.messageBar().pushMessage('QGEP',
+                                                    self.tr('Error connecting features'),
+                                                    QgsMessageBar.WARNING, 5)
 
         self.reset()
