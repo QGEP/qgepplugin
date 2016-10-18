@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QPushButton, QTabWidget, QComboBox
+from PyQt4.QtGui import QPushButton
 import qgis
 from qgis.core import QgsMapLayerRegistry
 
@@ -23,7 +23,8 @@ def mapToolDeactivated(tool):
 def digitizeDrainageChannel(fid, layerid):
     layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
     layer.startEditing()
-    tool = QgepMapToolDigitizeDrainageChannel(qgis.utils.plugins['qgepplugin'].iface, layer)
+    tool = QgepMapToolDigitizeDrainageChannel(
+        qgis.utils.plugins['qgepplugin'].iface, layer)
     qgis.utils.plugins['qgepplugin'].iface.mapCanvas().setMapTool(tool)
     tool.geometryDigitized.connect(
         lambda: geometryDigitized(fid, layer, tool)
@@ -57,8 +58,9 @@ def manholeOpen(form, layer, feature):
         layer.editingStopped.connect(
             disable_button
         )
-        form.destroyed.connect(lambda: layer.editingStarted.disconnect(enable_button))
-        form.destroyed.connect(lambda: layer.editingStopped.disconnect(disable_button))
+        form.destroyed.connect(
+            lambda: layer.editingStarted.disconnect(enable_button))
+        form.destroyed.connect(
+            lambda: layer.editingStopped.disconnect(disable_button))
     else:
         btn.setEnabled(False)
-

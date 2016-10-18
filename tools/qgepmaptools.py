@@ -87,7 +87,8 @@ class QgepMapTool(QgsMapTool):
         self.msgBar = iface.messageBar()
 
         settings = QSettings()
-        current_profile_color = settings.value("/QGEP/CurrentProfileColor", u'#FF9500')
+        current_profile_color = settings.value(
+            "/QGEP/CurrentProfileColor", u'#FF9500')
 
         self.rubberBand = QgsRubberBand(self.canvas)
         self.rubberBand.setColor(QColor(current_profile_color))
@@ -209,7 +210,8 @@ class QgepProfileMapTool(QgepMapTool):
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
         # try:
-        (vertices, edges) = self.networkAnalyzer.shortestPath(start_point, end_point)
+        (vertices, edges) = self.networkAnalyzer.shortestPath(
+            start_point, end_point)
         self.appendProfile(vertices, edges)
         #        except:
         #            pass
@@ -239,20 +241,24 @@ class QgepProfileMapTool(QgepMapTool):
         edge_layer = self.networkAnalyzer.getReachLayer()
         edge_ids = [edge['feature'] for p1, p2, edge in edges]
 
-        edge_features = self.networkAnalyzer.getFeaturesById(edge_layer, edge_ids)
+        edge_features = self.networkAnalyzer.getFeaturesById(
+            edge_layer, edge_ids)
 
         # We need some additional nodes, where we need to interpolate...
         interpolate_nodes_from = [edge_features.attrAsUnicode(feat, u'from_obj_id_interpolate')
                                   for feat in edge_features.asDict().values()]
         interpolate_nodes_to = [edge_features.attrAsUnicode(feat, u'to_obj_id_interpolate')
                                 for feat in edge_features.asDict().values()]
-        additional_ids = [self.networkAnalyzer.vertexIds[node] for node in interpolate_nodes_from]
-        additional_ids += [self.networkAnalyzer.vertexIds[node] for node in interpolate_nodes_to]
+        additional_ids = [self.networkAnalyzer.vertexIds[node]
+                          for node in interpolate_nodes_from]
+        additional_ids += [self.networkAnalyzer.vertexIds[node]
+                           for node in interpolate_nodes_to]
 
         # Now, fetch the nodes we need
         node_layer = self.networkAnalyzer.getNodeLayer()
         node_ids = vertices + additional_ids
-        node_features = self.networkAnalyzer.getFeaturesById(node_layer, node_ids)
+        node_features = self.networkAnalyzer.getFeaturesById(
+            node_layer, node_ids)
 
         if len(vertices) > 1:
             self.rubberBand.reset()
@@ -295,9 +301,11 @@ class QgepProfileMapTool(QgepMapTool):
 
             # Create rubberband geometry
             for featId in edge_ids:
-                self.pathPolyline.extend(edge_features[featId].geometry().asPolyline())
+                self.pathPolyline.extend(
+                    edge_features[featId].geometry().asPolyline())
 
-            self.rubberBand.addGeometry(QgsGeometry.fromPolyline(self.pathPolyline), node_layer)
+            self.rubberBand.addGeometry(
+                QgsGeometry.fromPolyline(self.pathPolyline), node_layer)
             self.profileChanged.emit(self.profile)
             return True
         else:
@@ -339,7 +347,8 @@ class QgepProfileMapTool(QgepMapTool):
 
         if snapped_point is not None:
             if self.selectedPathPoints:
-                pf = self.findPath(self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
+                pf = self.findPath(
+                    self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
                 if pf:
                     self.selectedPathPoints.append(
                         (snapped_point.snappedAtGeometry, QgsPoint(snapped_point.snappedVertex)))
@@ -348,7 +357,7 @@ class QgepProfileMapTool(QgepMapTool):
                     self.msgBar.pushWidget(msg, QgsMessageBar.WARNING)
             else:
                 self.selectedPathPoints.append((snapped_point.snappedAtGeometry,
-                                               QgsPoint(snapped_point.snappedVertex)))
+                                                QgsPoint(snapped_point.snappedVertex)))
 
 
 class QgepTreeMapTool(QgepMapTool):
@@ -383,7 +392,8 @@ class QgepTreeMapTool(QgepMapTool):
         self.rubberBand.reset()
 
         edges = self.networkAnalyzer.getTree(point, upstream)
-        polylines = self.networkAnalyzer.getEdgeGeometry([edge[2]['feature'] for edge in edges])
+        polylines = self.networkAnalyzer.getEdgeGeometry(
+            [edge[2]['feature'] for edge in edges])
 
         # Fix for QGIS < 2.0
         filtered_polylines = [pl for pl in polylines if pl]
@@ -399,7 +409,8 @@ class QgepTreeMapTool(QgepMapTool):
         :param event: QMouseEvent with coordinates
         """
         point_clicked = QPoint(event.pos().x(), event.pos().y())
-        (_, snapped_points) = self.networkAnalyzer.getSnapper().snapPoint(point_clicked, [])
+        (_, snapped_points) = self.networkAnalyzer.getSnapper(
+        ).snapPoint(point_clicked, [])
 
         for marker in self.highLightedPoints:
             self.canvas.scene().removeItem(marker)
@@ -454,8 +465,9 @@ class QgepTreeMapTool(QgepMapTool):
 
 
 class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
-    def __init__(self, mapCanvas):
-        QgsMapCanvasSnappingUtils.__init__(self, mapCanvas)
+
+    def __init__(self, map_canvas):
+        QgsMapCanvasSnappingUtils.__init__(self, map_canvas)
 
     def snapToMap(self, pt):
         match = QgsMapCanvasSnappingUtils.snapToMap(self, pt)
@@ -469,6 +481,7 @@ class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
                         return results[0]
 
         return match
+
 
 class QgepMapToolConnectNetworkElements(QgsMapTool):
     """
@@ -524,22 +537,19 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                  QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
             ],
             QgepLayerManager.layer('od_catchment_area'): [
-                ('fk_wastewater_networkelement_rw_current',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
-                     'Rainwater current')),
-                ('fk_wastewater_networkelement_rw_planned',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
-                     'Rainwater planned')),
-                ('fk_wastewater_networkelement_ww_current',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
-                     'Wastewater current')),
-                ('fk_wastewater_networkelement_ww_planned',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
-                     'Wastewater planned'))
+                ('fk_wastewater_networkelement_rw_current', QCoreApplication.translate(
+                    'QgepMapToolConnectNetworkElements', 'Rainwater current')),
+                ('fk_wastewater_networkelement_rw_planned', QCoreApplication.translate(
+                    'QgepMapToolConnectNetworkElements', 'Rainwater planned')),
+                ('fk_wastewater_networkelement_ww_current', QCoreApplication.translate(
+                    'QgepMapToolConnectNetworkElements', 'Wastewater current')),
+                ('fk_wastewater_networkelement_ww_planned', QCoreApplication.translate(
+                    'QgepMapToolConnectNetworkElements', 'Wastewater planned'))
             ]
         }
 
-        # A list of layers that can be used as wastewater networkelement targets
+        # A list of layers that can be used as wastewater networkelement
+        # targets
         self.network_element_targets = [
             QgepLayerManager.layer('vw_wastewater_node'),
             QgepLayerManager.layer('vw_qgep_reach')
@@ -547,12 +557,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
         for layer in self.network_element_sources.keys():
             if layer:
-                snap_layer = QgsSnappingUtils.LayerConfig(layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
+                snap_layer = QgsSnappingUtils.LayerConfig(
+                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
                 source_snap_layers.append(snap_layer)
 
         for layer in self.network_element_targets:
             if layer:
-                snap_layer = QgsSnappingUtils.LayerConfig(layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
+                snap_layer = QgsSnappingUtils.LayerConfig(
+                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
                 target_snap_layers.append(snap_layer)
 
         self.source_snapper.setLayers(source_snap_layers)
@@ -581,14 +593,18 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
             if self.source_match:
                 if self.target_feature.id() != snap_match.featureId():
-                    self.target_feature = self.get_feature_for_match(snap_match)
-                    self.rb_target_feature.setToGeometry(self.target_feature.geometry(), snap_match.layer())
+                    self.target_feature = self.get_feature_for_match(
+                        snap_match)
+                    self.rb_target_feature.setToGeometry(
+                        self.target_feature.geometry(), snap_match.layer())
                 self.rb_target_feature.show()
                 self.rbmarkers.movePoint(pt)
             else:
                 if self.source_feature.id() != snap_match.featureId():
-                    self.source_feature = self.get_feature_for_match(snap_match)
-                    self.rb_source_feature.setToGeometry(self.source_feature.geometry(), snap_match.layer())
+                    self.source_feature = self.get_feature_for_match(
+                        snap_match)
+                    self.rb_source_feature.setToGeometry(
+                        self.source_feature.geometry(), snap_match.layer())
                 self.rb_source_feature.show()
                 self.rbmarkers.movePoint(pt, 0)
             self.rbmarkers.show()
@@ -673,7 +689,8 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             properties.append(cbx)
             dlg.layout().addWidget(cbx)
 
-        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        btn_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         dlg.layout().addWidget(btn_box)
         btn_box.accepted.connect(dlg.accept)
         btn_box.rejected.connect(dlg.reject)
@@ -688,12 +705,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             if source.layer().updateFeature(source_feature):
                 self.iface.messageBar().pushMessage('QGEP',
                                                     self.tr('Connected {} to {}').format(
-                                                        source_feature['identifier'],
+                                                        source_feature[
+                                                            'identifier'],
                                                         target_feature['identifier']),
                                                     QgsMessageBar.INFO, 5)
             else:
                 self.iface.messageBar().pushMessage('QGEP',
-                                                    self.tr('Error connecting features'),
+                                                    self.tr(
+                                                        'Error connecting features'),
                                                     QgsMessageBar.WARNING, 5)
 
         self.reset()
