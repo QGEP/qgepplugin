@@ -453,6 +453,23 @@ class QgepTreeMapTool(QgepMapTool):
         self.highLightedPoints = []
 
 
+class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
+    def __init__(self, mapCanvas):
+        QgsMapCanvasSnappingUtils.__init__(self, mapCanvas)
+
+    def snapToMap(self, pt):
+        match = QgsMapCanvasSnappingUtils.snapToMap(self, pt)
+
+        if not match.isValid() and self.snapToMapMode() == QgsSnappingUtils.SnapAdvanced:
+            for layer in self.layers():
+                if layer.type & QgsPointLocator.Area:
+                    loc = self.locatorForLayer(layer.layer)
+                    results = loc.pointInPolygon(pt)
+                    if results:
+                        return results[0]
+
+        return match
+
 class QgepMapToolConnectNetworkElements(QgsMapTool):
     """
     This map tool connects wastewater networkelements.
@@ -478,8 +495,8 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.rbmarkers.setColor(QColor('#f4530e'))
         self.rbmarkers.setIconSize(6)
 
-        self.source_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
-        self.target_snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+        self.source_snapper = QgepAreaSnapper(self.iface.mapCanvas())
+        self.target_snapper = QgepAreaSnapper(self.iface.mapCanvas())
 
         self.source_feature = QgsFeature()
         self.rb_source_feature = QgsRubberBand(self.iface.mapCanvas())
@@ -505,6 +522,20 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                  QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
                 ('rp_from_fk_wastewater_networkelement',
                  QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
+            ],
+            QgepLayerManager.layer('od_catchment_area'): [
+                ('fk_wastewater_networkelement_rw_current',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
+                     'Rainwater current')),
+                ('fk_wastewater_networkelement_rw_planned',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
+                     'Rainwater planned')),
+                ('fk_wastewater_networkelement_ww_current',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
+                     'Wastewater current')),
+                ('fk_wastewater_networkelement_ww_planned',
+                 QCoreApplication.translate('QgepMapToolConnectNetworkElements',
+                     'Wastewater planned'))
             ]
         }
 
@@ -544,7 +575,9 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         snap_match = self.snapper.snapToMap(pt)
 
         if snap_match.isValid():
-            pt = snap_match.point()
+            if snap_match.type() != QgsPointLocator.Area:
+                pt = snap_match.point()
+            self.matchpoint = pt
 
             if self.source_match:
                 if self.target_feature.id() != snap_match.featureId():
@@ -580,7 +613,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                     self.connect_features(self.source_match, self.snapresult)
                 else:
                     self.rbline.show()
-                    self.rbline.addPoint(self.snapresult.point())
+                    self.rbline.addPoint(self.matchpoint)
                     self.source_match = self.snapresult
                     self.snapper = self.target_snapper
         else:
