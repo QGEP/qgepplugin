@@ -45,11 +45,11 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
 
     @pyqtSlot(int)
     def layerChanged(self, index):
-        for lyr in [QgepLayerManager.layer('vw_qgep_cover'), QgepLayerManager.layer('vw_qgep_reach')]:
+        for lyr in [QgepLayerManager.layer('vw_qgep_wastewater_structure'), QgepLayerManager.layer('vw_qgep_reach')]:
             lyr.commitChanges()
 
         if self.layerComboBox.currentText() == 'Wastewater Structure':
-            lyr = QgepLayerManager.layer('vw_qgep_cover')
+            lyr = QgepLayerManager.layer('vw_qgep_wastewater_structure')
             lyr.startEditing()
             self.iface.setActiveLayer(lyr)
             self.iface.actionAddFeature().trigger()
@@ -67,7 +67,7 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
             self.stateButton.setText('Stop Data Entry')
         else:
             for lyr in [QgepLayerManager.layer('vw_qgep_reach'),
-                        QgepLayerManager.layer('vw_qgep_cover')]:
+                        QgepLayerManager.layer('vw_qgep_wastewater_structure')]:
                 lyr.commitChanges()
                 self.layerComboBox.setEnabled(False)
                 self.stateButton.setText('Start Data Entry')
