@@ -62,38 +62,3 @@ def manholeOpen(form, layer, feature):
     else:
         btn.setEnabled(False)
 
-
-def cover_ws_type_changed(form, feature, layer):
-    tabs = form.findChild(QTabWidget)
-    ws_type_selector = form.findChild(QComboBox, 'ws_type')
-
-    ws_type = ws_type_selector.property('EWV2Wrapper').value()
-
-    disabledtabs = ['Special Structure', 'Discharge Point', 'Infiltration Installation', 'Manhole']
-
-    if 'manhole' == ws_type:
-        disabledtabs.remove('Manhole')
-    elif 'special_structure' == ws_type:
-        disabledtabs.remove('Special Structure')
-    elif 'discharge_point' == ws_type:
-        disabledtabs.remove('Discharge Point')
-    elif 'infiltration_installation' == ws_type:
-        disabledtabs.remove('Infiltration Installation')
-
-    for tabidx in range(tabs.count()):
-        if tabs.tabText(tabidx) in disabledtabs:
-            tabs.setTabEnabled(tabidx, False)
-        else:
-            tabs.setTabEnabled(tabidx, True)
-
-    # Needs to be done after every change as it triggers the recalculation of the tab offsets
-    tabs.setStyleSheet('QTabBar::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; }')
-
-
-def vw_cover_open(form, layer, feature):
-    ws_type_selector = form.findChild(QComboBox, 'ws_type')
-    ws_type_selector.currentIndexChanged.connect(
-        lambda: cover_ws_type_changed(form, feature, layer)
-    )
-
-    cover_ws_type_changed(form, feature, layer)
