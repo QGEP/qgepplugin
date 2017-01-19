@@ -40,7 +40,8 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
         self.layerComboBox.currentIndexChanged.connect(self.layerChanged)
         self.stateButton.clicked.connect(self.stateChanged)
         self.iface = iface
-        self.layerComboBox.insertItem(self.layerComboBox.count(), self.tr('Wastewater Structure'), 'wastewater_structure')
+        self.layerComboBox.insertItem(self.layerComboBox.count(), self.tr('Wastewater Structure'),
+                                      'wastewater_structure')
         self.layerComboBox.insertItem(self.layerComboBox.count(), self.tr('Reach'), 'reach')
         self.stateButton.setProperty('state', 'inactive')
 
