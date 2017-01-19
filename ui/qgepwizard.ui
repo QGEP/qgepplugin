@@ -37,16 +37,6 @@
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
-      <item>
-       <property name="text">
-        <string>Wastewater Structure</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Reach</string>
-       </property>
-      </item>
      </widget>
     </item>
     <item row="2" column="0">

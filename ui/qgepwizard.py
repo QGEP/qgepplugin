@@ -40,6 +40,9 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
         self.layerComboBox.currentIndexChanged.connect(self.layerChanged)
         self.stateButton.clicked.connect(self.stateChanged)
         self.iface = iface
+        self.layerComboBox.insertItem(self.layerComboBox.count(), self.tr('Wastewater Structure'), 'wastewater_structure')
+        self.layerComboBox.insertItem(self.layerComboBox.count(), self.tr('Reach'), 'reach')
+        self.stateButton.setProperty('state', 'inactive')
 
         self.mapToolAddReach = QgepMapToolAddReach(self.iface, QgepLayerManager.layer('vw_qgep_reach'))
 
@@ -48,26 +51,28 @@ class QgepWizard(QDockWidget, Ui_QgepDockWidget):
         for lyr in [QgepLayerManager.layer('vw_qgep_wastewater_structure'), QgepLayerManager.layer('vw_qgep_reach')]:
             lyr.commitChanges()
 
-        if self.layerComboBox.currentText() == 'Wastewater Structure':
+        if self.layerComboBox.itemData(self.layerComboBox.currentIndex()) == 'wastewater_structure':
             lyr = QgepLayerManager.layer('vw_qgep_wastewater_structure')
             lyr.startEditing()
             self.iface.setActiveLayer(lyr)
             self.iface.actionAddFeature().trigger()
 
-        elif self.layerComboBox.currentText() == 'Reach':
+        elif self.layerComboBox.itemData(self.layerComboBox.currentIndex()) == 'reach':
             lyr = QgepLayerManager.layer('vw_qgep_reach')
             lyr.startEditing()
             self.iface.mapCanvas().setMapTool(self.mapToolAddReach)
 
     @pyqtSlot()
     def stateChanged(self):
-        if self.stateButton.text() == 'Start Data Entry':
+        if self.stateButton.property('state') != 'active':
             self.layerComboBox.setEnabled(True)
             self.layerChanged(0)
-            self.stateButton.setText('Stop Data Entry')
+            self.stateButton.setText(self.tr('Stop Data Entry'))
+            self.stateButton.setProperty('state', 'active')
         else:
             for lyr in [QgepLayerManager.layer('vw_qgep_reach'),
                         QgepLayerManager.layer('vw_qgep_wastewater_structure')]:
                 lyr.commitChanges()
-                self.layerComboBox.setEnabled(False)
-                self.stateButton.setText('Start Data Entry')
+            self.layerComboBox.setEnabled(False)
+            self.stateButton.setText(self.tr('Start Data Entry'))
+            self.stateButton.setProperty('state', 'inactive')

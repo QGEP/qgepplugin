@@ -2,17 +2,17 @@
 <context>
     <name>DlgAbout</name>
     <message>
-        <location filename="ui_dlgabout.py" line="91"/>
+        <location filename="ui_dlgabout.py" line="90"/>
         <source>Dialog</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="ui_dlgabout.py" line="92"/>
+        <location filename="ui_dlgabout.py" line="91"/>
         <source>$PLUGIN_DESCRIPTION$</source>
         <translation>$PLUGIN_DESCRIPTION$</translation>
     </message>
     <message>
-        <location filename="ui_dlgabout.py" line="93"/>
+        <location filename="ui_dlgabout.py" line="92"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -55,7 +55,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;City of Uster&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="ui_dlgabout.py" line="113"/>
+        <location filename="ui_dlgabout.py" line="112"/>
         <source>QGEP</source>
         <translation>QGEP</translation>
     </message>
@@ -63,74 +63,74 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QgepDockWidget</name>
     <message>
-        <location filename="qgepdockwidget.ui" line="14"/>
+        <location filename="ui_qgepdockwidget.py" line="127"/>
         <source>QGEP</source>
         <translation>QGEP</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="52"/>
+        <location filename="ui_qgepdockwidget.py" line="132"/>
         <source>&amp;Profile</source>
         <translation>&amp;Profil</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="84"/>
+        <location filename="ui_qgepdockwidget.py" line="128"/>
         <source>Add reaches to selection</source>
         <translation>Haltungen zur Selektion hinzufügen</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="91"/>
+        <location filename="ui_qgepdockwidget.py" line="129"/>
         <source>Perform calculation</source>
         <translation>Berechnung durchführen</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="111"/>
+        <location filename="ui_qgepdockwidget.py" line="130"/>
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="123"/>
+        <location filename="ui_qgepdockwidget.py" line="131"/>
         <source>10x</source>
         <translation>10x</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="168"/>
+        <location filename="ui_qgepdockwidget.py" line="134"/>
         <source>Tools</source>
         <translation>Werkzeuge</translation>
     </message>
     <message>
-        <location filename="qgepdockwidget.ui" line="174"/>
+        <location filename="ui_qgepdockwidget.py" line="133"/>
         <source>Recreate graph</source>
         <translation>Graph neu erzeugen</translation>
     </message>
     <message>
-        <location filename="ui_qgepwizard.py" line="56"/>
+        <location filename="ui_qgepwizard.py" line="52"/>
         <source>QGEP Data Entry</source>
         <translation>QGEP Digitalisieren</translation>
     </message>
     <message>
-        <location filename="ui_qgepwizard.py" line="57"/>
+        <location filename="ui_qgepwizard.py" line="53"/>
         <source>Create</source>
         <translation>Erstellen</translation>
     </message>
     <message>
-        <location filename="ui_qgepwizard.py" line="58"/>
+        <location filename="ui_qgepwizard.py" line="54"/>
         <source>Start Data Entry</source>
         <translation>Dateneingabe starten</translation>
     </message>
     <message>
         <location filename="ui_qgepwizard.py" line="59"/>
         <source>Manhole</source>
-        <translation>Normschacht</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="ui_qgepwizard.py" line="60"/>
         <source>Special Structure</source>
-        <translation>Spezialbauwerk</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="ui_qgepwizard.py" line="61"/>
         <source>Reach</source>
-        <translation>Haltung</translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -138,12 +138,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="qgepmaptooladdfeature.py" line="227"/>
         <source>Digitizing Drainage Channel</source>
-        <translation>Digitalisierung Kanal</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepmaptooladdfeature.py" line="227"/>
         <source>Digitize start and end point. Rightclick to abort.</source>
-        <translation>Start- und Endpunkt digitalisieren. Rechtsklick um abzubrechen.</translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -151,195 +151,203 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="qgepplugin.py" line="126"/>
         <source>Reach trace</source>
-        <translation>Haltungsprofil</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepplugin.py" line="132"/>
         <source>Downstream reaches</source>
-        <translation>Haltungen unterhalb</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepplugin.py" line="138"/>
         <source>Upstream reaches</source>
-        <translation>Haltungen oberhalb</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepplugin.py" line="144"/>
         <source>Create new manholes and reaches</source>
-        <translation>Neue Normschächte und Haltungen erstellen</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepplugin.py" line="149"/>
         <source>About</source>
-        <translation>Über</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="qgepplugin.py" line="152"/>
         <source>Settings</source>
-        <translation>Einstellungen</translation>
-    </message>
-    <message>
-        <location filename="qgepplugin.py" line="125"/>
-        <source>Profile</source>
-        <translation>Profil</translation>
-    </message>
-    <message>
-        <location filename="qgepplugin.py" line="131"/>
-        <source>Downstream</source>
-        <translation>Abwärts suchen</translation>
-    </message>
-    <message>
-        <location filename="qgepplugin.py" line="137"/>
-        <source>Upstream</source>
-        <translation>Aufwärts suchen</translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>QgepSettingsDialog</name>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="193"/>
+        <location filename="ui_qgepsettingsdialog.py" line="192"/>
         <source>Debug</source>
         <translation>Fehlersuche (Debug)</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="194"/>
+        <location filename="ui_qgepsettingsdialog.py" line="193"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="195"/>
+        <location filename="ui_qgepsettingsdialog.py" line="194"/>
         <source>Warning</source>
         <translation>Warnung</translation>
     </message>
     <message>
-        <location filename="qgepsettingsdialog.py" line="127"/>
+        <location filename="qgepsettingsdialog.py" line="128"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="177"/>
+        <location filename="ui_qgepsettingsdialog.py" line="176"/>
         <source>Helper line color</source>
         <translation>Hilfslinienfarbe</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="178"/>
+        <location filename="ui_qgepsettingsdialog.py" line="177"/>
         <source>Current profile color</source>
         <translation>Farbe des aktuellen Profils</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="176"/>
+        <location filename="ui_qgepsettingsdialog.py" line="175"/>
         <source>Dialog</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="179"/>
+        <location filename="ui_qgepsettingsdialog.py" line="178"/>
         <source>Feature highlighting color</source>
         <translation>Eigenschaft Akzentfarbe</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="180"/>
+        <location filename="ui_qgepsettingsdialog.py" line="179"/>
         <source>Layout Options</source>
         <translation>Darstellungsoptionen</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="181"/>
+        <location filename="ui_qgepsettingsdialog.py" line="180"/>
         <source>Layers</source>
         <translation>Ebenen</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="182"/>
+        <location filename="ui_qgepsettingsdialog.py" line="181"/>
         <source>Special structures:</source>
         <translation>Spezialbauwerk</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="183"/>
+        <location filename="ui_qgepsettingsdialog.py" line="182"/>
         <source>Graph nodes:</source>
         <translation>Graph Knoten:</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="184"/>
+        <location filename="ui_qgepsettingsdialog.py" line="183"/>
         <source>Graph edges:</source>
         <translation>Graph Kanten:</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="185"/>
+        <location filename="ui_qgepsettingsdialog.py" line="184"/>
         <source>Project Settings</source>
         <translation>Projekteinstellungen</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="186"/>
+        <location filename="ui_qgepsettingsdialog.py" line="185"/>
         <source>Enables developer tools on the profile widget. Reload and Inspect options are shown. The dock needs to be reopened.</source>
         <translation>Aktiviert die Entwicklungswerkzeuge auf dem Profil-Widget. Neu laden und Prüfoptionen werden angezeigt. Das Dock muss neu geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="187"/>
+        <location filename="ui_qgepsettingsdialog.py" line="186"/>
         <source>Developer mode</source>
         <translation>Entwicklermodus</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="188"/>
+        <location filename="ui_qgepsettingsdialog.py" line="187"/>
         <source>Layout</source>
         <translation>Darstellung</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="189"/>
+        <location filename="ui_qgepsettingsdialog.py" line="188"/>
         <source>Override default profile template</source>
         <translation>Alternative Profilvorlage benützen</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="199"/>
+        <location filename="ui_qgepsettingsdialog.py" line="198"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="191"/>
+        <location filename="ui_qgepsettingsdialog.py" line="190"/>
         <source>Logging</source>
         <translation>Protokollierung</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="192"/>
+        <location filename="ui_qgepsettingsdialog.py" line="191"/>
         <source>Log level</source>
         <translation>Protokollstufe</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="196"/>
+        <location filename="ui_qgepsettingsdialog.py" line="195"/>
         <source>Critical</source>
         <translation>Kritisch</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="197"/>
+        <location filename="ui_qgepsettingsdialog.py" line="196"/>
         <source>Log to file</source>
         <translation>In Datei protokollieren</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="198"/>
+        <location filename="ui_qgepsettingsdialog.py" line="197"/>
         <source>Log file</source>
         <translation>Protokolldatei</translation>
     </message>
     <message>
-        <location filename="ui_qgepsettingsdialog.py" line="200"/>
+        <location filename="ui_qgepsettingsdialog.py" line="199"/>
         <source>Developer Options</source>
         <translation>Entwickleroptionen</translation>
     </message>
     <message>
-        <location filename="qgepsettingsdialog.py" line="149"/>
+        <location filename="qgepsettingsdialog.py" line="150"/>
         <source>Select profile template</source>
         <translation>Profilvorlage auswählen</translation>
     </message>
     <message>
-        <location filename="qgepsettingsdialog.py" line="149"/>
+        <location filename="qgepsettingsdialog.py" line="150"/>
         <source>HTML files(*.htm *.html)</source>
         <translation>HTML Dateien(*.htm *.html)</translation>
     </message>
     <message>
-        <location filename="qgepsettingsdialog.py" line="154"/>
+        <location filename="qgepsettingsdialog.py" line="156"/>
         <source>Select log file</source>
         <translation>Protokolldatei auswählen</translation>
     </message>
     <message>
-        <location filename="qgepsettingsdialog.py" line="154"/>
+        <location filename="qgepsettingsdialog.py" line="156"/>
         <source>Log files(*.log)</source>
         <translation>Protokolldateien(*.log)</translation>
+    </message>
+</context>
+<context>
+    <name>QgepWizard</name>
+    <message>
+        <location filename="qgepwizard.py" line="43"/>
+        <source>Wastewater Structure</source>
+        <translation>Abwasserbauwerk</translation>
+    </message>
+    <message>
+        <location filename="qgepwizard.py" line="44"/>
+        <source>Reach</source>
+        <translation>Haltung</translation>
+    </message>
+    <message>
+        <location filename="qgepwizard.py" line="70"/>
+        <source>Stop Data Entry</source>
+        <translation>Dateneingabe beenden</translation>
+    </message>
+    <message>
+        <location filename="qgepwizard.py" line="77"/>
+        <source>Start Data Entry</source>
+        <translation>Dateneingabe starten</translation>
     </message>
 </context>
 </TS>
