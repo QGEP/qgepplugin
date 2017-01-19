@@ -237,12 +237,30 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             from_field = self.layer.pendingFields()\
                 .indexFromName('rp_from_fk_wastewater_networkelement')
             f.setAttribute(from_field, from_networkelement.attribute('obj_id'))
+            from_level_field = self.layer.pendingFields()\
+                .indexFromName('rp_from_level')
+            try:
+                # bottom_level is only available for a node (and not for a
+                # reach)
+                from_level = from_networkelement['bottom_level']
+                f.setAttribute(from_level_field, from_level)
+            except:
+                pass
 
         if self.lastSnappingResult is not None:
             req = QgsFeatureRequest(self.lastSnappingResult.snappedAtGeometry)
             to_networkelement = self.lastSnappingResult.layer.getFeatures(req).next()
             to_field = self.layer.pendingFields().indexFromName('rp_to_fk_wastewater_networkelement')
             f.setAttribute(to_field, to_networkelement.attribute('obj_id'))
+            to_level_field = self.layer.pendingFields()\
+                .indexFromName('rp_to_level')
+            try:
+                # bottom_level is only available for a node (and not for a
+                # reach)
+                to_level = to_networkelement['bottom_level']
+                f.setAttribute(to_level_field, to_level)
+            except:
+                pass
 
         dlg = self.iface.getFeatureForm(self.layer, f)
         dlg.setIsAddDialog(True)
