@@ -23,7 +23,6 @@
 # ---------------------------------------------------------------------
 
 import qgis  # NOQA
-from PyQt4.QtCore import QSettings, QLocale
 
 
 def classFactory(iface):

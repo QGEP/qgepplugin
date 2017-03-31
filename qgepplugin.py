@@ -29,7 +29,8 @@ import os
 from PyQt4.QtCore import (
     pyqtSlot,
     QSettings,
-    Qt
+    Qt,
+    QLocale
 )
 from PyQt4.QtGui import (
     QAction,
@@ -61,6 +62,7 @@ LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 @qgsfunction(0, "System")
 def locale(values, feature, parent):
     return QSettings().value("locale/userLocale", QLocale.system().name())
+
 
 class QgepPlugin:
     """
