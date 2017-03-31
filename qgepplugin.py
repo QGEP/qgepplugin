@@ -89,7 +89,6 @@ class QgepPlugin:
     def __init__(self, iface):
         self.iface = iface
         self.canvas = iface.mapCanvas()
-        self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
 
         self.initLogger()
         setup_i18n()
@@ -203,6 +202,7 @@ class QgepPlugin:
         self.settingsAction.triggered.connect(self.showSettings)
 
         # Add toolbar button and menu item
+        self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
         self.toolbar.addAction(self.profileAction)
         self.toolbar.addAction(self.upstreamAction)
         self.toolbar.addAction(self.downstreamAction)
@@ -254,7 +254,7 @@ class QgepPlugin:
         self.toolbar.removeAction(self.refreshNetworkTopologyAction)
         self.toolbar.removeAction(self.connectNetworkElementsAction)
 
-        self.iface.removeToolBar(self.toolbar)
+        self.toolbar.deleteLater()
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
