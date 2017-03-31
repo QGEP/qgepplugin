@@ -38,6 +38,7 @@ from PyQt4.QtGui import (
     QToolBar
 )
 
+from qgis.utils import qgsfunction
 from tools.qgepmaptools import (
     QgepProfileMapTool,
     QgepTreeMapTool,
@@ -56,6 +57,10 @@ import resources  # NOQA
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
+
+@qgsfunction(0, "System")
+def locale(values, feature, parent):
+    return QSettings().value("locale/userLocale", QLocale.system().name())
 
 class QgepPlugin:
     """

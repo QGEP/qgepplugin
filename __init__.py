@@ -24,15 +24,9 @@
 
 import qgis  # NOQA
 from PyQt4.QtCore import QSettings, QLocale
-from qgis.utils import qgsfunction
 
 
 def classFactory(iface):
     from qgepplugin import QgepPlugin
 
     return QgepPlugin(iface)
-
-
-@qgsfunction(0, "System")
-def locale(values, feature, parent):
-    return QSettings().value("locale/userLocale", QLocale.system().name())
