@@ -34,7 +34,8 @@ from PyQt4.QtCore import (
 from PyQt4.QtGui import (
     QAction,
     QIcon,
-    QApplication
+    QApplication,
+    QToolBar
 )
 
 from tools.qgepmaptools import (
@@ -81,6 +82,7 @@ class QgepPlugin:
     def __init__(self, iface):
         self.iface = iface
         self.canvas = iface.mapCanvas()
+        self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
 
         self.initLogger()
         setup_i18n()
@@ -194,16 +196,18 @@ class QgepPlugin:
         self.settingsAction.triggered.connect(self.showSettings)
 
         # Add toolbar button and menu item
-        self.iface.addToolBarIcon(self.profileAction)
-        self.iface.addToolBarIcon(self.upstreamAction)
-        self.iface.addToolBarIcon(self.downstreamAction)
-        self.iface.addToolBarIcon(self.wizardAction)
-        self.iface.addToolBarIcon(self.refreshNetworkTopologyAction)
-        self.iface.addToolBarIcon(self.connectNetworkElementsAction)
+        self.toolbar.addAction(self.profileAction)
+        self.toolbar.addAction(self.upstreamAction)
+        self.toolbar.addAction(self.downstreamAction)
+        self.toolbar.addAction(self.wizardAction)
+        self.toolbar.addAction(self.refreshNetworkTopologyAction)
+        self.toolbar.addAction(self.connectNetworkElementsAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
+
+        self.iface.addToolBar(self.toolbar)
 
         # Local array of buttons to enable / disable based on context
         self.toolbarButtons.append(self.profileAction)
@@ -236,12 +240,14 @@ class QgepPlugin:
         """
         Called when unloading
         """
-        self.iface.removeToolBarIcon(self.profileAction)
-        self.iface.removeToolBarIcon(self.upstreamAction)
-        self.iface.removeToolBarIcon(self.downstreamAction)
-        self.iface.removeToolBarIcon(self.wizardAction)
-        self.iface.removeToolBarIcon(self.refreshNetworkTopologyAction)
-        self.iface.removeToolBarIcon(self.connectNetworkElementsAction)
+        self.toolbar.removeAction(self.profileAction)
+        self.toolbar.removeAction(self.upstreamAction)
+        self.toolbar.removeAction(self.downstreamAction)
+        self.toolbar.removeAction(self.wizardAction)
+        self.toolbar.removeAction(self.refreshNetworkTopologyAction)
+        self.toolbar.removeAction(self.connectNetworkElementsAction)
+
+        self.iface.removeToolBar(self.toolbar)
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
