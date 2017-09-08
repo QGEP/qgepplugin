@@ -126,7 +126,7 @@ class QgepGraphManager(QObject):
             except AttributeError:
                 # TODO Add to problem log
                 pass
-            self.graph.add_node(fid, dict(point=vertex, objType=obj_type))
+            self.graph.add_node(fid, dict(point=vertex, objType=obj_type, objId=obj_id))
 
             self.vertexIds[unicode(obj_id)] = fid
 
@@ -371,8 +371,9 @@ class QgepGraphManager(QObject):
         # Returns pred, weight
         pred, _ = nx.bellman_ford(my_graph, node)
         edges = [(v, u, my_graph[v][u]) for (u, v) in pred.items() if v is not None]
+        nodes = [my_graph.node[n] for n in set(pred.keys() + pred.values()) if n is not None]
 
-        return edges
+        return nodes, edges
 
     def getEdgeGeometry(self, edges):
         """

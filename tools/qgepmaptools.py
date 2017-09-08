@@ -364,11 +364,13 @@ class QgepTreeMapTool(QgepMapTool):
     """
     The map tool used to find TREES (upstream or downstream)
     """
-    direction = "downstream"
+
+    treeChanged = pyqtSignal(list, list)
 
     def __init__(self, canvas, button, network_analyzer):
         QgepMapTool.__init__(self, canvas, button)
 
+        self.direction = "downstream"
         self.networkAnalyzer = network_analyzer
         self.saveTool = None
 
@@ -391,7 +393,7 @@ class QgepTreeMapTool(QgepMapTool):
 
         self.rubberBand.reset()
 
-        edges = self.networkAnalyzer.getTree(point, upstream)
+        nodes, edges = self.networkAnalyzer.getTree(point, upstream)
         polylines = self.networkAnalyzer.getEdgeGeometry(
             [edge[2]['feature'] for edge in edges])
 
@@ -400,6 +402,8 @@ class QgepTreeMapTool(QgepMapTool):
 
         self.rubberBand.addGeometry(QgsGeometry.fromMultiPolyline(filtered_polylines),
                                     self.networkAnalyzer.getNodeLayer())
+
+        self.treeChanged.emit(nodes, edges)
 
         QApplication.restoreOverrideCursor()
 

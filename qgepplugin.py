@@ -89,6 +89,8 @@ class QgepPlugin:
     def __init__(self, iface):
         self.iface = iface
         self.canvas = iface.mapCanvas()
+        self.nodes = None
+        self.edges = None
 
         self.initLogger()
         setup_i18n()
@@ -234,8 +236,10 @@ class QgepPlugin:
 
         self.upstream_tree_tool = QgepTreeMapTool(self.iface, self.upstreamAction, self.network_analyzer)
         self.upstream_tree_tool.setDirection("upstream")
+        self.upstream_tree_tool.treeChanged.connect(self.onTreeChanged)
         self.downstream_tree_tool = QgepTreeMapTool(self.iface, self.downstreamAction, self.network_analyzer)
         self.downstream_tree_tool.setDirection("downstream")
+        self.downstream_tree_tool.treeChanged.connect(self.onTreeChanged)
 
         self.maptool_connect_networkelements = QgepMapToolConnectNetworkElements(
             self.iface, self.connectNetworkElementsAction)
@@ -327,6 +331,7 @@ class QgepPlugin:
             self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
             self.plotWidget.reachMouseOut.connect(self.unhighlightProfileElement)
             self.profileDock.addPlotWidget(self.plotWidget)
+            self.profileDock.setTree(self.nodes, self.edges)
 
     @pyqtSlot()
     def onDockClosed(self):  # used when Dock dialog is closed
@@ -345,6 +350,11 @@ class QgepPlugin:
 
         if self.plotWidget:
             self.plotWidget.setProfile(profile)
+
+    def onTreeChanged(self, nodes, edges):
+        self.profileDock.setTree(nodes, edges)
+        self.nodes = nodes
+        self.edges = edges
 
     @pyqtSlot(unicode)
     def highlightProfileElement(self, obj_id):
