@@ -216,3 +216,4 @@ class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
         self.nodes = nodes
         self.edges = edges
         self.selectCurrentPathAction.setEnabled(self.nodes is not None)
+
