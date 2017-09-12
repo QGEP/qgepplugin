@@ -286,12 +286,14 @@ class QgepPlugin:
         """
         Is executed when the user clicks the upstream search tool
         """
+        self.openDock()
         self.upstream_tree_tool.setActive()
 
     def downstreamToolClicked(self):
         """
         Is executed when the user clicks the downstream search tool
         """
+        self.openDock()
         self.downstream_tree_tool.setActive()
 
     def refreshNetworkTopologyActionClicked(self):
@@ -352,7 +354,8 @@ class QgepPlugin:
             self.plotWidget.setProfile(profile)
 
     def onTreeChanged(self, nodes, edges):
-        self.profileDock.setTree(nodes, edges)
+        if self.profileDock:
+            self.profileDock.setTree(nodes, edges)
         self.nodes = nodes
         self.edges = edges
 
