@@ -228,7 +228,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         """
         self.tempRubberband.reset()
 
-        f = QgsFeature(self.layer.pendingFields())
+        fields = self.layer.fields()
+        f = QgsFeature(fields)
+        for idx in range(len(fields)):
+            f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
+
         f.setGeometry(self.rubberband.asGeometry())
 
         if self.firstSnappingResult is not None:
