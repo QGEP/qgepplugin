@@ -531,16 +531,24 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         source_snap_layers = list()
         target_snap_layers = list()
 
-        # A dict of layers and the fields that are foreign keys
-        # pointing to wastewater networkelements
+        # A dict of layers
+        #  and for each layer the fields to use as foreign key
+        #  as well as the possible target layers
+        # Reaches can be connected to reaches and nodes
+        # Catchment areas only to nodes
         self.network_element_sources = {
-            QgepLayerManager.layer('vw_qgep_reach'): [
+            QgepLayerManager.layer('vw_qgep_reach'): {
+                'fields' : [
                 ('rp_to_fk_wastewater_networkelement',
                  QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
                 ('rp_from_fk_wastewater_networkelement',
                  QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
             ],
-            QgepLayerManager.layer('od_catchment_area'): [
+            'target_layers' : [
+            QgepLayerManager.layer('vw_wastewater_node'),
+            QgepLayerManager.layer('vw_qgep_reach')
+        ]},
+            QgepLayerManager.layer('od_catchment_area'): {'fields' : [
                 ('fk_wastewater_networkelement_rw_current', QCoreApplication.translate(
                     'QgepMapToolConnectNetworkElements', 'Rainwater current')),
                 ('fk_wastewater_networkelement_rw_planned', QCoreApplication.translate(
@@ -549,39 +557,30 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                     'QgepMapToolConnectNetworkElements', 'Wastewater current')),
                 ('fk_wastewater_networkelement_ww_planned', QCoreApplication.translate(
                     'QgepMapToolConnectNetworkElements', 'Wastewater planned'))
-            ]
+            ],
+            'target_layers' : [
+                QgepLayerManager.layer('vw_wastewater_node')
+            ]}
         }
 
-        # A list of layers that can be used as wastewater networkelement
-        # targets
-        self.network_element_targets = [
-            QgepLayerManager.layer('vw_wastewater_node'),
-            QgepLayerManager.layer('vw_qgep_reach')
-        ]
-
-        for layer in self.network_element_sources.keys():
-            if layer:
-                snap_layer = QgsSnappingUtils.LayerConfig(
-                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
-                source_snap_layers.append(snap_layer)
-
-        for layer in self.network_element_targets:
-            if layer:
-                snap_layer = QgsSnappingUtils.LayerConfig(
-                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
-                target_snap_layers.append(snap_layer)
-
-        self.source_snapper.setLayers(source_snap_layers)
-        self.source_snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
-
-        self.target_snapper.setLayers(target_snap_layers)
-        self.target_snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+        self.setSnapLayers(self.source_snapper, self.network_element_sources.keys())
 
         self.reset()
 
         self.action.setChecked(True)
 
         self.iface.mapCanvas().setCursor(QCursor(Qt.CrossCursor))
+
+    def setSnapLayers(self, snapper, layers):
+        snap_layers = list()
+        for layer in layers:
+            if layer:
+                snap_layer = QgsSnappingUtils.LayerConfig(
+                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
+                snap_layers.append(snap_layer)
+
+        snapper.setLayers(snap_layers)
+        snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
 
     def canvasMoveEvent(self, event):
         """
@@ -596,6 +595,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             self.matchpoint = pt
 
             if self.source_match:
+                # There is already a source feature : snap to target feature candidates
                 if self.target_feature.id() != snap_match.featureId():
                     self.target_feature = self.get_feature_for_match(
                         snap_match)
@@ -604,11 +604,12 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                 self.rb_target_feature.show()
                 self.rbmarkers.movePoint(pt)
             else:
+                # Snapped to source feature, update source feature rubber band and target layer snapper
                 if self.source_feature.id() != snap_match.featureId():
-                    self.source_feature = self.get_feature_for_match(
-                        snap_match)
+                    self.source_feature = self.get_feature_for_match(snap_match)
                     self.rb_source_feature.setToGeometry(
                         self.source_feature.geometry(), snap_match.layer())
+                    self.setSnapLayers(self.target_snapper, self.network_element_sources[snap_match.layer()]['target_layers'])
                 self.rb_source_feature.show()
                 self.rbmarkers.movePoint(pt, 0)
             self.rbmarkers.show()
@@ -687,7 +688,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
         properties = list()
 
-        for prop in self.network_element_sources[source.layer()]:
+        for prop in self.network_element_sources[source.layer()]['fields']:
             cbx = QCheckBox(prop[1])
             cbx.setObjectName(prop[0])
             properties.append(cbx)
