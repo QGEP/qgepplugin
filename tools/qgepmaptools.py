@@ -528,8 +528,6 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         """
         Called by QGIS whenever the tool is activated.
         """
-        source_snap_layers = list()
-        target_snap_layers = list()
 
         # A dict of layers
         #  and for each layer the fields to use as foreign key
