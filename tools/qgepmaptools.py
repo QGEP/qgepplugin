@@ -538,17 +538,17 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         # Catchment areas only to nodes
         self.network_element_sources = {
             QgepLayerManager.layer('vw_qgep_reach'): {
-                'fields' : [
-                ('rp_to_fk_wastewater_networkelement',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
-                ('rp_from_fk_wastewater_networkelement',
-                 QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
-            ],
-            'target_layers' : [
-            QgepLayerManager.layer('vw_wastewater_node'),
-            QgepLayerManager.layer('vw_qgep_reach')
-        ]},
-            QgepLayerManager.layer('od_catchment_area'): {'fields' : [
+                'fields': [
+                    ('rp_to_fk_wastewater_networkelement',
+                     QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
+                    ('rp_from_fk_wastewater_networkelement',
+                     QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
+                ],
+                'target_layers': [
+                    QgepLayerManager.layer('vw_wastewater_node'),
+                    QgepLayerManager.layer('vw_qgep_reach')
+                ]},
+            QgepLayerManager.layer('od_catchment_area'): {'fields': [
                 ('fk_wastewater_networkelement_rw_current', QCoreApplication.translate(
                     'QgepMapToolConnectNetworkElements', 'Rainwater current')),
                 ('fk_wastewater_networkelement_rw_planned', QCoreApplication.translate(
@@ -558,12 +558,13 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                 ('fk_wastewater_networkelement_ww_planned', QCoreApplication.translate(
                     'QgepMapToolConnectNetworkElements', 'Wastewater planned'))
             ],
-            'target_layers' : [
+                'target_layers': [
                 QgepLayerManager.layer('vw_wastewater_node')
             ]}
         }
 
-        self.setSnapLayers(self.source_snapper, self.network_element_sources.keys())
+        self.setSnapLayers(self.source_snapper,
+                           self.network_element_sources.keys())
 
         self.reset()
 
@@ -595,7 +596,8 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             self.matchpoint = pt
 
             if self.source_match:
-                # There is already a source feature : snap to target feature candidates
+                # There is already a source feature : snap to target feature
+                # candidates
                 if self.target_feature.id() != snap_match.featureId():
                     self.target_feature = self.get_feature_for_match(
                         snap_match)
@@ -604,12 +606,15 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                 self.rb_target_feature.show()
                 self.rbmarkers.movePoint(pt)
             else:
-                # Snapped to source feature, update source feature rubber band and target layer snapper
+                # Snapped to source feature, update source feature rubber band
+                # and target layer snapper
                 if self.source_feature.id() != snap_match.featureId():
-                    self.source_feature = self.get_feature_for_match(snap_match)
+                    self.source_feature = self.get_feature_for_match(
+                        snap_match)
                     self.rb_source_feature.setToGeometry(
                         self.source_feature.geometry(), snap_match.layer())
-                    self.setSnapLayers(self.target_snapper, self.network_element_sources[snap_match.layer()]['target_layers'])
+                    self.setSnapLayers(self.target_snapper, self.network_element_sources[
+                                       snap_match.layer()]['target_layers'])
                 self.rb_source_feature.show()
                 self.rbmarkers.movePoint(pt, 0)
             self.rbmarkers.show()
