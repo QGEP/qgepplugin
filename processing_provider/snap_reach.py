@@ -25,17 +25,9 @@ from processing.core.parameters import (
     ParameterVector,
     ParameterBoolean
 )
-from processing.core.outputs import OutputRaster
-from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
 from processing.tools import dataobjects
 
-from qgis.PyQt.QtGui import QImage, QPainter
-from qgis.PyQt.QtCore import QSize
 from qgis.core import (
-    QgsMapSettings,
-    QgsMapRendererCustomPainterJob,
-    QgsRectangle,
-    QgsProject,
     QgsExpression,
     QgsFeatureRequest,
     QgsGeometry,
@@ -180,8 +172,6 @@ class SnapReachAlgorithm(GeoAlgorithm):
                         nodes[to_id].geometry().geometry(), last_vertex)
 
             if to_id in target_reaches.keys():
-                QgsMessageLog.logMessage(
-                    'Reach found {}'.format(to_id), tag='QGEP')
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
                 target_reach = target_reaches[to_id]
                 distance, point, after_vertex = target_reach.geometry(
