@@ -21,9 +21,9 @@
 
 from processing.core.GeoAlgorithm import GeoAlgorithm
 from processing.core.parameters import (
-        ParameterNumber,
-        ParameterVector,
-        ParameterBoolean
+    ParameterNumber,
+    ParameterVector,
+    ParameterBoolean
 )
 from processing.core.outputs import OutputRaster
 from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
@@ -87,8 +87,10 @@ class SnapReachAlgorithm(GeoAlgorithm):
         reach_layer = dataobjects.getObjectFromUri(reach_layer_uri)
         distance = self.getParameterValue(self.DISTANCE)
         only_selected = self.getParameterValue(self.ONLY_SELECTED)
-        wastewater_node_layer_uri = self.getParameterValue(self.WASTEWATER_NODE_LAYER)
-        wastewater_node_layer = dataobjects.getObjectFromUri(wastewater_node_layer_uri)
+        wastewater_node_layer_uri = self.getParameterValue(
+            self.WASTEWATER_NODE_LAYER)
+        wastewater_node_layer = dataobjects.getObjectFromUri(
+            wastewater_node_layer_uri)
 
         reach_layer.startEditing()
 
@@ -109,13 +111,15 @@ class SnapReachAlgorithm(GeoAlgorithm):
                 reaches.append(reach)
                 # Batch processing: process blocks of 2000 reaches
                 if len(reaches) == 2000:
-                    self.processFeatures(reaches, reach_layer, wastewater_node_layer, distance)
+                    self.processFeatures(
+                        reaches, reach_layer, wastewater_node_layer, distance)
                     reaches = list()
 
                 current_feature += 1
-                progress.setPercentage(current_feature*100.0/feature_count)
+                progress.setPercentage(current_feature * 100.0 / feature_count)
 
-            self.processFeatures(reaches, reach_layer, wastewater_node_layer, distance)
+            self.processFeatures(reaches, reach_layer,
+                                 wastewater_node_layer, distance)
         except:
             reach_layer.destroyEditCommand()
             raise
@@ -126,7 +130,8 @@ class SnapReachAlgorithm(GeoAlgorithm):
         ids = list()
         to_ids = list()
         # Gather ids of connected networkelements
-        # to_ids are also gathered separately, because they can be either reaches or nodes
+        # to_ids are also gathered separately, because they can be either
+        # reaches or nodes
         for reach in reaches:
             if reach['rp_from_fk_wastewater_networkelement']:
                 ids.append(reach['rp_from_fk_wastewater_networkelement'])
@@ -138,7 +143,8 @@ class SnapReachAlgorithm(GeoAlgorithm):
         # Get all nodes on which to snap
         quoted_ids = [QgsExpression.quotedValue(objid) for objid in ids]
         node_request = QgsFeatureRequest()
-        filter_expression = '"obj_id" IN ({ids})'.format(ids=','.join(quoted_ids))
+        filter_expression = '"obj_id" IN ({ids})'.format(
+            ids=','.join(quoted_ids))
         node_request.setFilterExpression(filter_expression)
         node_request.setSubsetOfAttributes([])
 
@@ -149,7 +155,8 @@ class SnapReachAlgorithm(GeoAlgorithm):
         # Get all reaches on which to snap
         quoted_to_ids = [QgsExpression.quotedValue(objid) for objid in to_ids]
         reach_request = QgsFeatureRequest()
-        filter_expression = '"obj_id" IN ({ids})'.format(ids=','.join(quoted_ids))
+        filter_expression = '"obj_id" IN ({ids})'.format(
+            ids=','.join(quoted_ids))
         reach_request.setFilterExpression(filter_expression)
         reach_request.setSubsetOfAttributes([])
 
@@ -162,21 +169,26 @@ class SnapReachAlgorithm(GeoAlgorithm):
             from_id = reach['rp_from_fk_wastewater_networkelement']
             if from_id in nodes.keys():
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
-                    reach_geometry.moveVertex(nodes[from_id].geometry().geometry(), 0)
+                    reach_geometry.moveVertex(
+                        nodes[from_id].geometry().geometry(), 0)
 
             to_id = reach['rp_to_fk_wastewater_networkelement']
             if to_id in nodes.keys():
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[to_id].geometry().asPoint(), last_vertex) < distance_threshold:
-                    reach_geometry.moveVertex(nodes[to_id].geometry().geometry(), last_vertex)
+                    reach_geometry.moveVertex(
+                        nodes[to_id].geometry().geometry(), last_vertex)
 
             if to_id in target_reaches.keys():
-                QgsMessageLog.logMessage('Reach found {}'.format(to_id), tag='QGEP')
+                QgsMessageLog.logMessage(
+                    'Reach found {}'.format(to_id), tag='QGEP')
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
                 target_reach = target_reaches[to_id]
-                distance, point, after_vertex = target_reach.geometry().closestSegmentWithContext(reach_geometry.vertexAt(last_vertex))
+                distance, point, after_vertex = target_reach.geometry(
+                ).closestSegmentWithContext(reach_geometry.vertexAt(last_vertex))
                 if distance_threshold == 0 or distance < distance_threshold:
-                    reach_geometry.moveVertex(point.x(), point.y(), last_vertex)
+                    reach_geometry.moveVertex(
+                        point.x(), point.y(), last_vertex)
 
             reach.setGeometry(reach_geometry)
             reach_layer.updateFeature(reach)

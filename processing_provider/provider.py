@@ -32,6 +32,7 @@ __revision__ = '$Format:%H$'
 
 
 class QgepProcessingProvider(AlgorithmProvider):
+
     def __init__(self):
         AlgorithmProvider.__init__(self)
 

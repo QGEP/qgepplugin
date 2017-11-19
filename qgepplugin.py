@@ -141,7 +141,8 @@ class QgepPlugin:
         elif 'Error' == loglevel:
             self.logger.setLevel(logging.ERROR)
 
-        fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), "metadata.txt")
+        fp = os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), "metadata.txt")
 
         ini_text = QSettings(fp, QSettings.IniFormat)
         verno = ini_text.value("version")
@@ -180,8 +181,10 @@ class QgepPlugin:
         self.upstreamAction.setCheckable(True)
         self.upstreamAction.triggered.connect(self.upstreamToolClicked)
 
-        self.wizardAction = QAction(QIcon(":/plugins/qgepplugin/icons/wizard.svg"), "Wizard", self.iface.mainWindow())
-        self.wizardAction.setWhatsThis(self.tr("Create new manholes and reaches"))
+        self.wizardAction = QAction(QIcon(
+            ":/plugins/qgepplugin/icons/wizard.svg"), "Wizard", self.iface.mainWindow())
+        self.wizardAction.setWhatsThis(
+            self.tr("Create new manholes and reaches"))
         self.wizardAction.setEnabled(False)
         self.wizardAction.setCheckable(True)
         self.wizardAction.triggered.connect(self.wizard)
@@ -191,19 +194,23 @@ class QgepPlugin:
             QApplication.translate('qgepplugin', 'Connect wastewater networkelements'), self.iface.mainWindow())
         self.connectNetworkElementsAction.setEnabled(False)
         self.connectNetworkElementsAction.setCheckable(True)
-        self.connectNetworkElementsAction.triggered.connect(self.connectNetworkElements)
+        self.connectNetworkElementsAction.triggered.connect(
+            self.connectNetworkElements)
 
         self.refreshNetworkTopologyAction = QAction(QIcon(":/plugins/qgepplugin/icons/refresh-network.svg"),
                                                     "Refresh network topology", self.iface.mainWindow())
-        self.refreshNetworkTopologyAction.setWhatsThis(self.tr("Refresh network topology"))
+        self.refreshNetworkTopologyAction.setWhatsThis(
+            self.tr("Refresh network topology"))
         self.refreshNetworkTopologyAction.setEnabled(False)
         self.refreshNetworkTopologyAction.setCheckable(False)
-        self.refreshNetworkTopologyAction.triggered.connect(self.refreshNetworkTopologyActionClicked)
+        self.refreshNetworkTopologyAction.triggered.connect(
+            self.refreshNetworkTopologyActionClicked)
 
         self.aboutAction = QAction(self.tr('About'), self.iface.mainWindow())
         self.aboutAction.triggered.connect(self.about)
 
-        self.settingsAction = QAction(self.tr('Settings'), self.iface.mainWindow())
+        self.settingsAction = QAction(
+            self.tr('Settings'), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
         # Add toolbar button and menu item
@@ -228,19 +235,24 @@ class QgepPlugin:
         self.toolbarButtons.append(self.wizardAction)
         self.toolbarButtons.append(self.refreshNetworkTopologyAction)
 
-        self.network_layer_notifier.layersAvailable.connect(self.onLayersAvailable)
-        self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
+        self.network_layer_notifier.layersAvailable.connect(
+            self.onLayersAvailable)
+        self.network_layer_notifier.layersUnavailable.connect(
+            self.onLayersUnavailable)
 
         # Init the object maintaining the network
         self.network_analyzer = QgepGraphManager(self.iface)
         # Create the map tool for profile selection
-        self.profile_tool = QgepProfileMapTool(self.iface, self.profileAction, self.network_analyzer)
+        self.profile_tool = QgepProfileMapTool(
+            self.iface, self.profileAction, self.network_analyzer)
         self.profile_tool.profileChanged.connect(self.onProfileChanged)
 
-        self.upstream_tree_tool = QgepTreeMapTool(self.iface, self.upstreamAction, self.network_analyzer)
+        self.upstream_tree_tool = QgepTreeMapTool(
+            self.iface, self.upstreamAction, self.network_analyzer)
         self.upstream_tree_tool.setDirection("upstream")
         self.upstream_tree_tool.treeChanged.connect(self.onTreeChanged)
-        self.downstream_tree_tool = QgepTreeMapTool(self.iface, self.downstreamAction, self.network_analyzer)
+        self.downstream_tree_tool = QgepTreeMapTool(
+            self.iface, self.downstreamAction, self.network_analyzer)
         self.downstream_tree_tool.setDirection("downstream")
         self.downstream_tree_tool.treeChanged.connect(self.onTreeChanged)
 
@@ -333,11 +345,16 @@ class QgepPlugin:
             self.profileDock.closed.connect(self.onDockClosed)
             self.profileDock.showIt()
 
-            self.plotWidget = QgepPlotSVGWidget(self.profileDock, self.network_analyzer)
-            self.plotWidget.specialStructureMouseOver.connect(self.highlightProfileElement)
-            self.plotWidget.specialStructureMouseOut.connect(self.unhighlightProfileElement)
-            self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
-            self.plotWidget.reachMouseOut.connect(self.unhighlightProfileElement)
+            self.plotWidget = QgepPlotSVGWidget(
+                self.profileDock, self.network_analyzer)
+            self.plotWidget.specialStructureMouseOver.connect(
+                self.highlightProfileElement)
+            self.plotWidget.specialStructureMouseOut.connect(
+                self.unhighlightProfileElement)
+            self.plotWidget.reachMouseOver.connect(
+                self.highlightProfileElement)
+            self.plotWidget.reachMouseOut.connect(
+                self.unhighlightProfileElement)
             self.profileDock.addPlotWidget(self.plotWidget)
             self.profileDock.setTree(self.nodes, self.edges)
 
