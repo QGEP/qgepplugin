@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------
 #
-# Profile
+# QGEP
+#
 # Copyright (C) 2012  Matthias Kuhn
 # -----------------------------------------------------------
 #
@@ -53,6 +54,8 @@ from ui.qgepwizard import QgepWizard
 from utils.qgeplogging import QgepQgsLogHandler
 from utils.translation import setup_i18n
 from utils.qgeplayermanager import QgepLayerNotifier
+from .processing_provider.provider import QgepProcessingProvider
+from processing.core.Processing import Processing
 
 import resources  # NOQA
 
@@ -246,6 +249,9 @@ class QgepPlugin:
 
         self.wastewater_networkelement_layer_notifier.layersAvailableChanged.connect(
             self.connectNetworkElementsAction.setEnabled)
+
+        self.processing_provider = QgepProcessingProvider()
+        Processing.addProvider(self.processing_provider)
 
     def unload(self):
         """
