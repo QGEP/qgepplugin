@@ -72,11 +72,11 @@ class SnapReachAlgorithm(GeoAlgorithm):
 
         # The parameters
         self.addParameter(
-            ParameterNumber(self.DISTANCE, description=self.tr('Distance in meters.'), default=10.0))
+            ParameterNumber(self.DISTANCE, description=self.tr('Maximum snapping distance in meters. Set to 0 for no maximum.'), default=10.0))
         self.addParameter(
-            ParameterBoolean(self.ONLY_SELECTED, description=self.tr('Only selected.'), default=True))
+            ParameterBoolean(self.ONLY_SELECTED, description=self.tr('Snap only selected reaches.'), default=True))
         self.addParameter(ParameterVector(self.REACH_LAYER, description=self.tr(
-            'Reach layer, will be modified in place')))
+            'Reach layer, will be modified in place and used as snapping target')))
         self.addParameter(ParameterVector(self.WASTEWATER_NODE_LAYER, description=self.tr(
             'Wastewater node layer, will be used as snapping target')))
 
@@ -124,35 +124,59 @@ class SnapReachAlgorithm(GeoAlgorithm):
 
     def processFeatures(self, reaches, reach_layer, wastewater_node_layer, distance_threshold):
         ids = list()
+        to_ids = list()
+        # Gather ids of connected networkelements
+        # to_ids are also gathered separately, because they can be either reaches or nodes
         for reach in reaches:
             if reach['rp_from_fk_wastewater_networkelement']:
                 ids.append(reach['rp_from_fk_wastewater_networkelement'])
 
             if reach['rp_to_fk_wastewater_networkelement']:
                 ids.append(reach['rp_to_fk_wastewater_networkelement'])
+                to_ids.append(reach['rp_to_fk_wastewater_networkelement'])
 
+        # Get all nodes on which to snap
         quoted_ids = [QgsExpression.quotedValue(objid) for objid in ids]
-        request = QgsFeatureRequest()
+        node_request = QgsFeatureRequest()
         filter_expression = '"obj_id" IN ({ids})'.format(ids=','.join(quoted_ids))
-        request.setFilterExpression(filter_expression)
-        request.setSubsetOfAttributes([])
+        node_request.setFilterExpression(filter_expression)
+        node_request.setSubsetOfAttributes([])
 
         nodes = dict()
-        for node in wastewater_node_layer.getFeatures(request):
+        for node in wastewater_node_layer.getFeatures(node_request):
             nodes[node['obj_id']] = node
+
+        # Get all reaches on which to snap
+        quoted_to_ids = [QgsExpression.quotedValue(objid) for objid in to_ids]
+        reach_request = QgsFeatureRequest()
+        filter_expression = '"obj_id" IN ({ids})'.format(ids=','.join(quoted_ids))
+        reach_request.setFilterExpression(filter_expression)
+        reach_request.setSubsetOfAttributes([])
+
+        target_reaches = dict()
+        for target_reach in reach_layer.getFeatures(reach_request):
+            target_reaches[target_reach['obj_id']] = target_reach
 
         for reach in reaches:
             reach_geometry = QgsGeometry(reach.geometry())
             from_id = reach['rp_from_fk_wastewater_networkelement']
             if from_id in nodes.keys():
-                if reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
+                if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
                     reach_geometry.moveVertex(nodes[from_id].geometry().geometry(), 0)
 
             to_id = reach['rp_to_fk_wastewater_networkelement']
             if to_id in nodes.keys():
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
-                if reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), last_vertex) < distance_threshold:
+                if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[to_id].geometry().asPoint(), last_vertex) < distance_threshold:
                     reach_geometry.moveVertex(nodes[to_id].geometry().geometry(), last_vertex)
+
+            if to_id in target_reaches.keys():
+                QgsMessageLog.logMessage('Reach found {}'.format(to_id), tag='QGEP')
+                last_vertex = reach_geometry.geometry().nCoordinates() - 1
+                target_reach = target_reaches[to_id]
+                distance, point, after_vertex = target_reach.geometry().closestSegmentWithContext(reach_geometry.vertexAt(last_vertex))
+                if distance_threshold == 0 or distance < distance_threshold:
+                    reach_geometry.moveVertex(point.x(), point.y(), last_vertex)
 
             reach.setGeometry(reach_geometry)
             reach_layer.updateFeature(reach)
