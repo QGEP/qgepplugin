@@ -148,7 +148,7 @@ class SnapReachAlgorithm(GeoAlgorithm):
         quoted_to_ids = [QgsExpression.quotedValue(objid) for objid in to_ids]
         reach_request = QgsFeatureRequest()
         filter_expression = '"obj_id" IN ({ids})'.format(
-            ids=','.join(quoted_ids))
+            ids=','.join(quoted_to_ids))
         reach_request.setFilterExpression(filter_expression)
         reach_request.setSubsetOfAttributes([])
 
