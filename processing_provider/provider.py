@@ -80,7 +80,7 @@ class QgepProcessingProvider(AlgorithmProvider):
     def getDescription(self):
         """This is the provired full name.
         """
-        return 'QField Synchronisation Provider'
+        return 'QGEP Wastewater Network Tools'
 
     def getIcon(self):
         """We return the default icon.
