@@ -233,7 +233,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         f = QgsFeature(fields)
         for idx in range(len(fields)):
             # try client side default value first
-            v = self.layer.defaultValue( idx, f )
+            v = self.layer.defaultValue(idx, f)
             if v != NULL:
                 f.setAttribute(idx, v)
             else:
