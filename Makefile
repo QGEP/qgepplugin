@@ -31,12 +31,19 @@ TS_FILES=$(patsubst %.ts,%.qm,$(TS_SOURCES))
 
 GEN_FILES = ${UI_FILES} ${RC_FILES} ${TS_FILES}
 
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+  QTPYTHONPATH=/usr/local/lib/qt-4/python2.7/site-packages
+else
+endif
+
+
 all: $(GEN_FILES)
 ui: $(UI_FILES)
 resources: $(RC_FILES)
 
 $(UI_FILES): ui/ui_%.py: ui/%.ui
-	pyuic4 -o $@ $<
+	PYTHONPATH=$(QTPYTHONPATH):$(PYTHONPATH) pyuic4 -o $@ $<
 
 $(RC_FILES): %.py: %.qrc
 	pyrcc4 -o $@ $<
