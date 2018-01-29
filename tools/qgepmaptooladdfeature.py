@@ -40,7 +40,8 @@ from qgis.core import (
     QgsTolerance,
     QgsFeatureRequest,
     QGis,
-    QgsGeometry
+    QgsGeometry,
+    NULL
 )
 from PyQt4.QtGui import (
     QCursor,
@@ -231,7 +232,12 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         fields = self.layer.fields()
         f = QgsFeature(fields)
         for idx in range(len(fields)):
-            f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
+            # try client side default value first
+            v = self.layer.defaultValue( idx, f )
+            if v != NULL:
+                f.setAttribute(idx, v)
+            else:
+                f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
 
         f.setGeometry(self.rubberband.asGeometry())
 
