@@ -1,6 +1,6 @@
 from PyQt4.QtGui import QPushButton
 import qgis
-from qgis.core import QgsMapLayerRegistry
+from qgis.core import QgsProject
 
 from ..tools.qgepmaptooladdfeature import QgepMapToolDigitizeDrainageChannel
 
@@ -21,7 +21,7 @@ def mapToolDeactivated(tool):
 
 
 def digitizeDrainageChannel(fid, layerid):
-    layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
+    layer = QgsProject.instance().mapLayer(layerid)
     layer.startEditing()
     tool = QgepMapToolDigitizeDrainageChannel(
         qgis.utils.plugins['qgepplugin'].iface, layer)

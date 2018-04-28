@@ -23,10 +23,12 @@
 #
 # ---------------------------------------------------------------------
 
+from builtins import str
 from .ui_qgepsettingsdialog import Ui_QgepSettingsDialog
-from PyQt4.QtCore import QSettings, pyqtSlot
-from PyQt4.QtGui import QDialog, QFileDialog, QColor
-from qgis.core import QgsMapLayerRegistry, QgsProject
+from qgis.PyQt.QtCore import QSettings, pyqtSlot
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog
+from qgis.PyQt.QtGui import QColor
+from qgis.core import QgsProject
 import logging
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
@@ -59,9 +61,9 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
         self.initLayerCombobox(self.mCbGraphEdges, lyr_graph_edges)
         self.initLayerCombobox(self.mCbGraphNodes, lyr_graph_nodes)
 
-        self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", '#FF9500')))
-        self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", '#FFD900')))
-        self.mHighlightColorButton.setColor(QColor(self.settings.value("/QGEP/HighlightColor", '#40FF40')))
+        self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", u'#FF9500')))
+        self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", u'#FFD900')))
+        self.mHighlightColorButton.setColor(QColor(self.settings.value("/QGEP/HighlightColor", u'#40FF40')))
 
         self.mPbnChooseProfileTemplateFile.clicked.connect(self.onChooseProfileTemplateFileClicked)
         self.mPbnChooseLogFile.clicked.connect(self.onChooseLogFileClicked)
@@ -80,7 +82,7 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
             self.mGbLogToFile.setChecked(False)
 
     def initLayerCombobox(self, combobox, default):
-        reg = QgsMapLayerRegistry.instance()
+        reg = QgsProject.instance()
         for (key, layer) in reg.mapLayers().items():
             combobox.addItem(layer.name(), key)
 
@@ -147,11 +149,11 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
 
     @pyqtSlot()
     def onChooseProfileTemplateFileClicked(self):
-        filename = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
+        filename, __ = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
                                                self.tr('HTML files(*.htm *.html)'))
         self.mProfileTemplateFile.setText(filename)
 
     @pyqtSlot()
     def onChooseLogFileClicked(self):
-        filename = QFileDialog.getSaveFileName(self, self.tr('Select log file'), '', self.tr('Log files(*.log)'))
+        filename, __ = QFileDialog.getSaveFileName(self, self.tr('Select log file'), '', self.tr('Log files(*.log)'))
         self.mLogFile.setText(filename)

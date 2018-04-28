@@ -3,7 +3,7 @@ This module helps managing the QGEP project layers.
 """
 from PyQt4.QtCore import (QObject, pyqtSignal)
 
-from qgis.core import (QgsMapLayerRegistry, )
+from qgis.core import QgsProject
 
 
 class QgepLayerNotifier(QObject):
@@ -21,8 +21,8 @@ class QgepLayerNotifier(QObject):
         QObject.__init__(self, parent)
         self.layers = layers
 
-        QgsMapLayerRegistry.instance().layersWillBeRemoved.connect(self.layersWillBeRemoved)
-        QgsMapLayerRegistry.instance().layersAdded.connect(self.layersAdded)
+        QgsProject.instance().layersWillBeRemoved.connect(self.layersWillBeRemoved)
+        QgsProject.instance().layersAdded.connect(self.layersAdded)
 
     def layersWillBeRemoved(self, _):
         """
@@ -34,7 +34,7 @@ class QgepLayerNotifier(QObject):
         if self.available:
             for qgep_id in self.layers:
                 lyrs = [lyr for (lyr_id, lyr)
-                        in QgsMapLayerRegistry.instance().mapLayers().items()
+                        in QgsProject.instance().mapLayers().items()
                         if lyr_id.startswith(qgep_id)]
                 if not lyrs:
                     self.layersUnavailable.emit()
@@ -50,7 +50,7 @@ class QgepLayerNotifier(QObject):
             lyrlist = dict()
             for qgep_id in self.layers:
                 lyr = [lyr for (lyr_id, lyr)
-                       in QgsMapLayerRegistry.instance().mapLayers().items()
+                       in QgsProject.instance().mapLayers().items()
                        if lyr_id.startswith(qgep_id)]
                 if not lyr:
                     return
@@ -77,7 +77,7 @@ class QgepLayerManager(object):
         :return:         A layer matching this id or None
         """
         lyr = [lyr for (lyr_id, lyr)
-               in QgsMapLayerRegistry.instance().mapLayers().items()
+               in QgsProject.instance().mapLayers().items()
                if lyr_id.startswith(qgep_id)]
         if lyr:
             return lyr[0]

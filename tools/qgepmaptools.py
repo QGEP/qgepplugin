@@ -30,7 +30,7 @@ This module implements several map tools for QGEP
 from qgis.core import (
     QgsGeometry,
     QgsPoint,
-    QGis,
+    QgsWkbTypes,
     QgsFeatureRequest,
     QgsSnappingUtils,
     QgsTolerance,
@@ -505,10 +505,10 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.iface = iface
         self.action = action
 
-        self.rbline = QgsRubberBand(self.iface.mapCanvas(), QGis.Line)
+        self.rbline = QgsRubberBand(self.iface.mapCanvas(), QgsWkbTypes.LineGeometry)
         self.rbline.setColor(QColor('#f4530e'))
         self.rbline.setWidth(3)
-        self.rbmarkers = QgsRubberBand(self.iface.mapCanvas(), QGis.Point)
+        self.rbmarkers = QgsRubberBand(self.iface.mapCanvas(), QgsWkbTypes.PointGeometry)
         self.rbmarkers.setColor(QColor('#f4530e'))
         self.rbmarkers.setIconSize(6)
 
@@ -658,7 +658,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.rbline.hide()
         self.rbline.reset()
         self.rbmarkers.hide()
-        self.rbmarkers.reset(QGis.Point)
+        self.rbmarkers.reset(QgsWkbTypes.PointGeometry)
         self.rbmarkers.addPoint(QgsPoint())
         self.snapresult = None
         self.source_match = None

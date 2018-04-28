@@ -19,18 +19,14 @@
  ***************************************************************************/
 """
 
-from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.core.parameters import (
-    ParameterNumber,
-    ParameterVector,
-    ParameterBoolean
-)
-from processing.tools import dataobjects
-
 from qgis.core import (
     QgsExpression,
     QgsFeatureRequest,
     QgsGeometry,
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterVectorLayer
 )
 
 __author__ = 'Matthias Kuhn'
@@ -42,7 +38,7 @@ __copyright__ = '(C) 2017 by OPENGIS.ch'
 __revision__ = '$Format:%H$'
 
 
-class SnapReachAlgorithm(GeoAlgorithm):
+class SnapReachAlgorithm(QgsProcessingAlgorithm):
     """
     """
 
@@ -64,25 +60,21 @@ class SnapReachAlgorithm(GeoAlgorithm):
 
         # The parameters
         self.addParameter(
-            ParameterNumber(self.DISTANCE, description=self.tr('Maximum snapping distance in meters. Set to 0 for no maximum.'), default=10.0))
+            QgsProcessingParameterNumber(self.DISTANCE, type=QgsProcessingParameterNumber.Double, description=self.tr('Maximum snapping distance in meters. Set to 0 for no maximum.'), default=10.0))
         self.addParameter(
-            ParameterBoolean(self.ONLY_SELECTED, description=self.tr('Snap only selected reaches.'), default=True))
-        self.addParameter(ParameterVector(self.REACH_LAYER, description=self.tr(
+            QgsProcessingParameterBoolean(self.ONLY_SELECTED, description=self.tr('Snap only selected reaches.'), default=True))
+        self.addParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=self.tr(
             'Reach layer, will be modified in place and used as snapping target')))
-        self.addParameter(ParameterVector(self.WASTEWATER_NODE_LAYER, description=self.tr(
+        self.addParameter(QgsProcessingParameterVectorLayer(self.WASTEWATER_NODE_LAYER, description=self.tr(
             'Wastewater node layer, will be used as snapping target')))
 
-    def processAlgorithm(self, progress):
+    def processAlgorithm(self, parameters, context, feedback):
         """Here is where the processing itself takes place."""
 
-        reach_layer_uri = self.getParameterValue(self.REACH_LAYER)
-        reach_layer = dataobjects.getObjectFromUri(reach_layer_uri)
-        distance = self.getParameterValue(self.DISTANCE)
-        only_selected = self.getParameterValue(self.ONLY_SELECTED)
-        wastewater_node_layer_uri = self.getParameterValue(
-            self.WASTEWATER_NODE_LAYER)
-        wastewater_node_layer = dataobjects.getObjectFromUri(
-            wastewater_node_layer_uri)
+        reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER)
+        wastewater_node_layer = self.parameterAsVectorLayer(parameters, self.WASTEWATER_NODE_LAYER)
+        distance = self.parameterAsDouble(self.DISTANCE)
+        only_selected = self.parameterAsBoolean(self.ONLY_SELECTED)
 
         reach_layer.startEditing()
 
@@ -108,7 +100,7 @@ class SnapReachAlgorithm(GeoAlgorithm):
                     reaches = list()
 
                 current_feature += 1
-                progress.setPercentage(current_feature * 100.0 / feature_count)
+                feedback.setProgress(current_feature * 100.0 / feature_count)
 
             self.processFeatures(reaches, reach_layer,
                                  wastewater_node_layer, distance)
@@ -116,7 +108,7 @@ class SnapReachAlgorithm(GeoAlgorithm):
             reach_layer.destroyEditCommand()
             raise
         reach_layer.endEditCommand()
-        progress.setPercentage(100)
+        feedback.setProgress(100)
 
     def processFeatures(self, reaches, reach_layer, wastewater_node_layer, distance_threshold):
         ids = list()
