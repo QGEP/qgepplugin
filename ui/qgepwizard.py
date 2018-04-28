@@ -23,15 +23,18 @@
 #
 # ---------------------------------------------------------------------
 
-from PyQt4.QtGui import (QDockWidget)
-from PyQt4.QtCore import pyqtSlot
-from .ui_qgepwizard import Ui_QgepDockWidget
+from qgis.PyQt.QtWidgets import (QDockWidget)
+from qgis.PyQt.QtCore import pyqtSlot
+
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 from qgepplugin.tools.qgepmaptooladdfeature import QgepMapToolAddReach
 import logging
 
+from qgepplugin.utils import get_ui_class
+DOCK_WIDGET = get_ui_class('qgepwizard.ui')
 
-class QgepWizard(QDockWidget, Ui_QgepDockWidget):
+
+class QgepWizard(QDockWidget, DOCK_WIDGET):
     logger = logging.getLogger(__name__)
 
     def __init__(self, parent, iface):

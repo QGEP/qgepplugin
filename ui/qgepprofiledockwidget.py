@@ -41,12 +41,11 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.PyQt.QtGui import QAction
 
-from .ui_qgepdockwidget import Ui_QgepDockWidget
-
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
+from qgepplugin.utils import get_ui_class
+DOCK_WIDGET_UI = get_ui_class('qgepdockwidget.ui')
 
-
-class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
+class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
     # Signal emitted when the widget is closed
     closed = pyqtSignal()
     canvas = None

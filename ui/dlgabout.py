@@ -27,10 +27,11 @@ import os
 from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
 
-from .ui_dlgabout import Ui_DlgAbout
+from qgepplugin.utils import get_ui_class
+DIALOG_UI = get_ui_class('dlgabout.ui')
 
 
-class DlgAbout(QDialog, Ui_DlgAbout):
+class DlgAbout(QDialog, DIALOG_UI):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
