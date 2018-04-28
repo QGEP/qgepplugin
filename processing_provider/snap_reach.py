@@ -29,6 +29,8 @@ from qgis.core import (
     QgsProcessingParameterVectorLayer
 )
 
+from PyQt5.QtCore import QCoreApplication
+
 __author__ = 'Matthias Kuhn'
 __date__ = '2017-11-18'
 __copyright__ = '(C) 2017 by OPENGIS.ch'
@@ -47,22 +49,31 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
     WASTEWATER_NODE_LAYER = 'WASTEWATER_NODE_LAYER'
     ONLY_SELECTED = 'ONLY_SELECTED'
 
-    def defineCharacteristics(self):
+    def group(self):
+        return 'QGEP'
+
+    def groupId(self):
+        return 'qgep'
+
+    def name(self):
+        return self.tr('Snap reach geometry')
+
+    def displayName(self):
+        return self.name()
+
+    def tr(self, text):
+        return QCoreApplication.translate('snap_reach', text)
+
+    def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
         """
 
-        # The name that the user will see in the toolbox
-        self.name = 'Snap reach geometry'
-
-        # The branch of the toolbox under which the algorithm will appear
-        self.group = 'QGEP'
-
         # The parameters
         self.addParameter(
-            QgsProcessingParameterNumber(self.DISTANCE, type=QgsProcessingParameterNumber.Double, description=self.tr('Maximum snapping distance in meters. Set to 0 for no maximum.'), default=10.0))
+            QgsProcessingParameterNumber(self.DISTANCE, type=QgsProcessingParameterNumber.Double, description=self.tr('Maximum snapping distance in meters. Set to 0 for no maximum.'), defaultValue=10.0))
         self.addParameter(
-            QgsProcessingParameterBoolean(self.ONLY_SELECTED, description=self.tr('Snap only selected reaches.'), default=True))
+            QgsProcessingParameterBoolean(self.ONLY_SELECTED, description=self.tr('Snap only selected reaches.'), defaultValue=True))
         self.addParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=self.tr(
             'Reach layer, will be modified in place and used as snapping target')))
         self.addParameter(QgsProcessingParameterVectorLayer(self.WASTEWATER_NODE_LAYER, description=self.tr(

@@ -22,6 +22,9 @@
 from qgis.core import QgsProcessingProvider
 from .snap_reach import SnapReachAlgorithm
 
+from PyQt5.QtGui import QIcon
+import os
+
 __author__ = 'Matthias Kuhn'
 __date__ = '2017-11-18'
 __copyright__ = '(C) 2017 by OPENGIS.ch'
@@ -60,10 +63,11 @@ class QgepProcessingProvider(QgsProcessingProvider):
         return 'QGEP'
 
     def icon(self):
-        pass
+        return QIcon(self.svgIconPath())
 
     def svgIconPath(self):
-        pass
+        basepath = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(basepath, '..', 'icons', 'qgepIcon.svg')
 
     def loadAlgorithms(self):
         self.algs = self.getAlgs()

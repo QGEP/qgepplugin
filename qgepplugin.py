@@ -24,23 +24,19 @@
 #
 # ---------------------------------------------------------------------
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import logging
 import os
 
-from PyQt4.QtCore import (
-    pyqtSlot,
-    QSettings,
-    Qt,
-    QLocale
-)
-from PyQt4.QtGui import (
-    QAction,
-    QIcon,
-    QApplication,
-    QToolBar
-)
+from qgis.PyQt.QtCore import pyqtSlot, QSettings, Qt, QLocale
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
+from qgis.PyQt.QtGui import QIcon
 
 from qgis.utils import qgsfunction
+from qgis.core import QgsApplication
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
     QgepTreeMapTool,
@@ -55,9 +51,6 @@ from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
 from .processing_provider.provider import QgepProcessingProvider
-from processing.core.Processing import Processing
-
-from . import resources  # NOQA
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
@@ -67,7 +60,7 @@ def locale(values, feature, parent):
     return QSettings().value("locale/userLocale", QLocale.system().name())
 
 
-class QgepPlugin:
+class QgepPlugin(object):
     """
     A plugin for wastewater management
     http://www.github.com/qgep/QGEP
@@ -194,8 +187,7 @@ class QgepPlugin:
             QApplication.translate('qgepplugin', 'Connect wastewater networkelements'), self.iface.mainWindow())
         self.connectNetworkElementsAction.setEnabled(False)
         self.connectNetworkElementsAction.setCheckable(True)
-        self.connectNetworkElementsAction.triggered.connect(
-            self.connectNetworkElements)
+        self.connectNetworkElementsAction.triggered.connect(self.connectNetworkElements)
 
         self.refreshNetworkTopologyAction = QAction(QIcon(":/plugins/qgepplugin/icons/refresh-network.svg"),
                                                     "Refresh network topology", self.iface.mainWindow())
@@ -263,7 +255,7 @@ class QgepPlugin:
             self.connectNetworkElementsAction.setEnabled)
 
         self.processing_provider = QgepProcessingProvider()
-        Processing.addProvider(self.processing_provider)
+        QgsApplication.processingRegistry().addProvider(self.processing_provider)
 
     def unload(self):
         """
@@ -329,9 +321,7 @@ class QgepPlugin:
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.wizarddock)
         self.wizarddock.show()
 
-    @pyqtSlot()
-    def connectNetworkElements(self):
-        print('Copnnet them')
+    def connectNetworkElements(self, checked):
         self.iface.mapCanvas().setMapTool(self.maptool_connect_networkelements)
 
     def openDock(self):

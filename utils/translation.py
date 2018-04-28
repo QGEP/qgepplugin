@@ -51,8 +51,7 @@ def setup_i18n(the_preferred_locale=None):
 
     my_translator_file = 'qgepplugin_' + my_locale_name
 
-    my_result = translator.load(my_translator_file, ':/plugins/qgepplugin/i18n')
-    # my_result = translator.load( my_translator_file, '/home/kk/dev/python/QGEP/qgepplugin/i18n' )
+    my_result = translator.load(my_translator_file, 'i18n')
 
     if my_result:
         QCoreApplication.instance().installTranslator(translator)
