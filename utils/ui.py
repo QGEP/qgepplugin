@@ -2,6 +2,8 @@ import os
 
 from qgis.PyQt.uic import loadUiType
 
+from .plugin_utils import plugin_root_path
+
 
 def get_ui_class(ui_file):
     """Get UI Python class from .ui file.
@@ -12,8 +14,7 @@ def get_ui_class(ui_file):
     os.path.sep.join(ui_file.split('/'))
     ui_file_path = os.path.abspath(
         os.path.join(
-            os.path.dirname(__file__),
-            os.pardir,
+            plugin_root_path(),
             'ui',
             ui_file
         )

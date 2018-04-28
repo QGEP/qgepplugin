@@ -37,6 +37,7 @@ from qgis.PyQt.QtGui import QIcon
 
 from qgis.utils import qgsfunction
 from qgis.core import QgsApplication
+
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
     QgepTreeMapTool,
@@ -50,6 +51,7 @@ from .ui.qgepwizard import QgepWizard
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
+from .utils.plugin_utils import plugin_root_path
 from .processing_provider.provider import QgepProcessingProvider
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
@@ -153,29 +155,28 @@ class QgepPlugin(object):
         self.toolbarButtons = []
 
         # Create toolbar button
-        self.profileAction = QAction(QIcon(":/plugins/qgepplugin/icons/wastewater-profile.svg"), self.tr("Profile"),
+        self.profileAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-profile.svg")), self.tr("Profile"),
                                      self.iface.mainWindow())
         self.profileAction.setWhatsThis(self.tr("Reach trace"))
         self.profileAction.setEnabled(False)
         self.profileAction.setCheckable(True)
         self.profileAction.triggered.connect(self.profileToolClicked)
 
-        self.downstreamAction = QAction(QIcon(":/plugins/qgepplugin/icons/wastewater-downstream.svg"),
+        self.downstreamAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-downstream.svg")),
                                         self.tr("Downstream"), self.iface.mainWindow())
         self.downstreamAction.setWhatsThis(self.tr("Downstream reaches"))
         self.downstreamAction.setEnabled(False)
         self.downstreamAction.setCheckable(True)
         self.downstreamAction.triggered.connect(self.downstreamToolClicked)
 
-        self.upstreamAction = QAction(QIcon(":/plugins/qgepplugin/icons/wastewater-upstream.svg"), self.tr("Upstream"),
+        self.upstreamAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-upstream.svg")), self.tr("Upstream"),
                                       self.iface.mainWindow())
         self.upstreamAction.setWhatsThis(self.tr("Upstream reaches"))
         self.upstreamAction.setEnabled(False)
         self.upstreamAction.setCheckable(True)
         self.upstreamAction.triggered.connect(self.upstreamToolClicked)
 
-        self.wizardAction = QAction(QIcon(
-            ":/plugins/qgepplugin/icons/wizard.svg"), "Wizard", self.iface.mainWindow())
+        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")), "Wizard", self.iface.mainWindow())
         self.wizardAction.setWhatsThis(
             self.tr("Create new manholes and reaches"))
         self.wizardAction.setEnabled(False)
@@ -183,13 +184,13 @@ class QgepPlugin(object):
         self.wizardAction.triggered.connect(self.wizard)
 
         self.connectNetworkElementsAction = QAction(
-            QIcon(":/plugins/qgepplugin/icons/link-wastewater-networkelement.svg"),
+            QIcon(os.path.join(plugin_root_path(), "icons/link-wastewater-networkelement.svg")),
             QApplication.translate('qgepplugin', 'Connect wastewater networkelements'), self.iface.mainWindow())
         self.connectNetworkElementsAction.setEnabled(False)
         self.connectNetworkElementsAction.setCheckable(True)
         self.connectNetworkElementsAction.triggered.connect(self.connectNetworkElements)
 
-        self.refreshNetworkTopologyAction = QAction(QIcon(":/plugins/qgepplugin/icons/refresh-network.svg"),
+        self.refreshNetworkTopologyAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/refresh-network.svg")),
                                                     "Refresh network topology", self.iface.mainWindow())
         self.refreshNetworkTopologyAction.setWhatsThis(
             self.tr("Refresh network topology"))
