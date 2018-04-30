@@ -28,20 +28,23 @@ This module implements several map tools for QGEP
 """
 
 from qgis.core import (
+    Qgis,
     QgsGeometry,
     QgsPoint,
+    QgsPointXY,
     QgsWkbTypes,
     QgsFeatureRequest,
     QgsSnappingUtils,
     QgsTolerance,
     QgsPointLocator,
-    QgsFeature
+    QgsFeature,
+    QgsSnappingConfig,
+    QgsProject
 )
 from qgis.gui import (
     QgsMapTool,
     QgsRubberBand,
     QgsVertexMarker,
-    QgsMessageBar,
     QgsMapCanvasSnappingUtils
 )
 from PyQt4.QtGui import (
@@ -351,13 +354,13 @@ class QgepProfileMapTool(QgepMapTool):
                     self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
                 if pf:
                     self.selectedPathPoints.append(
-                        (snapped_point.snappedAtGeometry, QgsPoint(snapped_point.snappedVertex)))
+                        (snapped_point.snappedAtGeometry, QgsPointXY(snapped_point.snappedVertex)))
                 else:
                     msg = self.msgBar.createMessage('No path found')
-                    self.msgBar.pushWidget(msg, QgsMessageBar.WARNING)
+                    self.msgBar.pushWidget(msg, Qgis.Info)
             else:
                 self.selectedPathPoints.append((snapped_point.snappedAtGeometry,
-                                                QgsPoint(snapped_point.snappedVertex)))
+                                                QgsPointXY(snapped_point.snappedVertex)))
 
 
 class QgepTreeMapTool(QgepMapTool):
@@ -474,9 +477,11 @@ class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
         QgsMapCanvasSnappingUtils.__init__(self, map_canvas)
 
     def snapToMap(self, pt):
+        print(pt)
         match = QgsMapCanvasSnappingUtils.snapToMap(self, pt)
+        print(match.isValid())
 
-        if not match.isValid() and self.snapToMapMode() == QgsSnappingUtils.SnapAdvanced:
+        if not match.isValid() and self.config().mode() == QgsSnappingConfig.AdvancedConfiguration:
             for layer in self.layers():
                 if layer.type & QgsPointLocator.Area:
                     loc = self.locatorForLayer(layer.layer)
@@ -571,15 +576,18 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.iface.mapCanvas().setCursor(QCursor(Qt.CrossCursor))
 
     def setSnapLayers(self, snapper, layers):
-        snap_layers = list()
+        config = QgsSnappingConfig()
+        config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+        config.setEnabled(True)
+
         for layer in layers:
             if layer:
-                snap_layer = QgsSnappingUtils.LayerConfig(
-                    layer, QgsPointLocator.All, 16, QgsTolerance.Pixels)
-                snap_layers.append(snap_layer)
+                config.setIndividualLayerSettings(layer, QgsSnappingConfig.IndividualLayerSettings(True,
+                                                                                                QgsSnappingConfig.VertexAndSegment,
+                                                                                                16,
+                                                                                                QgsTolerance.Pixels))
 
-        snapper.setLayers(snap_layers)
-        snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+        snapper.setConfig(config)
 
     def canvasMoveEvent(self, event):
         """
@@ -659,7 +667,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.rbline.reset()
         self.rbmarkers.hide()
         self.rbmarkers.reset(QgsWkbTypes.PointGeometry)
-        self.rbmarkers.addPoint(QgsPoint())
+        self.rbmarkers.addPoint(QgsPointXY())
         self.snapresult = None
         self.source_match = None
         self.snapper = self.source_snapper
@@ -716,11 +724,11 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                                                         source_feature[
                                                             'identifier'],
                                                         target_feature['identifier']),
-                                                    QgsMessageBar.INFO, 5)
+                                                    Qgis.Info, 5)
             else:
                 self.iface.messageBar().pushMessage('QGEP',
                                                     self.tr(
                                                         'Error connecting features'),
-                                                    QgsMessageBar.WARNING, 5)
+                                                    Qgis.Warning, 5)
 
         self.reset()
