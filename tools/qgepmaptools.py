@@ -34,7 +34,6 @@ from qgis.core import (
     QgsPointXY,
     QgsWkbTypes,
     QgsFeatureRequest,
-    QgsSnappingUtils,
     QgsTolerance,
     QgsPointLocator,
     QgsFeature,
@@ -79,7 +78,7 @@ class QgepMapTool(QgsMapTool):
     Base class for all the map tools
     """
 
-    highLightedPoints = []
+    highlightedPoints = []
     logger = logging.getLogger(__name__)
 
     def __init__(self, iface, button):
@@ -419,10 +418,10 @@ class QgepTreeMapTool(QgepMapTool):
         (_, snapped_points) = self.networkAnalyzer.getSnapper(
         ).snapPoint(point_clicked, [])
 
-        for marker in self.highLightedPoints:
+        for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)
 
-        self.highLightedPoints = []
+        self.highlightedPoints = []
 
         if snapped_points:
             for point in snapped_points:
@@ -432,7 +431,7 @@ class QgepTreeMapTool(QgepMapTool):
                 marker.setIconSize(10)
                 marker.setIconType(QgsVertexMarker.ICON_X)
                 marker.setPenWidth(2)
-                self.highLightedPoints.append(marker)
+                self.highlightedPoints.append(marker)
 
     def rightClicked(self, _):
         """
@@ -465,10 +464,10 @@ class QgepTreeMapTool(QgepMapTool):
         QgepMapTool.deactivate(self)
         self.rubberBand.reset()
 
-        for marker in self.highLightedPoints:
+        for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)
 
-        self.highLightedPoints = []
+        self.highlightedPoints = []
 
 
 class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
