@@ -477,9 +477,7 @@ class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
         QgsMapCanvasSnappingUtils.__init__(self, map_canvas)
 
     def snapToMap(self, pt):
-        print(pt)
         match = QgsMapCanvasSnappingUtils.snapToMap(self, pt)
-        print(match.isValid())
 
         if not match.isValid() and self.config().mode() == QgsSnappingConfig.AdvancedConfiguration:
             for layer in self.layers():
