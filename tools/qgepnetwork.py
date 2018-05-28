@@ -34,14 +34,17 @@ import re
 from PyQt4.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
+    Qgis,
     QgsTolerance,
-    QgsSnappingUtils,
+    QgsSnappingConfig,
     QgsGeometry,
     QgsDataSourceUri,
+    QgsPointLocator,
     NULL
 )
 from qgis.gui import (
-    QgsMessageBar
+    QgsMessageBar,
+    QgsMapCanvasSnappingUtils
 )
 from PyQt4.QtCore import (
     QPoint,
@@ -171,7 +174,7 @@ class QgepGraphManager(QObject):
         Refreshes the network graph. It will force a refresh of the materialized views in the database and then reload
         and recreate the graph.
         """
-        uri = QgsDataSourceURI(self.nodeLayer.dataProvider().dataSourceUri())
+        uri = QgsDataSourceUri(self.nodeLayer.dataProvider().dataSourceUri())
 
         db = QSqlDatabase.addDatabase("QPSQL")  # Name of the driver -- doesn't change
 
@@ -180,16 +183,16 @@ class QgepGraphManager(QObject):
 
         if not db.open():
             self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
-                                                level=QgsMessageBar.CRITICAL)
+                                                level=Qgis.Critical)
 
         query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
-            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
+            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=Qgis.Critical)
         else:
             self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_segment successfully updated",
-                                                level=QgsMessageBar.SUCCESS, duration=2)
+                                                level=Qgis.Success, duration=2)
 
         query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
         query = QSqlQuery(db)
@@ -198,7 +201,7 @@ class QgepGraphManager(QObject):
             self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
         else:
             self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_node successfully updated",
-                                                level=QgsMessageBar.SUCCESS, duration=2)
+                                                level=Qgis.Success, duration=2)
         # recreate networkx graph
         self.graph.clear()
         self.createGraph()
@@ -257,37 +260,51 @@ class QgepGraphManager(QObject):
         """
         return self.reachLayerId
 
-    def getSnapper(self):
+    def initSnapper(self):
         """
-        Getter for the snapper
+        Initialize snapper
         """
-        self.snapper = QgsSnapper(self.iface.mapCanvas().mapRenderer())
-        snap_layer = QgsSnapper.SnapLayer()
-        snap_layer.mLayer = self.nodeLayer
-        snap_layer.mTolerance = 10
-        snap_layer.mUnitType = QgsTolerance.Pixels
-        snap_layer.mSnapTo = QgsSnapper.SnapToVertex
-        self.snapper.setSnapLayers([snap_layer])
-        return self.snapper
+        if not self.snapper:
+            self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+            config = QgsSnappingConfig()
+            config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            config.setEnabled(True)
+
+            config.setIndividualLayerSettings(self.nodeLayer, QgsSnappingConfig.IndividualLayerSettings(True,
+                                                                                                       QgsSnappingConfig.VertexAndSegment,
+                                                                                                       16,
+                                                                                                       QgsTolerance.Pixels))
+
+            self.snapper.setConfig(config)
 
     def snapPoint(self, event):
         """
         Snap to a point on this network
         :param event: A QMouseEvent
         """
-        clicked_point = QPoint(event.pos().x(), event.pos().y())
+        clicked_point = event.pos()
 
-        self.snapper = self.getSnapper()
+        if not self.snapper:
+            self.initSnapper()
 
-        (_, snapped_points) = self.snapper.snapPoint(clicked_point, [])
+        class CounterMatchFilter(QgsPointLocator.MatchFilter):
+            def __init__(self):
+                super().__init__()
+                self.matches = list()
 
-        if not snapped_points:
+            def acceptMatch(self, match):
+                self.matches.append(match)
+                return True
+
+        matchFilter = CounterMatchFilter()
+        match = self.snapper.snapToMap(clicked_point, matchFilter)
+
+        if not match.isValid():
             return None
-        elif len(snapped_points) == 1:
-            return snapped_points[0]
-        elif len(snapped_points) > 1:
-
-            point_ids = [point.snappedAtGeometry for point in snapped_points]
+        elif len(matchFilter.matches) == 1:
+            return match
+        elif len(matchFilter.matches) > 1:
+            point_ids = [match.featureId() for match in matchFilter.matches]
             node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
 
             # Filter wastewater nodes
@@ -299,10 +316,10 @@ class QgepGraphManager(QObject):
 
             # Only one wastewater node left: return this
             if len(filtered_features) == 1:
-                points = (point for point
-                          in snapped_points
-                          if point.snappedAtGeometry == next(iter(filtered_features.keys())))
-                return points[0]
+                matches = (match for match
+                          in matchFilter.matches
+                          if match.featureId() == next(iter(filtered_features.keys())))
+                return next(matches)
 
             # Still not sure which point to take?
             # Are there no wastewater nodes filtered? Let the user choose from the reach points
@@ -320,7 +337,7 @@ class QgepGraphManager(QObject):
                 except TypeError:
                     title = " (" + feature.attribute('obj_id') + ")"
                 action = QAction(title, menu)
-                actions[action] = point
+                actions[action] = match
                 menu.addAction(action)
 
             clicked_action = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))

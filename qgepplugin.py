@@ -349,7 +349,6 @@ class QgepPlugin(object):
             self.profileDock.addPlotWidget(self.plotWidget)
             self.profileDock.setTree(self.nodes, self.edges)
 
-    @pyqtSlot()
     def onDockClosed(self):  # used when Dock dialog is closed
         """
         Gets called when the dock is closed
@@ -373,12 +372,10 @@ class QgepPlugin(object):
         self.nodes = nodes
         self.edges = edges
 
-    @pyqtSlot(str)
     def highlightProfileElement(self, obj_id):
         if self.profile is not None:
             self.profile.highlight(str(obj_id))
 
-    @pyqtSlot()
     def unhighlightProfileElement(self):
         if self.profile is not None:
             self.profile.highlight(None)

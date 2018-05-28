@@ -414,9 +414,7 @@ class QgepTreeMapTool(QgepMapTool):
         Whenever the mouse is moved update the rubberband and the snapping.
         :param event: QMouseEvent with coordinates
         """
-        point_clicked = QPoint(event.pos().x(), event.pos().y())
-        (_, snapped_points) = self.networkAnalyzer.getSnapper(
-        ).snapPoint(point_clicked, [])
+        snapped_points = self.networkAnalyzer.snapPoint(event)
 
         for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)
