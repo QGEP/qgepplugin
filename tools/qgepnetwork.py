@@ -182,7 +182,7 @@ class QgepGraphManager(QObject):
             self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
                                                 level=QgsMessageBar.CRITICAL)
 
-        query_template = "REFRESH MATERIALIZED VIEW qgep.vw_network_segment;"
+        query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
@@ -191,7 +191,7 @@ class QgepGraphManager(QObject):
             self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_segment successfully updated",
                                                 level=QgsMessageBar.SUCCESS, duration=2)
 
-        query_template = "REFRESH MATERIALIZED VIEW qgep.vw_network_node;"
+        query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
