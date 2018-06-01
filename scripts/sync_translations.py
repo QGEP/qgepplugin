@@ -43,7 +43,7 @@ def sync_language(lang_code):
         with conn.cursor() as cur:
             pg.extensions.register_type(pg.extensions.UNICODE, cur)
 
-            cur.execute('SELECT * FROM qgep.is_dictionary_od_field;')
+            cur.execute('SELECT * FROM qgep_sys.dictionary_od_field;')
 
             cols = [desc[0] for desc in cur.description]
             # print('Dealing with the following fields from is_dictionary_od_field: {}'.format('\n'.join(cols)))
@@ -61,7 +61,7 @@ def sync_language(lang_code):
         with conn.cursor() as cur:
             pg.extensions.register_type(pg.extensions.UNICODE, cur)
 
-            cur.execute('SELECT * FROM qgep.is_dictionary_od_table;')
+            cur.execute('SELECT * FROM qgep_sys.dictionary_od_table;')
 
             cols = [desc[0] for desc in cur.description]
             nameidx = cols.index('name_{}'.format(lang_code))
