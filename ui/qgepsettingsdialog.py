@@ -51,13 +51,13 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
         develmode = self.settings.value("/QGEP/DeveloperMode", False, type=bool)
         self.mCbDevelMode.setChecked(develmode)
 
-        lyrSpecialStructures, _ = project.readEntry('QGEP', 'SpecialStructureLayer')
-        lyrGraphEdges, _ = project.readEntry('QGEP', 'GraphEdgeLayer')
-        lyrGraphNodes, _ = project.readEntry('QGEP', 'GraphNodeLayer')
+        lyr_special_structures, _ = project.readEntry('QGEP', 'SpecialStructureLayer')
+        lyr_graph_edges, _ = project.readEntry('QGEP', 'GraphEdgeLayer')
+        lyr_graph_nodes, _ = project.readEntry('QGEP', 'GraphNodeLayer')
 
-        self.initLayerCombobox(self.mCbSpecialStructures, lyrSpecialStructures)
-        self.initLayerCombobox(self.mCbGraphEdges, lyrGraphEdges)
-        self.initLayerCombobox(self.mCbGraphNodes, lyrGraphNodes)
+        self.initLayerCombobox(self.mCbSpecialStructures, lyr_special_structures)
+        self.initLayerCombobox(self.mCbGraphEdges, lyr_graph_edges)
+        self.initLayerCombobox(self.mCbGraphNodes, lyr_graph_nodes)
 
         self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", u'#FF9500')))
         self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", u'#FFD900')))
