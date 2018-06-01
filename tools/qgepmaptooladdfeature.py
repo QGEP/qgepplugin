@@ -202,9 +202,9 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         snap_nodelayer.mUnitType = QgsTolerance.Pixels
         snap_nodelayer.mSnapTo = QgsSnapper.SnapToVertex
         snapper.setSnapLayers([snap_nodelayer])
-        (_, snappedPoints) = snapper.snapPoint(pos)
-        if snappedPoints:
-            self.currentSnappingResult = snappedPoints[0]
+        (_, snapped_points) = snapper.snapPoint(pos)
+        if snapped_points:
+            self.currentSnappingResult = snapped_points[0]
             return self.currentSnappingResult.snappedVertex
         else:
             snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
@@ -214,9 +214,9 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             snap_reachlayer.mUnitType = QgsTolerance.Pixels
             snap_reachlayer.mSnapTo = QgsSnapper.SnapToVertexAndSegment
             snapper.setSnapLayers([snap_reachlayer])
-            (_, snappedPoints) = snapper.snapPoint(pos)
-            if snappedPoints:
-                self.currentSnappingResult = snappedPoints[0]
+            (_, snapped_points) = snapper.snapPoint(pos)
+            if snapped_points:
+                self.currentSnappingResult = snapped_points[0]
                 return self.currentSnappingResult.snappedVertex
             else:
                 self.currentSnappingResult = None
