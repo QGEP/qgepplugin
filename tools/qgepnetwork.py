@@ -128,7 +128,7 @@ class QgepGraphManager(QObject):
             except AttributeError:
                 # TODO Add to problem log
                 pass
-            self.graph.add_node(fid, dict(point=vertex, objType=obj_type, objId=obj_id))
+            self.graph.add_node(fid, point=vertex, objType=obj_type, objId=obj_id)
 
             self.vertexIds[str(obj_id)] = fid
 
@@ -156,13 +156,9 @@ class QgepGraphManager(QObject):
                 pt_id1 = self.vertexIds[from_obj_id]
                 pt_id2 = self.vertexIds[to_obj_id]
 
-                props = {
-                    'weight': length,
-                    'feature': feat.id(),
-                    'baseFeature': obj_id,
-                    'objType': obj_type
-                }
-                self.graph.add_edge(pt_id1, pt_id2, props)
+                self.graph.add_edge(pt_id1, pt_id2,
+                                    weight=length, feature=feat.id(),
+                                    baseFeature=obj_id, objType=obj_type)
             except KeyError as e:
                 print(e)
 
