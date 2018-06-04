@@ -76,9 +76,9 @@ class QgepRubberBand3D(QgsRubberBand):
         self.points = []
 
     def asGeometry3D(self):
-        wkt = 'LineStringZ(('\
+        wkt = 'LineStringZ('\
               + ', '.join(['{} {} {}'.format(p.x(), p.y(), p.z()) for p in self.points])\
-              + '))'
+              + ')'
         return QgsGeometry.fromWkt(wkt)
 
 
@@ -267,6 +267,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
 
             f.setGeometry(self.rubberband.asGeometry3D())
+            print(f.geometry().isGeosValid())
+            print(f.geometry().exportToWkt())
 
             if self.first_snapping_result is not None:
                 req = QgsFeatureRequest(self.first_snapping_result.snappedAtGeometry)
