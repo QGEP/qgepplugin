@@ -53,6 +53,12 @@ from PyQt4.QtGui import (
 )
 import networkx as nx
 
+try:
+    nx.bellman_ford_predecessor_and_distance
+except AttributeError:
+    nx.bellman_ford_predecessor_and_distance = nx.bellman_ford
+
+
 
 class QgepGraphManager(QObject):
     """
@@ -365,7 +371,7 @@ class QgepGraphManager(QObject):
             my_graph = self.graph
 
         # Returns pred, weight
-        pred, _ = nx.bellman_ford(my_graph, node)
+        pred, _ = nx.bellman_ford_predecessor_and_distance(my_graph, node)
         edges = [(v, u, my_graph[v][u]) for (u, v) in pred.items() if v is not None]
         nodes = [my_graph.node[n] for n in set(pred.keys() + pred.values()) if n is not None]
 
