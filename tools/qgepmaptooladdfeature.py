@@ -31,12 +31,14 @@ from qgis.gui import (
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
     QgsRubberBand,
-    QgsMessageBar
+    QgsMessageBar,
+    QgsMapCanvasSnappingUtils
 )
 from qgis.core import (
     QgsFeature,
     QgsPoint,
-    QgsSnapper,
+    QgsSnappingUtils,
+    QgsPointLocator,
     QgsTolerance,
     QgsFeatureRequest,
     QGis,
@@ -60,6 +62,18 @@ from PyQt4.QtCore import (
 )
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
+
+
+# QGIS 2.x compat hacks
+try:
+    QGIS_VERSION = 3
+    from qgis.core import QgsSnappingConfig
+except ImportError:
+    # TODO QGIS 3: remove
+    QGIS_VERSION = 2
+    from qgis.core import QgsSnapper as QgsSnappingConfig
+    QgsSnappingConfig.SnapToVertex = QgsPointLocator.Vertex
+    QgsSnappingConfig.SnapToVertexAndSegment = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
 
 
 class QgepRubberBand3D(QgsRubberBand):
@@ -94,10 +108,10 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         self.rubberband = QgepRubberBand3D(iface.mapCanvas(), layer.geometryType())
         self.rubberband.setColor(QColor("#ee5555"))
         self.rubberband.setWidth(1)
-        self.tempRubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
-        self.tempRubberband.setColor(QColor("#ee5555"))
-        self.tempRubberband.setWidth(1)
-        self.tempRubberband.setLineStyle(Qt.DotLine)
+        self.temp_rubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
+        self.temp_rubberband.setColor(QColor("#ee5555"))
+        self.temp_rubberband.setWidth(1)
+        self.temp_rubberband.setLineStyle(Qt.DotLine)
 
     def activate(self):
         """
@@ -143,7 +157,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
         self.rubberband.addPoint(mousepos)
-        self.tempRubberband.reset()
+        self.temp_rubberband.reset()
 
     def rightClicked(self, _):
         """
@@ -156,7 +170,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         dlg.setIsAddDialog(True)
         dlg.exec_()
         self.rubberband.reset3D()
-        self.tempRubberband.reset()
+        self.temp_rubberband.reset()
 
     def cadCanvasMoveEvent(self, event):
         """
@@ -168,7 +182,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         try:
             QgsMapToolAdvancedDigitizing.cadCanvasMoveEvent(self, event)
             mousepos = event.mapPoint()
-            self.tempRubberband.movePoint(mousepos)
+            self.temp_rubberband.movePoint(mousepos)
         except TypeError:
             pass
 
@@ -185,11 +199,32 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
     def __init__(self, iface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
-        self.nodeLayer = QgepLayerManager.layer('vw_wastewater_node')
-        assert self.nodeLayer
-        self.reachLayer = QgepLayerManager.layer('vw_qgep_reach')
-        assert self.reachLayer
+        self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
+        assert self.node_layer
+        self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
+        assert self.reach_layer
         self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
+
+        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
+                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
+        self.snapping_configs = []
+        self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+        if QGIS_VERSION == 3:
+            for lsc in layer_snapping_configs:
+                config = QgsSnappingConfig()
+                config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+                config.setEnabled(True)
+                settings = QgsSnappingConfig.IndividualLayerSettings(True, lsc['mode'],
+                                                                     10, QgsTolerance.Pixels)
+                config.setIndividualLayerSettings(lsc['layer'], settings)
+                self.snapping_configs.append(config)
+        else:
+            # TODO QGIS 3: remove
+            self.snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+            self.snapper.setConfig = lambda(snap_layer_cfg): self.snapper.setLayers([snap_layer_cfg])
+            for lsc in layer_snapping_configs:
+                snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
+                self.snapping_configs.append(snap_layer)
 
     def leftClicked(self, event):
         """
@@ -197,13 +232,13 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         and update the rubberband
         :param event: The coordinates etc.
         """
-        pt = self.snap(event)
+        point, match = self.snap(event)
         if self.rubberband.numberOfVertices() == 0:
             self.first_snapping_result = self.current_snapping_result
         self.last_snapping_result = self.current_snapping_result
-        self.rubberband.addPoint3D(pt)
-        self.tempRubberband.reset()
-        self.tempRubberband.addPoint(QgsPoint(pt.x(), pt.y()))
+        self.rubberband.addPoint3D(point)
+        self.temp_rubberband.reset()
+        self.temp_rubberband.addPoint(QgsPoint(point.x(), point.y()))
 
     def snap(self, event):
         """
@@ -215,44 +250,36 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
         self.current_snapping_result = None
 
-        snapping_configs = [{'layer': self.nodeLayer, 'mode': QgsSnapper.SnapToVertex},
-                            {'layer': self.reachLayer, 'mode': QgsSnapper.SnapToVertexAndSegment}]
+        for config in self.snapping_configs:
+            self.snapper.setConfig(config)
+            match = self.snapper.snapToMap(QgsPoint(event.originalMapPoint()))
 
-        for snapping_config in snapping_configs:
-            snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
-            snap_layer = QgsSnapper.SnapLayer()
-            snap_layer.mLayer = snapping_config['layer']
-            snap_layer.mTolerance = 10
-            snap_layer.mUnitType = QgsTolerance.Pixels
-            snap_layer.mSnapTo = snapping_config['mode']
-            snapper.setSnapLayers([snap_layer])
-            (_, snapped_points) = snapper.snapPoint(event.pos())
-            if snapped_points:
-                self.current_snapping_result = snapped_points[0]
-                # if on node or reach layer do not try to set Z, it will be done at the end
-                return QgsPointV2(snapped_points[0].snappedVertex)
+            if match.isValid():
+                if match.layer() == self.node_layer:
+                    pass
+                return match.point(), match
 
-        # if no match, snap to all layers and grab Z
+        # if no match, snap to all layers (according to map settings) and grab Z
         match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPoint(event.originalMapPoint()))
         if match.isValid() and match.hasVertex():
             if match.layer() and match.layer().geometryType() == QGis.Point and QGis.isSingleType(match.layer().wkbType()):
                 req = QgsFeatureRequest(match.featureId())
                 f = match.layer().getFeatures(req).next()
                 assert f.isValid()
-                pt = QgsPointV2(f.geometry().geometry())
-                assert type(pt) == QgsPointV2
-                return pt
+                point = QgsPointV2(f.geometry().geometry())
+                assert type(point) == QgsPointV2
+                return point, match
             else:
-                return QgsPointV2(match.point())
+                return QgsPointV2(match.point()), match
 
-        return QgsPointV2(event.originalMapPoint())
+        return QgsPointV2(event.originalMapPoint()), match
 
     def rightClicked(self, _):
         """
         The party is over, the reach digitized. Create a feature from the rubberband and
         show the feature form.
         """
-        self.tempRubberband.reset()
+        self.temp_rubberband.reset()
 
         if len(self.rubberband.points) >= 2:
 
@@ -267,8 +294,6 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
 
             f.setGeometry(self.rubberband.asGeometry3D())
-            print(f.geometry().isGeosValid())
-            print(f.geometry().exportToWkt())
 
             if self.first_snapping_result is not None:
                 req = QgsFeatureRequest(self.first_snapping_result.snappedAtGeometry)
