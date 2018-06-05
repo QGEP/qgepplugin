@@ -43,7 +43,6 @@ from qgis.core import (
     QgsFeatureRequest,
     QGis,
     QgsGeometry,
-    QgsPointV2,
     NULL
 )
 from PyQt4.QtGui import (
@@ -67,10 +66,12 @@ import math
 # QGIS 2.x compat hacks
 try:
     QGIS_VERSION = 3
-    from qgis.core import QgsSnappingConfig
+    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
 except ImportError:
     # TODO QGIS 3: remove
     QGIS_VERSION = 2
+    from qgis.core import QgsPointV2 as QgsPoint
+    from qgis.core import QgsPoint as QgsPointXY
     from qgis.core import QgsSnapper as QgsSnappingConfig
     QgsSnappingConfig.SnapToVertex = QgsPointLocator.Vertex
     QgsSnappingConfig.SnapToVertexAndSegment = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
@@ -82,8 +83,9 @@ class QgepRubberBand3D(QgsRubberBand):
         self.points = []
 
     def addPoint3D(self, point):
-        QgsRubberBand.addPoint(self, QgsPoint(point.x(), point.y()))
-        self.points.append(QgsPointV2(point))
+        assert type(point) == QgsPoint
+        QgsRubberBand.addPoint(self, QgsPointXY(point.x(), point.y()))
+        self.points.append(QgsPoint(point))
 
     def reset3D(self):
         QgsRubberBand.reset(self)
@@ -234,11 +236,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         """
         point, match = self.snap(event)
         if self.rubberband.numberOfVertices() == 0:
-            self.first_snapping_result = self.current_snapping_result
-        self.last_snapping_result = self.current_snapping_result
+            self.first_snapping_result = match
+        self.last_snapping_result = match
         self.rubberband.addPoint3D(point)
         self.temp_rubberband.reset()
-        self.temp_rubberband.addPoint(QgsPoint(point.x(), point.y()))
+        self.temp_rubberband.addPoint(match.point())
 
     def snap(self, event):
         """
@@ -252,7 +254,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
         for config in self.snapping_configs:
             self.snapper.setConfig(config)
-            match = self.snapper.snapToMap(QgsPoint(event.originalMapPoint()))
+            match = self.snapper.snapToMap(QgsPointXY(event.originalMapPoint()))
 
             if match.isValid():
                 if match.layer() == self.node_layer:
@@ -260,19 +262,19 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 return match.point(), match
 
         # if no match, snap to all layers (according to map settings) and grab Z
-        match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPoint(event.originalMapPoint()))
+        match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPointXY(event.originalMapPoint()))
         if match.isValid() and match.hasVertex():
             if match.layer() and match.layer().geometryType() == QGis.Point and QGis.isSingleType(match.layer().wkbType()):
                 req = QgsFeatureRequest(match.featureId())
                 f = match.layer().getFeatures(req).next()
                 assert f.isValid()
-                point = QgsPointV2(f.geometry().geometry())
-                assert type(point) == QgsPointV2
+                point = QgsPoint(f.geometry().geometry())
+                assert type(point) == QgsPoint
                 return point, match
             else:
-                return QgsPointV2(match.point()), match
+                return QgsPoint(match.point()), match
 
-        return QgsPointV2(event.originalMapPoint()), match
+        return QgsPoint(event.originalMapPoint()), match
 
     def rightClicked(self, _):
         """
@@ -446,10 +448,10 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
                 xd = lp2.x() - lp1.x()
                 yd = lp2.y() - lp1.y()
 
-                pt1 = QgsPoint(lp1.x() + width * (yd / length), lp1.y() - width * (xd / length))
-                pt2 = QgsPoint(lp1.x() - width * (yd / length), lp1.y() + width * (xd / length))
-                pt3 = QgsPoint(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
-                pt4 = QgsPoint(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
+                pt1 = QgsPointXY(lp1.x() + width * (yd / length), lp1.y() - width * (xd / length))
+                pt2 = QgsPointXY(lp1.x() - width * (yd / length), lp1.y() + width * (xd / length))
+                pt3 = QgsPointXY(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
+                pt4 = QgsPointXY(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
 
                 self.geometry = QgsGeometry.fromPolygon([[pt1, pt2, pt3, pt4, pt1]])
 
