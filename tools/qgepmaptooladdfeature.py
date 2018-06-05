@@ -195,9 +195,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     Will snap to wastewater nodes for the first and last point and auto-connect
     these.
     """
-    current_snapping_result = None
-    first_snapping_result = None
-    last_snapping_result = None
+    first_snapping_match = None
+    last_snapping_match = None
 
     def __init__(self, iface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
@@ -210,7 +209,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
                                   {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
         self.snapping_configs = []
-        self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+        self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
         if QGIS_VERSION == 3:
             for lsc in layer_snapping_configs:
                 config = QgsSnappingConfig()
@@ -222,8 +221,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 self.snapping_configs.append(config)
         else:
             # TODO QGIS 3: remove
-            self.snapper.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
-            self.snapper.setConfig = lambda(snap_layer_cfg): self.snapper.setLayers([snap_layer_cfg])
+            self.snapping_utils.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+            self.snapping_utils.setConfig = lambda (snap_layer_cfg): self.snapping_utils.setLayers([snap_layer_cfg])
             for lsc in layer_snapping_configs:
                 snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
                 self.snapping_configs.append(snap_layer)
@@ -234,11 +233,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         and update the rubberband
         :param event: The coordinates etc.
         """
-        point, match = self.snap(event)
+        point3d, match = self.snap(event)
         if self.rubberband.numberOfVertices() == 0:
-            self.first_snapping_result = match
-        self.last_snapping_result = match
-        self.rubberband.addPoint3D(point)
+            self.first_snapping_match = match
+        self.last_snapping_match = match
+        self.rubberband.addPoint3D(point3d)
         self.temp_rubberband.reset()
         self.temp_rubberband.addPoint(match.point())
 
@@ -250,21 +249,16 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         :return: The snapped position in map coordinates
         """
 
-        self.current_snapping_result = None
-
         for config in self.snapping_configs:
-            self.snapper.setConfig(config)
-            match = self.snapper.snapToMap(QgsPointXY(event.originalMapPoint()))
-
+            self.snapping_utils.setConfig(config)
+            match = self.snapping_utils.snapToMap(QgsPointXY(event.originalMapPoint()))
             if match.isValid():
-                if match.layer() == self.node_layer:
-                    pass
-                return match.point(), match
+                return QgsPoint(match.point()), match
 
-        # if no match, snap to all layers (according to map settings) and grab Z
+        # if no match, snap to all layers (according to map settings) and try to grab Z
         match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPointXY(event.originalMapPoint()))
         if match.isValid() and match.hasVertex():
-            if match.layer() and match.layer().geometryType() == QGis.Point and QGis.isSingleType(match.layer().wkbType()):
+            if match.layer() and match.layer().wkbType() == QGis.WKBPoint25D:
                 req = QgsFeatureRequest(match.featureId())
                 f = match.layer().getFeatures(req).next()
                 assert f.isValid()
@@ -297,39 +291,23 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
             f.setGeometry(self.rubberband.asGeometry3D())
 
-            if self.first_snapping_result is not None:
-                req = QgsFeatureRequest(self.first_snapping_result.snappedAtGeometry)
-                from_networkelement = self.first_snapping_result.layer.getFeatures(req).next()
-                from_field = self.layer.pendingFields().indexFromName('rp_from_fk_wastewater_networkelement')
-                f.setAttribute(from_field, from_networkelement.attribute('obj_id'))
-                from_level_field = self.layer.pendingFields().indexFromName('rp_from_level')
-                try:
-                    # bottom_level is only available for a node (and not for a
-                    # reach)
-                    from_level = from_networkelement['bottom_level']
-                    f.setAttribute(from_level_field, from_level)
-                except:
-                    pass
-            elif self.rubberband.points[0].z() != 0:
-                from_level_field = self.layer.pendingFields().indexFromName('rp_from_level')
-                f.setAttribute(from_level_field, self.rubberband.points[0].z())
-
-            if self.last_snapping_result is not None:
-                req = QgsFeatureRequest(self.last_snapping_result.snappedAtGeometry)
-                to_networkelement = self.last_snapping_result.layer.getFeatures(req).next()
-                to_field = self.layer.pendingFields().indexFromName('rp_to_fk_wastewater_networkelement')
-                f.setAttribute(to_field, to_networkelement.attribute('obj_id'))
-                to_level_field = self.layer.pendingFields().indexFromName('rp_to_level')
-                try:
-                    # bottom_level is only available for a node (and not for a
-                    # reach)
-                    to_level = to_networkelement['bottom_level']
-                    f.setAttribute(to_level_field, to_level)
-                except:
-                    pass
-            elif self.rubberband.points[-1].z() != 0:
-                to_level_field = self.layer.pendingFields().indexFromName('rp_to_level')
-                f.setAttribute(to_level_field, self.rubberband.points[-1].z())
+            snapping_results = {'from': self.first_snapping_match,
+                                'to': self.last_snapping_match}
+            for dest, match in snapping_results.items():
+                level_field_index = self.layer.pendingFields().indexFromName('rp_{dest}_level'.format(dest=dest))
+                if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
+                    request = QgsFeatureRequest(match.featureId())
+                    network_element = match.layer().getFeatures(request).next()
+                    assert network_element.isValid()
+                    # set the related network element
+                    field = self.layer.pendingFields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
+                    f.setAttribute(field, network_element.attribute('obj_id'))
+                    # assign level if the match is a node or if we have 3D from snapping
+                    if match.layer() == self.node_layer:
+                        level = network_element['bottom_level']
+                        f.setAttribute(level_field_index, level)
+                elif self.rubberband.points[0 if dest == 'from' else -1].z() != 0:
+                    f.setAttribute(level_field_index, self.rubberband.points[0].z())
 
             dlg = self.iface.getFeatureForm(self.layer, f)
             dlg.setIsAddDialog(True)
