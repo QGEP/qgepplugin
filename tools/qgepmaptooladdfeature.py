@@ -61,6 +61,7 @@ from PyQt4.QtCore import (
 )
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
+import sip
 
 
 # QGIS 2.x compat hacks
@@ -75,6 +76,7 @@ except ImportError:
     from qgis.core import QgsSnapper as QgsSnappingConfig
     QgsSnappingConfig.SnapToVertex = QgsPointLocator.Vertex
     QgsSnappingConfig.SnapToVertexAndSegment = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
+    QgsVertexMarker.ICON_DOUBLE_TRIANGLE = QgsVertexMarker.ICON_CIRCLE
 
 
 class QgepRubberBand3D(QgsRubberBand):
@@ -247,17 +249,24 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.temp_rubberband.reset()
         self.temp_rubberband.addPoint(match.point())
 
+        if self.snapping_marker is not None:
+            sip.delete(self.snapping_marker)
+            self.snapping_marker = None
+
     def mouse_move(self, event):
         _, match = self.snap(event)
         # snap indicator
-        if not match.isValid() and self.snapping_marker is not None:
-            del self.snapping_marker
-            self.snapping_marker = None
-        else:
-            if self.snapping_marker is None:
-                self.snapping_marker = QgsVertexMarker(self.iface.mapCanvas())
-                self.snapping_marker.setPenWidth(3)
-                self.snapping_marker.setColor(QColor(Qt.magenta))
+        if not match.isValid():
+            if self.snapping_marker is not None:
+                sip.delete(self.snapping_marker)
+                self.snapping_marker = None
+            return
+
+        # we have a valid match
+        if self.snapping_marker is None:
+            self.snapping_marker = QgsVertexMarker(self.iface.mapCanvas())
+            self.snapping_marker.setPenWidth(3)
+            self.snapping_marker.setColor(QColor(Qt.magenta))
 
         if match.hasVertex():
             if match.layer():
@@ -304,6 +313,10 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         show the feature form.
         """
         self.temp_rubberband.reset()
+
+        if self.snapping_marker is not None:
+            sip.delete(self.snapping_marker)
+            self.snapping_marker = None
 
         if len(self.rubberband.points) >= 2:
 
