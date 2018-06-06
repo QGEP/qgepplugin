@@ -31,12 +31,14 @@ from qgis.gui import (
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
     QgsRubberBand,
-    QgsMessageBar
+    QgsMessageBar,
+    QgsMapCanvasSnappingUtils,
+    QgsVertexMarker
 )
 from qgis.core import (
     QgsFeature,
-    QgsPoint,
-    QgsSnapper,
+    QgsSnappingUtils,
+    QgsPointLocator,
     QgsTolerance,
     QgsFeatureRequest,
     QGis,
@@ -59,6 +61,43 @@ from PyQt4.QtCore import (
 )
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
+import sip
+
+
+# QGIS 2.x compat hacks
+try:
+    QGIS_VERSION = 3
+    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
+except ImportError:
+    # TODO QGIS 3: remove
+    QGIS_VERSION = 2
+    from qgis.core import QgsPointV2 as QgsPoint
+    from qgis.core import QgsPoint as QgsPointXY
+    from qgis.core import QgsSnapper as QgsSnappingConfig
+    QgsSnappingConfig.SnapToVertex = QgsPointLocator.Vertex
+    QgsSnappingConfig.SnapToVertexAndSegment = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
+    QgsVertexMarker.ICON_DOUBLE_TRIANGLE = QgsVertexMarker.ICON_CIRCLE
+
+
+class QgepRubberBand3D(QgsRubberBand):
+    def __init__(self, map_canvas, geometry_type):
+        QgsRubberBand.__init__(self, map_canvas, geometry_type)
+        self.points = []
+
+    def addPoint3D(self, point):
+        assert type(point) == QgsPoint
+        QgsRubberBand.addPoint(self, QgsPointXY(point.x(), point.y()))
+        self.points.append(QgsPoint(point))
+
+    def reset3D(self):
+        QgsRubberBand.reset(self)
+        self.points = []
+
+    def asGeometry3D(self):
+        wkt = 'LineStringZ('\
+              + ', '.join(['{} {} {}'.format(p.x(), p.y(), p.z()) for p in self.points])\
+              + ')'
+        return QgsGeometry.fromWkt(wkt)
 
 
 class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
@@ -70,13 +109,13 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.layer = layer
-        self.rubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
+        self.rubberband = QgepRubberBand3D(iface.mapCanvas(), layer.geometryType())
         self.rubberband.setColor(QColor("#ee5555"))
         self.rubberband.setWidth(1)
-        self.tempRubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
-        self.tempRubberband.setColor(QColor("#ee5555"))
-        self.tempRubberband.setWidth(1)
-        self.tempRubberband.setLineStyle(Qt.DotLine)
+        self.temp_rubberband = QgsRubberBand(iface.mapCanvas(), layer.geometryType())
+        self.temp_rubberband.setColor(QColor("#ee5555"))
+        self.temp_rubberband.setWidth(1)
+        self.temp_rubberband.setLineStyle(Qt.DotLine)
 
     def activate(self):
         """
@@ -110,11 +149,11 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         :return:
         """
         if event.button() == Qt.RightButton:
-            self.rightClicked(event)
+            self.right_clicked(event)
         else:
-            self.leftClicked(event)
+            self.left_clicked(event)
 
-    def leftClicked(self, event):
+    def left_clicked(self, event):
         """
         When the canvas is left clicked we add a new point to the rubberband.
         :type event: QMouseEvent
@@ -122,9 +161,9 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         mousepos = self.canvas.getCoordinateTransform()\
             .toMapCoordinates(event.pos().x(), event.pos().y())
         self.rubberband.addPoint(mousepos)
-        self.tempRubberband.reset()
+        self.temp_rubberband.reset()
 
-    def rightClicked(self, _):
+    def right_clicked(self, _):
         """
         On a right click we create a new feature from the existing rubberband and show the add
         dialog
@@ -134,8 +173,8 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         dlg = self.iface.getFeatureForm(self.layer, f)
         dlg.setIsAddDialog(True)
         dlg.exec_()
-        self.rubberband.reset()
-        self.tempRubberband.reset()
+        self.rubberband.reset3D()
+        self.temp_rubberband.reset()
 
     def cadCanvasMoveEvent(self, event):
         """
@@ -147,9 +186,14 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         try:
             QgsMapToolAdvancedDigitizing.cadCanvasMoveEvent(self, event)
             mousepos = event.mapPoint()
-            self.tempRubberband.movePoint(mousepos)
+            self.temp_rubberband.movePoint(mousepos)
+            self.mouse_move(event)
+
         except TypeError:
             pass
+
+    def mouse_move(self, event):
+        pass
 
 
 class QgepMapToolAddReach(QgepMapToolAddFeature):
@@ -158,124 +202,160 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     Will snap to wastewater nodes for the first and last point and auto-connect
     these.
     """
-    currentSnappingResult = None
-    firstSnappingResult = None
-    lastSnappingResult = None
+    first_snapping_match = None
+    last_snapping_match = None
 
     def __init__(self, iface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
-        self.nodeLayer = QgepLayerManager.layer('vw_wastewater_node')
-        assert self.nodeLayer
-        self.reachLayer = QgepLayerManager.layer('vw_qgep_reach')
-        assert self.reachLayer
+        self.snapping_marker = None
+        self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
+        assert self.node_layer
+        self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
+        assert self.reach_layer
         self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
 
-    def leftClicked(self, event):
+        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
+                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
+        self.snapping_configs = []
+        self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+        if QGIS_VERSION == 3:
+            for lsc in layer_snapping_configs:
+                config = QgsSnappingConfig()
+                config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+                config.setEnabled(True)
+                settings = QgsSnappingConfig.IndividualLayerSettings(True, lsc['mode'],
+                                                                     10, QgsTolerance.Pixels)
+                config.setIndividualLayerSettings(lsc['layer'], settings)
+                self.snapping_configs.append(config)
+        else:
+            # TODO QGIS 3: remove
+            self.snapping_utils.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
+            self.snapping_utils.setConfig = lambda (snap_layer_cfg): self.snapping_utils.setLayers([snap_layer_cfg])
+            for lsc in layer_snapping_configs:
+                snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
+                self.snapping_configs.append(snap_layer)
+
+    def left_clicked(self, event):
         """
         The mouse is clicked: snap to neary points which are on the wastewater node layer
         and update the rubberband
         :param event: The coordinates etc.
         """
-        self.snap(event.pos())
+        point3d, match = self.snap(event)
         if self.rubberband.numberOfVertices() == 0:
-            self.firstSnappingResult = self.currentSnappingResult
-        self.lastSnappingResult = self.currentSnappingResult
-        if self.currentSnappingResult:
-            pt = self.currentSnappingResult.snappedVertex
-        else:
-            pt = event.mapPoint()
-        self.rubberband.addPoint(pt)
-        self.tempRubberband.reset()
-        self.tempRubberband.addPoint(pt)
+            self.first_snapping_match = match
+        self.last_snapping_match = match
+        self.rubberband.addPoint3D(point3d)
+        self.temp_rubberband.reset()
+        self.temp_rubberband.addPoint(match.point())
 
-    def snap(self, pos):
+        if self.snapping_marker is not None:
+            sip.delete(self.snapping_marker)
+            self.snapping_marker = None
+
+    def mouse_move(self, event):
+        _, match = self.snap(event)
+        # snap indicator
+        if not match.isValid():
+            if self.snapping_marker is not None:
+                sip.delete(self.snapping_marker)
+                self.snapping_marker = None
+            return
+
+        # we have a valid match
+        if self.snapping_marker is None:
+            self.snapping_marker = QgsVertexMarker(self.iface.mapCanvas())
+            self.snapping_marker.setPenWidth(3)
+            self.snapping_marker.setColor(QColor(Qt.magenta))
+
+        if match.hasVertex():
+            if match.layer():
+                icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
+            else:
+                icon_type = QgsVertexMarker.ICON_X  # intersection snap
+        else:
+            icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
+        self.snapping_marker.setIconType(icon_type)
+        self.snapping_marker.setCenter(match.point())
+
+    def snap(self, event):
         """
         Snap to nearby points on the wastewater node layer which may be used as connection
         points for this reach.
-        :param pos: The position to snap
-        :return: The snapped position
+        :param event: The mouse event
+        :return: The snapped position in map coordinates
         """
-        snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
-        snap_nodelayer = QgsSnapper.SnapLayer()
-        snap_nodelayer.mLayer = self.nodeLayer
-        snap_nodelayer.mTolerance = 10
-        snap_nodelayer.mUnitType = QgsTolerance.Pixels
-        snap_nodelayer.mSnapTo = QgsSnapper.SnapToVertex
-        snapper.setSnapLayers([snap_nodelayer])
-        (_, snapped_points) = snapper.snapPoint(pos)
-        if snapped_points:
-            self.currentSnappingResult = snapped_points[0]
-            return self.currentSnappingResult.snappedVertex
-        else:
-            snapper = QgsSnapper(self.iface.mapCanvas().mapSettings())
-            snap_reachlayer = QgsSnapper.SnapLayer()
-            snap_reachlayer.mLayer = self.reachLayer
-            snap_reachlayer.mTolerance = 10
-            snap_reachlayer.mUnitType = QgsTolerance.Pixels
-            snap_reachlayer.mSnapTo = QgsSnapper.SnapToVertexAndSegment
-            snapper.setSnapLayers([snap_reachlayer])
-            (_, snapped_points) = snapper.snapPoint(pos)
-            if snapped_points:
-                self.currentSnappingResult = snapped_points[0]
-                return self.currentSnappingResult.snappedVertex
-            else:
-                self.currentSnappingResult = None
-                return pos
 
-    def rightClicked(self, _):
+        for config in self.snapping_configs:
+            self.snapping_utils.setConfig(config)
+            match = self.snapping_utils.snapToMap(QgsPointXY(event.originalMapPoint()))
+            if match.isValid():
+                return QgsPoint(match.point()), match
+
+        # if no match, snap to all layers (according to map settings) and try to grab Z
+        match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPointXY(event.originalMapPoint()))
+        if match.isValid() and match.hasVertex():
+            if match.layer() and match.layer().wkbType() == QGis.WKBPoint25D:
+                req = QgsFeatureRequest(match.featureId())
+                f = match.layer().getFeatures(req).next()
+                assert f.isValid()
+                point = QgsPoint(f.geometry().geometry())
+                assert type(point) == QgsPoint
+                return point, match
+            else:
+                return QgsPoint(match.point()), match
+
+        return QgsPoint(event.originalMapPoint()), match
+
+    def right_clicked(self, _):
         """
         The party is over, the reach digitized. Create a feature from the rubberband and
         show the feature form.
         """
-        self.tempRubberband.reset()
+        self.temp_rubberband.reset()
 
-        fields = self.layer.fields()
-        f = QgsFeature(fields)
-        for idx in range(len(fields)):
-            # try client side default value first
-            v = self.layer.defaultValue(idx, f)
-            if v != NULL:
-                f.setAttribute(idx, v)
-            else:
-                f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
+        if self.snapping_marker is not None:
+            sip.delete(self.snapping_marker)
+            self.snapping_marker = None
 
-        f.setGeometry(self.rubberband.asGeometry())
+        if len(self.rubberband.points) >= 2:
 
-        if self.firstSnappingResult is not None:
-            req = QgsFeatureRequest(self.firstSnappingResult.snappedAtGeometry)
-            from_networkelement = self.firstSnappingResult.layer.getFeatures(req).next()
-            from_field = self.layer.pendingFields()\
-                .indexFromName('rp_from_fk_wastewater_networkelement')
-            f.setAttribute(from_field, from_networkelement.attribute('obj_id'))
-            from_level_field = self.layer.pendingFields()\
-                .indexFromName('rp_from_level')
-            try:
-                # bottom_level is only available for a node (and not for a
-                # reach)
-                from_level = from_networkelement['bottom_level']
-                f.setAttribute(from_level_field, from_level)
-            except:
-                pass
+            fields = self.layer.fields()
+            f = QgsFeature(fields)
+            for idx in range(len(fields)):
+                # try client side default value first
+                v = self.layer.defaultValue(idx, f)
+                if v != NULL:
+                    f.setAttribute(idx, v)
+                else:
+                    f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
 
-        if self.lastSnappingResult is not None:
-            req = QgsFeatureRequest(self.lastSnappingResult.snappedAtGeometry)
-            to_networkelement = self.lastSnappingResult.layer.getFeatures(req).next()
-            to_field = self.layer.pendingFields().indexFromName('rp_to_fk_wastewater_networkelement')
-            f.setAttribute(to_field, to_networkelement.attribute('obj_id'))
-            to_level_field = self.layer.pendingFields()\
-                .indexFromName('rp_to_level')
-            try:
-                # bottom_level is only available for a node (and not for a
-                # reach)
-                to_level = to_networkelement['bottom_level']
-                f.setAttribute(to_level_field, to_level)
-            except:
-                pass
+            f.setGeometry(self.rubberband.asGeometry3D())
 
-        dlg = self.iface.getFeatureForm(self.layer, f)
-        dlg.setIsAddDialog(True)
-        dlg.exec_()
-        self.rubberband.reset()
+            snapping_results = {'from': self.first_snapping_match,
+                                'to': self.last_snapping_match}
+            for dest, match in snapping_results.items():
+                level_field_index = self.layer.pendingFields().indexFromName('rp_{dest}_level'.format(dest=dest))
+                pt_idx = 0 if dest == 'from' else -1
+                if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
+                    request = QgsFeatureRequest(match.featureId())
+                    network_element = match.layer().getFeatures(request).next()
+                    assert network_element.isValid()
+                    # set the related network element
+                    field = self.layer.pendingFields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
+                    f.setAttribute(field, network_element.attribute('obj_id'))
+                    # assign level if the match is a node or if we have 3D from snapping
+                    if match.layer() == self.node_layer:
+                        level = network_element['bottom_level']
+                        f.setAttribute(level_field_index, level)
+                elif self.rubberband.points[pt_idx].z() != 0:
+                    f.setAttribute(level_field_index, self.rubberband.points[pt_idx].z())
+
+            dlg = self.iface.getFeatureForm(self.layer, f)
+            dlg.setIsAddDialog(True)
+            dlg.exec_()
+
+        self.rubberband.reset3D()
 
 
 class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
@@ -388,10 +468,10 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
                 xd = lp2.x() - lp1.x()
                 yd = lp2.y() - lp1.y()
 
-                pt1 = QgsPoint(lp1.x() + width * (yd / length), lp1.y() - width * (xd / length))
-                pt2 = QgsPoint(lp1.x() - width * (yd / length), lp1.y() + width * (xd / length))
-                pt3 = QgsPoint(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
-                pt4 = QgsPoint(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
+                pt1 = QgsPointXY(lp1.x() + width * (yd / length), lp1.y() - width * (xd / length))
+                pt2 = QgsPointXY(lp1.x() - width * (yd / length), lp1.y() + width * (xd / length))
+                pt3 = QgsPointXY(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
+                pt4 = QgsPointXY(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
 
                 self.geometry = QgsGeometry.fromPolygon([[pt1, pt2, pt3, pt4, pt1]])
 
