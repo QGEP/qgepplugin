@@ -32,11 +32,11 @@ from qgis.gui import (
     QgsMapTool,
     QgsRubberBand,
     QgsMessageBar,
-    QgsMapCanvasSnappingUtils
+    QgsMapCanvasSnappingUtils,
+    QgsVertexMarker
 )
 from qgis.core import (
     QgsFeature,
-    QgsPoint,
     QgsSnappingUtils,
     QgsPointLocator,
     QgsTolerance,
@@ -147,11 +147,11 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         :return:
         """
         if event.button() == Qt.RightButton:
-            self.rightClicked(event)
+            self.right_clicked(event)
         else:
-            self.leftClicked(event)
+            self.left_clicked(event)
 
-    def leftClicked(self, event):
+    def left_clicked(self, event):
         """
         When the canvas is left clicked we add a new point to the rubberband.
         :type event: QMouseEvent
@@ -161,7 +161,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         self.rubberband.addPoint(mousepos)
         self.temp_rubberband.reset()
 
-    def rightClicked(self, _):
+    def right_clicked(self, _):
         """
         On a right click we create a new feature from the existing rubberband and show the add
         dialog
@@ -185,8 +185,13 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
             QgsMapToolAdvancedDigitizing.cadCanvasMoveEvent(self, event)
             mousepos = event.mapPoint()
             self.temp_rubberband.movePoint(mousepos)
+            self.mouse_move(event)
+
         except TypeError:
             pass
+
+    def mouse_move(self, event):
+        pass
 
 
 class QgepMapToolAddReach(QgepMapToolAddFeature):
@@ -200,6 +205,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
     def __init__(self, iface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
+        self.snapping_marker = None
         self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
         assert self.node_layer
         self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
@@ -227,7 +233,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
                 self.snapping_configs.append(snap_layer)
 
-    def leftClicked(self, event):
+    def left_clicked(self, event):
         """
         The mouse is clicked: snap to neary points which are on the wastewater node layer
         and update the rubberband
@@ -240,6 +246,28 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.rubberband.addPoint3D(point3d)
         self.temp_rubberband.reset()
         self.temp_rubberband.addPoint(match.point())
+
+    def mouse_move(self, event):
+        _, match = self.snap(event)
+        # snap indicator
+        if not match.isValid() and self.snapping_marker is not None:
+            del self.snapping_marker
+            self.snapping_marker = None
+        else:
+            if self.snapping_marker is None:
+                self.snapping_marker = QgsVertexMarker(self.iface.mapCanvas())
+                self.snapping_marker.setPenWidth(3)
+                self.snapping_marker.setColor(QColor(Qt.magenta))
+
+        if match.hasVertex():
+            if match.layer():
+                icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
+            else:
+                icon_type = QgsVertexMarker.ICON_X  # intersection snap
+        else:
+            icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
+        self.snapping_marker.setIconType(icon_type)
+        self.snapping_marker.setCenter(match.point())
 
     def snap(self, event):
         """
@@ -270,7 +298,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
         return QgsPoint(event.originalMapPoint()), match
 
-    def rightClicked(self, _):
+    def right_clicked(self, _):
         """
         The party is over, the reach digitized. Create a feature from the rubberband and
         show the feature form.
