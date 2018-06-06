@@ -336,6 +336,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                                 'to': self.last_snapping_match}
             for dest, match in snapping_results.items():
                 level_field_index = self.layer.pendingFields().indexFromName('rp_{dest}_level'.format(dest=dest))
+                pt_idx = 0 if dest == 'from' else -1
                 if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
                     request = QgsFeatureRequest(match.featureId())
                     network_element = match.layer().getFeatures(request).next()
@@ -347,8 +348,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     if match.layer() == self.node_layer:
                         level = network_element['bottom_level']
                         f.setAttribute(level_field_index, level)
-                elif self.rubberband.points[0 if dest == 'from' else -1].z() != 0:
-                    f.setAttribute(level_field_index, self.rubberband.points[0].z())
+                elif self.rubberband.points[pt_idx].z() != 0:
+                    f.setAttribute(level_field_index, self.rubberband.points[pt_idx].z())
 
             dlg = self.iface.getFeatureForm(self.layer, f)
             dlg.setIsAddDialog(True)
