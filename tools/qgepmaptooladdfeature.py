@@ -264,19 +264,24 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 self.snapping_marker = None
             return
 
+        # TODO QGIS 3: see if vertices can be removed
+
         # we have a valid match
         if self.snapping_marker is None:
             self.snapping_marker = QgsVertexMarker(self.iface.mapCanvas())
             self.snapping_marker.setPenWidth(3)
             self.snapping_marker.setColor(QColor(Qt.magenta))
 
-        if match.hasVertex():
-            if match.layer():
-                icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
-            else:
-                icon_type = QgsVertexMarker.ICON_X  # intersection snap
+        if QGIS_VERSION == 2:
+            icon_type = QgsVertexMarker.ICON_CROSS
         else:
-            icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
+            if match.hasVertex():
+                if match.layer():
+                    icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
+                else:
+                    icon_type = QgsVertexMarker.ICON_X  # intersection snap
+            else:
+                icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
         self.snapping_marker.setIconType(icon_type)
         self.snapping_marker.setCenter(match.point())
 
