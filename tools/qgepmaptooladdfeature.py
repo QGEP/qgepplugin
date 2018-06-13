@@ -67,7 +67,7 @@ import sip
 # QGIS 2.x compat hacks
 try:
     QGIS_VERSION = 3
-    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
+    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY, QGis
     SNAP_TO_VERTEX = QgsSnappingConfig.SnapToVertex
     SNAP_TO_VERTEX_AND_SEGMENT = QgsSnappingConfig.SnapToVertexAndSegment
 except ImportError:
@@ -297,11 +297,24 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         # if no match, snap to all layers (according to map settings) and try to grab Z
         match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPointXY(event.originalMapPoint()))
         if match.isValid() and match.hasVertex():
-            if match.layer() and match.layer().wkbType() == QGis.WKBPoint25D:
+            if match.layer():
                 req = QgsFeatureRequest(match.featureId())
                 f = match.layer().getFeatures(req).next()
                 assert f.isValid()
-                point = QgsPoint(f.geometry().geometry())
+                if match.layer().wkbType() == QGis.WKBPoint25D:
+                    point = QgsPoint(f.geometry().geometry())
+                else:
+                    # TODO QGIS 3: remove check and push message
+                    if QGis.QGIS_VERSION_INT >= 21821:
+                        (ok, vertex_id) = f.geometry().vertexIdFromVertexNr(match.vertexIndex())
+                        assert ok
+                        point = f.geometry().geometry().vertexAt(vertex_id)
+                    else:
+                        self.iface.messageBar().pushMessage('snapping Z on line or polygon layers'
+                                                            'is broken in this QGIS version.'
+                                                            ' Use at least 2.18.21.',
+                                                            QgsMessageBar.CRITICAL, 7)
+                        return QgsPoint(match.point()), match
                 assert type(point) == QgsPoint
                 return point, match
             else:
