@@ -67,7 +67,7 @@ import sip
 # QGIS 2.x compat hacks
 try:
     QGIS_VERSION = 3
-    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY, QGis
+    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
     SNAP_TO_VERTEX = QgsSnappingConfig.SnapToVertex
     SNAP_TO_VERTEX_AND_SEGMENT = QgsSnappingConfig.SnapToVertexAndSegment
 except ImportError:
