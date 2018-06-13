@@ -68,14 +68,16 @@ import sip
 try:
     QGIS_VERSION = 3
     from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
+    SNAP_TO_VERTEX = QgsSnappingConfig.SnapToVertex
+    SNAP_TO_VERTEX_AND_SEGMENT = QgsSnappingConfig.SnapToVertexAndSegment
 except ImportError:
     # TODO QGIS 3: remove
     QGIS_VERSION = 2
     from qgis.core import QgsPointV2 as QgsPoint
     from qgis.core import QgsPoint as QgsPointXY
     from qgis.core import QgsSnapper as QgsSnappingConfig
-    QgsSnappingConfig.SnapToVertex = QgsPointLocator.Vertex
-    QgsSnappingConfig.SnapToVertexAndSegment = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
+    SNAP_TO_VERTEX = QgsPointLocator.Vertex
+    SNAP_TO_VERTEX_AND_SEGMENT = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
     QgsVertexMarker.ICON_DOUBLE_TRIANGLE = QgsVertexMarker.ICON_CIRCLE
 
 
@@ -214,8 +216,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         assert self.reach_layer
         self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
 
-        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
-                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
+        layer_snapping_configs = [{'layer': self.node_layer, 'mode': SNAP_TO_VERTEX},
+                                  {'layer': self.reach_layer, 'mode': SNAP_TO_VERTEX_AND_SEGMENT}]
         self.snapping_configs = []
         self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
         if QGIS_VERSION == 3:
