@@ -249,7 +249,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.last_snapping_match = match
         self.rubberband.addPoint3D(point3d)
         self.temp_rubberband.reset()
-        self.temp_rubberband.addPoint(match.point())
+        self.temp_rubberband.addPoint(QgsPointXY(point3d.x(), point3d.y()))
 
         if self.snapping_marker is not None:
             sip.delete(self.snapping_marker)
@@ -316,7 +316,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                         point = f.geometry().geometry().vertexAt(vertex_id)
                     else:
                         self.iface.messageBar().pushMessage('snapping Z on line or polygon layers'
-                                                            'is broken in this QGIS version.'
+                                                            ' is broken in this QGIS version.'
                                                             ' Use at least 2.18.21.',
                                                             QgsMessageBar.CRITICAL, 7)
                         return QgsPoint(match.point()), match
