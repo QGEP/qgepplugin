@@ -43,6 +43,7 @@ from qgis.core import (
     QgsFeatureRequest,
     QGis,
     QgsGeometry,
+    QgsWkbTypes,
     NULL
 )
 from PyQt4.QtGui import (
@@ -409,7 +410,7 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.layer = layer
-        self.rubberband = QgsRubberBand(iface.mapCanvas(), QGis.Line)
+        self.rubberband = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.LineGeometry)
         self.rubberband.setColor(QColor("#ee5555"))
         self.rubberband.setWidth(2)
         self.firstPoint = None

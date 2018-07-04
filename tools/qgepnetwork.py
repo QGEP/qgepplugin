@@ -35,16 +35,16 @@ from PyQt4.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
     QgsTolerance,
-    QgsSnapper,
+    QgsSnappingUtils,
     QgsGeometry,
-    QgsDataSourceURI
+    QgsDataSourceUri,
+    NULL
 )
 from qgis.gui import (
     QgsMessageBar
 )
 from PyQt4.QtCore import (
     QPoint,
-    QPyNullVariant,
     QObject
 )
 from PyQt4.QtGui import (
@@ -488,7 +488,7 @@ class QgepFeatureCache(object):
         Get an attribute
         """
         try:
-            if isinstance(feat[attr], QPyNullVariant):
+            if feat[attr] == NULL:
                 return None
             else:
                 return feat[attr]
