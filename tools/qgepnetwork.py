@@ -128,7 +128,7 @@ class QgepGraphManager(QObject):
                 pass
             self.graph.add_node(fid, dict(point=vertex, objType=obj_type, objId=obj_id))
 
-            self.vertexIds[unicode(obj_id)] = fid
+            self.vertexIds[str(obj_id)] = fid
 
         self._profile("add vertices")
 
@@ -162,7 +162,7 @@ class QgepGraphManager(QObject):
                 }
                 self.graph.add_edge(pt_id1, pt_id2, props)
             except KeyError as e:
-                print e
+                print(e)
 
         self._profile("add edges")
 
@@ -294,14 +294,14 @@ class QgepGraphManager(QObject):
             filtered_features = {
                 fid: node_features.featureById(fid)
                 for fid in node_features.asDict()
-                if node_features.attrAsUnicode(node_features.featureById(fid), u'type') == u'wastewater_node'
+                if node_features.attrAsUnicode(node_features.featureById(fid), 'type') == 'wastewater_node'
             }
 
             # Only one wastewater node left: return this
             if len(filtered_features) == 1:
                 points = (point for point
                           in snapped_points
-                          if point.snappedAtGeometry == filtered_features.iterkeys().next())
+                          if point.snappedAtGeometry == next(iter(filtered_features.keys())))
                 return points[0]
 
             # Still not sure which point to take?
@@ -314,7 +314,7 @@ class QgepGraphManager(QObject):
 
             menu = QMenu(self.iface.mapCanvas())
 
-            for _, feature in filtered_features.iteritems():
+            for _, feature in filtered_features.items():
                 try:
                     title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
                 except TypeError:
@@ -348,7 +348,7 @@ class QgepGraphManager(QObject):
             p = (path, edges)
 
         except nx.NetworkXNoPath:
-            print "no path found"
+            print("no path found")
             p = ([], [])
 
         return p
@@ -370,8 +370,8 @@ class QgepGraphManager(QObject):
 
         # Returns pred, weight
         pred, _ = nx.bellman_ford(my_graph, node)
-        edges = [(v, u, my_graph[v][u]) for (u, v) in pred.items() if v is not None]
-        nodes = [my_graph.node[n] for n in set(pred.keys() + pred.values()) if n is not None]
+        edges = [(v, u, my_graph[v][u]) for (u, v) in list(pred.items()) if v is not None]
+        nodes = [my_graph.node[n] for n in set(list(pred.keys()) + list(pred.values())) if n is not None]
 
         return nodes, edges
 
@@ -382,7 +382,7 @@ class QgepGraphManager(QObject):
         :return:       A list of polylines
         """
         cache = self.getFeaturesById(self.reachLayer, edges)
-        polylines = [feat.geometry().asPolyline() for feat in cache.asDict().values()]
+        polylines = [feat.geometry().asPolyline() for feat in list(cache.asDict().values())]
         return polylines
 
     # pylint: disable=no-self-use
@@ -423,7 +423,7 @@ class QgepGraphManager(QObject):
         Will print some performance profiling information
         """
         for (name, spenttime) in self.timings:
-            print name + ":" + str(spenttime)
+            print(name + ":" + str(spenttime))
 
 
 class QgepFeatureCache(object):

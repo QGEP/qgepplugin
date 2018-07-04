@@ -159,19 +159,19 @@ class SnapReachAlgorithm(GeoAlgorithm):
         for reach in reaches:
             reach_geometry = QgsGeometry(reach.geometry())
             from_id = reach['rp_from_fk_wastewater_networkelement']
-            if from_id in nodes.keys():
+            if from_id in list(nodes.keys()):
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
                     reach_geometry.moveVertex(
                         nodes[from_id].geometry().geometry(), 0)
 
             to_id = reach['rp_to_fk_wastewater_networkelement']
-            if to_id in nodes.keys():
+            if to_id in list(nodes.keys()):
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[to_id].geometry().asPoint(), last_vertex) < distance_threshold:
                     reach_geometry.moveVertex(
                         nodes[to_id].geometry().geometry(), last_vertex)
 
-            if to_id in target_reaches.keys():
+            if to_id in list(target_reaches.keys()):
                 last_vertex = reach_geometry.geometry().nCoordinates() - 1
                 target_reach = target_reaches[to_id]
                 distance, point, after_vertex = target_reach.geometry(

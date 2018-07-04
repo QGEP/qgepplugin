@@ -27,7 +27,7 @@ import os
 from PyQt4.QtCore import QSettings
 from PyQt4.QtGui import QDialog
 
-from ui_dlgabout import Ui_DlgAbout
+from .ui_dlgabout import Ui_DlgAbout
 
 
 class DlgAbout(QDialog, Ui_DlgAbout):

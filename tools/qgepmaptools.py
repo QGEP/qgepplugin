@@ -88,7 +88,7 @@ class QgepMapTool(QgsMapTool):
 
         settings = QSettings()
         current_profile_color = settings.value(
-            "/QGEP/CurrentProfileColor", u'#FF9500')
+            "/QGEP/CurrentProfileColor", '#FF9500')
 
         self.rubberBand = QgsRubberBand(self.canvas)
         self.rubberBand.setColor(QColor(current_profile_color))
@@ -162,8 +162,8 @@ class QgepProfileMapTool(QgepMapTool):
         QgepMapTool.__init__(self, canvas, button)
         settings = QSettings()
 
-        helper_line_color = settings.value("/QGEP/HelperLineColor", u'#FFD900')
-        highlight_color = settings.value("/QGEP/HighlightColor", u'#40FF40')
+        helper_line_color = settings.value("/QGEP/HelperLineColor", '#FFD900')
+        highlight_color = settings.value("/QGEP/HighlightColor", '#40FF40')
 
         self.networkAnalyzer = network_analyzer
 
@@ -245,10 +245,10 @@ class QgepProfileMapTool(QgepMapTool):
             edge_layer, edge_ids)
 
         # We need some additional nodes, where we need to interpolate...
-        interpolate_nodes_from = [edge_features.attrAsUnicode(feat, u'from_obj_id_interpolate')
-                                  for feat in edge_features.asDict().values()]
-        interpolate_nodes_to = [edge_features.attrAsUnicode(feat, u'to_obj_id_interpolate')
-                                for feat in edge_features.asDict().values()]
+        interpolate_nodes_from = [edge_features.attrAsUnicode(feat, 'from_obj_id_interpolate')
+                                  for feat in list(edge_features.asDict().values())]
+        interpolate_nodes_to = [edge_features.attrAsUnicode(feat, 'to_obj_id_interpolate')
+                                for feat in list(edge_features.asDict().values())]
         additional_ids = [self.networkAnalyzer.vertexIds[node]
                           for node in interpolate_nodes_from]
         additional_ids += [self.networkAnalyzer.vertexIds[node]
@@ -562,7 +562,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         }
 
         self.setSnapLayers(self.source_snapper,
-                           self.network_element_sources.keys())
+                           list(self.network_element_sources.keys()))
 
         self.reset()
 

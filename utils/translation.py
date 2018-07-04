@@ -33,7 +33,7 @@ def setup_i18n(the_preferred_locale=None):
         my_locale_name = the_preferred_locale
         logger.info('Using preferred locale: ' + my_locale_name)
     elif my_override_flag:
-        my_locale_name = QSettings().value('locale/userLocale', u'')
+        my_locale_name = QSettings().value('locale/userLocale', '')
         logger.info('Using QGIS override locale: ' + my_locale_name)
     else:
         my_locale_name = QLocale.system().name()
@@ -68,7 +68,7 @@ class QgepJsTranslator(QObject):
         QObject.__init__(self)
 
     # pylint: disable=R0201
-    @pyqtSlot(unicode, unicode, name='qsTr', result=unicode)
+    @pyqtSlot(str, str, name='qsTr', result=str)
     def qsTr(self, context, source_text):
         """
         Will be called by javascript code to perform translation of strings

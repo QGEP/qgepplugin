@@ -26,10 +26,10 @@ def set_translation(message, text):
     :return:
     '''
     if message.find('translation') == -1:
-        print u'Message not found {} -> {}'.format(text, message)
+        print('Message not found {} -> {}'.format(text, message))
         return
     if (text and text[:4] != 'zzz_') and (message.find('translation').get('type') == 'unfinished' or force is True):
-        print ' * Translating {} to {}'.format(message.find('source').text, text)
+        print(' * Translating {} to {}'.format(message.find('source').text, text))
         message.find('translation').text = text
         message.find('translation').attrib.pop('type')
 
@@ -74,7 +74,7 @@ def sync_language(lang_code):
 
     tsfile = os.path.join(basepath, '../i18n/qgep-project_{}.ts').format(
         lang_code)
-    print tsfile
+    print(tsfile)
     tree = ET.parse(tsfile)
     root = tree.getroot()
 
@@ -93,7 +93,7 @@ def sync_language(lang_code):
                 except KeyError:
                     # If there is no layer with that name it's probably a vw_ view... Lookup in the view definitions
                     if layer in views:
-                        for lyr, opts in views[layer]['parents'].iteritems():
+                        for lyr, opts in views[layer]['parents'].items():
                             try:
                                 src = source.text
                                 # If the field has a different name in the view, do the remapping
@@ -121,12 +121,12 @@ def sync_language(lang_code):
                         pass
 
     with codecs.open(tsfile, 'w', encoding='utf8') as f:
-        f.write(u'<?xml version="1.0" ?><!DOCTYPE TS>')
+        f.write('<?xml version="1.0" ?><!DOCTYPE TS>')
         tree.write(f)
 
 
 for lang in ['fr', 'de', 'it']:
-    print 'Translating {}'.format(lang)
+    print('Translating {}'.format(lang))
 #    try:
     sync_language(lang)
 #    except ValueError:

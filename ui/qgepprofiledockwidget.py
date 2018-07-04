@@ -41,7 +41,7 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.PyQt.QtGui import QAction
 
-from ui_qgepdockwidget import Ui_QgepDockWidget
+from .ui_qgepdockwidget import Ui_QgepDockWidget
 
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 
@@ -108,7 +108,7 @@ class QgepProfileDockWidget(QDockWidget, Ui_QgepDockWidget):
     @pyqtSlot(int)
     def onVerticalExaggerationChanged(self, value):
         ve_val = self.veLUT[value]
-        self.mLblVerticalExaggeration.setText(unicode(ve_val) + 'x')
+        self.mLblVerticalExaggeration.setText(str(ve_val) + 'x')
         self.plotWidget.changeVerticalExaggeration(ve_val)
 
     @pyqtSlot()

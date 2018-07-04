@@ -34,7 +34,7 @@ class QgepLayerNotifier(QObject):
         if self.available:
             for qgep_id in self.layers:
                 lyrs = [lyr for (lyr_id, lyr)
-                        in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+                        in QgsMapLayerRegistry.instance().mapLayers().items()
                         if lyr_id.startswith(qgep_id)]
                 if not lyrs:
                     self.layersUnavailable.emit()
@@ -50,7 +50,7 @@ class QgepLayerNotifier(QObject):
             lyrlist = dict()
             for qgep_id in self.layers:
                 lyr = [lyr for (lyr_id, lyr)
-                       in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+                       in QgsMapLayerRegistry.instance().mapLayers().items()
                        if lyr_id.startswith(qgep_id)]
                 if not lyr:
                     return
@@ -77,7 +77,7 @@ class QgepLayerManager(object):
         :return:         A layer matching this id or None
         """
         lyr = [lyr for (lyr_id, lyr)
-               in QgsMapLayerRegistry.instance().mapLayers().iteritems()
+               in QgsMapLayerRegistry.instance().mapLayers().items()
                if lyr_id.startswith(qgep_id)]
         if lyr:
             return lyr[0]

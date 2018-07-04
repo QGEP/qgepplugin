@@ -232,7 +232,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         else:
             # TODO QGIS 3: remove
             self.snapping_utils.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
-            self.snapping_utils.setConfig = lambda (snap_layer_cfg): self.snapping_utils.setLayers([snap_layer_cfg])
+            self.snapping_utils.setConfig = lambda snap_layer_cfg: self.snapping_utils.setLayers([snap_layer_cfg])
             for lsc in layer_snapping_configs:
                 snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
                 self.snapping_configs.append(snap_layer)
@@ -304,7 +304,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         if match.isValid() and match.hasVertex():
             if match.layer():
                 req = QgsFeatureRequest(match.featureId())
-                f = match.layer().getFeatures(req).next()
+                f = next(match.layer().getFeatures(req))
                 assert f.isValid()
                 if match.layer().wkbType() == QGis.WKBPoint25D:
                     point = QgsPoint(f.geometry().geometry())
@@ -354,12 +354,12 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
             snapping_results = {'from': self.first_snapping_match,
                                 'to': self.last_snapping_match}
-            for dest, match in snapping_results.items():
+            for dest, match in list(snapping_results.items()):
                 level_field_index = self.layer.pendingFields().indexFromName('rp_{dest}_level'.format(dest=dest))
                 pt_idx = 0 if dest == 'from' else -1
                 if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
                     request = QgsFeatureRequest(match.featureId())
-                    network_element = match.layer().getFeatures(request).next()
+                    network_element = next(match.layer().getFeatures(request))
                     assert network_element.isValid()
                     # set the related network element
                     field = self.layer.pendingFields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))

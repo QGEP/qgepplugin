@@ -47,18 +47,18 @@ class QgepPlotSVGWidget(QWidget):
     jsTranslator = QgepJsTranslator()
 
     # Signals emitted triggered by javascript actions
-    reachClicked = pyqtSignal([unicode], name='reachClicked')
-    reachMouseOver = pyqtSignal([unicode], name='reachMouseOver')
-    reachMouseOut = pyqtSignal([unicode], name='reachMouseOut')
-    reachPointClicked = pyqtSignal([unicode, unicode], name='reachPointClicked')
-    reachPointMouseOver = pyqtSignal([unicode, unicode], name='reachPointMouseOver')
-    reachPointMouseOut = pyqtSignal([unicode, unicode], name='reachPointMouseOut')
-    specialStructureClicked = pyqtSignal([unicode], name='specialStructureClicked')
-    specialStructureMouseOver = pyqtSignal([unicode], name='specialStructureMouseOver')
-    specialStructureMouseOut = pyqtSignal([unicode], name='specialStructureMouseOut')
+    reachClicked = pyqtSignal([str], name='reachClicked')
+    reachMouseOver = pyqtSignal([str], name='reachMouseOver')
+    reachMouseOut = pyqtSignal([str], name='reachMouseOut')
+    reachPointClicked = pyqtSignal([str, str], name='reachPointClicked')
+    reachPointMouseOver = pyqtSignal([str, str], name='reachPointMouseOver')
+    reachPointMouseOut = pyqtSignal([str, str], name='reachPointMouseOut')
+    specialStructureClicked = pyqtSignal([str], name='specialStructureClicked')
+    specialStructureMouseOver = pyqtSignal([str], name='specialStructureMouseOver')
+    specialStructureMouseOut = pyqtSignal([str], name='specialStructureMouseOut')
 
     # Signals emitted for javascript
-    profileChanged = pyqtSignal([unicode], name='profileChanged')
+    profileChanged = pyqtSignal([str], name='profileChanged')
     verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
 
     def __init__(self, parent, network_analyzer, url=None):
@@ -73,7 +73,7 @@ class QgepPlotSVGWidget(QWidget):
 
         layout = QVBoxLayout(self)
         if url is None:
-            url = settings.value("/QGEP/SvgProfilePath", u'qrc:///plugins/qgepplugin/svgprofile/index.html')
+            url = settings.value("/QGEP/SvgProfilePath", 'qrc:///plugins/qgepplugin/svgprofile/index.html')
 
         developermode = settings.value("/QGEP/DeveloperMode", False, type=bool)
 
@@ -116,39 +116,39 @@ class QgepPlotSVGWidget(QWidget):
     def printRequested(self, printer):
         self.webView.print_(printer)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onReachClicked(self, obj_id):
         self.reachClicked.emit(obj_id)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onReachMouseOver(self, obj_id):
         self.reachMouseOver.emit(obj_id)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onReachMouseOut(self, obj_id):
         self.reachMouseOut.emit(obj_id)
 
-    @pyqtSlot(unicode, unicode)
+    @pyqtSlot(str, str)
     def onReachPointClicked(self, obj_id, reach_obj_id):
         self.reachPointClicked.emit(obj_id, reach_obj_id)
 
-    @pyqtSlot(unicode, unicode)
+    @pyqtSlot(str, str)
     def onReachPointMouseOver(self, obj_id, reach_obj_id):
         self.reachPointMouseOver.emit(obj_id, reach_obj_id)
 
-    @pyqtSlot(unicode, unicode)
+    @pyqtSlot(str, str)
     def onReachPointMouseOut(self, obj_id, reach_obj_id):
         self.reachPointMouseOut.emit(obj_id, reach_obj_id)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onSpecialStructureClicked(self, obj_id):
         self.specialStructureClicked.emit(obj_id)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onSpecialStructureMouseOver(self, obj_id):
         self.specialStructureMouseOver.emit(obj_id)
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def onSpecialStructureMouseOut(self, obj_id):
         self.specialStructureMouseOut.emit(obj_id)
 

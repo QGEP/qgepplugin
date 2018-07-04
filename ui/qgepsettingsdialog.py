@@ -23,7 +23,7 @@
 #
 # ---------------------------------------------------------------------
 
-from ui_qgepsettingsdialog import Ui_QgepSettingsDialog
+from .ui_qgepsettingsdialog import Ui_QgepSettingsDialog
 from PyQt4.QtCore import QSettings, pyqtSlot
 from PyQt4.QtGui import QDialog, QFileDialog, QColor
 from qgis.core import QgsMapLayerRegistry, QgsProject
@@ -59,9 +59,9 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
         self.initLayerCombobox(self.mCbGraphEdges, lyr_graph_edges)
         self.initLayerCombobox(self.mCbGraphNodes, lyr_graph_nodes)
 
-        self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", u'#FF9500')))
-        self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", u'#FFD900')))
-        self.mHighlightColorButton.setColor(QColor(self.settings.value("/QGEP/HighlightColor", u'#40FF40')))
+        self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", '#FF9500')))
+        self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", '#FFD900')))
+        self.mHighlightColorButton.setColor(QColor(self.settings.value("/QGEP/HighlightColor", '#40FF40')))
 
         self.mPbnChooseProfileTemplateFile.clicked.connect(self.onChooseProfileTemplateFileClicked)
         self.mPbnChooseLogFile.clicked.connect(self.onChooseLogFileClicked)
@@ -81,7 +81,7 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
 
     def initLayerCombobox(self, combobox, default):
         reg = QgsMapLayerRegistry.instance()
-        for (key, layer) in reg.mapLayers().iteritems():
+        for (key, layer) in reg.mapLayers().items():
             combobox.addItem(layer.name(), key)
 
         idx = combobox.findData(default)
@@ -106,7 +106,7 @@ class QgepSettingsDialog(QDialog, Ui_QgepSettingsDialog):
             del qgeplogger.qgepFileHandler
 
         if self.mGbLogToFile.isChecked():
-            logfile = unicode(self.mLogFile.text())
+            logfile = str(self.mLogFile.text())
             log_handler = logging.FileHandler(logfile)
             fmt = logging.Formatter(LOGFORMAT)
             log_handler.setFormatter(fmt)

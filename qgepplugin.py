@@ -41,23 +41,23 @@ from PyQt4.QtGui import (
 )
 
 from qgis.utils import qgsfunction
-from tools.qgepmaptools import (
+from .tools.qgepmaptools import (
     QgepProfileMapTool,
     QgepTreeMapTool,
     QgepMapToolConnectNetworkElements
 )
-from tools.qgepnetwork import QgepGraphManager
-from ui.qgepprofiledockwidget import QgepProfileDockWidget
-from ui.qgepplotsvgwidget import QgepPlotSVGWidget
-from ui.qgepsettingsdialog import QgepSettingsDialog
-from ui.qgepwizard import QgepWizard
-from utils.qgeplogging import QgepQgsLogHandler
-from utils.translation import setup_i18n
-from utils.qgeplayermanager import QgepLayerNotifier
+from .tools.qgepnetwork import QgepGraphManager
+from .ui.qgepprofiledockwidget import QgepProfileDockWidget
+from .ui.qgepplotsvgwidget import QgepPlotSVGWidget
+from .ui.qgepsettingsdialog import QgepSettingsDialog
+from .ui.qgepwizard import QgepWizard
+from .utils.qgeplogging import QgepQgsLogHandler
+from .utils.translation import setup_i18n
+from .utils.qgeplayermanager import QgepLayerNotifier
 from .processing_provider.provider import QgepProcessingProvider
 from processing.core.Processing import Processing
 
-import resources  # NOQA
+from . import resources  # NOQA
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
@@ -331,7 +331,7 @@ class QgepPlugin:
 
     @pyqtSlot()
     def connectNetworkElements(self):
-        print 'Copnnet them'
+        print('Copnnet them')
         self.iface.mapCanvas().setMapTool(self.maptool_connect_networkelements)
 
     def openDock(self):
@@ -382,10 +382,10 @@ class QgepPlugin:
         self.nodes = nodes
         self.edges = edges
 
-    @pyqtSlot(unicode)
+    @pyqtSlot(str)
     def highlightProfileElement(self, obj_id):
         if self.profile is not None:
-            self.profile.highlight(unicode(obj_id))
+            self.profile.highlight(str(obj_id))
 
     @pyqtSlot()
     def unhighlightProfileElement(self):
@@ -393,7 +393,7 @@ class QgepPlugin:
             self.profile.highlight(None)
 
     def about(self):
-        from ui.dlgabout import DlgAbout
+        from .ui.dlgabout import DlgAbout
 
         DlgAbout(self.iface.mainWindow()).exec_()
 
