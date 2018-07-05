@@ -1,7 +1,7 @@
 ; the next section is mandatory
 [general]
 name=QGEP
-qgisMinimumVersion=2.18
+qgisMinimumVersion=3.2
 description=Plugin to manage wastewater networks
 category=Vector
 version=dev
