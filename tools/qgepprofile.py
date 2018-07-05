@@ -27,6 +27,7 @@
 This module provides objects which manage a QGEP profile.
 """
 
+from builtins import object
 import json
 
 

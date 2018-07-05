@@ -1,15 +1,9 @@
 """
 This module is used for translation of the QGEP project
 """
-from PyQt4.QtGui import QApplication
-from PyQt4.QtCore import (
-    QSettings,
-    QLocale,
-    QTranslator,
-    QCoreApplication,
-    pyqtSlot,
-    QObject
-)
+from builtins import str
+from qgis.PyQt.QtWidgets import QApplication
+from qgis.PyQt.QtCore import QSettings, QLocale, QTranslator, QCoreApplication, pyqtSlot, QObject
 import logging
 
 

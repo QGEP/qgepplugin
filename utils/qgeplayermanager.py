@@ -1,7 +1,8 @@
 """
 This module helps managing the QGEP project layers.
 """
-from PyQt4.QtCore import (QObject, pyqtSignal)
+from builtins import object
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from qgis.core import QgsProject
 
@@ -34,7 +35,7 @@ class QgepLayerNotifier(QObject):
         if self.available:
             for qgep_id in self.layers:
                 lyrs = [lyr for (lyr_id, lyr)
-                        in QgsProject.instance().mapLayers().items()
+                        in list(QgsProject.instance().mapLayers().items())
                         if lyr_id.startswith(qgep_id)]
                 if not lyrs:
                     self.layersUnavailable.emit()
@@ -50,7 +51,7 @@ class QgepLayerNotifier(QObject):
             lyrlist = dict()
             for qgep_id in self.layers:
                 lyr = [lyr for (lyr_id, lyr)
-                       in QgsProject.instance().mapLayers().items()
+                       in list(QgsProject.instance().mapLayers().items())
                        if lyr_id.startswith(qgep_id)]
                 if not lyr:
                     return
@@ -77,7 +78,7 @@ class QgepLayerManager(object):
         :return:         A layer matching this id or None
         """
         lyr = [lyr for (lyr_id, lyr)
-               in QgsProject.instance().mapLayers().items()
+               in list(QgsProject.instance().mapLayers().items())
                if lyr_id.startswith(qgep_id)]
         if lyr:
             return lyr[0]

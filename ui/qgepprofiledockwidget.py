@@ -23,15 +23,12 @@
 #
 # ---------------------------------------------------------------------
 
+from builtins import str
 from qgis.core import (
     QgsFeatureRequest,
     QgsProject
 )
-from qgis.PyQt.QtCore import (
-    Qt,
-    pyqtSignal,
-    pyqtSlot
-)
+from qgis.PyQt.QtCore import Qt, pyqtSignal, pyqtSlot
 from qgis.PyQt.QtWidgets import (
     QDockWidget,
     QDialog,
@@ -39,7 +36,7 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QDialogButtonBox
 )
-from qgis.PyQt.QtGui import QAction
+from qgis.PyQt.QtWidgets import QAction
 
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 from qgepplugin.utils import get_ui_class

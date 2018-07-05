@@ -85,7 +85,7 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
 
     def initLayerCombobox(self, combobox, default):
         reg = QgsProject.instance()
-        for (key, layer) in reg.mapLayers().items():
+        for (key, layer) in list(reg.mapLayers().items()):
             combobox.addItem(layer.name(), key)
 
         idx = combobox.findData(default)

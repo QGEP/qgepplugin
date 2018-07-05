@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QPushButton
+from qgis.PyQt.QtWidgets import QPushButton
 import qgis
 from qgis.core import QgsProject
 

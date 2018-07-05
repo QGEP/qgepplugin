@@ -27,6 +27,7 @@
 This module implements several map tools for QGEP
 """
 
+from builtins import next
 from qgis.core import (
     Qgis,
     QgsGeometry,
@@ -46,22 +47,9 @@ from qgis.gui import (
     QgsVertexMarker,
     QgsMapCanvasSnappingUtils
 )
-from PyQt4.QtGui import (
-    QCursor,
-    QColor,
-    QApplication,
-    QDialog,
-    QFormLayout,
-    QCheckBox,
-    QDialogButtonBox
-)
-from PyQt4.QtCore import (
-    Qt,
-    QPoint,
-    pyqtSignal,
-    QSettings,
-    QCoreApplication
-)
+from qgis.PyQt.QtGui import QCursor, QColor
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QFormLayout, QCheckBox, QDialogButtonBox
+from qgis.PyQt.QtCore import Qt, QPoint, pyqtSignal, QSettings, QCoreApplication
 from .qgepprofile import (
     QgepProfile,
     QgepProfileNodeElement,

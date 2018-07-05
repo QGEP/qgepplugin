@@ -23,9 +23,10 @@
 #
 # ---------------------------------------------------------------------
 
-from PyQt4.QtGui import QVBoxLayout, QWidget, QPrintPreviewDialog, QPrinter
-from PyQt4.QtWebKit import QWebView, QWebSettings, QWebPage
-from PyQt4.QtCore import QUrl, pyqtSignal, pyqtSlot, QSettings, Qt
+from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
+from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
+from qgis.PyQt.QtWebKitWidgets import QWebView, QWebPage
+from qgis.PyQt.QtCore import QUrl, pyqtSignal, pyqtSlot, QSettings, Qt
 from qgepplugin.utils.translation import QgepJsTranslator
 
 import logging

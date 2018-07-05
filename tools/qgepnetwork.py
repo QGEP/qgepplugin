@@ -26,12 +26,17 @@
 """
 Manages a graph of a wastewater network
 """
+from __future__ import print_function
 
 # pylint: disable=no-name-in-module
+from builtins import str
+from builtins import zip
+from builtins import next
+from builtins import object
 from collections import defaultdict
 import time
 import re
-from PyQt4.QtSql import QSqlDatabase, QSqlQuery
+from qgis.PyQt.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
     Qgis,
@@ -46,14 +51,8 @@ from qgis.gui import (
     QgsMessageBar,
     QgsMapCanvasSnappingUtils
 )
-from PyQt4.QtCore import (
-    QPoint,
-    QObject
-)
-from PyQt4.QtGui import (
-    QMenu,
-    QAction
-)
+from qgis.PyQt.QtCore import QPoint, QObject
+from qgis.PyQt.QtWidgets import QMenu, QAction
 import networkx as nx
 
 
@@ -318,7 +317,7 @@ class QgepGraphManager(QObject):
             if len(filtered_features) == 1:
                 matches = (match for match
                           in matchFilter.matches
-                          if match.featureId() == next(iter(filtered_features.keys())))
+                          if match.featureId() == next(iter(list(filtered_features.keys()))))
                 return next(matches)
 
             # Still not sure which point to take?
@@ -331,7 +330,7 @@ class QgepGraphManager(QObject):
 
             menu = QMenu(self.iface.mapCanvas())
 
-            for _, feature in filtered_features.items():
+            for _, feature in list(filtered_features.items()):
                 try:
                     title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
                 except TypeError:

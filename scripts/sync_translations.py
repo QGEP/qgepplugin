@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import psycopg2 as pg
 import xml.etree.ElementTree as ET
 import os
@@ -93,7 +94,7 @@ def sync_language(lang_code):
                 except KeyError:
                     # If there is no layer with that name it's probably a vw_ view... Lookup in the view definitions
                     if layer in views:
-                        for lyr, opts in views[layer]['parents'].items():
+                        for lyr, opts in list(views[layer]['parents'].items()):
                             try:
                                 src = source.text
                                 # If the field has a different name in the view, do the remapping

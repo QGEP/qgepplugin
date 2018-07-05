@@ -27,6 +27,8 @@
 Some map tools for digitizing features
 """
 
+from builtins import next
+from builtins import range
 from qgis.gui import (
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
@@ -46,20 +48,9 @@ from qgis.core import (
     QgsWkbTypes,
     NULL
 )
-from PyQt4.QtGui import (
-    QCursor,
-    QColor,
-    QApplication,
-    QDialog,
-    QGridLayout,
-    QLabel,
-    QLineEdit,
-    QDialogButtonBox
-)
-from PyQt4.QtCore import (
-    Qt,
-    pyqtSignal
-)
+from qgis.PyQt.QtGui import QCursor, QColor
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QGridLayout, QLabel, QLineEdit, QDialogButtonBox
+from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 import math
 import sip
