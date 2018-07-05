@@ -38,12 +38,13 @@ from qgis.gui import (
     QgsVertexMarker
 )
 from qgis.core import (
+    QgsSnappingConfig,
+    QgsPoint,
+    QgsPointXY,
     QgsFeature,
     QgsSnappingUtils,
-    QgsPointLocator,
     QgsTolerance,
     QgsFeatureRequest,
-    QGis,
     QgsGeometry,
     QgsWkbTypes,
     NULL
@@ -51,27 +52,9 @@ from qgis.core import (
 from qgis.PyQt.QtGui import QCursor, QColor
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QGridLayout, QLabel, QLineEdit, QDialogButtonBox
 from qgis.PyQt.QtCore import Qt, pyqtSignal
-from qgepplugin.utils.qgeplayermanager import QgepLayerManager
+from ..utils.qgeplayermanager import QgepLayerManager
 import math
 import sip
-
-
-# QGIS 2.x compat hacks
-try:
-    QGIS_VERSION = 3
-    from qgis.core import QgsSnappingConfig, QgsPoint, QgsPointXY
-    SNAP_TO_VERTEX = QgsSnappingConfig.SnapToVertex
-    SNAP_TO_VERTEX_AND_SEGMENT = QgsSnappingConfig.SnapToVertexAndSegment
-except ImportError:
-    # TODO QGIS 3: remove
-    QGIS_VERSION = 2
-    from qgis.core import QgsPointV2 as QgsPoint
-    from qgis.core import QgsPoint as QgsPointXY
-    from qgis.core import QgsSnapper as QgsSnappingConfig
-    SNAP_TO_VERTEX = QgsPointLocator.Vertex
-    SNAP_TO_VERTEX_AND_SEGMENT = QgsPointLocator.Types(QgsPointLocator.Vertex | QgsPointLocator.Edge)
-    QgsVertexMarker.ICON_DOUBLE_TRIANGLE = QgsVertexMarker.ICON_CIRCLE
-
 
 class QgepRubberBand3D(QgsRubberBand):
     def __init__(self, map_canvas, geometry_type):
@@ -208,26 +191,19 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         assert self.reach_layer
         self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
 
-        layer_snapping_configs = [{'layer': self.node_layer, 'mode': SNAP_TO_VERTEX},
-                                  {'layer': self.reach_layer, 'mode': SNAP_TO_VERTEX_AND_SEGMENT}]
+        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
+                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
         self.snapping_configs = []
         self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
-        if QGIS_VERSION == 3:
-            for lsc in layer_snapping_configs:
-                config = QgsSnappingConfig()
-                config.setMode(QgsSnappingConfig.AdvancedConfiguration)
-                config.setEnabled(True)
-                settings = QgsSnappingConfig.IndividualLayerSettings(True, lsc['mode'],
-                                                                     10, QgsTolerance.Pixels)
-                config.setIndividualLayerSettings(lsc['layer'], settings)
-                self.snapping_configs.append(config)
-        else:
-            # TODO QGIS 3: remove
-            self.snapping_utils.setSnapToMapMode(QgsSnappingUtils.SnapAdvanced)
-            self.snapping_utils.setConfig = lambda snap_layer_cfg: self.snapping_utils.setLayers([snap_layer_cfg])
-            for lsc in layer_snapping_configs:
-                snap_layer = QgsSnappingUtils.LayerConfig(lsc['layer'], lsc['mode'], 10, QgsTolerance.Pixels)
-                self.snapping_configs.append(snap_layer)
+
+        for lsc in layer_snapping_configs:
+            config = QgsSnappingConfig()
+            config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            config.setEnabled(True)
+            settings = QgsSnappingConfig.IndividualLayerSettings(True, lsc['mode'],
+                                                                 10, QgsTolerance.Pixels)
+            config.setIndividualLayerSettings(lsc['layer'], settings)
+            self.snapping_configs.append(config)
 
     def left_clicked(self, event):
         """
@@ -264,16 +240,13 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             self.snapping_marker.setPenWidth(3)
             self.snapping_marker.setColor(QColor(Qt.magenta))
 
-        if QGIS_VERSION == 2:
-            icon_type = QgsVertexMarker.ICON_CROSS
-        else:
-            if match.hasVertex():
-                if match.layer():
-                    icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
-                else:
-                    icon_type = QgsVertexMarker.ICON_X  # intersection snap
+        if match.hasVertex():
+            if match.layer():
+                icon_type = QgsVertexMarker.ICON_BOX  # vertex snap
             else:
-                icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
+                icon_type = QgsVertexMarker.ICON_X  # intersection snap
+        else:
+            icon_type = QgsVertexMarker.ICON_DOUBLE_TRIANGLE  # must be segment snap
         self.snapping_marker.setIconType(icon_type)
         self.snapping_marker.setCenter(match.point())
 
@@ -298,20 +271,12 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 req = QgsFeatureRequest(match.featureId())
                 f = next(match.layer().getFeatures(req))
                 assert f.isValid()
-                if match.layer().wkbType() == QGis.WKBPoint25D:
+                if match.layer().wkbType() == QgsWkbTypes.WKBPoint25D:
                     point = QgsPoint(f.geometry().geometry())
                 else:
-                    # TODO QGIS 3: remove check and push message
-                    if QGis.QGIS_VERSION_INT >= 21821:
-                        (ok, vertex_id) = f.geometry().vertexIdFromVertexNr(match.vertexIndex())
-                        assert ok
-                        point = f.geometry().geometry().vertexAt(vertex_id)
-                    else:
-                        self.iface.messageBar().pushMessage('snapping Z on line or polygon layers'
-                                                            ' is broken in this QGIS version.'
-                                                            ' Use at least 2.18.21.',
-                                                            QgsMessageBar.CRITICAL, 7)
-                        return QgsPoint(match.point()), match
+                    (ok, vertex_id) = f.geometry().vertexIdFromVertexNr(match.vertexIndex())
+                    assert ok
+                    point = f.geometry().geometry().vertexAt(vertex_id)
                 assert type(point) == QgsPoint
                 return point, match
             else:

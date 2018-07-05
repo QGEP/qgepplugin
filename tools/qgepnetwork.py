@@ -272,7 +272,7 @@ class QgepGraphManager(QObject):
 
             self.snapper.setConfig(config)
 
-    def snapPoint(self, event):
+    def snapPoint(self, event) -> QgsPointLocator.Match:
         """
         Snap to a point on this network
         :param event: A QMouseEvent
@@ -291,15 +291,13 @@ class QgepGraphManager(QObject):
                 self.matches.append(match)
                 return True
 
-        matchFilter = CounterMatchFilter()
-        match = self.snapper.snapToMap(clicked_point, matchFilter)
+        match_filter = CounterMatchFilter()
+        match = self.snapper.snapToMap(clicked_point, match_filter)
 
-        if not match.isValid():
-            return None
-        elif len(matchFilter.matches) == 1:
+        if not match.isValid() or len(match_filter.matches) == 1:
             return match
-        elif len(matchFilter.matches) > 1:
-            point_ids = [match.featureId() for match in matchFilter.matches]
+        elif len(match_filter.matches) > 1:
+            point_ids = [match.featureId() for match in match_filter.matches]
             node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
 
             # Filter wastewater nodes
@@ -312,8 +310,8 @@ class QgepGraphManager(QObject):
             # Only one wastewater node left: return this
             if len(filtered_features) == 1:
                 matches = (match for match
-                          in matchFilter.matches
-                          if match.featureId() == next(iter(list(filtered_features.keys()))))
+                           in match_filter.matches
+                           if match.featureId() == next(iter(list(filtered_features.keys()))))
                 return next(matches)
 
             # Still not sure which point to take?
@@ -340,7 +338,7 @@ class QgepGraphManager(QObject):
             if clicked_action is not None:
                 return actions[clicked_action]
 
-            return None
+            return QgsPointLocator.Match()
 
     def shortestPath(self, start_point, end_point):
         """

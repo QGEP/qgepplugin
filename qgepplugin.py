@@ -236,8 +236,7 @@ class QgepPlugin(object):
         # Init the object maintaining the network
         self.network_analyzer = QgepGraphManager(self.iface)
         # Create the map tool for profile selection
-        self.profile_tool = QgepProfileMapTool(
-            self.iface, self.profileAction, self.network_analyzer)
+        self.profile_tool = QgepProfileMapTool(self.iface, self.profileAction, self.network_analyzer)
         self.profile_tool.profileChanged.connect(self.onProfileChanged)
 
         self.upstream_tree_tool = QgepTreeMapTool(

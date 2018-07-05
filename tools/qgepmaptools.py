@@ -333,21 +333,21 @@ class QgepProfileMapTool(QgepMapTool):
 
         @param event: The mouse event with coordinates and all
         """
-        snapped_point = self.networkAnalyzer.snapPoint(event)
+        match = self.networkAnalyzer.snapPoint(event)
 
-        if snapped_point is not None:
+        if match.isValid():
             if self.selectedPathPoints:
                 pf = self.findPath(
-                    self.selectedPathPoints[-1][0], snapped_point.snappedAtGeometry)
+                    self.selectedPathPoints[-1][0], match.featureId())
                 if pf:
                     self.selectedPathPoints.append(
-                        (snapped_point.snappedAtGeometry, QgsPointXY(snapped_point.snappedVertex)))
+                        (match.featureId(), QgsPointXY(match.point())))
                 else:
                     msg = self.msgBar.createMessage('No path found')
                     self.msgBar.pushWidget(msg, Qgis.Info)
             else:
-                self.selectedPathPoints.append((snapped_point.snappedAtGeometry,
-                                                QgsPointXY(snapped_point.snappedVertex)))
+                self.selectedPathPoints.append((match.featureId(),
+                                                QgsPointXY(match.point())))
 
 
 class QgepTreeMapTool(QgepMapTool):
@@ -402,22 +402,21 @@ class QgepTreeMapTool(QgepMapTool):
         Whenever the mouse is moved update the rubberband and the snapping.
         :param event: QMouseEvent with coordinates
         """
-        snapped_points = self.networkAnalyzer.snapPoint(event)
+        match = self.networkAnalyzer.snapPoint(event)
 
         for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)
 
         self.highlightedPoints = []
 
-        if snapped_points:
-            for point in snapped_points:
-                marker = QgsVertexMarker(self.canvas)
-                marker.setCenter(point.snappedVertex)
-                marker.setColor(QColor("#FFFF33"))
-                marker.setIconSize(10)
-                marker.setIconType(QgsVertexMarker.ICON_X)
-                marker.setPenWidth(2)
-                self.highlightedPoints.append(marker)
+        if match.isValid():
+            marker = QgsVertexMarker(self.canvas)
+            marker.setCenter(match.point())
+            marker.setColor(QColor("#FFFF33"))
+            marker.setIconSize(10)
+            marker.setIconType(QgsVertexMarker.ICON_X)
+            marker.setPenWidth(2)
+            self.highlightedPoints.append(marker)
 
     def rightClicked(self, _):
         """
@@ -431,10 +430,10 @@ class QgepTreeMapTool(QgepMapTool):
         Snaps to the network graph
         :param event: QMouseEvent
         """
-        snapped_point = self.networkAnalyzer.snapPoint(event)
+        match = self.networkAnalyzer.snapPoint(event)
 
-        if snapped_point is not None:
-            self.getTree(snapped_point.snappedAtGeometry)
+        if match.isValid():
+            self.getTree(match.featureId())
 
     def setActive(self):
         """
