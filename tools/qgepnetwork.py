@@ -342,7 +342,7 @@ class QgepGraphManager(QObject):
 
     def shortestPath(self, start_point, end_point):
         """
-        Finds the shortes path from the start point
+        Finds the shortest path from the start point
         to the end point
         :param start_point: The start node
         :param end_point:   The end node
@@ -379,7 +379,7 @@ class QgepGraphManager(QObject):
             my_graph = self.graph
 
         # Returns pred, weight
-        pred, _ = nx.bellman_ford(my_graph, node)
+        pred, _ = nx.bellman_ford_predecessor_and_distance(my_graph, node)
         edges = [(v, u, my_graph[v][u]) for (u, v) in list(pred.items()) if v is not None]
         nodes = [my_graph.node[n] for n in set(list(pred.keys()) + list(pred.values())) if n is not None]
 

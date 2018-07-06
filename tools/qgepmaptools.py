@@ -200,8 +200,7 @@ class QgepProfileMapTool(QgepMapTool):
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
         # try:
-        (vertices, edges) = self.networkAnalyzer.shortestPath(
-            start_point, end_point)
+        (vertices, edges) = self.networkAnalyzer.shortestPath(start_point, end_point)
         self.appendProfile(vertices, edges)
         #        except:
         #            pass
@@ -291,11 +290,9 @@ class QgepProfileMapTool(QgepMapTool):
 
             # Create rubberband geometry
             for featId in edge_ids:
-                self.pathPolyline.extend(
-                    edge_features[featId].geometry().asPolyline())
+                self.pathPolyline.extend(edge_features[featId].geometry().asPolyline())
 
-            self.rubberBand.addGeometry(
-                QgsGeometry.fromPolyline(self.pathPolyline), node_layer)
+            self.rubberBand.addGeometry(QgsGeometry.fromPolylineXY(self.pathPolyline), node_layer)
             self.profileChanged.emit(self.profile)
             return True
         else:
@@ -337,17 +334,14 @@ class QgepProfileMapTool(QgepMapTool):
 
         if match.isValid():
             if self.selectedPathPoints:
-                pf = self.findPath(
-                    self.selectedPathPoints[-1][0], match.featureId())
+                pf = self.findPath(self.selectedPathPoints[-1][0], match.featureId())
                 if pf:
-                    self.selectedPathPoints.append(
-                        (match.featureId(), QgsPointXY(match.point())))
+                    self.selectedPathPoints.append((match.featureId(), QgsPointXY(match.point())))
                 else:
                     msg = self.msgBar.createMessage('No path found')
                     self.msgBar.pushWidget(msg, Qgis.Info)
             else:
-                self.selectedPathPoints.append((match.featureId(),
-                                                QgsPointXY(match.point())))
+                self.selectedPathPoints.append((match.featureId(), QgsPointXY(match.point())))
 
 
 class QgepTreeMapTool(QgepMapTool):
@@ -371,7 +365,7 @@ class QgepTreeMapTool(QgepMapTool):
         """
         self.direction = direction
 
-    def getTree(self, point):
+    def getTree(self, point: QgsPointXY):
         """
         Does the work. Tracks the graph up- or downstream.
         :param point: The node from which the tracking should be started
@@ -433,7 +427,7 @@ class QgepTreeMapTool(QgepMapTool):
         match = self.networkAnalyzer.snapPoint(event)
 
         if match.isValid():
-            self.getTree(match.featureId())
+            self.getTree(match.point())
 
     def setActive(self):
         """
