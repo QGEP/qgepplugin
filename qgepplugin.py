@@ -31,7 +31,7 @@ from builtins import object
 import logging
 import os
 
-from qgis.PyQt.QtCore import pyqtSlot, QSettings, Qt, QLocale
+from qgis.PyQt.QtCore import QSettings, Qt, QLocale
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
 from qgis.PyQt.QtGui import QIcon
 
@@ -44,10 +44,10 @@ from .tools.qgepmaptools import (
     QgepMapToolConnectNetworkElements
 )
 from .tools.qgepnetwork import QgepGraphManager
-from .ui.qgepprofiledockwidget import QgepProfileDockWidget
-from .ui.qgepplotsvgwidget import QgepPlotSVGWidget
-from .ui.qgepsettingsdialog import QgepSettingsDialog
-from .ui.qgepwizard import QgepWizard
+from .gui.qgepprofiledockwidget import QgepProfileDockWidget
+from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
+from .gui.qgepsettingsdialog import QgepSettingsDialog
+from .gui.qgepwizard import QgepWizard
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
@@ -380,7 +380,7 @@ class QgepPlugin(object):
             self.profile.highlight(None)
 
     def about(self):
-        from .ui.dlgabout import DlgAbout
+        from .gui.dlgabout import DlgAbout
 
         DlgAbout(self.iface.mainWindow()).exec_()
 
