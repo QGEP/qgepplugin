@@ -81,7 +81,7 @@ class QgepPlotSVGWidget(QWidget):
 
         layout = QVBoxLayout(self)
         if url is None:
-            default_url = os.path.abspath(os.path.join(plugin_root_path(),'svgprofile', 'index.html'))
+            default_url = os.path.abspath(os.path.join(plugin_root_path(), 'svgprofile', 'index.html'))
             url = settings.value("/QGEP/SvgProfilePath", default_url)
             url = 'file://' + url
 

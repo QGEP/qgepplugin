@@ -31,15 +31,13 @@ from builtins import next
 from qgis.core import (
     Qgis,
     QgsGeometry,
-    QgsPoint,
     QgsPointXY,
     QgsWkbTypes,
     QgsFeatureRequest,
     QgsTolerance,
     QgsPointLocator,
     QgsFeature,
-    QgsSnappingConfig,
-    QgsProject
+    QgsSnappingConfig
 )
 from qgis.gui import (
     QgsMapTool,
@@ -49,7 +47,7 @@ from qgis.gui import (
 )
 from qgis.PyQt.QtGui import QCursor, QColor
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QFormLayout, QCheckBox, QDialogButtonBox
-from qgis.PyQt.QtCore import Qt, QPoint, pyqtSignal, QSettings, QCoreApplication
+from qgis.PyQt.QtCore import Qt, pyqtSignal, QSettings, QCoreApplication
 from .qgepprofile import (
     QgepProfile,
     QgepProfileNodeElement,
@@ -558,10 +556,9 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
         for layer in layers:
             if layer:
-                config.setIndividualLayerSettings(layer, QgsSnappingConfig.IndividualLayerSettings(True,
-                                                                                                QgsSnappingConfig.VertexAndSegment,
-                                                                                                16,
-                                                                                                QgsTolerance.Pixels))
+                ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
+                                                                16, QgsTolerance.Pixels)
+                config.setIndividualLayerSettings(layer, ils)
 
         snapper.setConfig(config)
 

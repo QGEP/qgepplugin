@@ -52,7 +52,7 @@ from qgis.gui import (
     QgsMessageBar,
     QgsMapCanvasSnappingUtils
 )
-from qgis.PyQt.QtCore import QPoint, QObject
+from qgis.PyQt.QtCore import QObject
 from qgis.PyQt.QtWidgets import QMenu, QAction
 import networkx as nx
 
@@ -265,12 +265,9 @@ class QgepGraphManager(QObject):
             config = QgsSnappingConfig()
             config.setMode(QgsSnappingConfig.AdvancedConfiguration)
             config.setEnabled(True)
-
-            config.setIndividualLayerSettings(self.nodeLayer, QgsSnappingConfig.IndividualLayerSettings(True,
-                                                                                                       QgsSnappingConfig.VertexAndSegment,
-                                                                                                       16,
-                                                                                                       QgsTolerance.Pixels))
-
+            ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
+                                                            16, QgsTolerance.Pixels)
+            config.setIndividualLayerSettings(self.nodeLayer, ils)
             self.snapper.setConfig(config)
 
     def snapPoint(self, event) -> QgsPointLocator.Match:

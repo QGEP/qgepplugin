@@ -152,7 +152,7 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
     @pyqtSlot()
     def onChooseProfileTemplateFileClicked(self):
         filename, __ = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
-                                               self.tr('HTML files(*.htm *.html)'))
+                                                   self.tr('HTML files(*.htm *.html)'))
         self.mProfileTemplateFile.setText(filename)
 
     @pyqtSlot()

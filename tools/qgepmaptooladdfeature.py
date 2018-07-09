@@ -42,7 +42,6 @@ from qgis.core import (
     QgsPoint,
     QgsPointXY,
     QgsFeature,
-    QgsSnappingUtils,
     QgsTolerance,
     QgsFeatureRequest,
     QgsGeometry,
@@ -55,6 +54,7 @@ from qgis.PyQt.QtCore import Qt, pyqtSignal
 from ..utils.qgeplayermanager import QgepLayerManager
 import math
 import sip
+
 
 class QgepRubberBand3D(QgsRubberBand):
     def __init__(self, map_canvas, geometry_type):

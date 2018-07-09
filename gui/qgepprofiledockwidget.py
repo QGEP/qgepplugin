@@ -42,6 +42,7 @@ from qgepplugin.utils.qgeplayermanager import QgepLayerManager
 from qgepplugin.utils import get_ui_class
 DOCK_WIDGET_UI = get_ui_class('qgepdockwidget.ui')
 
+
 class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
     # Signal emitted when the widget is closed
     closed = pyqtSignal()
