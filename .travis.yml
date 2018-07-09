@@ -12,28 +12,30 @@ notifications:
     on_start: false     # default: false
 
 python:
-  - "2.7"
+  - "3.5"
 
-virtualenv:
-  system_site_packages: true
+addons:
+  apt:
+    packages:
+      - pyqt5-dev-tools
 
 before_install:
   - sudo apt-get -qq -y update
 
 install:
-  - sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
-  - sudo apt-get update
-  - sudo apt-get install -y python-qgis python-nose pyqt4-dev-tools
   - pip install -r requirements.txt
 
 before_script:
-  - export QGIS_PREFIX_PATH=/usr
-  - export PYTHONPATH=${QGIS_PREFIX_PATH}/share/qgis/python/:${QGIS_PREFIX_PATH}/share/qgis/python/plugins:`pwd`:${PYTHONPATH}
-  - echo "PYTHONPATH:" ${PYTHONPATH}
-  - export LD_LIBRARY_PATH=${QGIS_PREFIX_PATH}/lib
+  #- docker pull "qgis/qgis:${QGIS_DOCKER_TAG}"
+  #- export QGIS_PREFIX_PATH=/usr
+  #- export PYTHONPATH=${QGIS_PREFIX_PATH}/share/qgis/python/:${QGIS_PREFIX_PATH}/share/qgis/python/plugins:`pwd`:${PYTHONPATH}
+  #- echo "PYTHONPATH:" ${PYTHONPATH}
+  # - export LD_LIBRARY_PATH=${QGIS_PREFIX_PATH}/lib
 
 script:
-  - flake8 --jobs=1
+  - python3 -m flake8 --jobs=1
+  #- docker run -v $TRAVIS_BUILD_DIR:/root/qgissettingmanager "qgis/qgis:${QGIS_DOCKER_TAG}" /root/qgissettingmanager/test/run_in_qgis_docker.sh
+
 
 after_success:
   - scripts/ci/make_release.sh
