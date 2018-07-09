@@ -335,16 +335,11 @@ class QgepPlugin(object):
             self.profileDock.closed.connect(self.onDockClosed)
             self.profileDock.showIt()
 
-            self.plotWidget = QgepPlotSVGWidget(
-                self.profileDock, self.network_analyzer)
-            self.plotWidget.specialStructureMouseOver.connect(
-                self.highlightProfileElement)
-            self.plotWidget.specialStructureMouseOut.connect(
-                self.unhighlightProfileElement)
-            self.plotWidget.reachMouseOver.connect(
-                self.highlightProfileElement)
-            self.plotWidget.reachMouseOut.connect(
-                self.unhighlightProfileElement)
+            self.plotWidget = QgepPlotSVGWidget(self.profileDock, self.network_analyzer)
+            self.plotWidget.specialStructureMouseOver.connect(self.highlightProfileElement)
+            self.plotWidget.specialStructureMouseOut.connect(self.unhighlightProfileElement)
+            self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
+            self.plotWidget.reachMouseOut.connect(self.unhighlightProfileElement)
             self.profileDock.addPlotWidget(self.plotWidget)
             self.profileDock.setTree(self.nodes, self.edges)
 

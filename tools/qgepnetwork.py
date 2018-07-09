@@ -40,6 +40,7 @@ from qgis.PyQt.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
     Qgis,
+    QgsMessageLog,
     QgsTolerance,
     QgsSnappingConfig,
     QgsGeometry,
@@ -311,7 +312,7 @@ class QgepGraphManager(QObject):
             if len(filtered_features) == 1:
                 matches = (match for match
                            in match_filter.matches
-                           if match.featureId() == next(iter(list(filtered_features.keys()))))
+                           if match.featureId() == next(iter(filtered_features.keys())))
                 return next(matches)
 
             # Still not sure which point to take?
@@ -503,6 +504,7 @@ class QgepFeatureCache(object):
             else:
                 return feat[attr]
         except KeyError:
+            QgsMessageLog.logMessage('Unknown field {}'.format(attr), 'qgep', Qgis.Critical)
             return None
 
     def attrAsGeometry(self, feat, attr):

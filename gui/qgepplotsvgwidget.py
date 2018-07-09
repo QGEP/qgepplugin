@@ -23,17 +23,24 @@
 #
 # ---------------------------------------------------------------------
 
+import os
 from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
 from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
+from qgis.PyQt.QtWebKit import QWebSettings
 from qgis.PyQt.QtWebKitWidgets import QWebView, QWebPage
 from qgis.PyQt.QtCore import QUrl, pyqtSignal, pyqtSlot, QSettings, Qt
 from qgepplugin.utils.translation import QgepJsTranslator
+from qgepplugin.utils.plugin_utils import plugin_root_path
+from qgepplugin.tools.qgepnetwork import QgepGraphManager
 
 import logging
 
 
 class QgepWebPage(QWebPage):
     logger = logging.getLogger(__name__)
+
+    def __init__(self, parent):
+        QWebPage.__init__(self, parent)
 
     def javaScriptConsoleMessage(self, msg, line, source):
         self.logger.debug('{} line {}: {}'.format(source, line, msg))
@@ -62,7 +69,7 @@ class QgepPlotSVGWidget(QWidget):
     profileChanged = pyqtSignal([str], name='profileChanged')
     verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
 
-    def __init__(self, parent, network_analyzer, url=None):
+    def __init__(self, parent, network_analyzer: QgepGraphManager, url: str=None):
         QWidget.__init__(self, parent)
 
         self.webView = QWebView()
@@ -74,11 +81,13 @@ class QgepPlotSVGWidget(QWidget):
 
         layout = QVBoxLayout(self)
         if url is None:
-            url = settings.value("/QGEP/SvgProfilePath", 'qrc:///plugins/qgepplugin/svgprofile/index.html')
+            default_url = os.path.abspath(os.path.join(plugin_root_path(),'svgprofile', 'index.html'))
+            url = settings.value("/QGEP/SvgProfilePath", default_url)
+            url = 'file://' + url
 
-        developermode = settings.value("/QGEP/DeveloperMode", False, type=bool)
+        developer_mode = settings.value("/QGEP/DeveloperMode", False, type=bool)
 
-        if developermode is True:
+        if developer_mode is True:
             self.webView.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
         else:
             self.webView.setContextMenuPolicy(Qt.NoContextMenu)

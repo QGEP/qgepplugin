@@ -261,9 +261,9 @@ class QgepProfileMapTool(QgepMapTool):
 
                 if 'reach' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
-                        self.profile[edge['baseFeature']] \
-                            .addSegment(p1, p2, edge['feature'], node_features,
-                                        edge_features, from_offset, to_offset)
+                        self.profile[edge['baseFeature']].addSegment(p1, p2, edge['feature'],
+                                                                     node_features, edge_features,
+                                                                     from_offset, to_offset)
                     else:
                         elem = QgepProfileReachElement(p1, p2, edge['feature'],
                                                        node_features, edge_features,
@@ -272,9 +272,9 @@ class QgepProfileMapTool(QgepMapTool):
 
                 elif 'special_structure' == edge['objType']:
                     if self.profile.hasElement(edge['baseFeature']):
-                        self.profile[edge['baseFeature']] \
-                            .addSegment(p1, p2, edge['feature'], node_features,
-                                        edge_features, from_offset, to_offset)
+                        self.profile[edge['baseFeature']].addSegment(p1, p2, edge['feature'],
+                                                                     node_features, edge_features,
+                                                                     from_offset, to_offset)
                     else:
                         elem = QgepProfileSpecialStructureElement(p1, p2, edge['feature'],
                                                                   node_features, edge_features,
@@ -427,7 +427,7 @@ class QgepTreeMapTool(QgepMapTool):
         match = self.networkAnalyzer.snapPoint(event)
 
         if match.isValid():
-            self.getTree(match.point())
+            self.getTree(match.featureId())
 
     def setActive(self):
         """
