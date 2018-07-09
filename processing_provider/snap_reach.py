@@ -115,7 +115,7 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
 
             self.processFeatures(reaches, reach_layer,
                                  wastewater_node_layer, distance)
-        except:
+        except:  # NOQA
             reach_layer.destroyEditCommand()
             raise
         reach_layer.endEditCommand()
