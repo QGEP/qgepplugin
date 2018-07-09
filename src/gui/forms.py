@@ -2,7 +2,7 @@ from qgis.PyQt.QtWidgets import QPushButton
 import qgis
 from qgis.core import QgsProject
 
-from tools.qgepmaptooladdfeature import QgepMapToolDigitizeDrainageChannel
+from ..tools.qgepmaptooladdfeature import QgepMapToolDigitizeDrainageChannel
 
 DEBUGMODE = 1
 

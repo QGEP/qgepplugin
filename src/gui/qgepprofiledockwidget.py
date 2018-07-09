@@ -38,8 +38,8 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.PyQt.QtWidgets import QAction
 
-from qgepplugin.utils.qgeplayermanager import QgepLayerManager
-from qgepplugin.utils import get_ui_class
+from ..utils.qgeplayermanager import QgepLayerManager
+from ..utils import get_ui_class
 DOCK_WIDGET_UI = get_ui_class('qgepdockwidget.ui')
 
 

@@ -30,7 +30,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import QgsProject
 import logging
 
-from qgepplugin.utils import get_ui_class
+from ..utils import get_ui_class
 DIALOG_UI = get_ui_class('qgepsettingsdialog.ui')
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'

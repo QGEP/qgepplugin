@@ -26,11 +26,11 @@
 from qgis.PyQt.QtWidgets import (QDockWidget)
 from qgis.PyQt.QtCore import pyqtSlot
 
-from qgepplugin.utils.qgeplayermanager import QgepLayerManager
-from qgepplugin.tools.qgepmaptooladdfeature import QgepMapToolAddReach
+from ..utils.qgeplayermanager import QgepLayerManager
+from ..tools.qgepmaptooladdfeature import QgepMapToolAddReach
 import logging
 
-from qgepplugin.utils import get_ui_class
+from ..utils import get_ui_class
 DOCK_WIDGET = get_ui_class('qgepwizard.ui')
 
 

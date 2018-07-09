@@ -27,7 +27,7 @@ import os
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QDialog
 
-from qgepplugin.utils import get_ui_class
+from ..utils import get_ui_class
 
 DIALOG_UI = get_ui_class('dlgabout.ui')
 

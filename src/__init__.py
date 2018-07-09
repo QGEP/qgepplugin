@@ -22,8 +22,6 @@
 #
 # ---------------------------------------------------------------------
 
-import qgis  # NOQA
-
 
 def classFactory(iface):
     from .qgepplugin import QgepPlugin

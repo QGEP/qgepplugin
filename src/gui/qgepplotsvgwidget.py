@@ -29,9 +29,9 @@ from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
 from qgis.PyQt.QtWebKit import QWebSettings
 from qgis.PyQt.QtWebKitWidgets import QWebView, QWebPage
 from qgis.PyQt.QtCore import QUrl, pyqtSignal, pyqtSlot, QSettings, Qt
-from qgepplugin.utils.translation import QgepJsTranslator
-from qgepplugin.utils.plugin_utils import plugin_root_path
-from qgepplugin.tools.qgepnetwork import QgepGraphManager
+from ..utils.translation import QgepJsTranslator
+from ..utils.ui import plugin_root_path
+from ..tools.qgepnetwork import QgepGraphManager
 
 import logging
 

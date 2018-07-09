@@ -54,7 +54,7 @@ from .qgepprofile import (
     QgepProfileReachElement,
     QgepProfileSpecialStructureElement
 )
-from qgepplugin.utils.qgeplayermanager import QgepLayerManager
+from ..utils.qgeplayermanager import QgepLayerManager
 
 import logging
 
