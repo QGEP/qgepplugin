@@ -20,6 +20,19 @@ addons:
       - pyqt5-dev-tools
 
 before_install:
+  - >-
+    openssl aes-256-cbc
+    -K $encrypted_5d9ba2164160_key
+    -iv $encrypted_5d9ba2164160_iv
+    -in github_deploy_key.enc
+    -out github_deploy_key.out
+    -d
+  - chmod 600 github_deploy_key.out
+  - eval $(ssh-agent -s)
+  - ssh-add github_deploy_key.out
+  - git submodule update --init --recursive
+
+before_install:
   - sudo apt-get -qq -y update
 
 install:
@@ -37,5 +50,26 @@ script:
   #- docker run -v $TRAVIS_BUILD_DIR:/root/qgissettingmanager "qgis/qgis:${QGIS_DOCKER_TAG}" /root/qgissettingmanager/test/run_in_qgis_docker.sh
 
 
-after_success:
-  - scripts/ci/make_release.sh
+jobs:
+  include:
+    - stage: deploy
+      if: tag IS present
+      script: plugin_ci/release/release.sh
+
+    - stage: deploy
+      if: branch = master
+      script: plugin_ci/translate/update-translations.sh
+
+env:
+  global:
+    - PUSH_TO=github # plugins (osgeo login, default), github (current repo)
+    - SRC_DIRECTORY=src
+    # TRANSIFEX_API_TOKEN, generated on Transifex website
+    # travis encrypt TX_TOKEN="......"
+    - secure: "lznZFeWfTYwRtj7TS8/pab2itZhHk9ObIgg7IWIOPY+1rdHnM2HUrbpG+/KVChM7EJluj2n8qSp98bdAoj4mU2QMS5rzagPKXudqFZdZFbcoC0KY3J+NBaGXpzwuLDLufOezaKeZjvXtDi0cjKCysw4BaY8pTxQE2MUN9dQnccv1Zr6itYw2LRiVMc9eNTRsW+W0NjEO5Afcm0WZ/Mqgk/HClxk6kScKKVlhYz61wJYDPQ1qmCbQ2rp3e2X5NSuYdREXeWjUlC+INM+kXoblQwmv7Bj61ilF103iZoMOwMTpN8dPfwlBQ0j4mk6t8LMChaJtavcqFdlQ1JxrTlzxV56O8UwpeAbRT0j+Ox2C9KCf9paDK6tIu1lt4qhlmQJUVpqPVlmnZQcky7uJVFXXG7ZVT3+4Rp7VaGV/6cVDgmqJvXmGV6Xe9HTMR6Fj+b7Ic59RjFBNY2QfvCeTf//pI3Xy//mx5mNeIdHtI8Eb2qrt/ZHh+0XwAri1vhtyW1sWzKTA4D3FPdU7mmA4Ad00whgodf2kie6yL/+4PqPNNm/HoQGwR6+fy6ett0G4gvcTqrD7ks1kpHkT0ReLiXy5PQgxTMTvA4/ATfg68v/vESM3F0TLKRilaZJ9l2fa/g/UiC7hRM8kbAlar0rqsUK8rcT32CksxmVvjEQqppKt69E="
+
+    # GH_TOKEN for creating releases
+    # https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line
+    # authorize only "repo_deployment"
+    # travis encrypt GH_TOKEN="......"
+    - secure: "qG+4iP4R+SLTGz9/ulzSOz76pT1XCnOWAAuS1QlUm6Gn8WzDdAgMaHS4c0JcfxYs+gq+2LMNzDJx+HzHnQBgXmUCLars4LDOh3ov2+xOCcCWjE6BY5HyXDMp6gW0kMCL72JWSNLiI2Y0cy7uGd2Wgu1i0zI6gx9f6kLZYp0HJNEZ0PYEtokxKph9ijKXPwU8WwldvDJz4DzpOt8pRrL3uFJNIIZJjG50gIu0X/iDDyJayAKbCqAlYsjyAMeCZE3qpYtcoo8Di8CD98yhnKVKTPPk3ftvpR9MHtfnWNCbAZrJ+tZycTPKYp0MZZ642WZhpFuNHZHvg0vJO2kifcYP7NF1feyd6bNKm+jtcDWC7FrHAhqmxGad+et7Fvs7XuLYZdx6XJjFP1bumHxxRqUrt6TcE+4UoBVTGupa94V/RBO5xM3YGNzky8Aj8EyypQqscPPZplDNKQzxbGa3dSQu5G1IrHkzigiKrr7zsraPp+m4X3gWmwo4htxaGFgUzTINQ3FnG5kGe4g1R7F5JwbTcsAcPR+KRJvF0jT6t5Pntqjd0YBhfp0mYxfpZb+wRSdM6GXMPiZuqunqAQPNSnFX9CBAEw/OrVpndiN5QPETmSIsr32SBF6qilldVEy03qRKvni4JmXBiB5OypmxNMSL0YmZ9cOT3+oQ5g0RERQV2ZU="
