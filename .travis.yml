@@ -32,9 +32,6 @@ before_install:
   - ssh-add github_deploy_key.out
   - git submodule update --init --recursive
 
-before_install:
-  - sudo apt-get -qq -y update
-
 install:
   - pip install -r requirements.txt
 
