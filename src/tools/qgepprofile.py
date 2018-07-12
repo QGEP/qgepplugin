@@ -148,8 +148,8 @@ class QgepProfileEdgeElement(QgepProfileElement):
         """
         startoffset = min([p['offset'] for p in list(self.reachPoints.values())])
         endoffset = max([p['offset'] for p in list(self.reachPoints.values())])
-        fromlevel = max([p['level'] for p in list(self.reachPoints.values())])
-        tolevel = min([p['level'] for p in list(self.reachPoints.values())])
+        fromlevel = max([p['level'] for p in list(self.reachPoints.values()) if p['level'] is not None] or [0])
+        tolevel = min([p['level'] for p in list(self.reachPoints.values()) if p['level'] is not None] or [fromlevel])
 
         el = QgepProfileElement.asDict(self)
         el.update(
