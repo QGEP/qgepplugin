@@ -1,0 +1,21 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<plugins>
+    <pyqgis_plugin name="qgepplugin" version="1.0.0-15">
+        <description><![CDATA[Plugin to manage wastewater networks]]></description>
+        <version>1.0.0-15</version>
+        <qgis_minimum_version>3.2</qgis_minimum_version>
+        <homepage>http://github.com/QGEP/qgepplugin</homepage>
+        <file_name>qgepplugin-1.0.0-15.zip</file_name>
+        <icon>icons/qgepIcon.svg</icon>
+        <author_name>OpenGIS.ch</author_name>
+        <download_url>https://github.com/QGEP/qgepplugin/releases/download/1.0.0-15/qgepplugin-1.0.0-15.zip</download_url>
+        <uploaded_by>OpenGISch</uploaded_by>
+        <create_date>2017-11-19T20:57:31+01:00</create_date>
+	    <update_date>2018-07-13T15:36:19+0000</update_date>
+        <experimental>True</experimental>
+        <deprecated>False</deprecated>
+        <tracker>https://github.com/QGEP/qgepplugin/issues</tracker>
+        <repository>https://github.com/QGEP/qgepplugin</repository>
+        <tags>gep, abwasser, wastewater</tags>
+    </pyqgis_plugin>
+</plugins>
