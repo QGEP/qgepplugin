@@ -270,7 +270,7 @@ class QgepGraphManager(QObject):
             config.setIndividualLayerSettings(self.nodeLayer, ils)
             self.snapper.setConfig(config)
 
-    def snapPoint(self, event) -> QgsPointLocator.Match:
+    def snapPoint(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
         """
         Snap to a point on this network
         :param event: A QMouseEvent
@@ -318,6 +318,9 @@ class QgepGraphManager(QObject):
                 filtered_features = node_features.asDict()
 
             # Ask the user which point he wants to use
+            if not show_menu:
+                return QgsPointLocator.Match()
+
             actions = dict()
 
             menu = QMenu(self.iface.mapCanvas())
@@ -351,7 +354,7 @@ class QgepGraphManager(QObject):
 
         try:
             path = nx.algorithms.dijkstra_path(self.graph, start_point, end_point)
-            edges = [(u, v, self.graph[u][v]) for (u, v) in zip(path[0:], path[1:])]
+            edges = [(u, v, self.graph.edges(u, v)) for (u, v) in zip(path[0:], path[1:])]
 
             p = (path, edges)
 
@@ -378,8 +381,8 @@ class QgepGraphManager(QObject):
 
         # Returns pred, weight
         pred, _ = nx.bellman_ford_predecessor_and_distance(my_graph, node)
-        edges = [(v, u, my_graph[v][u]) for (u, v) in list(pred.items()) if v is not None]
-        nodes = [my_graph.node[n] for n in set(list(pred.keys()) + list(pred.values())) if n is not None]
+        edges = [(v[0], u, my_graph.edges[v[0], u]) for (u, v) in list(pred.items()) if v[0] is not None]
+        nodes = [my_graph.nodes[n] for n in set(list(pred.keys()) + [v[0] for v in list(pred.values())]) if n is not None]
 
         return nodes, edges
 

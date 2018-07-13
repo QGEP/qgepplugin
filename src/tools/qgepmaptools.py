@@ -43,7 +43,8 @@ from qgis.gui import (
     QgsMapTool,
     QgsRubberBand,
     QgsVertexMarker,
-    QgsMapCanvasSnappingUtils
+    QgsMapCanvasSnappingUtils,
+    QgisInterface
 )
 from qgis.PyQt.QtGui import QCursor, QColor
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QFormLayout, QCheckBox, QDialogButtonBox
@@ -67,7 +68,7 @@ class QgepMapTool(QgsMapTool):
     highlightedPoints = []
     logger = logging.getLogger(__name__)
 
-    def __init__(self, iface, button):
+    def __init__(self, iface: QgisInterface, button):
         QgsMapTool.__init__(self, iface.mapCanvas())
         self.canvas = iface.mapCanvas()
         self.cursor = QCursor(Qt.CrossCursor)
@@ -153,7 +154,7 @@ class QgepProfileMapTool(QgepMapTool):
         helper_line_color = settings.value("/QGEP/HelperLineColor", '#FFD900')
         highlight_color = settings.value("/QGEP/HighlightColor", '#40FF40')
 
-        self.networkAnalyzer = network_analyzer
+        self.network_analyzer = network_analyzer
 
         # Init rubberband to visualize current status
         self.rbHelperLine = QgsRubberBand(self.canvas)
@@ -198,7 +199,7 @@ class QgepProfileMapTool(QgepMapTool):
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
         # try:
-        (vertices, edges) = self.networkAnalyzer.shortestPath(start_point, end_point)
+        (vertices, edges) = self.network_analyzer.shortestPath(start_point, end_point)
         self.appendProfile(vertices, edges)
         #        except:
         #            pass
@@ -225,27 +226,25 @@ class QgepProfileMapTool(QgepMapTool):
             self.logger.debug('   *' + repr(e))
 
         # Fetch all the needed edges in one batch
-        edge_layer = self.networkAnalyzer.getReachLayer()
+        edge_layer = self.network_analyzer.getReachLayer()
         edge_ids = [edge['feature'] for p1, p2, edge in edges]
 
-        edge_features = self.networkAnalyzer.getFeaturesById(
-            edge_layer, edge_ids)
+        edge_features = self.network_analyzer.getFeaturesById(edge_layer, edge_ids)
 
         # We need some additional nodes, where we need to interpolate...
         interpolate_nodes_from = [edge_features.attrAsUnicode(feat, 'from_obj_id_interpolate')
                                   for feat in list(edge_features.asDict().values())]
         interpolate_nodes_to = [edge_features.attrAsUnicode(feat, 'to_obj_id_interpolate')
                                 for feat in list(edge_features.asDict().values())]
-        additional_ids = [self.networkAnalyzer.vertexIds[node]
+        additional_ids = [self.network_analyzer.vertexIds[node]
                           for node in interpolate_nodes_from]
-        additional_ids += [self.networkAnalyzer.vertexIds[node]
+        additional_ids += [self.network_analyzer.vertexIds[node]
                            for node in interpolate_nodes_to]
 
         # Now, fetch the nodes we need
-        node_layer = self.networkAnalyzer.getNodeLayer()
+        node_layer = self.network_analyzer.getNodeLayer()
         node_ids = vertices + additional_ids
-        node_features = self.networkAnalyzer.getFeaturesById(
-            node_layer, node_ids)
+        node_features = self.network_analyzer.getFeaturesById(node_layer, node_ids)
 
         if len(vertices) > 1:
             self.rubberBand.reset()
@@ -328,7 +327,7 @@ class QgepProfileMapTool(QgepMapTool):
 
         @param event: The mouse event with coordinates and all
         """
-        match = self.networkAnalyzer.snapPoint(event)
+        match = self.network_analyzer.snapPoint(event)
 
         if match.isValid():
             if self.selectedPathPoints:
@@ -369,9 +368,7 @@ class QgepTreeMapTool(QgepMapTool):
         :param point: The node from which the tracking should be started
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        upstream = False
-        if self.direction == "upstream":
-            upstream = True
+        upstream = self.direction == "upstream"
 
         self.rubberBand.reset()
 
@@ -382,7 +379,7 @@ class QgepTreeMapTool(QgepMapTool):
         # Fix for QGIS < 2.0
         filtered_polylines = [pl for pl in polylines if pl]
 
-        self.rubberBand.addGeometry(QgsGeometry.fromMultiPolyline(filtered_polylines),
+        self.rubberBand.addGeometry(QgsGeometry.fromMultiPolylineXY(filtered_polylines),
                                     self.networkAnalyzer.getNodeLayer())
 
         self.treeChanged.emit(nodes, edges)
@@ -394,7 +391,7 @@ class QgepTreeMapTool(QgepMapTool):
         Whenever the mouse is moved update the rubberband and the snapping.
         :param event: QMouseEvent with coordinates
         """
-        match = self.networkAnalyzer.snapPoint(event)
+        match = self.networkAnalyzer.snapPoint(event, False)
 
         for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)

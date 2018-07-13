@@ -35,7 +35,9 @@ from qgis.gui import (
     QgsRubberBand,
     QgsMessageBar,
     QgsMapCanvasSnappingUtils,
-    QgsVertexMarker
+    QgsVertexMarker,
+    QgsMapCanvas,
+    QgisInterface
 )
 from qgis.core import (
     QgsSnappingConfig,
@@ -53,11 +55,10 @@ from qgis.PyQt.QtWidgets import QApplication, QDialog, QGridLayout, QLabel, QLin
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from ..utils.qgeplayermanager import QgepLayerManager
 import math
-import sip
 
 
 class QgepRubberBand3D(QgsRubberBand):
-    def __init__(self, map_canvas, geometry_type):
+    def __init__(self, map_canvas: QgsMapCanvas, geometry_type):
         QgsRubberBand.__init__(self, map_canvas, geometry_type)
         self.points = []
 
@@ -81,7 +82,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
     """
     Base class for adding features
     """
-    def __init__(self, iface, layer):
+    def __init__(self, iface: QgisInterface, layer):
         QgsMapToolAdvancedDigitizing.__init__(self, iface.mapCanvas(), iface.cadDockWidget())
         self.iface = iface
         self.canvas = iface.mapCanvas()
@@ -182,7 +183,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     first_snapping_match = None
     last_snapping_match = None
 
-    def __init__(self, iface, layer):
+    def __init__(self, iface: QgisInterface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
         self.snapping_marker = None
         self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
@@ -220,7 +221,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.temp_rubberband.addPoint(QgsPointXY(point3d.x(), point3d.y()))
 
         if self.snapping_marker is not None:
-            sip.delete(self.snapping_marker)
+            self.iface.mapCanvas().scene().removeItem(self.snapping_marker)
             self.snapping_marker = None
 
     def mouse_move(self, event):
@@ -228,7 +229,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         # snap indicator
         if not match.isValid():
             if self.snapping_marker is not None:
-                sip.delete(self.snapping_marker)
+                self.iface.mapCanvas().scene().removeItem(self.snapping_marker)
                 self.snapping_marker = None
             return
 
@@ -292,7 +293,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         self.temp_rubberband.reset()
 
         if self.snapping_marker is not None:
-            sip.delete(self.snapping_marker)
+            self.iface.mapCanvas().scene().removeItem(self.snapping_marker)
             self.snapping_marker = None
 
         if len(self.rubberband.points) >= 2:
