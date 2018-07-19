@@ -8,9 +8,9 @@ version=1.0.0
 
 tags=gep, abwasser, wastewater
 
-homepage=https://github.com/qgep/QGEP
-tracker=https://github.com/qgep/QGEP/issues
-repository=http://hub.qgis.org/projects/gep
+homepage=https://github.com/qgep/qgepplugin
+tracker=https://github.com/qgep/qgepplugin/issues
+repository=http://github.com/QGEP/qgepplugin
 icon=icons/qgepIcon.svg
 
 experimental=True
