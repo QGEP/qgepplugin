@@ -1,6 +1,6 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <plugins>
-    <pyqgis_plugin name="QGEP" version="1.0.0">
+    <pyqgis_plugin name="QGEP" version="1.0.0" plugin_id="9999999999">
         <description><![CDATA[Plugin to manage wastewater networks]]></description>
         <version>1.0.0</version>
         <qgis_minimum_version>3.2</qgis_minimum_version>
