@@ -30,14 +30,13 @@ This module implements several map tools for QGEP
 from builtins import next
 from qgis.core import (
     Qgis,
-    QgsGeometry,
     QgsPointXY,
     QgsWkbTypes,
     QgsFeatureRequest,
     QgsTolerance,
-    QgsPointLocator,
     QgsFeature,
-    QgsSnappingConfig
+    QgsGeometry,
+    QgsPointLocator,
 )
 from qgis.gui import (
     QgsMapTool,
@@ -47,8 +46,9 @@ from qgis.gui import (
     QgisInterface
 )
 from qgis.PyQt.QtGui import QCursor, QColor
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QFormLayout, QCheckBox, QDialogButtonBox
+from qgis.PyQt.QtWidgets import QApplication, QDialog, QFormLayout, QCheckBox, QDialogButtonBox, QMenu, QAction
 from qgis.PyQt.QtCore import Qt, pyqtSignal, QSettings, QCoreApplication
+
 from .qgepprofile import (
     QgepProfile,
     QgepProfileNodeElement,
@@ -67,6 +67,7 @@ class QgepMapTool(QgsMapTool):
 
     highlightedPoints = []
     logger = logging.getLogger(__name__)
+    snapper = None
 
     def __init__(self, iface: QgisInterface, button):
         QgsMapTool.__init__(self, iface.mapCanvas())
@@ -132,6 +133,95 @@ class QgepMapTool(QgsMapTool):
             self.doubleClicked(event)
         except AttributeError:
             pass
+
+    # ===========================================================================
+    # Snapping
+    # ===========================================================================
+    def init_snapper(self):
+        """
+        Initialize snapper
+        """
+        if not self.snapper:
+            self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+            config = QgsSnappingConfig()
+            config.setMode(QgsSnappingConfig.AdvancedConfiguration)
+            config.setEnabled(True)
+            ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
+                                                            16, QgsTolerance.Pixels)
+            config.setIndividualLayerSettings(self.nodeLayer, ils)
+            self.snapper.setConfig(config)
+
+    def snap_point(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
+        """
+        Snap to a point on this network
+        :param event: A QMouseEvent
+        :param show_menu: determines if a menu shall be shown on a map if several matches are available
+        """
+        clicked_point = event.pos()
+
+        if not self.snapper:
+            self.init_snapper()
+
+        class CounterMatchFilter(QgsPointLocator.MatchFilter):
+            def __init__(self):
+                super().__init__()
+                self.matches = list()
+
+            def acceptMatch(self, match):
+                self.matches.append(match)
+                return True
+
+        match_filter = CounterMatchFilter()
+        match = self.snapper.snapToMap(clicked_point, match_filter)
+
+        if not match.isValid() or len(match_filter.matches) == 1:
+            return match
+        elif len(match_filter.matches) > 1:
+            point_ids = [match.featureId() for match in match_filter.matches]
+            node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
+
+            # Filter wastewater nodes
+            filtered_features = {
+                fid: node_features.featureById(fid)
+                for fid in node_features.asDict()
+                if node_features.attrAsUnicode(node_features.featureById(fid), 'type') == 'wastewater_node'
+            }
+
+            # Only one wastewater node left: return this
+            if len(filtered_features) == 1:
+                matches = (match for match
+                           in match_filter.matches
+                           if match.featureId() == next(iter(filtered_features.keys())))
+                return next(matches)
+
+            # Still not sure which point to take?
+            # Are there no wastewater nodes filtered? Let the user choose from the reach points
+            if not filtered_features:
+                filtered_features = node_features.asDict()
+
+            # Ask the user which point he wants to use
+            if not show_menu:
+                return QgsPointLocator.Match()
+
+            actions = dict()
+
+            menu = QMenu(self.iface.mapCanvas())
+
+            for _, feature in list(filtered_features.items()):
+                try:
+                    title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
+                except TypeError:
+                    title = " (" + feature.attribute('obj_id') + ")"
+                action = QAction(title, menu)
+                actions[action] = match
+                menu.addAction(action)
+
+            clicked_action = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))
+
+            if clicked_action is not None:
+                return actions[clicked_action]
+
+            return QgsPointLocator.Match()
 
 
 class QgepProfileMapTool(QgepMapTool):
@@ -327,7 +417,7 @@ class QgepProfileMapTool(QgepMapTool):
 
         @param event: The mouse event with coordinates and all
         """
-        match = self.network_analyzer.snapPoint(event)
+        match = self.snap_point(event)
 
         if match.isValid():
             if self.selectedPathPoints:
@@ -362,17 +452,17 @@ class QgepTreeMapTool(QgepMapTool):
         """
         self.direction = direction
 
-    def getTree(self, point: QgsPointXY):
+    def getTree(self, node_id: str):
         """
         Does the work. Tracks the graph up- or downstream.
-        :param point: The node from which the tracking should be started
+        :param node_id: The node from which the tracking should be started
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
         upstream = self.direction == "upstream"
 
         self.rubberBand.reset()
 
-        nodes, edges = self.networkAnalyzer.getTree(point, upstream)
+        nodes, edges = self.networkAnalyzer.getTree(node_id, upstream)
         polylines = self.networkAnalyzer.getEdgeGeometry(
             [edge[2]['feature'] for edge in edges])
 
@@ -391,7 +481,7 @@ class QgepTreeMapTool(QgepMapTool):
         Whenever the mouse is moved update the rubberband and the snapping.
         :param event: QMouseEvent with coordinates
         """
-        match = self.networkAnalyzer.snapPoint(event, False)
+        match = self.snap_point(event, False)
 
         for marker in self.highlightedPoints:
             self.canvas.scene().removeItem(marker)
@@ -419,7 +509,7 @@ class QgepTreeMapTool(QgepMapTool):
         Snaps to the network graph
         :param event: QMouseEvent
         """
-        match = self.networkAnalyzer.snapPoint(event)
+        match = self.snap_point(event)
 
         if match.isValid():
             self.getTree(match.featureId())

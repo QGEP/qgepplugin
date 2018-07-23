@@ -228,13 +228,12 @@ class QgepPlugin(object):
         self.toolbarButtons.append(self.wizardAction)
         self.toolbarButtons.append(self.refreshNetworkTopologyAction)
 
-        self.network_layer_notifier.layersAvailable.connect(
-            self.onLayersAvailable)
-        self.network_layer_notifier.layersUnavailable.connect(
-            self.onLayersUnavailable)
+        self.network_layer_notifier.layersAvailable.connect(self.onLayersAvailable)
+        self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
 
         # Init the object maintaining the network
-        self.network_analyzer = QgepGraphManager(self.iface)
+        self.network_analyzer = QgepGraphManager()
+        self.network_analyzer.message_emitted.connect(self.iface.messageBar().pushMessage)
         # Create the map tool for profile selection
         self.profile_tool = QgepProfileMapTool(self.iface, self.profileAction, self.network_analyzer)
         self.profile_tool.profileChanged.connect(self.onProfileChanged)

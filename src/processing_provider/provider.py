@@ -21,6 +21,7 @@
 
 from qgis.core import QgsProcessingProvider
 from .snap_reach import SnapReachAlgorithm
+from .flow_times import FlowTimesAlgorithm
 
 from PyQt5.QtGui import QIcon
 import os
@@ -42,13 +43,12 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm()]
-
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm()]
         return algs
 
     def id(self):

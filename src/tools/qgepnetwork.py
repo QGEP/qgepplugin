@@ -36,24 +36,20 @@ from builtins import object
 from collections import defaultdict
 import time
 import re
+from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
     Qgis,
     QgsMessageLog,
-    QgsTolerance,
-    QgsSnappingConfig,
     QgsGeometry,
     QgsDataSourceUri,
-    QgsPointLocator,
     NULL
 )
 from qgis.gui import (
-    QgsMessageBar,
-    QgsMapCanvasSnappingUtils
+    QgsMessageBar
 )
 from qgis.PyQt.QtCore import QObject
-from qgis.PyQt.QtWidgets import QMenu, QAction
 import networkx as nx
 
 
@@ -72,10 +68,10 @@ class QgepGraphManager(QObject):
     # Logs performance of graph creation
     timings = []
 
-    def __init__(self, iface):
+    message_emitted = pyqtSignal(str, str, Qgis.MessageLevel)
+
+    def __init__(self):
         QObject.__init__(self)
-        self.iface = iface
-        self.snapper = None
 
     def setReachLayer(self, reach_layer):
         """
@@ -178,26 +174,23 @@ class QgepGraphManager(QObject):
         db.setConnectOptions(str_connect_option)
 
         if not db.open():
-            self.iface.messageBar().pushMessage(self.tr("Warning"), db.lastError().text(),
-                                                level=Qgis.Critical)
+            self.message_emitted.emit(self.tr("Warning"), db.lastError().text(), Qgis.Critical)
 
         query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
-            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=Qgis.Critical)
+            self.message_emitted.emit(self.tr("Warning"), str_result, Qgis.Critical)
         else:
-            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_segment successfully updated",
-                                                level=Qgis.Success, duration=2)
+            self.message_emitted.emit(self.tr("Success"), "vw_network_segment successfully updated", Qgis.Success)
 
         query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
-            self.iface.messageBar().pushMessage(self.tr("Warning"), str_result, level=QgsMessageBar.CRITICAL)
+            self.message_emitted.emit(self.tr("Warning"), str_result, QgsMessageBar.CRITICAL)
         else:
-            self.iface.messageBar().pushMessage(self.tr("Success"), "vw_network_node successfully updated",
-                                                level=Qgis.Success, duration=2)
+            self.message_emitted.emit(self.tr("Success"), "vw_network_node successfully updated", Qgis.Success)
         # recreate networkx graph
         self.graph.clear()
         self.createGraph()
@@ -256,91 +249,6 @@ class QgepGraphManager(QObject):
         """
         return self.reachLayerId
 
-    def initSnapper(self):
-        """
-        Initialize snapper
-        """
-        if not self.snapper:
-            self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
-            config = QgsSnappingConfig()
-            config.setMode(QgsSnappingConfig.AdvancedConfiguration)
-            config.setEnabled(True)
-            ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
-                                                            16, QgsTolerance.Pixels)
-            config.setIndividualLayerSettings(self.nodeLayer, ils)
-            self.snapper.setConfig(config)
-
-    def snapPoint(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
-        """
-        Snap to a point on this network
-        :param event: A QMouseEvent
-        """
-        clicked_point = event.pos()
-
-        if not self.snapper:
-            self.initSnapper()
-
-        class CounterMatchFilter(QgsPointLocator.MatchFilter):
-            def __init__(self):
-                super().__init__()
-                self.matches = list()
-
-            def acceptMatch(self, match):
-                self.matches.append(match)
-                return True
-
-        match_filter = CounterMatchFilter()
-        match = self.snapper.snapToMap(clicked_point, match_filter)
-
-        if not match.isValid() or len(match_filter.matches) == 1:
-            return match
-        elif len(match_filter.matches) > 1:
-            point_ids = [match.featureId() for match in match_filter.matches]
-            node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
-
-            # Filter wastewater nodes
-            filtered_features = {
-                fid: node_features.featureById(fid)
-                for fid in node_features.asDict()
-                if node_features.attrAsUnicode(node_features.featureById(fid), 'type') == 'wastewater_node'
-            }
-
-            # Only one wastewater node left: return this
-            if len(filtered_features) == 1:
-                matches = (match for match
-                           in match_filter.matches
-                           if match.featureId() == next(iter(filtered_features.keys())))
-                return next(matches)
-
-            # Still not sure which point to take?
-            # Are there no wastewater nodes filtered? Let the user choose from the reach points
-            if not filtered_features:
-                filtered_features = node_features.asDict()
-
-            # Ask the user which point he wants to use
-            if not show_menu:
-                return QgsPointLocator.Match()
-
-            actions = dict()
-
-            menu = QMenu(self.iface.mapCanvas())
-
-            for _, feature in list(filtered_features.items()):
-                try:
-                    title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
-                except TypeError:
-                    title = " (" + feature.attribute('obj_id') + ")"
-                action = QAction(title, menu)
-                actions[action] = match
-                menu.addAction(action)
-
-            clicked_action = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))
-
-            if clicked_action is not None:
-                return actions[clicked_action]
-
-            return QgsPointLocator.Match()
-
     def shortestPath(self, start_point, end_point):
         """
         Finds the shortest path from the start point
@@ -364,17 +272,17 @@ class QgepGraphManager(QObject):
 
         return p
 
-    def getTree(self, node, reverse=False):
+    def getTree(self, node, upstream=False):
         """
         Get
         :param node:    A start node
-        :param reverse: Should the graph be reversed (upstream search)
+        :param upstream: Should the graph be reversed (upstream search)
         :return:        A list of edges
         """
         if self.dirty:
             self.createGraph()
 
-        if reverse:
+        if upstream:
             my_graph = self.graph.reverse()
         else:
             my_graph = self.graph
