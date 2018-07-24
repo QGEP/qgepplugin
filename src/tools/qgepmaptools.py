@@ -463,15 +463,15 @@ class QgepTreeMapTool(QgepMapTool):
 
         self.rubberBand.reset()
 
-        nodes, edges = self.networkAnalyzer.getTree(node_id, upstream)
-        polylines = self.networkAnalyzer.getEdgeGeometry(
+        nodes, edges = self.network_analyzer.getTree(node_id, upstream)
+        polylines = self.network_analyzer.getEdgeGeometry(
             [edge[2]['feature'] for edge in edges])
 
         # Fix for QGIS < 2.0
         filtered_polylines = [pl for pl in polylines if pl]
 
         self.rubberBand.addGeometry(QgsGeometry.fromMultiPolylineXY(filtered_polylines),
-                                    self.networkAnalyzer.getNodeLayer())
+                                    self.network_analyzer.getNodeLayer())
 
         self.treeChanged.emit(nodes, edges)
 

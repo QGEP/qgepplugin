@@ -106,7 +106,7 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
                                                       type=QgsProcessingParameterField.Numeric))
 
         self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT,
-                                                            self.tr('Joined layer')))
+                                                            self.tr('Flow times')))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
