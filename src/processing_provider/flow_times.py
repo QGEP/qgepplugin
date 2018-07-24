@@ -111,37 +111,36 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
 
+        feedback.setProgress(0)
+        na = qgis_utils.plugins["qgepplugin"].network_analyzer
+
+        # init params
         reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
         flow_layer = self.parameterAsVectorLayer(parameters, self.FLOWTIMES_LAYER, context)
-        fk_reach = self.parameterAsFields(parameters, self.FK_REACH_FIELD, context)
-        flow_times = self.parameterAsFields(parameters, self.FLOWTIMES_FIELD, context)
+        fk_reach_field = self.parameterAsFields(parameters, self.FK_REACH_FIELD, context)[0]
+        flow_time_field = self.parameterAsFields(parameters, self.FLOWTIMES_FIELD, context)[0]
 
+        # create feature sink
         fields = QgsFields()
         fields.append(QgsField('flow_time', QVariant.Double))
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context, fields,
                                                QgsWkbTypes.LineString, reach_layer.sourceCrs())
-
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
+        # get selected reach
         iterator = reach_layer.getSelectedFeatures()
         feature_count = reach_layer.selectedFeatureCount()
-
         if feature_count != 1:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.REACH_LAYER))
+        reach_feature = QgsFeature()
+        iterator.nextFeature(reach_feature)
+        assert reach_feature.isValid()
+        qgep_reach_obj_id = reach_feature.attribute('obj_id')
 
-        qgep_reach_feature = QgsFeature()
-        iterator.nextFeature(qgep_reach_feature)
-        assert qgep_reach_feature.isValid()
-        qgep_reach_obj_id = qgep_reach_feature.attribute('obj_id')
-
-        na = qgis_utils.plugins["qgepplugin"].network_analyzer
-
-        reach_features = na.getFeaturesByAttr(na.getReachLayer(), 'obj_id', [qgep_reach_obj_id]).asDict()
+        # get top node
+        reach_features = na.getFeaturesByAttr(na.getEdgeLayer(), 'obj_id', [qgep_reach_obj_id]).asDict()
         assert len(reach_features) > 0
-
-        feedback.setProgress(50)
-
         from_pos = 1
         top_node = None
         for fid, reach_feature in reach_features.items():
@@ -149,35 +148,50 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
                 top_node = reach_feature.attribute('from_obj_id_interpolate')
                 from_pos = reach_feature.attribute('from_pos')
         assert top_node is not None
-
         nodes = na.getFeaturesByAttr(na.getNodeLayer(), 'obj_id', [top_node]).asDict()
         assert len(nodes) == 1
-
         top_node_id = next(iter(nodes.values())).id()
 
+        # create graph
         _, edges = na.getTree(top_node_id)
+        feedback.setProgress(50)
+        cache_edge_features = na.getFeaturesById(na.getEdgeLayer(), [edge[2]['feature'] for edge in edges]).asDict()
 
-        cache_edge_features = na.getFeaturesById(na.getReachLayer(), [edge[2]['feature'] for edge in edges]).asDict()
-
-        edge = edges[0]
-        i = 0
+        # join and accumulate flow times
+        i = -1
+        flow_time = 0.0
         while True:
+            i += 1
+            feedback.setProgress(50 + i / len(edges) * 50)
             if i >= len(edges):
                 break
+
             edge = edges[i]
-            print(cache_edge_features.keys())
-            print(edge)
             edge_feature = cache_edge_features[edge[2]['feature']]
-            # if top_pos != 1 => merge
+            # TODO: if top_pos != 1 => merge
+            if edge_feature.attribute('type') != 'reach':
+                continue
+            rate = edge_feature.attribute('to_pos')-edge_feature.attribute('from_pos')
+            assert 0 < rate <= 1
+
+            expression = QgsExpression("{fk_reach} = '{obj_id}'"
+                                       .format(fk_reach=fk_reach_field, obj_id=edge_feature['obj_id']))
+            print(expression.expression())
+            request = QgsFeatureRequest(expression)
+            flow_time_feature = next(flow_layer.getFeatures(request))
+
+            if not flow_time_feature.isValid():
+                break
+
+            flow_time += rate * flow_time_feature.attribute(flow_time_field)
+
             sf = QgsFeature()
-            sf.initAttributes(fields.count())
+            sf.setFields(fields)
+            sf.setAttribute('flow_time', flow_time)
             sf.setGeometry(edge_feature.geometry())
             sink.addFeature(sf, QgsFeatureSink.FastInsert)
-            feedback.setProgress(50+i/len(edges)*50)
-            i += 1
 
 
-        polylines = na.getEdgeGeometry([edge[2]['feature'] for edge in edges])
 
         #f.setAttributes(attrs)
         #sink.addFeature(f, QgsFeatureSink.FastInsert)

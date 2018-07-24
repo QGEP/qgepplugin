@@ -56,6 +56,7 @@ from .qgepprofile import (
     QgepProfileReachElement,
     QgepProfileSpecialStructureElement
 )
+from .qgepnetwork import QgepGraphManager
 from ..utils.qgeplayermanager import QgepLayerManager
 
 import logging
@@ -70,12 +71,13 @@ class QgepMapTool(QgsMapTool):
     logger = logging.getLogger(__name__)
     snapper = None
 
-    def __init__(self, iface: QgisInterface, button):
+    def __init__(self, iface: QgisInterface, button, network_analyzer: QgepGraphManager = None):
         QgsMapTool.__init__(self, iface.mapCanvas())
         self.canvas = iface.mapCanvas()
         self.cursor = QCursor(Qt.CrossCursor)
         self.button = button
         self.msgBar = iface.messageBar()
+        self.network_analyzer = network_analyzer
 
         settings = QSettings()
         current_profile_color = settings.value(
@@ -143,14 +145,14 @@ class QgepMapTool(QgsMapTool):
         Initialize snapper
         """
         if not self.snapper:
-            node_layer = self.network_analyzer.getNodeLayer()
+            self.node_layer = self.network_analyzer.getNodeLayer()
             self.snapper = QgsMapCanvasSnappingUtils(self.canvas)
             config = QgsSnappingConfig()
             config.setMode(QgsSnappingConfig.AdvancedConfiguration)
             config.setEnabled(True)
             ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
                                                             16, QgsTolerance.Pixels)
-            config.setIndividualLayerSettings(node_layer, ils)
+            config.setIndividualLayerSettings(self.node_layer, ils)
             self.snapper.setConfig(config)
 
     def snap_point(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
@@ -180,7 +182,7 @@ class QgepMapTool(QgsMapTool):
             return match
         elif len(match_filter.matches) > 1:
             point_ids = [match.featureId() for match in match_filter.matches]
-            node_features = self.getFeaturesById(self.getNodeLayer(), point_ids)
+            node_features = self.network_analyzer.getFeaturesById(self.network_analyzer.getNodeLayer(), point_ids)
 
             # Filter wastewater nodes
             filtered_features = {
@@ -245,8 +247,6 @@ class QgepProfileMapTool(QgepMapTool):
 
         helper_line_color = settings.value("/QGEP/HelperLineColor", '#FFD900')
         highlight_color = settings.value("/QGEP/HighlightColor", '#40FF40')
-
-        self.network_analyzer = network_analyzer
 
         # Init rubberband to visualize current status
         self.rbHelperLine = QgsRubberBand(self.canvas)
@@ -318,7 +318,7 @@ class QgepProfileMapTool(QgepMapTool):
             self.logger.debug('   *' + repr(e))
 
         # Fetch all the needed edges in one batch
-        edge_layer = self.network_analyzer.getReachLayer()
+        edge_layer = self.network_analyzer.getEdgeLayer()
         edge_ids = [edge['feature'] for p1, p2, edge in edges]
 
         edge_features = self.network_analyzer.getFeaturesById(edge_layer, edge_ids)
@@ -444,7 +444,6 @@ class QgepTreeMapTool(QgepMapTool):
         QgepMapTool.__init__(self, canvas, button, network_analyzer)
 
         self.direction = "downstream"
-        self.networkAnalyzer = network_analyzer
         self.saveTool = None
 
     def setDirection(self, direction):

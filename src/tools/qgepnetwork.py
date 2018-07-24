@@ -57,8 +57,8 @@ class QgepGraphManager(QObject):
     """
     Manages a graph
     """
-    reachLayer = None
-    reachLayerId = -1
+    edge_layer = None
+    edge_layer_id = -1
     nodeLayer = None
     nodeLayerId = -1
     dirty = True
@@ -77,15 +77,15 @@ class QgepGraphManager(QObject):
         """
         Set the reach layer (edges)
         """
-        self.reachLayer = reach_layer
+        self.edge_layer = reach_layer
         self.dirty = True
 
         if reach_layer:
-            self.reachLayerId = reach_layer.id()
+            self.edge_layer_id = reach_layer.id()
         else:
-            self.reachLayerId = 0
+            self.edge_layer_id = 0
 
-        if self.nodeLayer and self.reachLayer:
+        if self.nodeLayer and self.edge_layer:
             self.createGraph()
 
     def setNodeLayer(self, node_layer):
@@ -102,7 +102,7 @@ class QgepGraphManager(QObject):
         else:
             self.nodeLayerId = 0
 
-        if self.nodeLayer and self.reachLayer:
+        if self.nodeLayer and self.edge_layer:
             self.createGraph()
 
     def _addVertices(self):
@@ -136,7 +136,7 @@ class QgepGraphManager(QObject):
         Initializes the graph with the edges
         """
         # Add all edges (reach)
-        reach_provider = self.reachLayer.dataProvider()
+        reach_provider = self.edge_layer.dataProvider()
 
         features = reach_provider.getFeatures()
 
@@ -230,12 +230,12 @@ class QgepGraphManager(QObject):
         """
         return self.nodeLayer
 
-    def getReachLayer(self):
+    def getEdgeLayer(self):
         """
         Getter for the reach layer
         :return:
         """
-        return self.reachLayer
+        return self.edge_layer
 
     def getNodeLayerId(self):
         """
@@ -247,7 +247,7 @@ class QgepGraphManager(QObject):
         """
         Getter for the reach layer's id
         """
-        return self.reachLayerId
+        return self.edge_layer_id
 
     def shortestPath(self, start_point, end_point):
         """
@@ -300,7 +300,7 @@ class QgepGraphManager(QObject):
         :param edges:  A list of edges
         :return:       A list of polylines
         """
-        cache = self.getFeaturesById(self.reachLayer, edges)
+        cache = self.getFeaturesById(self.edge_layer, edges)
         polylines = [feat.geometry().asPolyline() for feat in list(cache.asDict().values())]
         return polylines
 
@@ -326,7 +326,7 @@ class QgepGraphManager(QObject):
         Get some features by an attribute value
         """
         feat_cache = QgepFeatureCache(layer)
-        data_provider = layer.dataProvider()
+        data_provider = feat_cache.layer.dataProvider()
 
         # Batch query and filter locally
         features = data_provider.getFeatures()
