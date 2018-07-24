@@ -272,6 +272,8 @@ class QgepPlugin(object):
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
 
+        QgsApplication.processingRegistry().removeProvider(self.processing_provider)
+
     def onLayersAvailable(self, layers):
         for b in self.toolbarButtons:
             b.setEnabled(True)

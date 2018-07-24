@@ -82,8 +82,8 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         """Here is where the processing itself takes place."""
 
-        reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER)
-        wastewater_node_layer = self.parameterAsVectorLayer(parameters, self.WASTEWATER_NODE_LAYER)
+        reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
+        wastewater_node_layer = self.parameterAsVectorLayer(parameters, self.WASTEWATER_NODE_LAYER, context)
         distance = self.parameterAsDouble(self.DISTANCE)
         only_selected = self.parameterAsBoolean(self.ONLY_SELECTED)
 
@@ -91,7 +91,7 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
 
         feature_count = 0
         if only_selected:
-            iterator = reach_layer.selectedFeaturesIterator()
+            iterator = reach_layer.getSelectedFeatures()
             feature_count = reach_layer.selectedFeatureCount()
         else:
             iterator = reach_layer.getFeatures()

@@ -23,20 +23,26 @@ import qgis.utils as qgis_utils
 
 from qgis.core import (
     QgsExpression,
+    QgsFeature,
     QgsFeatureRequest,
+    QgsFeatureSink,
+    QgsField,
+    QgsFields,
     QgsGeometry,
     QgsProcessing,
     QgsProcessingAlgorithm,
+    QgsProcessingContext,
     QgsProcessingException,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
+    QgsProcessingFeedback,
+    QgsProcessingParameterFeatureSink,
     QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterField
+    QgsProcessingParameterField,
+    QgsWkbTypes
 )
 
 from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QVariant
 
 __author__ = 'Denis Rouzaud'
 __date__ = '2018-07-19'
@@ -56,6 +62,7 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
     FLOWTIMES_LAYER= 'FLOWTIMES_LAYER'
     FK_REACH_FIELD = 'FK_REACH_FIELD'
     FLOWTIMES_FIELD = 'FLOWTIMES_FIELD'
+    OUTPUT = "OUTPUT"
 
     def group(self):
         return 'QGEP'
@@ -64,16 +71,19 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
         return 'qgep'
 
     def name(self):
-        return self.tr('Flow times downstream')
+        return 'qgep_flow_times'
 
     def displayName(self):
-        return self.name()
+        return self.tr('Flow times downstream')
 
     def tr(self, text):
         return QCoreApplication.translate('flow_times', text)
 
     def flags(self):
         return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
+
+    def createInstance(self):
+        return FlowTimesAlgorithm()
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
@@ -85,7 +95,8 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=description,
                                                             types=[QgsProcessing.TypeVectorLine]))
         description = self.tr('Flow times layer')
-        self.addParameter(QgsProcessingParameterVectorLayer(self.FLOWTIMES_LAYER, description=description))
+        self.addParameter(QgsProcessingParameterVectorLayer(self.FLOWTIMES_LAYER, description=description,
+                                                            types=[QgsProcessing.TypeVector]))
         description = self.tr('Reach id field')
         self.addParameter(QgsProcessingParameterField(self.FK_REACH_FIELD, description=description,
                                                       parentLayerParameterName=self.FLOWTIMES_LAYER))
@@ -94,136 +105,82 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
                                                       parentLayerParameterName=self.FLOWTIMES_LAYER,
                                                       type=QgsProcessingParameterField.Numeric))
 
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT,
+                                                            self.tr('Joined layer')))
 
-    def processAlgorithm(self, parameters, context, feedback):
+    def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
 
-        reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER)
-        flow_layer = self.parameterAsVectorLayer(parameters, self.FLOWTIMES_LAYER)
+        reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
+        flow_layer = self.parameterAsVectorLayer(parameters, self.FLOWTIMES_LAYER, context)
         fk_reach = self.parameterAsFields(parameters, self.FK_REACH_FIELD, context)
         flow_times = self.parameterAsFields(parameters, self.FLOWTIMES_FIELD, context)
 
-        iterator = reach_layer.selectedFeaturesIterator()
+        fields = QgsFields()
+        fields.append(QgsField('flow_time', QVariant.Double))
+        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context, fields,
+                                               QgsWkbTypes.LineString, reach_layer.sourceCrs())
+
+        if sink is None:
+            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+
+        iterator = reach_layer.getSelectedFeatures()
         feature_count = reach_layer.selectedFeatureCount()
 
         if feature_count != 1:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.REACH_LAYER))
 
-        reach_feature = iterator.next()
-        assert reach_feature.isValid()
+        qgep_reach_feature = QgsFeature()
+        iterator.nextFeature(qgep_reach_feature)
+        assert qgep_reach_feature.isValid()
+        qgep_reach_obj_id = qgep_reach_feature.attribute('obj_id')
 
-        na = qgis_utils.plugins["qgep"].network_analyzer
+        na = qgis_utils.plugins["qgepplugin"].network_analyzer
 
-        top_point = reach_feature.geometry().asPolygonXY()[0]
+        reach_features = na.getFeaturesByAttr(na.getReachLayer(), 'obj_id', [qgep_reach_obj_id]).asDict()
+        assert len(reach_features) > 0
 
-        match = na.snapToMap(top_point)
+        feedback.setProgress(50)
 
-        if not match.isValid():
-            raise QgsProcessingException(self.tr('Could not determine starting node'))
+        from_pos = 1
+        top_node = None
+        for fid, reach_feature in reach_features.items():
+            if from_pos > reach_feature.attribute('from_pos'):
+                top_node = reach_feature.attribute('from_obj_id_interpolate')
+                from_pos = reach_feature.attribute('from_pos')
+        assert top_node is not None
 
-        nodes, edges = na.getTree(top_point)
+        nodes = na.getFeaturesByAttr(na.getNodeLayer(), 'obj_id', [top_node]).asDict()
+        assert len(nodes) == 1
+
+        top_node_id = next(iter(nodes.values())).id()
+
+        _, edges = na.getTree(top_node_id)
+
+        cache_edge_features = na.getFeaturesById(na.getReachLayer(), [edge[2]['feature'] for edge in edges]).asDict()
+
+        edge = edges[0]
+        i = 0
+        while True:
+            if i >= len(edges):
+                break
+            edge = edges[i]
+            print(cache_edge_features.keys())
+            print(edge)
+            edge_feature = cache_edge_features[edge[2]['feature']]
+            # if top_pos != 1 => merge
+            sf = QgsFeature()
+            sf.initAttributes(fields.count())
+            sf.setGeometry(edge_feature.geometry())
+            sink.addFeature(sf, QgsFeatureSink.FastInsert)
+            feedback.setProgress(50+i/len(edges)*50)
+            i += 1
+
+
         polylines = na.getEdgeGeometry([edge[2]['feature'] for edge in edges])
 
-        return
+        #f.setAttributes(attrs)
+        #sink.addFeature(f, QgsFeatureSink.FastInsert)
+        #feedback.setProgress(int(current * total))
 
-        reach_layer.startEditing()
-
-        feature_count = 0
-        if only_selected:
-            iterator = reach_layer.selectedFeaturesIterator()
-            feature_count = reach_layer.selectedFeatureCount()
-        else:
-            iterator = reach_layer.getFeatures()
-            feature_count = reach_layer.featureCount()
-
-        # Loop through relevant reaches
-        reach_layer.beginEditCommand('Snap reaches to points')
-        try:
-            reaches = list()
-            current_feature = 0
-            for reach in iterator:
-                reaches.append(reach)
-                # Batch processing: process blocks of 2000 reaches
-                if len(reaches) == 2000:
-                    self.processFeatures(
-                        reaches, reach_layer, wastewater_node_layer, distance)
-                    reaches = list()
-
-                current_feature += 1
-                feedback.setProgress(current_feature * 100.0 / feature_count)
-
-            self.processFeatures(reaches, reach_layer,
-                                 wastewater_node_layer, distance)
-        except:  # NOQA
-            reach_layer.destroyEditCommand()
-            raise
-        reach_layer.endEditCommand()
-        feedback.setProgress(100)
-
-    def processFeatures(self, reaches, reach_layer, wastewater_node_layer, distance_threshold):
-
-        return
-
-        ids = list()
-        to_ids = list()
-        # Gather ids of connected networkelements
-        # to_ids are also gathered separately, because they can be either
-        # reaches or nodes
-        for reach in reaches:
-            if reach['rp_from_fk_wastewater_networkelement']:
-                ids.append(reach['rp_from_fk_wastewater_networkelement'])
-
-            if reach['rp_to_fk_wastewater_networkelement']:
-                ids.append(reach['rp_to_fk_wastewater_networkelement'])
-                to_ids.append(reach['rp_to_fk_wastewater_networkelement'])
-
-        # Get all nodes on which to snap
-        quoted_ids = [QgsExpression.quotedValue(objid) for objid in ids]
-        node_request = QgsFeatureRequest()
-        filter_expression = '"obj_id" IN ({ids})'.format(
-            ids=','.join(quoted_ids))
-        node_request.setFilterExpression(filter_expression)
-        node_request.setSubsetOfAttributes([])
-
-        nodes = dict()
-        for node in wastewater_node_layer.getFeatures(node_request):
-            nodes[node['obj_id']] = node
-
-        # Get all reaches on which to snap
-        quoted_to_ids = [QgsExpression.quotedValue(objid) for objid in to_ids]
-        reach_request = QgsFeatureRequest()
-        filter_expression = '"obj_id" IN ({ids})'.format(
-            ids=','.join(quoted_to_ids))
-        reach_request.setFilterExpression(filter_expression)
-        reach_request.setSubsetOfAttributes([])
-
-        target_reaches = dict()
-        for target_reach in reach_layer.getFeatures(reach_request):
-            target_reaches[target_reach['obj_id']] = target_reach
-
-        for reach in reaches:
-            reach_geometry = QgsGeometry(reach.geometry())
-            from_id = reach['rp_from_fk_wastewater_networkelement']
-            if from_id in list(nodes.keys()):
-                if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
-                    reach_geometry.moveVertex(
-                        nodes[from_id].geometry().geometry(), 0)
-
-            to_id = reach['rp_to_fk_wastewater_networkelement']
-            if to_id in list(nodes.keys()):
-                last_vertex = reach_geometry.geometry().nCoordinates() - 1
-                if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[to_id].geometry().asPoint(), last_vertex) < distance_threshold:
-                    reach_geometry.moveVertex(
-                        nodes[to_id].geometry().geometry(), last_vertex)
-
-            if to_id in list(target_reaches.keys()):
-                last_vertex = reach_geometry.geometry().nCoordinates() - 1
-                target_reach = target_reaches[to_id]
-                distance, point, after_vertex = target_reach.geometry(
-                ).closestSegmentWithContext(reach_geometry.vertexAt(last_vertex))
-                if distance_threshold == 0 or distance < distance_threshold:
-                    reach_geometry.moveVertex(
-                        point.x(), point.y(), last_vertex)
-
-            reach.setGeometry(reach_geometry)
-            reach_layer.updateFeature(reach)
+        return {self.OUTPUT: dest_id}

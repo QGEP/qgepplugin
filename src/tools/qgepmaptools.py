@@ -37,6 +37,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeometry,
     QgsPointLocator,
+    QgsSnappingConfig
 )
 from qgis.gui import (
     QgsMapTool,
@@ -142,13 +143,14 @@ class QgepMapTool(QgsMapTool):
         Initialize snapper
         """
         if not self.snapper:
-            self.snapper = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
+            node_layer = self.network_analyzer.getNodeLayer()
+            self.snapper = QgsMapCanvasSnappingUtils(self.canvas)
             config = QgsSnappingConfig()
             config.setMode(QgsSnappingConfig.AdvancedConfiguration)
             config.setEnabled(True)
             ils = QgsSnappingConfig.IndividualLayerSettings(True, QgsSnappingConfig.VertexAndSegment,
                                                             16, QgsTolerance.Pixels)
-            config.setIndividualLayerSettings(self.nodeLayer, ils)
+            config.setIndividualLayerSettings(node_layer, ils)
             self.snapper.setConfig(config)
 
     def snap_point(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
@@ -205,7 +207,7 @@ class QgepMapTool(QgsMapTool):
 
             actions = dict()
 
-            menu = QMenu(self.iface.mapCanvas())
+            menu = QMenu(self.canvas)
 
             for _, feature in list(filtered_features.items()):
                 try:
@@ -216,7 +218,7 @@ class QgepMapTool(QgsMapTool):
                 actions[action] = match
                 menu.addAction(action)
 
-            clicked_action = menu.exec_(self.iface.mapCanvas().mapToGlobal(event.pos()))
+            clicked_action = menu.exec_(self.canvas.mapToGlobal(event.pos()))
 
             if clicked_action is not None:
                 return actions[clicked_action]
@@ -238,7 +240,7 @@ class QgepProfileMapTool(QgepMapTool):
     pathPolyline = []
 
     def __init__(self, canvas, button, network_analyzer):
-        QgepMapTool.__init__(self, canvas, button)
+        QgepMapTool.__init__(self, canvas, button, network_analyzer)
         settings = QSettings()
 
         helper_line_color = settings.value("/QGEP/HelperLineColor", '#FFD900')
@@ -439,7 +441,7 @@ class QgepTreeMapTool(QgepMapTool):
     treeChanged = pyqtSignal(list, list)
 
     def __init__(self, canvas, button, network_analyzer):
-        QgepMapTool.__init__(self, canvas, button)
+        QgepMapTool.__init__(self, canvas, button, network_analyzer)
 
         self.direction = "downstream"
         self.networkAnalyzer = network_analyzer

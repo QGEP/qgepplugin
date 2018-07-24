@@ -424,7 +424,7 @@ class QgepFeatureCache(object):
         m = re.search('(.*;)?(.*)', ewktstring)
         return QgsGeometry.fromWkt(m.group(2))
 
-    def asDict(self):
+    def asDict(self) -> dict:
         """
         Returns all features a s a dictionary with ids as keys
         """
