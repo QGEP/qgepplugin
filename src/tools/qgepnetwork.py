@@ -28,15 +28,14 @@ Manages a graph of a wastewater network
 """
 from __future__ import print_function
 
+import copyreg
+
 # pylint: disable=no-name-in-module
-from builtins import str
-from builtins import zip
-from builtins import next
-from builtins import object
+from builtins import str, zip, object
 from collections import defaultdict
 import time
 import re
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlQuery
 
 from qgis.core import (
@@ -44,12 +43,10 @@ from qgis.core import (
     QgsMessageLog,
     QgsGeometry,
     QgsDataSourceUri,
+    QgsPointXY,
     NULL
 )
-from qgis.gui import (
-    QgsMessageBar
-)
-from qgis.PyQt.QtCore import QObject
+from qgis.gui import QgsMessageBar
 import networkx as nx
 
 
@@ -281,6 +278,11 @@ class QgepGraphManager(QObject):
         """
         if self.dirty:
             self.createGraph()
+
+        # fix point pickle
+        def pickle_point(p):
+            return QgsPointXY, (p.x(),p.y(),)
+        copyreg.pickle(QgsPointXY, pickle_point)
 
         if upstream:
             my_graph = self.graph.reverse()
