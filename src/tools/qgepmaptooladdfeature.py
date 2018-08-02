@@ -30,6 +30,7 @@ Some map tools for digitizing features
 from builtins import next
 from builtins import range
 from qgis.gui import (
+    QgsAttributeForm,
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
     QgsRubberBand,
@@ -146,10 +147,10 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         On a right click we create a new feature from the existing rubberband and show the add
         dialog
         """
-        f = QgsFeature(self.layer.pendingFields())
+        f = QgsFeature(self.layer.fields())
         f.setGeometry(self.rubberband.asGeometry())
         dlg = self.iface.getFeatureForm(self.layer, f)
-        dlg.setIsAddDialog(True)
+        dlg.setMode(QgsAttributeForm.AddFeatureMode)
         dlg.exec_()
         self.rubberband.reset3D()
         self.temp_rubberband.reset()
@@ -190,10 +191,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         assert self.node_layer
         self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
         assert self.reach_layer
-        self.setMode(QgsMapToolAdvancedDigitizing.CaptureLine)
+        self.setAdvancedDigitizingAllowed(True)
+        self.setAutoSnapEnabled(True)
 
-        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.SnapToVertex},
-                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.SnapToVertexAndSegment}]
+        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.Vertex},
+                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.VertexAndSegment}]
         self.snapping_configs = []
         self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
 
@@ -313,14 +315,14 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             snapping_results = {'from': self.first_snapping_match,
                                 'to': self.last_snapping_match}
             for dest, match in list(snapping_results.items()):
-                level_field_index = self.layer.pendingFields().indexFromName('rp_{dest}_level'.format(dest=dest))
+                level_field_index = self.layer.fields().indexFromName('rp_{dest}_level'.format(dest=dest))
                 pt_idx = 0 if dest == 'from' else -1
                 if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
                     request = QgsFeatureRequest(match.featureId())
                     network_element = next(match.layer().getFeatures(request))
                     assert network_element.isValid()
                     # set the related network element
-                    field = self.layer.pendingFields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
+                    field = self.layer.fields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
                     f.setAttribute(field, network_element.attribute('obj_id'))
                     # assign level if the match is a node or if we have 3D from snapping
                     if match.layer() == self.node_layer:
@@ -330,7 +332,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     f.setAttribute(level_field_index, self.rubberband.points[pt_idx].z())
 
             dlg = self.iface.getFeatureForm(self.layer, f)
-            dlg.setIsAddDialog(True)
+            dlg.setMode(QgsAttributeForm.AddFeatureMode)
             dlg.exec_()
 
         self.rubberband.reset3D()
