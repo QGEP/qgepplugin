@@ -23,13 +23,14 @@ from qgis.core import (
     QgsExpression,
     QgsFeatureRequest,
     QgsGeometry,
-    QgsProcessingAlgorithm,
     QgsProcessingParameterNumber,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterVectorLayer
 )
 
 from PyQt5.QtCore import QCoreApplication
+
+from .qgep_algorithm import QgepAlgorithm
 
 __author__ = 'Matthias Kuhn'
 __date__ = '2017-11-18'
@@ -40,7 +41,7 @@ __copyright__ = '(C) 2017 by OPENGIS.ch'
 __revision__ = '$Format:%H$'
 
 
-class SnapReachAlgorithm(QgsProcessingAlgorithm):
+class SnapReachAlgorithm(QgepAlgorithm):
     """
     """
 
@@ -49,23 +50,8 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
     WASTEWATER_NODE_LAYER = 'WASTEWATER_NODE_LAYER'
     ONLY_SELECTED = 'ONLY_SELECTED'
 
-    def group(self):
-        return 'QGEP'
-
-    def groupId(self):
-        return 'qgep'
-
     def name(self):
         return self.tr('Snap reach geometry')
-
-    def displayName(self):
-        return self.name()
-
-    def tr(self, text):
-        return QCoreApplication.translate('snap_reach', text)
-
-    def createInstance(self):
-        return type(self)()
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
