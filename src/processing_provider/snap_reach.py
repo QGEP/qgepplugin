@@ -64,6 +64,9 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
     def tr(self, text):
         return QCoreApplication.translate('snap_reach', text)
 
+    def createInstance(self):
+        return type(self)()
+
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
@@ -84,8 +87,8 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
 
         reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
         wastewater_node_layer = self.parameterAsVectorLayer(parameters, self.WASTEWATER_NODE_LAYER, context)
-        distance = self.parameterAsDouble(self.DISTANCE)
-        only_selected = self.parameterAsBoolean(self.ONLY_SELECTED)
+        distance = self.parameterAsDouble(parameters, self.DISTANCE, context)
+        only_selected = self.parameterAsBool(parameters, self.ONLY_SELECTED, context)
 
         reach_layer.startEditing()
 
@@ -120,6 +123,8 @@ class SnapReachAlgorithm(QgsProcessingAlgorithm):
             raise
         reach_layer.endEditCommand()
         feedback.setProgress(100)
+
+        return {}
 
     def processFeatures(self, reaches, reach_layer, wastewater_node_layer, distance_threshold):
         ids = list()
