@@ -40,6 +40,7 @@ from qgis.core import (
     QgsWkbTypes
 )
 
+from .qgep_algorithm import QgepAlgorithm
 from ..tools.qgepnetwork import QgepGraphManager
 
 from PyQt5.QtCore import QCoreApplication, QVariant
@@ -53,7 +54,7 @@ __copyright__ = '(C) 2018 by OPENGIS.ch'
 __revision__ = '$Format:%H$'
 
 
-class FlowTimesAlgorithm(QgsProcessingAlgorithm):
+class FlowTimesAlgorithm(QgepAlgorithm):
     """
     """
 
@@ -64,26 +65,14 @@ class FlowTimesAlgorithm(QgsProcessingAlgorithm):
     FLOWTIMES_FIELD = 'FLOWTIMES_FIELD'
     OUTPUT = "OUTPUT"
 
-    def group(self):
-        return 'QGEP'
-
-    def groupId(self):
-        return 'qgep'
-
     def name(self):
         return 'qgep_flow_times'
 
     def displayName(self):
         return self.tr('Flow times downstream')
 
-    def tr(self, text):
-        return QCoreApplication.translate('flow_times', text)
-
     def flags(self):
         return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
-
-    def createInstance(self):
-        return FlowTimesAlgorithm()
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
