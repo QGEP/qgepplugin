@@ -188,9 +188,9 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
         QgepMapToolAddFeature.__init__(self, iface, layer)
         self.snapping_marker = None
         self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
-        assert self.node_layer
+        assert self.node_layer is not None
         self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
-        assert self.reach_layer
+        assert self.reach_layer is not None
         self.setAdvancedDigitizingAllowed(True)
         self.setAutoSnapEnabled(True)
 
