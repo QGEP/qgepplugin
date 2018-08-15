@@ -51,6 +51,9 @@ class SnapReachAlgorithm(QgepAlgorithm):
     ONLY_SELECTED = 'ONLY_SELECTED'
 
     def name(self):
+        return self.tr('qgep_snap_rach')
+
+    def displayName(self):
         return self.tr('Snap reach geometry')
 
     def initAlgorithm(self, config=None):

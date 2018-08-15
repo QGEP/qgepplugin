@@ -66,7 +66,10 @@ class FlowTimesAlgorithm(QgepAlgorithm):
     OUTPUT = "OUTPUT"
 
     def name(self):
-        return self.tr('qgep_flow_times')
+        return 'qgep_flow_times'
+
+    def displayName(self):
+        return self.tr('Flow times downstream')
 
     def flags(self):
         return super().flags() | QgsProcessingAlgorithm.FlagNoThreading

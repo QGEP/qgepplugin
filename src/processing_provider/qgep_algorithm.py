@@ -43,9 +43,6 @@ class QgepAlgorithm(QgsProcessingAlgorithm):
     def groupId(self):
         return 'qgep'
 
-    def displayName(self):
-        return self.name()
-
     def tr(self, string, context=''):
         if context == '':
             context = self.__class__.__name__
