@@ -54,7 +54,7 @@ class ChangeReachDirection(QgepAlgorithm):
         return 'change_direction'
     
     def displayName(self):
-        self.tr('Change reaches direction')
+        return self.tr('Change reach direction')
 
     def flags(self):
         return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
@@ -72,8 +72,6 @@ class ChangeReachDirection(QgepAlgorithm):
         reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
 
         reach_layer.startEditing()
-
-        QCoreApplication.instance().processEvents()
 
         feature_count = 0
 		
