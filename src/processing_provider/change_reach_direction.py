@@ -56,6 +56,9 @@ class ChangeReachDirection(QgepAlgorithm):
     def displayName(self):
         self.tr('Change reaches direction')
 
+    def flags(self):
+        return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
+
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
@@ -69,6 +72,8 @@ class ChangeReachDirection(QgepAlgorithm):
         reach_layer = self.parameterAsVectorLayer(parameters, self.REACH_LAYER, context)
 
         reach_layer.startEditing()
+
+        QCoreApplication.instance().processEvents()
 
         feature_count = 0
 		
@@ -85,5 +90,4 @@ class ChangeReachDirection(QgepAlgorithm):
         reach_layer.endEditCommand()
         feedback.setProgress(100)
 
-        # inversion of reach points --> to be done
-        # transaction.executeSql('SELECT qgep_od.invert_rp'(\'{{{obj_ids}}}\');'.format(obj_ids=','.join(selected_obj_ids)))
+        return {}
