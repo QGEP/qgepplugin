@@ -185,7 +185,7 @@ class QgepGraphManager(QObject):
         query = QSqlQuery(db)
         if not query.exec_(query_template):
             str_result = query.lastError().text()
-            self.message_emitted.emit(self.tr("Warning"), str_result, QgsMessageBar.CRITICAL)
+            self.message_emitted.emit(self.tr("Warning"), str_result, Qgis.Critical)
         else:
             self.message_emitted.emit(self.tr("Success"), "vw_network_node successfully updated", Qgis.Success)
         # recreate networkx graph
