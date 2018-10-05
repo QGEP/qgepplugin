@@ -183,13 +183,13 @@ class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
             if filters:
                 request.setFilterExpression(' OR '.join(filters))
                 features = catchment_areas_layer.getFeatures(request)
-                catchment_areas_layer.setSelectedFeatures([f.id() for f in features])
+                catchment_areas_layer.select([f.id() for f in features])
 
         if qgep_reach_layer:
             request = QgsFeatureRequest()
             request.setFilterExpression('obj_id IN ({})'.format(reach_list))
             features = qgep_reach_layer.getFeatures(request)
-            qgep_reach_layer.setSelectedFeatures([f.id() for f in features])
+            qgep_reach_layer.select([f.id() for f in features])
 
         if wastewater_nodes_layer:
             request = QgsFeatureRequest()
@@ -199,7 +199,7 @@ class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
             for feature in features:
                 ids.append(feature.id())
                 wastewater_structures.append(feature['fk_wastewater_structure'])
-            wastewater_nodes_layer.setSelectedFeatures(ids)
+            wastewater_nodes_layer.select(ids)
 
         wastewater_structure_list = ','.join(("'" + id + "'" for id in wastewater_structures))
 
@@ -207,7 +207,7 @@ class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
             request = QgsFeatureRequest()
             request.setFilterExpression('obj_id IN ({})'.format(wastewater_structure_list))
             features = qgep_wastewater_structures_layer.getFeatures(request)
-            qgep_wastewater_structures_layer.setSelectedFeatures([f.id() for f in features])
+            qgep_wastewater_structures_layer.select([f.id() for f in features])
 
     def setTree(self, nodes, edges):
         self.nodes = nodes
