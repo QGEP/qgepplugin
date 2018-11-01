@@ -259,7 +259,7 @@ class QgepGraphManager(QObject):
 
         try:
             path = nx.algorithms.dijkstra_path(self.graph, start_point, end_point)
-            edges = [(u, v, self.graph.edges(u, v)) for (u, v) in zip(path[0:], path[1:])]
+            edges = [(u, v, self.graph.edges[u, v]) for (u, v) in zip(path[0:], path[1:])]
 
             p = (path, edges)
 
