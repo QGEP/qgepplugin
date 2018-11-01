@@ -612,7 +612,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                     QgepLayerManager.layer('vw_wastewater_node'),
                     QgepLayerManager.layer('vw_qgep_reach')
                 ]},
-            QgepLayerManager.layer('od_catchment_area'): {'fields': [
+            QgepLayerManager.layer('catchment_area'): {'fields': [
                 ('fk_wastewater_networkelement_rw_current', QCoreApplication.translate(
                     'QgepMapToolConnectNetworkElements', 'Rainwater current')),
                 ('fk_wastewater_networkelement_rw_planned', QCoreApplication.translate(
