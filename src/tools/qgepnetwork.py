@@ -35,8 +35,11 @@ from builtins import str, zip, object
 from collections import defaultdict
 import time
 import re
-from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtSql import QSqlDatabase, QSqlQuery
+from qgis.PyQt.QtCore import (
+    pyqtSignal,
+    QObject,
+    Qt
+)
 
 from qgis.core import (
     Qgis,
@@ -47,6 +50,7 @@ from qgis.core import (
     NULL
 )
 from qgis.gui import QgsMessageBar
+from qgepplugin.utils.qt_utils import OverrideCursor
 import networkx as nx
 
 
@@ -163,34 +167,37 @@ class QgepGraphManager(QObject):
         Refreshes the network graph. It will force a refresh of the materialized views in the database and then reload
         and recreate the graph.
         """
-        uri = QgsDataSourceUri(self.nodeLayer.dataProvider().dataSourceUri())
+        with OverrideCursor(Qt.WaitCursor):
+            transaction = self.nodeLayer.dataProvider().transaction()
+            temporary_edit_session = False
+            if not transaction:
+                self.nodeLayer.startEditing()
+                temporary_edit_session = True
+                transaction = self.nodeLayer.dataProvider().transaction()
 
-        db = QSqlDatabase.addDatabase("QPSQL")  # Name of the driver -- doesn't change
+                if not transaction:
+                    self.message_emitted.emit(self.tr("Error"), self.tr("Could not initialize transaction"), Qgis.Critical)
+                    return
 
-        str_connect_option = "requiressl=0;service=" + uri.service()
-        db.setConnectOptions(str_connect_option)
+            query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
+            edge_res, error = transaction.executeSql(query_template)
+            if not edge_res:
+                self.message_emitted.emit(self.tr("Error"), error, Qgis.Critical)
 
-        if not db.open():
-            self.message_emitted.emit(self.tr("Warning"), db.lastError().text(), Qgis.Critical)
+            query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
+            node_res, error = transaction.executeSql(query_template)
+            if not node_res:
+                self.message_emitted.emit(self.tr("Error"), error, Qgis.Critical)
 
-        query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
-        query = QSqlQuery(db)
-        if not query.exec_(query_template):
-            str_result = query.lastError().text()
-            self.message_emitted.emit(self.tr("Warning"), str_result, Qgis.Critical)
-        else:
-            self.message_emitted.emit(self.tr("Success"), "vw_network_segment successfully updated", Qgis.Success)
+            if node_res and edge_res:
+                self.message_emitted.emit(self.tr("Success"), self.tr("Network successfully updated"), Qgis.Success)
 
-        query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
-        query = QSqlQuery(db)
-        if not query.exec_(query_template):
-            str_result = query.lastError().text()
-            self.message_emitted.emit(self.tr("Warning"), str_result, Qgis.Critical)
-        else:
-            self.message_emitted.emit(self.tr("Success"), "vw_network_node successfully updated", Qgis.Success)
-        # recreate networkx graph
-        self.graph.clear()
-        self.createGraph()
+            if temporary_edit_session:
+                self.nodeLayer.commitChanges()
+
+            # recreate networkx graph
+            self.graph.clear()
+            self.createGraph()
 
     def _profile(self, name):
         """
