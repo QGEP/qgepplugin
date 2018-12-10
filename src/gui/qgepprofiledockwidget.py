@@ -201,7 +201,7 @@ class QgepProfileDockWidget(QDockWidget, DOCK_WIDGET_UI):
                 wastewater_structures.append(feature['fk_wastewater_structure'])
             wastewater_nodes_layer.select(ids)
 
-        wastewater_structure_list = ','.join(("'" + id + "'" for id in wastewater_structures))
+        wastewater_structure_list = ','.join(("'" + id + "'" for id in wastewater_structures if type(id) is str))
 
         if qgep_wastewater_structures_layer:
             request = QgsFeatureRequest()
