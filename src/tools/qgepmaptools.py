@@ -778,7 +778,9 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             for cbx in properties:
                 if cbx.isChecked():
                     source_feature[cbx.objectName()] = target_feature['obj_id']
-            if source.layer().updateFeature(source_feature):
+            if not source.layer().isEditable():
+                self.iface.messageBar().pushMessage('QGEP', self.tr('Layer "{layername}" is not in edit mode').format(layername=source.layer().name()), Qgis.Warning, 5)
+            elif source.layer().updateFeature(source_feature):
                 self.iface.messageBar().pushMessage('QGEP',
                                                     self.tr('Connected {} to {}').format(
                                                         source_feature[
