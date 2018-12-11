@@ -583,7 +583,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
         self.source_feature = QgsFeature()
         self.rb_source_feature = QgsRubberBand(self.iface.mapCanvas())
-        self.rb_source_feature.setColor(QColor('#f49e79'))
+        self.rb_source_feature.setColor(QColor('#88f49e79'))
         self.rb_source_feature.setWidth(3)
         self.target_feature = QgsFeature()
         self.rb_target_feature = QgsRubberBand(self.iface.mapCanvas())
