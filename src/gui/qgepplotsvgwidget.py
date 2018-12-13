@@ -81,9 +81,10 @@ class QgepPlotSVGWidget(QWidget):
 
         layout = QVBoxLayout(self)
         if url is None:
-            default_url = os.path.abspath(os.path.join(plugin_root_path(), 'svgprofile', 'index.html'))
+            # Starting with QGIS 3.4, QWebView requires paths with / even on windows.
+            default_url = plugin_root_path().replace('\\', '/') + '/svgprofile/index.html'
             url = settings.value("/QGEP/SvgProfilePath", default_url)
-            url = 'file://' + url
+            url = 'file:///' + url
 
         developer_mode = settings.value("/QGEP/DeveloperMode", False, type=bool)
 
