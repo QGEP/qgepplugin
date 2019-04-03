@@ -84,7 +84,7 @@ class ChangeReachDirection(QgepAlgorithm):
         #if not transaction:
         #    raise Exception: if there is no transaction, complain to the user!
         selected_obj_ids = [feature['obj_id'] for feature in iterator]
-        transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(obj_ids=','.join(selected_obj_ids)))
+        transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(obj_ids=','.join(selected_obj_ids)), True)
         reach_layer.endEditCommand()
         feedback.setProgress(100)
 
