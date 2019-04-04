@@ -25,7 +25,8 @@ from qgis.core import (
     QgsGeometry,
     QgsProcessingParameterNumber,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterVectorLayer
+    QgsProcessingParameterVectorLayer,
+    QgsPointXY
 )
 
 from PyQt5.QtCore import QCoreApplication
@@ -159,20 +160,20 @@ class SnapReachAlgorithm(QgepAlgorithm):
             if from_id in list(nodes.keys()):
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[from_id].geometry().asPoint(), 0) < distance_threshold:
                     reach_geometry.moveVertex(
-                        nodes[from_id].geometry().geometry(), 0)
+                        nodes[from_id].geometry().constGet(), 0)
 
             to_id = reach['rp_to_fk_wastewater_networkelement']
             if to_id in list(nodes.keys()):
-                last_vertex = reach_geometry.geometry().nCoordinates() - 1
+                last_vertex = reach_geometry.constGet().nCoordinates() - 1
                 if distance_threshold == 0 or reach_geometry.sqrDistToVertexAt(nodes[to_id].geometry().asPoint(), last_vertex) < distance_threshold:
                     reach_geometry.moveVertex(
-                        nodes[to_id].geometry().geometry(), last_vertex)
+                        nodes[to_id].geometry().constGet(), last_vertex)
 
             if to_id in list(target_reaches.keys()):
-                last_vertex = reach_geometry.geometry().nCoordinates() - 1
+                last_vertex = reach_geometry.constGet().nCoordinates() - 1
                 target_reach = target_reaches[to_id]
-                distance, point, after_vertex = target_reach.geometry(
-                ).closestSegmentWithContext(reach_geometry.vertexAt(last_vertex))
+                distance, point, min_distance_point, after_vertex = target_reach.geometry(
+                ).closestSegmentWithContext(QgsPointXY(reach_geometry.vertexAt(last_vertex)))
                 if distance_threshold == 0 or distance < distance_threshold:
                     reach_geometry.moveVertex(
                         point.x(), point.y(), last_vertex)
