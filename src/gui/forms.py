@@ -4,8 +4,6 @@ from qgis.core import QgsProject
 
 from ..tools.qgepmaptooladdfeature import QgepMapToolDigitizeDrainageChannel
 
-DEBUGMODE = 1
-
 
 def geometryDigitized(fid, layer, tool):
     layer.changeGeometry(fid, tool.geometry)
@@ -14,17 +12,15 @@ def geometryDigitized(fid, layer, tool):
 
 
 def mapToolDeactivated(tool):
-    if qgis.utils.plugins['qgepplugin'].iface.mapCanvas().mapTool() == tool:
-        qgis.utils.plugins['qgepplugin'].iface.mapCanvas().unsetMapTool(tool)
-
+    tool.deactivated.disconnect()
+    qgis.utils.plugins['qgepplugin'].iface.mapCanvas().unsetMapTool(tool)
     tool.deleteLater()
 
 
 def digitizeDrainageChannel(fid, layerid):
     layer = QgsProject.instance().mapLayer(layerid)
     layer.startEditing()
-    tool = QgepMapToolDigitizeDrainageChannel(
-        qgis.utils.plugins['qgepplugin'].iface, layer)
+    tool = QgepMapToolDigitizeDrainageChannel(qgis.utils.plugins['qgepplugin'].iface, layer)
     qgis.utils.plugins['qgepplugin'].iface.mapCanvas().setMapTool(tool)
     tool.geometryDigitized.connect(
         lambda: geometryDigitized(fid, layer, tool)
