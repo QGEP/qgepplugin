@@ -123,7 +123,7 @@ class QgepGraphManager(QObject):
 
             try:
                 vertex = feat.geometry().asPoint()
-            except AttributeError:
+            except ValueError:
                 # TODO Add to problem log
                 pass
             self.graph.add_node(fid, point=vertex, objType=obj_type, objId=obj_id)
