@@ -453,7 +453,7 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
                 pt3 = QgsPointXY(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
                 pt4 = QgsPointXY(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
 
-                self.geometry = QgsGeometry.fromPolygon([[pt1, pt2, pt3, pt4, pt1]])
+                self.geometry = QgsGeometry.fromPolygonXY([[pt1, pt2, pt3, pt4, pt1]])
 
                 self.geometryDigitized.emit()
 
