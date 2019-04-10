@@ -22,6 +22,7 @@
 from qgis.core import QgsProcessingProvider
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
+from .flow_times_upstream import FlowTimesUpstreamAlgorithm
 from .change_reach_direction import ChangeReachDirection
 
 from PyQt5.QtGui import QIcon
@@ -49,7 +50,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), FlowTimesUpstreamAlgorithm(), ChangeReachDirection()]
         return algs
 
     def id(self):
