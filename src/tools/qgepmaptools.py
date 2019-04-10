@@ -62,6 +62,16 @@ from ..utils.qgeplayermanager import QgepLayerManager
 import logging
 
 
+class CounterMatchFilter(QgsPointLocator.MatchFilter):
+    def __init__(self):
+        super().__init__()
+        self.matches = list()
+
+    def acceptMatch(self, match):
+        self.matches.append(match)
+        return True
+
+
 class QgepMapTool(QgsMapTool):
     """
     Base class for all the map tools
@@ -165,15 +175,6 @@ class QgepMapTool(QgsMapTool):
 
         if not self.snapper:
             self.init_snapper()
-
-        class CounterMatchFilter(QgsPointLocator.MatchFilter):
-            def __init__(self):
-                super().__init__()
-                self.matches = list()
-
-            def acceptMatch(self, match):
-                self.matches.append(match)
-                return True
 
         match_filter = CounterMatchFilter()
         match = self.snapper.snapToMap(clicked_point, match_filter)
@@ -538,11 +539,33 @@ class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
 
     def __init__(self, map_canvas):
         QgsMapCanvasSnappingUtils.__init__(self, map_canvas)
+        self.filter = CounterMatchFilter()
+
+        # This manages the priority of the snapping layers. The earlier in the list, the higher the priority.
+        # Can be used to prefer points (wastewater nodes) over lines (reaches)
+        self.layer_priority = list()
 
     def snapToMap(self, pt):
-        match = QgsMapCanvasSnappingUtils.snapToMap(self, pt)
+        self.filter.matches = list()
+        match = QgsMapCanvasSnappingUtils.snapToMap(self, pt, self.filter)
 
-        if not match.isValid() and self.config().mode() == QgsSnappingConfig.AdvancedConfiguration:
+        def sorter(match):
+            layer = match.layer()
+            try:
+                return self.layer_priority.index(layer)
+            except ValueError:
+                return 0
+
+        layer_tolerances = dict()
+        for layer_config in self.layers():
+            layer_tolerances[layer_config.layer] = QgsTolerance.toleranceInProjectUnits(layer_config.tolerance, layer_config.layer, self.mapSettings(), layer_config.unit)
+
+        matches = sorted(self.filter.matches, key=sorter)
+        matches = [m for m in matches if m.distance() < layer_tolerances[m.layer()]]
+
+        if matches:
+            match = matches[0]
+        elif self.config().mode() == QgsSnappingConfig.AdvancedConfiguration:
             for layer in self.layers():
                 if layer.type & QgsPointLocator.Area:
                     loc = self.locatorForLayer(layer.layer)
@@ -647,7 +670,10 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                                                                 16, QgsTolerance.Pixels)
                 config.setIndividualLayerSettings(layer, ils)
 
+                layer.destroyed.connect(self.deactivate)
+
         snapper.setConfig(config)
+        snapper.layer_priority = layers
 
     def canvasMoveEvent(self, event):
         """
