@@ -595,6 +595,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         Called by QGIS whenever the tool is activated.
         """
 
+        def is_closer_to_start_of_edge(source, target):
+            feature = next(source.layer().getFeatures(QgsFeatureRequest(source.featureId())))
+            distance_from_start = feature.geometry().lineLocatePoint(QgsGeometry.fromPointXY(source.point()))
+            length = feature.geometry().length()
+
+            return distance_from_start < length / 2
+
+
         # A dict of layers
         #  and for each layer the fields to use as foreign key
         #  as well as the possible target layers
@@ -604,13 +612,15 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             QgepLayerManager.layer('vw_qgep_reach'): {
                 'fields': [
                     {
-                        'id': 'rp_to_fk_wastewater_networkelement',
-                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')
-                    },
-                    {
                         'id': 'rp_from_fk_wastewater_networkelement',
                         'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'),
-                        'filter': lambda source, target: target.layer() != QgepLayerManager.layer('vw_qgep_reach')
+                        'filter': lambda source, target: target.layer() != QgepLayerManager.layer('vw_qgep_reach'),
+                        'is_checked': lambda source, target: is_closer_to_start_of_edge(source, target)
+                    },
+                    {
+                        'id': 'rp_to_fk_wastewater_networkelement',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To'),
+                        'is_checked': lambda source, target: not is_closer_to_start_of_edge(source, target)
                     }
                 ],
                 'target_layers': [
@@ -779,6 +789,9 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                     continue
             cbx = QCheckBox(prop['name'])
             cbx.setObjectName(prop['id'])
+
+            if 'is_checked' in prop.keys():
+                cbx.setChecked(prop['is_checked'](source, target))
             properties.append(cbx)
             dlg.layout().addWidget(cbx)
 
