@@ -40,13 +40,15 @@ from qgis.core import (
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterExpression,
+    QgsProcessingParameterEnum,
     QgsProcessingParameterField,
     QgsWkbTypes,
     NULL
 )
 
+import statistics
+
 from .qgep_algorithm import QgepAlgorithm
-from ..tools.qgepnetwork import QgepGraphManager
 
 from PyQt5.QtCore import QCoreApplication, QVariant
 
@@ -70,7 +72,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
     NODE_PK_NAME = 'NODE_PK_NAME'
     NODE_FROM_FK_NAME = 'NODE_FROM_FK_NAME'
     NODE_TO_FK_NAME = 'NODE_TO_FK_NAME'
-
+    BRANCH_BEHAVIOR = 'BRANCH_BEHAVIOR'
 
     OUTPUT = "OUTPUT"
 
@@ -89,6 +91,9 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         description = self.tr('Source Value Expression')
         self.addParameter(QgsProcessingParameterExpression(self.VALUE_EXPRESSION, description=description,
                                                       parentLayerParameterName=self.REACH_LAYER))
+        description = self.tr('Branch Behavior')
+        self.addParameter(QgsProcessingParameterEnum(self.BRANCH_BEHAVIOR, description=description,
+                                                      options=[self.tr('Minimum'), self.tr('Maximum'), self.tr('Average')]))
 
         description = self.tr('Reach Layer')
         self.addAdvancedParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=description,
@@ -135,6 +140,14 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         node_pk_name = self.parameterAsFields(parameters, self.NODE_PK_NAME, context)[0]
         node_from_fk_name = self.parameterAsFields(parameters, self.NODE_FROM_FK_NAME, context)[0]
         node_to_fk_name = self.parameterAsFields(parameters, self.NODE_TO_FK_NAME, context)[0]
+        branch_behavior = self.parameterAsEnum(parameters, self.BRANCH_BEHAVIOR, context)
+
+        if branch_behavior == 0:
+            aggregate_method = lambda values: min(values) if values else 0
+        elif branch_behavior == 1:
+            aggregate_method = lambda values: max(values) if values else 0
+        elif branch_behavior == 2:
+            aggregate_method = lambda values: statistics.mean(values) if values else 0
 
         # create feature sink
         fields = wastewater_node_layer.fields()
@@ -152,40 +165,83 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         context = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(reach_layer))
         expression.prepare(context)
 
+        progress = 0
         for reach in reach_layer.getFeatures(QgsFeatureRequest()):
+            if reach[node_from_fk_name] == NULL:
+                continue
+
             context.setFeature(reach)
             value = expression.evaluate(context)
-            reaches[reach[node_from_fk_name]] = (reach[node_from_fk_name], reach[node_to_fk_name], value)
+            reaches.setdefault(reach[node_from_fk_name], []).append((reach[node_from_fk_name], reach[node_to_fk_name], value))
+            feedback.setProgress(progress/feature_count*10)
+            progress += 1
 
         qgis.reaches = reaches
 
-        all_nodes = dict()
-
+        wastewater_node_count = wastewater_node_layer.featureCount()
         current_feature = 0
+        calculated_values = {}
         for node in wastewater_node_layer.getFeatures():
-            time = 0.0
 
             from_node_id = node[node_pk_name]
-            start_node_id = from_node_id
 
             processed_nodes = []
-            while from_node_id in reaches.keys():
-                if from_node_id in processed_nodes:
-                    feedback.reportError('Loop detected with nodes {}'.format(processed_nodes))
-                    break
-                current_reach = reaches[from_node_id]
-                to_node_id = current_reach[1]
-                time += current_reach[2]
-                processed_nodes.append(from_node_id)
-                from_node_id = to_node_id
+            times = []
+            if from_node_id in reaches.keys():
+                for reach in reaches[from_node_id]:
+                    times.append(self.calculate_branch(reach, reaches, processed_nodes, calculated_values, aggregate_method, feedback))
+
+            if times:
+                time = aggregate_method(times)
+            else:
+                time = 0
 
             current_feature += 1
+            feedback.setProgress(10+current_feature/1*90)
 
+            calculated_values[node[node_pk_name]] = time
             new_node = QgsFeature(node)
             new_node.setFields(fields)
-            new_node['value'] = time
+            new_node.setAttributes(node.attributes() + [time])
 
             sink.addFeature(new_node, QgsFeatureSink.FastInsert)
             feedback.setProgress(current_feature/feature_count * 100)
 
         return {self.OUTPUT: dest_id}
+
+    def process_node(self, node_id, reaches, processed_nodes, calculated_values, aggregate_method, feedback):
+        time = 0
+
+        while node_id in reaches.keys():
+            if node_id in calculated_values:
+                return calculated_values[node_id]
+            if node_id in processed_nodes:
+                feedback.reportError(self.tr('Loop detected with nodes: {}'.format(processed_nodes)))
+                return 0
+
+            processed_nodes.append(node_id)
+            current_reaches = reaches[node_id]
+
+            if feedback.isCanceled():
+                return NULL
+
+            if len(current_reaches) == 1:
+                # In case there is just one downstream reach, caculate in here
+                # Starting a recursive approach results in a maximum call stack exception
+                time += current_reaches[0][2]
+                node_id = current_reaches[0][1]
+            else:
+                # Branching occurred: calculate every possible path and aggregate according to config
+                times = []
+                for reach in current_reaches:
+                    times.append(self.calculate_branch(reach, reaches, processed_nodes, calculated_values, aggregate_method, feedback))
+
+                if times:
+                    time += aggregate_method(times)
+                break
+
+        return time
+
+    def calculate_branch(self, reach, reaches, processed_nodes, calculated_values, aggregate_method, feedback):
+        return reach[2] + self.process_node(reach[1], reaches, processed_nodes, calculated_values, aggregate_method, feedback)
+
