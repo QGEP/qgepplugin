@@ -61,6 +61,12 @@ __copyright__ = '(C) 2018 by OPENGIS.ch'
 
 __revision__ = '$Format:%H$'
 
+class Reach:
+    def __init__(self, from_id, to_id, value, geometry):
+        self.from_id = from_id
+        self.to_id = to_id
+        self.value = value
+        self.geometry = geometry
 
 class SumUpUpstreamAlgorithm(QgepAlgorithm):
     """
@@ -157,6 +163,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             aggregate_method = lambda values: max(values) if values else 0
         elif branch_behavior == 2:
             aggregate_method = lambda values: statistics.mean(values) if values else 0
+        else:
+            aggregate_method = lambda values: feedback.pushError('Aggregate method not implemented')
 
         # create feature sink
         fields = wastewater_node_layer.fields()
@@ -164,6 +172,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context, fields,
                                                QgsWkbTypes.Point, reach_layer.sourceCrs())
 
+        loop_sink = None
+        loop_dest_id = None
         if create_loop_layer:
             (loop_sink, loop_dest_id) = self.parameterAsSink(parameters, self.LOOP_OUTPUT, context, fields,
                                                    QgsWkbTypes.Point, reach_layer.sourceCrs())
@@ -173,7 +183,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
         feature_count = reach_layer.featureCount()
 
-        reaches = dict()
+        reaches_by_from_node = dict()
+        reaches_by_id = dict()
 
         expression = QgsExpression(value_expression)
         context = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(reach_layer))
@@ -187,14 +198,14 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
             context.setFeature(reach)
             value = expression.evaluate(context)
-            reaches.setdefault(reach[node_from_fk_name], []).append((reach[node_from_fk_name], reach[node_to_fk_name], value))
+            reach_obj = Reach(reach[node_from_fk_name], reach[node_to_fk_name], value, reach.geometry())
+            reaches_by_from_node.setdefault(reach_obj.from_id, []).append(reach_obj)
+            reaches_by_id[reach[reach_pk_name]] = reach_obj
+
             feedback.setProgress(progress/feature_count*10)
             progress += 1
 
-        qgis.reaches = reaches
-
         loop_nodes = []
-        wastewater_node_count = wastewater_node_layer.featureCount()
         current_feature = 0
         calculated_values = {}
 
@@ -205,9 +216,9 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
             processed_nodes = []
             times = []
-            if from_node_id in reaches.keys():
-                for reach in reaches[from_node_id]:
-                    times.append(self.calculate_branch(reach, reaches, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback))
+            if from_node_id in reaches_by_from_node.keys():
+                for reach in reaches_by_from_node[from_node_id]:
+                    times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback))
 
             if times:
                 time = aggregate_method(times)
@@ -234,40 +245,52 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
         return result
 
-    def process_node(self, node_id, reaches, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback):
+    def process_node(self, node_id, previous_reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback):
         time = 0
 
-        while node_id in reaches.keys():
+        while node_id in reaches_by_from_node.keys() or node_id in reaches_by_id.keys():
             if node_id in calculated_values:
                 return calculated_values[node_id]
             if node_id in processed_nodes:
-                feedback.reportError(self.tr('Loop at node: {}'.format(node_id)))
+                # feedback.reportError(self.tr('Loop at node: {}'.format(node_id)))
                 loop_nodes.append(node_id)
                 return 0
 
             processed_nodes.append(node_id)
-            current_reaches = reaches[node_id]
 
             if feedback.isCanceled():
                 return NULL
 
-            if len(current_reaches) == 1:
-                # In case there is just one downstream reach, caculate in here
-                # Starting a recursive approach results in a maximum call stack exception
-                time += current_reaches[0][2]
-                node_id = current_reaches[0][1]
+            if not node_id in reaches_by_from_node:
+                # Blind connection: add proportionally
+                reach = reaches_by_id[node_id]
+                offset = reach.geometry.lineLocatePoint(QgsGeometry(previous_reach.geometry.constGet().endPoint()))
+                length = reach.geometry.length()
+                remaining_part = 1-offset/length
+                feedback.pushInfo('Length: {} Offset: {} Part: {}'.format(length, offset, remaining_part, reach.value * remaining_part))
+                time += reach.value * remaining_part
+                node_id = reach.to_id
             else:
-                # Branching occurred: calculate every possible path and aggregate according to config
-                times = []
-                for reach in current_reaches:
-                    times.append(self.calculate_branch(reach, reaches, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback))
+                current_reaches = reaches_by_from_node[node_id]
+                if len(current_reaches) == 1:
+                    # In case there is just one downstream reach, calculate in here
+                    # Starting a recursive approach results in a maximum call stack exception
+                    time += current_reaches[0].value
+                    node_id = current_reaches[0].to_id
+                    previous_reach = current_reaches[0]
+                else:
+                    # Branching occurred: calculate every possible path and aggregate all values
+                    times = []
+                    for reach in current_reaches:
+                        times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback))
 
-                if times:
-                    time += aggregate_method(times)
-                break
+                    if times:
+                        time += aggregate_method(times)
+
+                    return time
 
         return time
 
-    def calculate_branch(self, reach, reaches, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback):
-        return reach[2] + self.process_node(reach[1], reaches, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback)
+    def calculate_branch(self, reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback):
+        return reach.value + self.process_node(reach.to_id, reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback)
 
