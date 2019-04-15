@@ -104,11 +104,15 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         self.addParameter(QgsProcessingParameterEnum(self.BRANCH_BEHAVIOR, description=description,
                                                       options=[self.tr('Minimum'), self.tr('Maximum'), self.tr('Average')]))
 
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT,
+                                                            self.tr('Summed up')))
+
         description = self.tr('Create a layer with nodes in loops')
         self.addAdvancedParameter(QgsProcessingParameterBoolean(self.CREATE_LOOP_LAYER, description=description,
                                                                     defaultValue=False))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.LOOP_OUTPUT,
-                                                            self.tr('Loop nodes')))
+
+        self.addAdvancedParameter(QgsProcessingParameterFeatureSink(self.LOOP_OUTPUT,
+                                                            self.tr('Loop nodes (Only created if "Crate a layer with nodes in loops" option is activated)'), optional=True))
         description = self.tr('Reach Layer')
         self.addAdvancedParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=description,
                                                             types=[QgsProcessing.TypeVectorLine], defaultValue='vw_qgep_reach'))
@@ -133,9 +137,6 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         self.addAdvancedParameter(QgsProcessingParameterField(self.NODE_TO_FK_NAME, description=description,
                                                            parentLayerParameterName=self.REACH_LAYER,
                                                            defaultValue='rp_to_fk_wastewater_networkelement'))
-
-        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT,
-                                                            self.tr('Summed up')))
 
     def addAdvancedParameter(self, parameter):
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
