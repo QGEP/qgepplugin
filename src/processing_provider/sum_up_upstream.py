@@ -251,7 +251,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
         while node_id in reaches_by_from_node.keys() or node_id in reaches_by_id.keys():
             if node_id in calculated_values:
-                return calculated_values[node_id]
+                return calculated_values[node_id] + time
             if node_id in processed_nodes:
                 # feedback.reportError(self.tr('Loop at node: {}'.format(node_id)))
                 loop_nodes.append(node_id)
