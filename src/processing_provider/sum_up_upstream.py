@@ -268,7 +268,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
                 offset = reach.geometry.lineLocatePoint(QgsGeometry(previous_reach.geometry.constGet().endPoint()))
                 length = reach.geometry.length()
                 remaining_part = 1-offset/length
-                feedback.pushInfo('Length: {} Offset: {} Part: {}'.format(length, offset, remaining_part, reach.value * remaining_part))
+                # feedback.pushInfo('Length: {} Offset: {} Part: {}'.format(length, offset, remaining_part, reach.value * remaining_part))
                 time += reach.value * remaining_part
                 node_id = reach.to_id
             else:
