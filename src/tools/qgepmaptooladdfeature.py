@@ -31,6 +31,7 @@ from builtins import next
 from builtins import range
 from qgis.gui import (
     QgsAttributeForm,
+    QgsAttributeEditorContext,
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
     QgsRubberBand,
@@ -150,7 +151,7 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         f = QgsFeature(self.layer.fields())
         f.setGeometry(self.rubberband.asGeometry())
         dlg = self.iface.getFeatureForm(self.layer, f)
-        dlg.setMode(QgsAttributeForm.AddFeatureMode)
+        dlg.setMode(QgsAttributeEditorContext.AddFeatureMode)
         dlg.exec_()
         self.rubberband.reset3D()
         self.temp_rubberband.reset()
@@ -332,7 +333,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     f.setAttribute(level_field_index, self.rubberband.points[pt_idx].z())
 
             dlg = self.iface.getFeatureForm(self.layer, f)
-            dlg.setMode(QgsAttributeForm.AddFeatureMode)
+            dlg.setMode(QgsAttributeEditorContext.AddFeatureMode)
             dlg.exec_()
 
         self.rubberband.reset3D()
