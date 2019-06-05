@@ -275,7 +275,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 req = QgsFeatureRequest(match.featureId())
                 f = next(match.layer().getFeatures(req))
                 assert f.isValid()
-                if match.layer().wkbType() == QgsWkbTypes.WKBPoint25D:
+                if match.layer().geometryType() == QgsWkbTypes.PointGeometry:
                     point = QgsPoint(f.geometry().geometry())
                 else:
                     (ok, vertex_id) = f.geometry().vertexIdFromVertexNr(match.vertexIndex())
