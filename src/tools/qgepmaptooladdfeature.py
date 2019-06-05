@@ -276,11 +276,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 f = next(match.layer().getFeatures(req))
                 assert f.isValid()
                 if match.layer().geometryType() == QgsWkbTypes.PointGeometry:
-                    point = QgsPoint(f.geometry().geometry())
+                    point = QgsPoint(f.geometry().constGet())
                 else:
                     (ok, vertex_id) = f.geometry().vertexIdFromVertexNr(match.vertexIndex())
                     assert ok
-                    point = f.geometry().geometry().vertexAt(vertex_id)
+                    point = f.geometry().constGet().vertexAt(vertex_id)
                 assert type(point) == QgsPoint
                 return point, match
             else:
