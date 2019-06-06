@@ -618,6 +618,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         Called by QGIS whenever the tool is activated.
         """
 
+        def is_closer_to_start_of_edge(source, target):
+            feature = next(source.layer().getFeatures(QgsFeatureRequest(source.featureId())))
+            distance_from_start = feature.geometry().lineLocatePoint(QgsGeometry.fromPointXY(source.point()))
+            length = feature.geometry().length()
+
+            return distance_from_start < length / 2
+
+
         # A dict of layers
         #  and for each layer the fields to use as foreign key
         #  as well as the possible target layers
@@ -626,24 +634,40 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         self.network_element_sources = {
             QgepLayerManager.layer('vw_qgep_reach'): {
                 'fields': [
-                    ('rp_to_fk_wastewater_networkelement',
-                     QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To')),
-                    ('rp_from_fk_wastewater_networkelement',
-                     QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'))
+                    {
+                        'id': 'rp_from_fk_wastewater_networkelement',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point From'),
+                        'filter': lambda source, target: target.layer() != QgepLayerManager.layer('vw_qgep_reach'),
+                        'is_checked': lambda source, target: is_closer_to_start_of_edge(source, target)
+                    },
+                    {
+                        'id': 'rp_to_fk_wastewater_networkelement',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Reach Point To'),
+                        'is_checked': lambda source, target: not is_closer_to_start_of_edge(source, target)
+                    }
                 ],
                 'target_layers': [
                     QgepLayerManager.layer('vw_wastewater_node'),
                     QgepLayerManager.layer('vw_qgep_reach')
                 ]},
-            QgepLayerManager.layer('catchment_area'): {'fields': [
-                ('fk_wastewater_networkelement_rw_current', QCoreApplication.translate(
-                    'QgepMapToolConnectNetworkElements', 'Rainwater current')),
-                ('fk_wastewater_networkelement_rw_planned', QCoreApplication.translate(
-                    'QgepMapToolConnectNetworkElements', 'Rainwater planned')),
-                ('fk_wastewater_networkelement_ww_current', QCoreApplication.translate(
-                    'QgepMapToolConnectNetworkElements', 'Wastewater current')),
-                ('fk_wastewater_networkelement_ww_planned', QCoreApplication.translate(
-                    'QgepMapToolConnectNetworkElements', 'Wastewater planned'))
+            QgepLayerManager.layer('catchment_area'): {
+                'fields': [
+                    {
+                        'id': 'fk_wastewater_networkelement_rw_current',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Rainwater current')
+                    },
+                    {
+                        'id': 'fk_wastewater_networkelement_rw_planned',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Rainwater planned')
+                    },
+                    {
+                        'id': 'fk_wastewater_networkelement_ww_current',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Wastewater current')
+                    },
+                    {
+                        'id': 'fk_wastewater_networkelement_ww_planned',
+                        'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Wastewater planned')
+                    }
             ],
                 'target_layers': [
                 QgepLayerManager.layer('vw_wastewater_node')
@@ -786,8 +810,14 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
         properties = list()
 
         for prop in self.network_element_sources[source.layer()]['fields']:
-            cbx = QCheckBox(prop[1])
-            cbx.setObjectName(prop[0])
+            if 'filter' in prop.keys():
+                if not prop['filter'](source, target):
+                    continue
+            cbx = QCheckBox(prop['name'])
+            cbx.setObjectName(prop['id'])
+
+            if 'is_checked' in prop.keys():
+                cbx.setChecked(prop['is_checked'](source, target))
             properties.append(cbx)
             dlg.layout().addWidget(cbx)
 
@@ -809,8 +839,7 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
             elif source.layer().updateFeature(source_feature):
                 self.iface.messageBar().pushMessage('QGEP',
                                                     self.tr('Connected {} to {}').format(
-                                                        source_feature[
-                                                            'identifier'],
+                                                        source_feature['identifier'],
                                                         target_feature['identifier']),
                                                     Qgis.Info, 5)
             else:
