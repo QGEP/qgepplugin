@@ -184,6 +184,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     """
     first_snapping_match = None
     last_snapping_match = None
+    last_feature_attributes = None
 
     def __init__(self, iface: QgisInterface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
@@ -303,13 +304,18 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
             fields = self.layer.fields()
             f = QgsFeature(fields)
-            for idx in range(len(fields)):
-                # try client side default value first
-                v = self.layer.defaultValue(idx, f)
-                if v != NULL:
-                    f.setAttribute(idx, v)
+            if not self.last_feature_attributes:
+                self.last_feature_attributes = [None] * fields.count()
+            for idx, field in enumerate(fields):
+                if field.name() in ['clear_height', 'material', 'ch_usage_current', 'ch_function_hierarchic', 'horizontal_positioning', 'ws_status', 'ws_year_of_construction', 'ws_fk_owner', 'ws_fk_operator', 'inside_coating', 'fk_pipe_profile', 'remark']:
+                    f.setAttribute(idx, self.last_feature_attributes[idx])
                 else:
-                    f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
+                    # try client side default value first
+                    v = self.layer.defaultValue(idx, f)
+                    if v != NULL:
+                        f.setAttribute(idx, v)
+                    else:
+                        f.setAttribute(idx, self.layer.dataProvider().defaultValue(idx))
 
             f.setGeometry(self.rubberband.asGeometry3D())
 
@@ -335,6 +341,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             dlg = self.iface.getFeatureForm(self.layer, f)
             dlg.setMode(QgsAttributeEditorContext.AddFeatureMode)
             dlg.exec_()
+            self.last_feature_attributes = dlg.feature().attributes()
 
         self.rubberband.reset3D()
 
