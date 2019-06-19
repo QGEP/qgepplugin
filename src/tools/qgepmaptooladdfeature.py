@@ -307,7 +307,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             if not self.last_feature_attributes:
                 self.last_feature_attributes = [None] * fields.count()
             for idx, field in enumerate(fields):
-                if field.name() in ['clear_height', 'material', 'ch_usage_current', 'ch_function_hierarchic', 'horizontal_positioning', 'ws_status', 'ws_year_of_construction', 'ws_fk_owner', 'ws_fk_operator', 'inside_coating', 'fk_pipe_profile', 'remark']:
+                if field.name() in ['clear_height', 'material', 'ch_usage_current', 'ch_function_hierarchic', 'ch_function_hydraulic','horizontal_positioning', 'ws_status', 'ws_year_of_construction', 'ws_fk_owner', 'ws_fk_operator', 'inside_coating', 'fk_pipe_profile', 'remark']:
                     f.setAttribute(idx, self.last_feature_attributes[idx])
                 else:
                     # try client side default value first
