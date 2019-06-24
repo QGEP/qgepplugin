@@ -62,9 +62,6 @@ env:
     - PUSH_TO=github # plugins (osgeo login, default), github (current repo)
     - PLUGIN_SRC_DIR=src
     - CREATE_DATE=2015-08-07
-    # TRANSIFEX_API_TOKEN, generated on Transifex website
-    # travis encrypt TX_TOKEN="......"
-    - secure: "lznZFeWfTYwRtj7TS8/pab2itZhHk9ObIgg7IWIOPY+1rdHnM2HUrbpG+/KVChM7EJluj2n8qSp98bdAoj4mU2QMS5rzagPKXudqFZdZFbcoC0KY3J+NBaGXpzwuLDLufOezaKeZjvXtDi0cjKCysw4BaY8pTxQE2MUN9dQnccv1Zr6itYw2LRiVMc9eNTRsW+W0NjEO5Afcm0WZ/Mqgk/HClxk6kScKKVlhYz61wJYDPQ1qmCbQ2rp3e2X5NSuYdREXeWjUlC+INM+kXoblQwmv7Bj61ilF103iZoMOwMTpN8dPfwlBQ0j4mk6t8LMChaJtavcqFdlQ1JxrTlzxV56O8UwpeAbRT0j+Ox2C9KCf9paDK6tIu1lt4qhlmQJUVpqPVlmnZQcky7uJVFXXG7ZVT3+4Rp7VaGV/6cVDgmqJvXmGV6Xe9HTMR6Fj+b7Ic59RjFBNY2QfvCeTf//pI3Xy//mx5mNeIdHtI8Eb2qrt/ZHh+0XwAri1vhtyW1sWzKTA4D3FPdU7mmA4Ad00whgodf2kie6yL/+4PqPNNm/HoQGwR6+fy6ett0G4gvcTqrD7ks1kpHkT0ReLiXy5PQgxTMTvA4/ATfg68v/vESM3F0TLKRilaZJ9l2fa/g/UiC7hRM8kbAlar0rqsUK8rcT32CksxmVvjEQqppKt69E="
 
     # GH_TOKEN for creating releases
     # https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line
