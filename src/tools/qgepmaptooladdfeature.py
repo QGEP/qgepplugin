@@ -334,7 +334,6 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     # assign level if the match is a node or if we have 3D from snapping
                     if match.layer() == self.node_layer:
                         level = network_element['bottom_level']
-                        level = level if not math.isnan(level) else NULL
                         f.setAttribute(level_field_index, level)
                 elif self.rubberband.points[pt_idx].z() != 0:
                     level = self.rubberband.points[pt_idx].z()
