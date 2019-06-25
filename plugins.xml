@@ -1,17 +1,17 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <plugins>
-    <pyqgis_plugin name="QGEP" version="1.1.13">
+    <pyqgis_plugin name="QGEP" version="1.1.14">
         <description><![CDATA[Plugin to manage wastewater networks]]></description>
-        <version>1.1.13</version>
+        <version>1.1.14</version>
         <qgis_minimum_version>3.2</qgis_minimum_version>
         <homepage>http://github.com/QGEP/qgepplugin</homepage>
-        <file_name>qgepplugin.1.1.13.zip</file_name>
+        <file_name>qgepplugin.1.1.14.zip</file_name>
         <icon>icons/qgepIcon.svg</icon>
         <author_name>OpenGIS.ch</author_name>
-        <download_url>https://github.com/QGEP/qgepplugin/releases/download/1.1.13/qgepplugin.1.1.13.zip</download_url>
+        <download_url>https://github.com/QGEP/qgepplugin/releases/download/1.1.14/qgepplugin.1.1.14.zip</download_url>
         <uploaded_by>OpenGISch</uploaded_by>
         <create_date>2015-08-07</create_date>
-	    <update_date>2019-06-24</update_date>
+	    <update_date>2019-06-25</update_date>
         <experimental>True</experimental>
         <deprecated>False</deprecated>
         <tracker>https://github.com/QGEP/qgepplugin/issues</tracker>
