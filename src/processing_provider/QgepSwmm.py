@@ -2,15 +2,30 @@
 
 import psycopg2
 import codecs
+import subprocess
+import re
 
 class QgepSwmm:
     
-    def __init__(self, title, service, inpfile, inptemplate, outfile):
+    def __init__(self, title, service, inpfile, inptemplate, outfile, logfile, binfile):
+        """ 
+        Initiate QgepSwmm
+        
+        Parameters:
+        title (string): Title of the simulation
+        service (string): name of the service to be used to connect to the QGEP database
+        inpfile (path): path of the INP file (input file for swmm)
+        inptemplate (path): path of the INP file which store simulations parameters 
+        outfile (path): path of the OUT file which contains swmm results
+        logfile (path): path of the log file which contains swmm log
+        """
         self.title = title
         self.service = service
         self.input_file = inpfile
         self.options_template_file = inptemplate
         self.output_file = outfile
+        self.log_file = logfile
+        self.bin_file = binfile
 
     def get_swmm_table(self, table_name):
         """ 
@@ -342,6 +357,41 @@ class QgepSwmm:
             result.append(curRes)
         return result
     
+    def execute_swmm(self):
+        """ 
+        Execute SWMM
+        
+        Parameters:
+        dic: Extracted computed values
+        
+        """
+        
+        command = self.bin_file+' '+self.input_file+' '+self.log_file +' '+self.output_file
+        command = [self.bin_file,self.input_file,self.log_file,self.output_file]
+        print ('command', command)
+        proc = subprocess.run(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            ).stdout
+        print (proc)
+        if re.search('There are errors', proc):
+            msg = 'There were errors, look into logs for details: {log_file}'.format(log_file=self.log_file)
+            raise RuntimeError(msg)
+            return False, msg
+        else:
+            msg = 'The simulation succeed: {output_file}'.format(output_file=self.output_file)
+            return True, msg
+
+#        if re.search('There are errors', log):
+#            o = open(outfilename,'r')
+#            ProcessingLog.addToLog(ProcessingLog.LOG_ERROR, o.read())
+#            o.close()
+#            raise RuntimeError('There were errors, look into logs for details')
+
 #    def save_node_depth_summary(self):
 #        # Delete existing results
 #        self.delete_table('nodes_results')
@@ -448,12 +498,10 @@ class QgepSwmm:
 #PGSERVICE = 'pg_qgep_demo_data'
 #INPFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\input\\qgep_swmm.inp'
 #INPTEMPLATE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\simulation_parameters\\default_qgep_swmm_parameters.inp'
-#OUTFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\output\\swmm.out'
-
-#subprocess.call([PATH2SCHEMA])   
-#qs = qgep_swmm(TITLE, PGSERVICE, INPFILE, INPTEMPLATE, OUTFILE)
-#qs.write_input()
-#print ('done')
-#qs.save_node_depth_summary()
-#qs.save_link_flow_summary()
-#qs.save_cross_section_summary()
+#OUTFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\output\\swmm_test.out'
+#LOGFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\output\\log.out'
+#BINFILE = 'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm5'
+#
+##subprocess.call([PATH2SCHEMA])   
+#qs = QgepSwmm(TITLE, PGSERVICE, INPFILE, INPTEMPLATE, OUTFILE, LOGFILE, BINFILE)
+#qs.execute_swmm()
