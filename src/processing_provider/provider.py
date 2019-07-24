@@ -23,6 +23,8 @@ from qgis.core import QgsProcessingProvider
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
 from .change_reach_direction import ChangeReachDirection
+from .swmm_create_input import SwmmCreateInputAlgorithm
+from .swmm_extract_results import SwmmExtractResultsAlgorithm
 
 from PyQt5.QtGui import QIcon
 import os
@@ -44,12 +46,12 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm()]
         return algs
 
     def id(self):
