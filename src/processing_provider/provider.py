@@ -87,7 +87,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
         ProcessingConfig.addSetting(Setting(self.name(),
                                             'SWMM_PATH',
                                             self.tr("SWMM executable"),
-                                            'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm5.exe',
+                                            'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm55.exe',
                                             valuetype=Setting.FILE))
         
         ProviderContextMenuActions.registerProviderContextMenuActions(self.alglist)

@@ -377,14 +377,9 @@ class QgepSwmm:
             stderr=subprocess.STDOUT,
             universal_newlines=True,
             ).stdout
-        print (proc)
-        if re.search('There are errors', proc):
-            msg = 'There were errors, look into logs for details: {log_file}'.format(log_file=self.log_file)
-            raise RuntimeError(msg)
-            return False, msg
-        else:
-            msg = 'The simulation succeed: {output_file}'.format(output_file=self.output_file)
-            return True, msg
+        
+        return proc
+
 
 #        if re.search('There are errors', log):
 #            o = open(outfilename,'r')

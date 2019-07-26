@@ -82,13 +82,13 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
         # The parameters
         description = self.tr('INP File')
-        self.addParameter(QgsProcessingParameterFile(self.INP_FILE, description=description))
+        self.addParameter(QgsProcessingParameterFile(self.INP_FILE, description=description, extension="inp"))
         
         description = self.tr('OUT File')
-        self.addParameter(QgsProcessingParameterFileDestination(self.OUT_FILE, description=description))
+        self.addParameter(QgsProcessingParameterFileDestination(self.OUT_FILE, description=description, fileFilter="out (*.out)"))
         
         description = self.tr('LOG File')
-        self.addParameter(QgsProcessingParameterFileDestination(self.LOG_FILE, description=description))
+        self.addParameter(QgsProcessingParameterFileDestination(self.LOG_FILE, description=description, fileFilter="log (*.log)"))
         
         
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
@@ -99,16 +99,25 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         output_file = self.parameterAsFile(parameters, self.OUT_FILE, context)
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
         swmm_cli = os.path.abspath(ProcessingConfig.getSetting('SWMM_PATH'))
-                #        if not swmm_cli:
-        #            raise GeoAlgorithmExecutionException(
-        #                    'Swmm command line toom is not configured.\n\
-        #                     Please configure it before running Swmm algorithms.')
-        #        swmm_cli = os.path.abspath(ProcessingConfig.getSetting('Swmm_CLI'))
+        if not swmm_cli:
+            #raise GeoAlgorithmExecutionException(
+            #'Swmm command line toom is not configured.\n\
+            # Please configure it before running Swmm algorithms.')
+            raise QgsProcessingException(
+                    'Swmm command line toom is not configured.\n\
+                    Please configure it before running Swmm algorithms.'
+                    )
+            pass
         
         qs = QgepSwmm(None, None, inp_file, None, output_file, log_file, swmm_cli)
-        success, message = qs.execute_swmm()
-        print ('success', success)
-        print ('message', message)
+        prompt, message = qs.execute_swmm()
+        
+        feedback.pushInfo(prompt)
+        
+        if re.search('There are errors', prompt):
+            feedback.reportError(prompt)
+            feedback.reportError('There were errors, look into logs for details: {log_file}'.format(log_file=self.log_file))
+
 
         feedback.setProgress(100)
 

@@ -82,10 +82,10 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         self.addParameter(QgsProcessingParameterString(self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
         
         description = self.tr('Template INP File')
-        self.addParameter(QgsProcessingParameterFile(self.TEMPLATE_INP_FILE, description=description))
+        self.addParameter(QgsProcessingParameterFile(self.TEMPLATE_INP_FILE, description=description, extension="inp"))
         
         description = self.tr('Result INP File')
-        self.addParameter(QgsProcessingParameterFileDestination(self.INP_FILE, description=description))
+        self.addParameter(QgsProcessingParameterFileDestination(self.INP_FILE, description=description, fileFilter="inp (*.inp)"))
 
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
@@ -99,7 +99,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
         
         # Connect to QGEP database and perform translation
-        qs = QgepSwmm(datetime.datetime.today().isoformat(), database, inp_file, template_inp_file, None)
+        qs = QgepSwmm(datetime.datetime.today().isoformat(), database, inp_file, template_inp_file, None, None, None)
         qs.write_input()
         
         #while reading_some_data():
