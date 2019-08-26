@@ -26,6 +26,7 @@ from processing.gui.ProviderActions import (ProviderContextMenuActions)
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
 from .change_reach_direction import ChangeReachDirection
+from .swmm_create_db_tables import SwmmCreateDbTables
 from .swmm_create_input import SwmmCreateInputAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_execute import SwmmExecuteAlgorithm
@@ -51,12 +52,12 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):

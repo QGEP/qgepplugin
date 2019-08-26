@@ -112,7 +112,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
             
         # Get node summary from output file
-        qs = QgepSwmm(None, None, None, None, out_file)
+        qs = QgepSwmm(None, None, None, None, out_file, None, None, None)
         node_summary = qs.extract_node_depth_summary()
         
         # Fill node summary with data

@@ -19,35 +19,35 @@
  ***************************************************************************/
 """
 
-import qgis.utils as qgis_utils
+#import qgis.utils as qgis_utils
 
 import datetime
 
 from qgis.core import (
-    QgsExpression,
-    QgsFeature,
-    QgsFeatureRequest,
-    QgsFeatureSink,
-    QgsField,
-    QgsFields,
-    QgsGeometry,
-    QgsProcessing,
-    QgsProcessingAlgorithm,
+   # QgsExpression,
+    #QgsFeature,
+    #QgsFeatureRequest,
+    #QgsFeatureSink,
+    #QgsField,
+    #QgsFields,
+    #QgsGeometry,
+    #QgsProcessing,
+    #QgsProcessingAlgorithm,
     QgsProcessingContext,
-    QgsProcessingException,
+    #QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterString,
-    QgsProcessingParameterFile,
-    QgsProcessingParameterFileDestination,
-    QgsWkbTypes
+    #QgsProcessingParameterFile,
+    QgsProcessingParameterFolderDestination,
+    #QgsWkbTypes
 )
 
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
-from ..tools.qgepnetwork import QgepGraphManager
+#from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+#from PyQt5.QtCore import QCoreApplication#, QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2019-08-01'
@@ -58,19 +58,18 @@ __copyright__ = '(C) 2019 by IG-Group.ch'
 __revision__ = '$Format:%H$'
 
 
-class SwmmCreateInputAlgorithm(QgepAlgorithm):
+class SwmmCreateDbTables(QgepAlgorithm):
     """
     """
 
+    DBMODELPATH = 'DBMODELPATH'
     DATABASE = 'DATABASE'
-    TEMPLATE_INP_FILE = 'TEMPLATE_INP_FILE'
-    INP_FILE = 'INP_FILE'
 
     def name(self):
-        return 'swmm_create_input'
+        return 'swmm_create_db_tables'
 
     def displayName(self):
-        return self.tr('SWMM Create Input')
+        return self.tr('SWMM Create DB Tables')
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
@@ -81,12 +80,9 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         description = self.tr('Database')
         self.addParameter(QgsProcessingParameterString(self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
         
-        description = self.tr('Template INP File')
-        self.addParameter(QgsProcessingParameterFile(self.TEMPLATE_INP_FILE, description=description, extension="inp"))
+        description = self.tr('Path to DB Model SQL')
+        self.addParameter(QgsProcessingParameterFolderDestination(self.DBMODELPATH, description=description))
         
-        description = self.tr('Result INP File')
-        self.addParameter(QgsProcessingParameterFileDestination(self.INP_FILE, description=description, fileFilter="inp (*.inp)"))
-
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -95,15 +91,17 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
 
         # init params
         database = self.parameterAsString(parameters, self.DATABASE, context)
-        template_inp_file = self.parameterAsFile(parameters, self.TEMPLATE_INP_FILE, context)
-        inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
+        db_model_path = self.parameterAsFile(parameters, self.DBMODELPATH, context)
         
         # Connect to QGEP database and perform translation
-        qs = QgepSwmm(datetime.datetime.today().isoformat(), database, inp_file, template_inp_file, None, None, None, None)
-        qs.write_input()
-        
-        #while reading_some_data():
-        #feedback.setProgress(100)
-        #    write_data
+        qs = QgepSwmm(datetime.datetime.today().isoformat(), database, None, None, None, None, None, db_model_path)
+        qs.create_swmm_schema()
+        feedback.setProgress(25)
+        qs.create_swmm_views()
+        feedback.setProgress(50)
+        qs.delete_swmm_tables()
+        feedback.setProgress(75)
+        qs.create_fill_swmm_tables()
+        feedback.setProgress(100)
 
-        return {self.INP_FILE: inp_file}
+        return {}

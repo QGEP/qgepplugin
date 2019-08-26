@@ -20,7 +20,7 @@
 """
 
 import qgis.utils as qgis_utils
-import os
+import os, re
 
 from qgis.core import (
     QgsExpression,
@@ -109,14 +109,14 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                     )
             pass
         
-        qs = QgepSwmm(None, None, inp_file, None, output_file, log_file, swmm_cli)
-        prompt, message = qs.execute_swmm()
+        qs = QgepSwmm(None, None, inp_file, None, output_file, log_file, swmm_cli, None)
+        prompt = qs.execute_swmm()
         
         feedback.pushInfo(prompt)
         
         if re.search('There are errors', prompt):
             feedback.reportError(prompt)
-            feedback.reportError('There were errors, look into logs for details: {log_file}'.format(log_file=self.log_file))
+            feedback.reportError('There were errors, look into logs for details: {log_file}'.format(log_file=log_file))
 
 
         feedback.setProgress(100)
