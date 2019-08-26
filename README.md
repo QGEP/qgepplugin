@@ -21,7 +21,7 @@ This plugin is part of the QGEP Wastewater project for QGIS.
 * In QGIS `Preferences > Processing > Processing providers > QGEP > SWMM exectutable` set the path to the swmm `.exe` i.e. `C:/Program Files (x86)/EPA SWMM 5.1.013/swmm5.exe` 
 
 ### Installation psycopg2
-The script requires `psycopg2` to connect to the database. 
+The script requires `psycopg2` to connect to the database. (NOT SURE IF PSYCOPG IS INSTALLED BY DEFAULT WITH QGIS)
 
 [Psycopg2 installation](https://pypi.org/project/psycopg2/)
 
