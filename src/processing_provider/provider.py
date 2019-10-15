@@ -25,6 +25,7 @@ from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.ProviderActions import (ProviderContextMenuActions)
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
+from .sum_up_upstream import SumUpUpstreamAlgorithm
 from .change_reach_direction import ChangeReachDirection
 from .swmm_create_db_tables import SwmmCreateDbTables
 from .swmm_create_input import SwmmCreateInputAlgorithm
@@ -52,12 +53,12 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):
