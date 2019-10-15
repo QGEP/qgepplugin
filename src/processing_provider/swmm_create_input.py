@@ -2,11 +2,11 @@
 
 """
 /***************************************************************************
- QGEP processing provider
+ QGEP-swmm processing provider
                               -------------------
-        begin                : 18.11.2017
-        copyright            : (C) 2017 by OPENGIS.ch
-        email                : matthias@opengis.ch
+        begin                : 07.2019
+        copyright            : (C) 2019 by ig-group.ch
+        email                : timothee.produit@ig-group.ch
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,35 +19,35 @@
  ***************************************************************************/
 """
 
-import qgis.utils as qgis_utils
+#import qgis.utils as qgis_utils
 
 import datetime
 
 from qgis.core import (
-    QgsExpression,
-    QgsFeature,
-    QgsFeatureRequest,
-    QgsFeatureSink,
-    QgsField,
-    QgsFields,
-    QgsGeometry,
-    QgsProcessing,
-    QgsProcessingAlgorithm,
+    #QgsExpression,
+    #QgsFeature,
+    #QgsFeatureRequest,
+    #QgsFeatureSink,
+    #QgsField,
+    #QgsFields,
+    #QgsGeometry,
+    #QgsProcessing,
+    #QgsProcessingAlgorithm,
     QgsProcessingContext,
-    QgsProcessingException,
+    #QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterString,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
-    QgsWkbTypes
+    #QgsWkbTypes
 )
 
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
-from ..tools.qgepnetwork import QgepGraphManager
+#from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+#from PyQt5.QtCore import QCoreApplication, QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2019-08-01'
@@ -102,8 +102,4 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         qs = QgepSwmm(datetime.datetime.today().isoformat(), database, inp_file, template_inp_file, None, None, None, None)
         qs.write_input()
         
-        #while reading_some_data():
-        #feedback.setProgress(100)
-        #    write_data
-
         return {self.INP_FILE: inp_file}

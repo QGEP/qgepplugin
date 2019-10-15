@@ -2,11 +2,11 @@
 
 """
 /***************************************************************************
- QGEP processing provider
+ QGEP-swmm processing provider
                               -------------------
-        begin                : 18.11.2017
-        copyright            : (C) 2017 by OPENGIS.ch
-        email                : matthias@opengis.ch
+        begin                : 07.2019
+        copyright            : (C) 2019 by ig-group.ch
+        email                : timothee.produit@ig-group.ch
  ***************************************************************************/
 
 /***************************************************************************

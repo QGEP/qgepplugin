@@ -2,11 +2,11 @@
 
 """
 /***************************************************************************
- QGEP processing provider
+ QGEP-swmm processing provider
                               -------------------
-        begin                : 18.11.2017
-        copyright            : (C) 2017 by OPENGIS.ch
-        email                : matthias@opengis.ch
+        begin                : 07.2019
+        copyright            : (C) 2019 by ig-group.ch
+        email                : timothee.produit@ig-group.ch
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,27 +19,27 @@
  ***************************************************************************/
 """
 
-import qgis.utils as qgis_utils
+#import qgis.utils as qgis_utils
 import os, re
 
 from qgis.core import (
-    QgsExpression,
-    QgsFeature,
-    QgsFeatureRequest,
-    QgsFeatureSink,
-    QgsField,
-    QgsFields,
-    QgsGeometry,
-    QgsProcessing,
-    QgsProcessingAlgorithm,
+    #QgsExpression,
+    #QgsFeature,
+    #QgsFeatureRequest,
+    #QgsFeatureSink,
+    #QgsField,
+    #QgsFields,
+    #QgsGeometry,
+    #QgsProcessing,
+    #QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
-    QgsProcessingParameterString,
+    #QgsProcessingParameterString,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
-    QgsWkbTypes,
-    QgsProcessingParameterFeatureSink
+    #QgsWkbTypes,
+    #QgsProcessingParameterFeatureSink
 )
 
 from processing.core.ProcessingConfig import ProcessingConfig
@@ -47,9 +47,9 @@ from processing.core.ProcessingConfig import ProcessingConfig
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
-from ..tools.qgepnetwork import QgepGraphManager
+#from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+#from PyQt5.QtCore import QCoreApplication, QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2019-08-01'

@@ -21,7 +21,7 @@ This plugin is part of the QGEP Wastewater project for QGIS.
 * In QGIS `Preferences > Processing > Processing providers > QGEP > SWMM exectutable` set the path to the swmm `.exe` i.e. `C:/Program Files (x86)/EPA SWMM 5.1.013/swmm5.exe` 
 
 ### Installation psycopg2
-The script requires `psycopg2` to connect to the database. (NOT SURE IF PSYCOPG IS INSTALLED BY DEFAULT WITH QGIS)
+The script requires `psycopg2` to connect to the database. It is installed by default with QGIS, it is not necessary to install it if you use the QGEP plugin.
 
 [Psycopg2 installation](https://pypi.org/project/psycopg2/)
 
@@ -43,12 +43,12 @@ password=postgres
 
 In the QGEP processing tool there are four processes:
 
-0. `SWMM Create DB Tables` generates the table required by the plugin and fill them with the QGEP data
-1. `SWMM Create Input` reads data from the table in the schema qgep_swmm and generate an input file for SWMM
-2. `SWMM Execute` launches SWMM. Its likely that the the `.inp` file generated in the previous step contains error. In this case, the `.inp` file have to be opened with the SWMM Gui to solve the errors.
+0. `SWMM Create DB Tables` generates the tables required by the plugin and fill them with the QGEP data
+1. `SWMM Create Input` reads data from the tables in the schema qgep_swmm and generate an input file for SWMM
+2. `SWMM Execute` launches SWMM. Its likely that the `.inp` file generated in the previous step contains error. In this case, the `.inp` file has to be opened with the SWMM Gui to solve the errors.
 3. `SWMM Extract Results` parses the result file and generates three QGIS table layers. 
 
-Then, the user has to join the computed values with the geometries and map them. This step is currently not automatised
+Then, the user has to join the computed values with the geometries and map them. This step is currently not automatised.
 
 
 ### Create and fill SWMM tables
@@ -67,9 +67,9 @@ qs.create_fill_swmm_tables()
  
 ### SWMM Create Input
 
-An `.inp` file is the input file format for SWMM. It contains the wastewater network AND simulation parameters.
+An `.inp` file is the input file format for SWMM. It contains the wastewater network AND simulation parameters. The network can be extracted from the QGEP data (QGEP-SWMM tables), but the simulation parameters must be set according to your study.
 
-The wastewater network is extracted from QGEP-SWMM tables. The simulation parameters are copied from a provided `.inp` file.
+The simulation parameters are copied from a provided `.inp` file (a default file is provided in the plugin folder `src\swmm\default_qgep_swmm_parameters.inp`)
 
 * Launch `SWMM Create Input`
 * Database: the name of the service used to connect to the database
@@ -115,6 +115,7 @@ The path to the SWMM executable must be set in the Processsing tools options.
 ### Mapping
 * Use processing tool `join attributes` to add the results to the table `qgep_swmm.conduits` and `qgep_swmm.junctions`.
 
+
 ## Open .INP with SWMM
 
 
@@ -131,7 +132,7 @@ The link doesn't exist im conduits, pumps, orifices, weirs, outlets
 
 You have to solve the errors in the order they appear in the report. Some errors are interrelated (i.e. a node in a conduit is not defined => the conduit is not imported => Undefined link error)
 
-## Change parameters
+## Change simulation parameters
 
 ### Title/Notes:
 * Set by the user as a QGEP_SWMM option 
@@ -157,14 +158,17 @@ By default:
 QGEP_SWMM creates an aquifer for each qgep aquifiers.
 
 By default:
+
 * An aquifer is created for each qgep aquifiers
 * The bottom elevation is set to the minimal_groundwater_level
 * The water table elevation is set to the average_groundwater_level
 * Other parameters have default SWMM values
 
 #### Subcatchment:
-QGEP_SWMM creates a subcatchment for each QGEP catchment area
+QGEP_SWMM creates a subcatchment for each QGEP catchment area.
+
 By default:
+
 * a subcatchment is created for each QGEP catchment area
 * it is linked to a rain gage. 
 * The width is computed from the mean of the minimal / maximal distance between the outlet and the catchment area contour. If the outlet is unknow the centroid is used rather thant the outlet.
@@ -280,10 +284,19 @@ Use the *lightning* button
 
 A negative number is provided for the depth => change the value in QGEP or in the .inp file.
 
-## Run current state simulation
+## GEP project
+
+** This section must be completed with end users **
+
+Usually, a GEP analysis has at least three steps:
+
+* The current state of the network is analysed
+* The aimed state is analysed (the available areas are built at 100%), the impervious surface increase.
+* Several variants are tested and analysed
+
+
 
 ### Minimal parameters to be set
-! TO BE CHECKED!
 
 * `Time series` Create a time serie for the rain (default_qgep_raingage_timeserie) / the time serie have to be linked to the raingages `Hydrology > Rain Gages` (which are linked to the subcatchments)
 
@@ -293,12 +306,12 @@ A negative number is provided for the depth => change the value in QGEP or in th
 ### Optional parameters
 * `Climatology > Evaporation`
 
-## Run aimed state simulation
+### Run aimed state simulation
 * Copy the inp file used for the previous simulation
 
-### Impervious areas increase
+#### Impervious areas increase
 Hydrology > Subcatchements > % Imperv
 
 
-## Run variants (network is modified)
+### Run variants (network is modified)
 * New links and new nodes are created directly in SWMM GUI

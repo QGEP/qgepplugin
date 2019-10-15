@@ -1,9 +1,26 @@
 # -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ QGEP-swmm processing provider
+                              -------------------
+        begin                : 07.2019
+        copyright            : (C) 2019 by ig-group.ch
+        email                : timothee.produit@ig-group.ch
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
 
 import psycopg2
 import codecs
 import subprocess
-import re
 import os
 
 class QgepSwmm:
@@ -472,127 +489,26 @@ class QgepSwmm:
         return proc
 
 
-#        if re.search('There are errors', log):
-#            o = open(outfilename,'r')
-#            ProcessingLog.addToLog(ProcessingLog.LOG_ERROR, o.read())
-#            o.close()
-#            raise RuntimeError('There were errors, look into logs for details')
 
-#    def save_node_depth_summary(self):
-#        # Delete existing results
-#        self.delete_table('nodes_results')
-#        # Extract node depth table
-#        data = self.extract_node_depth_summary()
-#        con = None
-#        sql = """
-#        INSERT INTO qgep_swmm.nodes_results VALUES (
-#        %(id)s, %(type)s, %(average_depth)s,
-#        %(maximum_depth)s, %(maximum_HGL)s, %(time_max_day)s, 
-#        %(time_max_time)s, %(reported_max_depth)s)
-#        """
-#        try:
-#            con = psycopg2.connect(service=self.service)
-#            cur = con.cursor()
-#            cur.executemany(sql, data)
-#            con.commit()
-#        except (Exception, psycopg2.DatabaseError) as error:
-#            print (error)
-#
-#        finally:
-#            if con is not None:
-#                con.close()
-#        return
-#    
-#    def save_link_flow_summary(self):
-#        # Delete existing results
-#        self.delete_table('links_results')
-#        # Extract node depth table
-#        data = self.extract_link_flow_summary()
-#        print (data)
-#        con = None
-#        sql = """
-#        INSERT INTO qgep_swmm.links_results VALUES (
-#        %(id)s, %(type)s, %(maximum_flow)s,
-#        %(time_max_day)s, %(time_max_time)s,
-#        %(maximum_velocity)s, %(max_over_full_flow)s,  %(max_over_full_depth)s)
-#        """
-#        try:
-#            con = psycopg2.connect(service=self.service)
-#            cur = con.cursor()
-#            cur.executemany(sql, data)
-#            con.commit()
-#        except (Exception, psycopg2.DatabaseError) as error:
-#            print (error)
-#
-#        finally:
-#            if con is not None:
-#                con.close()
-#        return
-#    
-#    def save_cross_section_summary(self):
-#        """Save the cross section summary output from the SWMM process"""
-#                # Delete existing results
-#        self.delete_table('xsections_results')
-#        # Extract node depth table
-#        data = self.extract_cross_section_summary()
-#        con = None
-#        sql = """
-#        INSERT INTO qgep_swmm.xsections_results VALUES (
-#        %(id)s, %(shape)s, %(full_depth)s,
-#        %(full_area)s, %(hyd_rad)s, %(max_width)s, 
-#        %(no_of_barrels)s, %(full_flow)s)
-#        """
-#        try:
-#            con = psycopg2.connect(service=self.service)
-#            cur = con.cursor()
-#            cur.executemany(sql, data)
-#            con.commit()
-#        except (Exception, psycopg2.DatabaseError) as error:
-#            print (error)
-#
-#        finally:
-#            if con is not None:
-#                con.close()
-#        return
-#    
-#    def delete_table(self, table_name):
-#        conn = None
-#        rows_deleted = 0
-#        try:
-#            # connect to the PostgreSQL database
-#            conn = psycopg2.connect(service=self.service)
-#            # create a new cursor
-#            cur = conn.cursor()
-#            # execute the UPDATE  statement
-#            cur.execute("DELETE FROM qgep_swmm.%s" %table_name)
-#            # get the number of updated rows
-#            rows_deleted = cur.rowcount
-#            # Commit the changes to the database
-#            conn.commit()
-#            # Close communication with the PostgreSQL database
-#            cur.close()
-#        except (Exception, psycopg2.DatabaseError) as error:
-#            print(error)
-#        finally:
-#            if conn is not None:
-#                conn.close()
-#        return rows_deleted
+
+
+# =============================================================================
+# Examples to show how theses functions can be used within Python scripts
         
+# TITLE = 'title simulation'
+# PGSERVICE = 'pg_qgep_demo_data'
+# INPFILE = '\\qgep_swmm\\input\\qgep_swmm.inp'
+# INPTEMPLATE = '\\qgep_swmm\\simulation_parameters\\default_qgep_swmm_parameters.inp'
+# OUTFILE = '\\qgep_swmm\\output\\swmm_test.out'
+# LOGFILE = '\\qgep_swmm\\output\\log.out'
+# BINFILE = 'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm5'
+# DBMODEL = '\\qgep_swmm\\02_datamodel\\swmm_views'
+#   
+# qs = QgepSwmm(TITLE, PGSERVICE, INPFILE, INPTEMPLATE, OUTFILE, LOGFILE, BINFILE, DBMODEL)
+# qs.create_swmm_schema()
+# qs.create_swmm_views()
+# qs.delete_swmm_tables()
+# qs.create_fill_swmm_tables()
+# qs.execute_swmm()
+# =============================================================================
 
-
-#TITLE = 'title simulation'
-#PGSERVICE = 'pg_qgep_demo_data'
-#INPFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\input\\qgep_swmm.inp'
-#INPTEMPLATE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\simulation_parameters\\default_qgep_swmm_parameters.inp'
-#OUTFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\output\\swmm_test.out'
-#LOGFILE = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\output\\log.out'
-#BINFILE = 'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm5'
-#DBMODEL = 'S:\\2_INTERNE_SION\\0_COLLABORATEURS\\PRODUIT_Timothee\\02_work\\qgep_swmm\\02_datamodel\\swmm_views'
-# 
-#qs = QgepSwmm(TITLE, PGSERVICE, INPFILE, INPTEMPLATE, OUTFILE, LOGFILE, BINFILE, DBMODEL)
-#qs.create_swmm_schema()
-#qs.create_swmm_views()
-#qs.delete_swmm_tables()
-#qs.create_fill_swmm_tables()
-        
-#qs.execute_swmm()
