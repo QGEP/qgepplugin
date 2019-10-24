@@ -14,9 +14,9 @@ message:  # Customize the comment made by the bot
     opened:  # Messages when a new PR is submitted
         header: "Hello @{name}! Thanks for opening this PR. "
                 # The keyword {name} is converted into the author's username
-        footer: "Do see the [Hitchhiker's guide to code style](https://goo.gl/hqbW4r)"
+        footer: "Do see the [Hitchhiker's guide to code style](https://goo.gl/hqbW4r) or answer with `@pep8speaks pep8ify` to make me help you fix the issues."
                 # The messages can be written as they would over GitHub
     updated:  # Messages when new commits are added to the PR
         header: "Hello @{name}! Thanks for updating this PR. "
-        footer: ""  # Why to comment the link to the style guide everytime? :)
+        footer: "Answer with `@pep8speaks pep8ify` to make me help you fix these issues."  # Why to comment the link to the style guide everytime? :)
     no_errors: "There are currently no PEP 8 issues detected in this Pull Request. Cheers! :beers: "
