@@ -20,16 +20,9 @@
 """
 
 from qgis.core import (
-    QgsExpression,
-    QgsFeatureRequest,
-    QgsGeometry,
     QgsProcessingAlgorithm,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterVectorLayer
 )
-
-from PyQt5.QtCore import QCoreApplication
 
 from .qgep_algorithm import QgepAlgorithm
 
@@ -72,10 +65,10 @@ class ChangeReachDirection(QgepAlgorithm):
 
         reach_layer.startEditing()
 
-        feature_count = 0
+        # feature_count = 0
 
         iterator = reach_layer.getSelectedFeatures()
-        feature_count = reach_layer.selectedFeatureCount()
+        # feature_count = reach_layer.selectedFeatureCount()
 
         # Loop through relevant reaches
         reach_layer.beginEditCommand('change directions')

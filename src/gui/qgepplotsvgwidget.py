@@ -23,7 +23,6 @@
 #
 # ---------------------------------------------------------------------
 
-import os
 from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
 from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
 from qgis.PyQt.QtWebKit import QWebSettings

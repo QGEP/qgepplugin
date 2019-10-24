@@ -45,11 +45,9 @@ from qgis.core import (
     Qgis,
     QgsMessageLog,
     QgsGeometry,
-    QgsDataSourceUri,
     QgsPointXY,
     NULL
 )
-from qgis.gui import QgsMessageBar
 from qgepplugin.utils.qt_utils import OverrideCursor
 import networkx as nx
 

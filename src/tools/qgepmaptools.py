@@ -379,8 +379,8 @@ class QgepProfileMapTool(QgepMapTool):
             self.profileChanged.emit(self.profile)
 
             # Create rubberband geometry
-            for featId in edge_ids:
-                self.pathPolyline.extend(edge_features[featId].geometry().asPolyline())
+            for feat_id in edge_ids:
+                self.pathPolyline.extend(edge_features[feat_id].geometry().asPolyline())
 
             self.rubberBand.addGeometry(QgsGeometry.fromPolylineXY(self.pathPolyline), node_layer)
             self.profileChanged.emit(self.profile)

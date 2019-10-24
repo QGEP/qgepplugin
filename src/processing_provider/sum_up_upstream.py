@@ -20,7 +20,6 @@
 """
 
 
-import qgis
 from qgis.core import (
     QgsExpression,
     QgsExpressionContext,
@@ -29,10 +28,8 @@ from qgis.core import (
     QgsFeatureRequest,
     QgsFeatureSink,
     QgsField,
-    QgsFields,
     QgsGeometry,
     QgsProcessing,
-    QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
@@ -51,7 +48,7 @@ import statistics
 
 from .qgep_algorithm import QgepAlgorithm
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from PyQt5.QtCore import QVariant
 
 __author__ = 'Matthias Kuhn'
 __date__ = '2019-04-09'
@@ -266,7 +263,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             if feedback.isCanceled():
                 return NULL
 
-            if not node_id in reaches_by_from_node:
+            if node_id not in reaches_by_from_node:
                 # Blind connection: add proportionally
                 reach = reaches_by_id[node_id]
                 offset = reach.geometry.lineLocatePoint(QgsGeometry(previous_reach.geometry.constGet().endPoint()))

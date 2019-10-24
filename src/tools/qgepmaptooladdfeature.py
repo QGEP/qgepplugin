@@ -28,9 +28,7 @@ Some map tools for digitizing features
 """
 
 from builtins import next
-from builtins import range
 from qgis.gui import (
-    QgsAttributeForm,
     QgsAttributeEditorContext,
     QgsMapToolAdvancedDigitizing,
     QgsMapTool,
