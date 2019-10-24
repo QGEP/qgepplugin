@@ -330,7 +330,8 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                     network_element = next(match.layer().getFeatures(request))
                     assert network_element.isValid()
                     # set the related network element
-                    field = self.layer.fields().indexFromName('rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
+                    field = self.layer.fields().indexFromName(
+                        'rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
                     f.setAttribute(field, network_element.attribute('obj_id'))
                     # assign level if the match is a node or if we have 3D from snapping
                     if match.layer() == self.node_layer:

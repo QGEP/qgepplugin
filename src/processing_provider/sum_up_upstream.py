@@ -99,7 +99,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('Source value expression. Use <code>COALESCE("field_name", 0)</code> to treat <code>NULL</code> values as 0.')
+        description = self.tr(
+            'Source value expression. Use <code>COALESCE("field_name", 0)</code> to treat <code>NULL</code> values as 0.')
         self.addParameter(QgsProcessingParameterExpression(self.VALUE_EXPRESSION, description=description,
                                                            parentLayerParameterName=self.REACH_LAYER))
         description = self.tr('Branch behavior')
@@ -221,7 +222,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             times = []
             if from_node_id in reaches_by_from_node.keys():
                 for reach in reaches_by_from_node[from_node_id]:
-                    times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
+                    times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(
+                        processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
 
             if times:
                 time = aggregate_method(times)
@@ -285,7 +287,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
                     # Branching occurred: calculate every possible path and aggregate all values
                     times = []
                     for reach in current_reaches:
-                        times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
+                        times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(
+                            processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
 
                     if times:
                         time += aggregate_method(times)
