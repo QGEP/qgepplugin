@@ -50,4 +50,3 @@ class QgepAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return type(self)()
-
