@@ -20,41 +20,24 @@ addons:
       - pyqt5-dev-tools
 
 before_install:
-  - >-
-    openssl aes-256-cbc
-    -K $encrypted_5d9ba2164160_key
-    -iv $encrypted_5d9ba2164160_iv
-    -in github_deploy_key.enc
-    -out github_deploy_key.out
-    -d
-  - chmod 600 github_deploy_key.out
-  - eval $(ssh-agent -s)
-  - ssh-add github_deploy_key.out
-  - git submodule update --init --recursive
+  - ./scripts/travis_prepare_deploy.sh
 
 install:
   - pip install -r requirements.txt
 
-before_script:
-  #- docker pull "qgis/qgis:${QGIS_DOCKER_TAG}"
-  #- export QGIS_PREFIX_PATH=/usr
-  #- export PYTHONPATH=${QGIS_PREFIX_PATH}/share/qgis/python/:${QGIS_PREFIX_PATH}/share/qgis/python/plugins:`pwd`:${PYTHONPATH}
-  #- echo "PYTHONPATH:" ${PYTHONPATH}
-  # - export LD_LIBRARY_PATH=${QGIS_PREFIX_PATH}/lib
-
-script:
-  - python3 -m flake8 --jobs=1
-  #- docker run -v $TRAVIS_BUILD_DIR:/root/qgissettingmanager "qgis/qgis:${QGIS_DOCKER_TAG}" /root/qgissettingmanager/test/run_in_qgis_docker.sh
-
-
 jobs:
   include:
+    - stage: static tests
+      script:
+        - python3 -m flake8 --jobs=1
+        #- docker run -v $TRAVIS_BUILD_DIR:/root/qgissettingmanager "qgis/qgis:${QGIS_DOCKER_TAG}" /root/qgissettingmanager/test/run_in_qgis_docker.sh
+
     - stage: deploy
       if: tag IS present
       script: plugin_ci/release/release.sh
 
     - stage: deploy
-      if: branch = master
+      if: branch = master and type != pull_request
       script: plugin_ci/translate/update-translations.sh
 
 env:

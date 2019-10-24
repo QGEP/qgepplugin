@@ -23,7 +23,6 @@
 #
 # ---------------------------------------------------------------------
 
-import os
 from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
 from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
 from qgis.PyQt.QtWebKit import QWebSettings
@@ -69,7 +68,7 @@ class QgepPlotSVGWidget(QWidget):
     profileChanged = pyqtSignal([str], name='profileChanged')
     verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
 
-    def __init__(self, parent, network_analyzer: QgepGraphManager, url: str=None):
+    def __init__(self, parent, network_analyzer: QgepGraphManager, url: str = None):
         QWidget.__init__(self, parent)
 
         self.webView = QWebView()

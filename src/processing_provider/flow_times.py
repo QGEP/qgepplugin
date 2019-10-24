@@ -28,7 +28,6 @@ from qgis.core import (
     QgsFeatureSink,
     QgsField,
     QgsFields,
-    QgsGeometry,
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingContext,
@@ -41,9 +40,8 @@ from qgis.core import (
 )
 
 from .qgep_algorithm import QgepAlgorithm
-from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from PyQt5.QtCore import QVariant
 
 __author__ = 'Denis Rouzaud'
 __date__ = '2018-07-19'
@@ -60,7 +58,7 @@ class FlowTimesAlgorithm(QgepAlgorithm):
 
     DISTANCE = 'DISTANCE'
     REACH_LAYER = 'REACH_LAYER'
-    FLOWTIMES_LAYER= 'FLOWTIMES_LAYER'
+    FLOWTIMES_LAYER = 'FLOWTIMES_LAYER'
     FK_REACH_FIELD = 'FK_REACH_FIELD'
     FLOWTIMES_FIELD = 'FLOWTIMES_FIELD'
     OUTPUT = "OUTPUT"
@@ -160,7 +158,7 @@ class FlowTimesAlgorithm(QgepAlgorithm):
             # TODO: if top_pos != 1 => merge
             if edge_feature.attribute('type') != 'reach':
                 continue
-            rate = edge_feature.attribute('to_pos')-edge_feature.attribute('from_pos')
+            rate = edge_feature.attribute('to_pos') - edge_feature.attribute('from_pos')
             assert 0 < rate <= 1
 
             expression = QgsExpression("{fk_reach} = '{obj_id}'"
@@ -180,10 +178,8 @@ class FlowTimesAlgorithm(QgepAlgorithm):
             sf.setGeometry(edge_feature.geometry())
             sink.addFeature(sf, QgsFeatureSink.FastInsert)
 
-
-
-        #f.setAttributes(attrs)
-        #sink.addFeature(f, QgsFeatureSink.FastInsert)
-        #feedback.setProgress(int(current * total))
+        # f.setAttributes(attrs)
+        # sink.addFeature(f, QgsFeatureSink.FastInsert)
+        # feedback.setProgress(int(current * total))
 
         return {self.OUTPUT: dest_id}
