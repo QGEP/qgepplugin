@@ -176,7 +176,8 @@ class QgepPlugin(object):
         self.upstreamAction.setCheckable(True)
         self.upstreamAction.triggered.connect(self.upstreamToolClicked)
 
-        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")), "Wizard", self.iface.mainWindow())
+        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")),
+                                    "Wizard", self.iface.mainWindow())
         self.wizardAction.setWhatsThis(
             self.tr("Create new manholes and reaches"))
         self.wizardAction.setEnabled(False)
@@ -332,7 +333,7 @@ class QgepPlugin(object):
         if self.profile_dock is None:
             self.logger.debug('Open dock')
             self.profile_dock = QgepProfileDockWidget(self.iface.mainWindow(), self.iface.mapCanvas(),
-                                                     self.iface.addDockWidget)
+                                                      self.iface.addDockWidget)
             self.profile_dock.closed.connect(self.onDockClosed)
             self.profile_dock.showIt()
 
