@@ -63,14 +63,15 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
 
         # The parameters
         description = self.tr('Database')
-        self.addParameter(QgsProcessingParameterString(self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
-        
+        self.addParameter(QgsProcessingParameterString(
+            self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
+
         description = self.tr('Template INP File')
         self.addParameter(QgsProcessingParameterFile(self.TEMPLATE_INP_FILE, description=description, extension="inp"))
-        
-        description = self.tr('Result INP File')
-        self.addParameter(QgsProcessingParameterFileDestination(self.INP_FILE, description=description, fileFilter="inp (*.inp)"))
 
+        description = self.tr('Result INP File')
+        self.addParameter(QgsProcessingParameterFileDestination(
+            self.INP_FILE, description=description, fileFilter="inp (*.inp)"))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -81,9 +82,10 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         database = self.parameterAsString(parameters, self.DATABASE, context)
         template_inp_file = self.parameterAsFile(parameters, self.TEMPLATE_INP_FILE, context)
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
-        
+
         # Connect to QGEP database and perform translation
-        qs = QgepSwmm(datetime.datetime.today().isoformat(), database, inp_file, template_inp_file, None, None, None, None)
+        qs = QgepSwmm(datetime.datetime.today().isoformat(), database,
+                      inp_file, template_inp_file, None, None, None, None)
         qs.write_input()
-        
+
         return {self.INP_FILE: inp_file}
