@@ -24,22 +24,22 @@
 import datetime
 
 from qgis.core import (
-   # QgsExpression,
-    #QgsFeature,
-    #QgsFeatureRequest,
-    #QgsFeatureSink,
-    #QgsField,
-    #QgsFields,
-    #QgsGeometry,
-    #QgsProcessing,
-    #QgsProcessingAlgorithm,
+    # QgsExpression,
+    # QgsFeature,
+    # QgsFeatureRequest,
+    # QgsFeatureSink,
+    # QgsField,
+    # QgsFields,
+    # QgsGeometry,
+    # QgsProcessing,
+    # QgsProcessingAlgorithm,
     QgsProcessingContext,
-    #QgsProcessingException,
+    # QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterString,
-    #QgsProcessingParameterFile,
+    # QgsProcessingParameterFile,
     QgsProcessingParameterFolderDestination,
-    #QgsWkbTypes
+    # QgsWkbTypes
 )
 
 from .qgep_algorithm import QgepAlgorithm
@@ -47,7 +47,7 @@ from .QgepSwmm import QgepSwmm
 
 #from ..tools.qgepnetwork import QgepGraphManager
 
-#from PyQt5.QtCore import QCoreApplication#, QVariant
+# from PyQt5.QtCore import QCoreApplication#, QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2019-08-01'
@@ -78,11 +78,11 @@ class SwmmCreateDbTables(QgepAlgorithm):
 
         # The parameters
         description = self.tr('Database')
-        self.addParameter(QgsProcessingParameterString(self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
-        
+        self.addParameter(QgsProcessingParameterString(
+            self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
+
         description = self.tr('Path to DB Model SQL')
         self.addParameter(QgsProcessingParameterFolderDestination(self.DBMODELPATH, description=description))
-        
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -92,7 +92,7 @@ class SwmmCreateDbTables(QgepAlgorithm):
         # init params
         database = self.parameterAsString(parameters, self.DATABASE, context)
         db_model_path = self.parameterAsFile(parameters, self.DBMODELPATH, context)
-        
+
         # Connect to QGEP database and perform translation
         qs = QgepSwmm(datetime.datetime.today().isoformat(), database, None, None, None, None, None, db_model_path)
         qs.create_swmm_schema()
