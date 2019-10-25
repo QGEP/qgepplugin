@@ -11,32 +11,12 @@ This plugin is part of the QGEP Wastewater project for QGIS.
 ## Installation
 
 ### Install QGEP plugin 
-
-* Download the plugin: https://github.com/iggroup/qgepplugin/tree/swmm/src
-* Save in the QGIS plugin path in a folder named `qgepplugin`.
+* https://qgep.github.io/docs/installation-guide/workstation.html#install-qgep-plugin
 
 ### SWMM Installation
 * Download and install [SWMM](https://www.epa.gov/water-research/storm-water-management-model-swmm)
 
 * In QGIS `Preferences > Processing > Processing providers > QGEP > SWMM exectutable` set the path to the swmm `.exe` i.e. `C:/Program Files (x86)/EPA SWMM 5.1.013/swmm5.exe` 
-
-### Installation psycopg2
-The script requires `psycopg2` to connect to the database. It is installed by default with QGIS, it is not necessary to install it if you use the QGEP plugin.
-
-[Psycopg2 installation](https://pypi.org/project/psycopg2/)
-
-### Installation of a postgreSQL service
-
-In `pg_service.conf` create a service to connect to the database that you want to analyse. You can also use an existing service.
-
-```
-[pg_qgep_demo_data]
-host=localhost
-port=5432
-dbname=qgep_demo_data
-user=postgres
-password=postgres
-```
 
 
 ## QGEP - SWMM workflow
@@ -54,7 +34,7 @@ Then, the user has to join the computed values with the geometries and map them.
 ### Create and fill SWMM tables
 
 * Launch `SWMM Create DB Tables`
-* Database: the name of the service used to connect to the database
+* Database: the name of the service used to connect to the database ([QGEP services setup](http://qgep.github.io/docs/fr/installation-guide/workstation.html#windows-pg-service))
 * Path to DB Model SQL: Folder which stores the SQL files used to create the schema and swmm views, can be downloaded [here](https://github.com/tproduit/datamodel/tree/swmm_views/swmm_views)
 
 #### Python command line
