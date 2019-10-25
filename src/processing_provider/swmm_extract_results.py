@@ -19,36 +19,22 @@
  ***************************************************************************/
 """
 
-#import qgis.utils as qgis_utils
-
-#import datetime
-
 from qgis.core import (
-    #QgsExpression,
     QgsFeature,
-    #QgsFeatureRequest,
     QgsFeatureSink,
     QgsField,
     QgsFields,
-    #QgsGeometry,
-    #QgsProcessing,
-    #QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
-    #QgsProcessingParameterString,
     QgsProcessingParameterFile,
-    #QgsProcessingParameterFileDestination,
-    #QgsWkbTypes,
     QgsProcessingParameterFeatureSink
 )
 
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
-#from ..tools.qgepnetwork import QgepGraphManager
-
-from PyQt5.QtCore import QVariant #QCoreApplication, 
+from PyQt5.QtCore import QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2019-08-01'
