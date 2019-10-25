@@ -68,11 +68,10 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         # The parameters
         description = self.tr('OUT File')
         self.addParameter(QgsProcessingParameterFile(self.OUT_FILE, description=description))
-        
-        self.addParameter(QgsProcessingParameterFeatureSink(self.NODE_SUMMARY,self.tr('Node summary')))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.LINK_SUMMARY,self.tr('Link summary')))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.XSECTION_SUMMARY,self.tr('Cross section summary')))
 
+        self.addParameter(QgsProcessingParameterFeatureSink(self.NODE_SUMMARY, self.tr('Node summary')))
+        self.addParameter(QgsProcessingParameterFeatureSink(self.LINK_SUMMARY, self.tr('Link summary')))
+        self.addParameter(QgsProcessingParameterFeatureSink(self.XSECTION_SUMMARY, self.tr('Cross section summary')))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -81,7 +80,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
 
         # init params
         out_file = self.parameterAsFileOutput(parameters, self.OUT_FILE, context)
-        
+
         # create feature sink for node summary
         fields = QgsFields()
 
@@ -96,21 +95,21 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         (sinkNode, dest_id) = self.parameterAsSink(parameters, self.NODE_SUMMARY, context, fields)
         if sinkNode is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
-            
+
         # Get node summary from output file
         qs = QgepSwmm(None, None, None, None, out_file, None, None, None)
         node_summary = qs.extract_node_depth_summary()
-        
+
         # Fill node summary with data
         for ns in node_summary:
-            print ('ns', ns)
+            print('ns', ns)
             sf = QgsFeature()
             sf.setFields(fields)
             for k in ns.keys():
                 sf.setAttribute(k, ns[k])
             sinkNode.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(50)
-        
+
         # create feature sink for link summary
         fields = QgsFields()
         fields.append(QgsField('id', QVariant.String))
@@ -124,10 +123,10 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         (sinkLink, dest_id) = self.parameterAsSink(parameters, self.LINK_SUMMARY, context, fields)
         if sinkLink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.LINK_SUMMARY))
-            
+
         # Get link summary from output file
         link_summary = qs.extract_link_flow_summary()
-        
+
         # Fill node summary with data
         for ns in link_summary:
             sf = QgsFeature()
@@ -136,6 +135,5 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
                 sf.setAttribute(k, ns[k])
             sinkLink.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(100)
-        
 
         return {self.NODE_SUMMARY: sinkNode, self.LINK_SUMMARY: sinkLink}

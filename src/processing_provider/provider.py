@@ -48,17 +48,19 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
     def __init__(self):
         QgsProcessingProvider.__init__(self)
-        #AlgorithmProvider.__init__(self)
+        # AlgorithmProvider.__init__(self)
 
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(
+        ), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(
+        ), SwmmCreateDbTables(), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):
@@ -83,7 +85,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.algs = self.getAlgs()
         for a in self.algs:
             self.addAlgorithm(a)
-    
+
     def load(self):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
         ProcessingConfig.addSetting(Setting(self.name(),
@@ -91,11 +93,11 @@ class QgepProcessingProvider(QgsProcessingProvider):
                                             self.tr("SWMM executable"),
                                             r'C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe',
                                             valuetype=Setting.FILE))
-        
+
         ProviderContextMenuActions.registerProviderContextMenuActions(self.alglist)
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()
         return True
-        
+
     def unload(self):
         ProcessingConfig.removeSetting('SWMM_PATH')
