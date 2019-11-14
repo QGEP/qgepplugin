@@ -92,8 +92,8 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         fields.append(QgsField('time_max_day', QVariant.Int))
         fields.append(QgsField('time_max_time', QVariant.Double))
         fields.append(QgsField('reported_max_depth', QVariant.Double))
-        (sinkNode, dest_id) = self.parameterAsSink(parameters, self.NODE_SUMMARY, context, fields)
-        if sinkNode is None:
+        (sink_node, dest_id) = self.parameterAsSink(parameters, self.NODE_SUMMARY, context, fields)
+        if sink_node is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
 
         # Get node summary from output file
@@ -107,7 +107,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             sf.setFields(fields)
             for k in ns.keys():
                 sf.setAttribute(k, ns[k])
-            sinkNode.addFeature(sf, QgsFeatureSink.FastInsert)
+            sink_node.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(50)
 
         # create feature sink for link summary
@@ -120,8 +120,8 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         fields.append(QgsField('maximum_velocity', QVariant.Double))
         fields.append(QgsField('max_over_full_flow', QVariant.Double))
         fields.append(QgsField('max_over_full_depth', QVariant.Double))
-        (sinkLink, dest_id) = self.parameterAsSink(parameters, self.LINK_SUMMARY, context, fields)
-        if sinkLink is None:
+        (sink_link, dest_id) = self.parameterAsSink(parameters, self.LINK_SUMMARY, context, fields)
+        if sink_link is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.LINK_SUMMARY))
 
         # Get link summary from output file
@@ -133,7 +133,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             sf.setFields(fields)
             for k in ns.keys():
                 sf.setAttribute(k, ns[k])
-            sinkLink.addFeature(sf, QgsFeatureSink.FastInsert)
+            sink_link.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(100)
 
-        return {self.NODE_SUMMARY: sinkNode, self.LINK_SUMMARY: sinkLink}
+        return {self.NODE_SUMMARY: sink_node, self.LINK_SUMMARY: sink_link}

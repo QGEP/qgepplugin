@@ -221,22 +221,22 @@ class QgepSwmm:
         # Read template
         options_template = open(self.options_template_file, 'r').read()
         # Find and extract options
-        indexStart = options_template.find('[%s]' % parameter_name)
-        if indexStart == -1:
+        index_start = options_template.find('[%s]' % parameter_name)
+        if index_start == -1:
             # The balise options is not found
             print('There is no [%s] in the template file' % parameter_name)
             return ''
         else:
             # Search for the next opening bracket
-            indexStop = options_template[indexStart + 1:].find('[')
-            if indexStop == -1:
+            index_stop = options_template[index_start + 1:].find('[')
+            if index_stop == -1:
                 # Copies text until the end of the file
-                indexStop = len(options_template)
-                optionText = options_template[indexStart:indexStop] + '\n\n'
+                index_stop = len(options_template)
+                option_text = options_template[index_start:index_stop] + '\n\n'
             else:
-                indexStop = indexStart + 1 + indexStop
-                optionText = options_template[indexStart:indexStop]
-            return optionText
+                index_stop = index_start + 1 + index_stop
+                option_text = options_template[index_start:index_stop]
+            return option_text
 
     def write_input(self):
         """
@@ -355,27 +355,27 @@ class QgepSwmm:
 
         o = codecs.open(self.output_file, 'r', encoding='utf-8')
         line = o.readline()
-        noLine = 0
+        no_line = 0
         lines = []
-        titleFound = False
-        endTableFound = False
+        title_found = False
+        end_table_found = False
         while line:
             line = line.rstrip()
             # Search for the table title
             if line.find(table_title) != -1:
-                titleFound = True
-                lineAfterTitle = 0
+                title_found = True
+                line_after_title = 0
 
-            if titleFound and lineAfterTitle > 7 and line == '':
-                endTableFound = True
+            if title_found and line_after_title > 7 and line == '':
+                end_table_found = True
 
-            if titleFound and endTableFound is False and lineAfterTitle > 7:
+            if title_found and end_table_found is False and line_after_title > 7:
                 lines.append(line.split())
 
-            if titleFound:
-                lineAfterTitle += 1
+            if title_found:
+                line_after_title += 1
 
-            noLine += 1
+            no_line += 1
             line = o.readline()
 
         return lines
@@ -392,16 +392,16 @@ class QgepSwmm:
         data = self.extract_result_lines('Node Depth Summary')
         result = []
         for d in data:
-            curRes = {}
-            curRes['id'] = d[0]
-            curRes['type'] = d[1]
-            curRes['average_depth'] = d[2]
-            curRes['maximum_depth'] = d[3]
-            curRes['maximum_hgl'] = d[4]
-            curRes['time_max_day'] = d[5]
-            curRes['time_max_time'] = d[6]
-            curRes['reported_max_depth'] = d[7]
-            result.append(curRes)
+            curres = {}
+            curres['id'] = d[0]
+            curres['type'] = d[1]
+            curres['average_depth'] = d[2]
+            curres['maximum_depth'] = d[3]
+            curres['maximum_hgl'] = d[4]
+            curres['time_max_day'] = d[5]
+            curres['time_max_time'] = d[6]
+            curres['reported_max_depth'] = d[7]
+            result.append(curres)
         return result
 
     def extract_link_flow_summary(self):
@@ -417,22 +417,22 @@ class QgepSwmm:
         result = []
         for d in data:
 
-            curRes = {}
-            curRes['id'] = d[0]
-            curRes['type'] = d[1]
-            curRes['maximum_flow'] = d[2]
-            curRes['time_max_day'] = d[3]
-            curRes['time_max_time'] = d[4]
+            curres = {}
+            curres['id'] = d[0]
+            curres['type'] = d[1]
+            curres['maximum_flow'] = d[2]
+            curres['time_max_day'] = d[3]
+            curres['time_max_time'] = d[4]
             if d[1] == 'CONDUIT':
-                curRes['maximum_velocity'] = d[5]
-                curRes['max_over_full_flow'] = d[6]
-                curRes['max_over_full_depth'] = d[7]
+                curres['maximum_velocity'] = d[5]
+                curres['max_over_full_flow'] = d[6]
+                curres['max_over_full_depth'] = d[7]
             elif d[1] == 'PUMP':
-                curRes['max_over_full_flow'] = d[5]
-                curRes['maximum_velocity'] = None
-                curRes['max_over_full_depth'] = None
+                curres['max_over_full_flow'] = d[5]
+                curres['maximum_velocity'] = None
+                curres['max_over_full_depth'] = None
 
-            result.append(curRes)
+            result.append(curres)
         return result
 
     def extract_cross_section_summary(self):
@@ -447,17 +447,17 @@ class QgepSwmm:
         result = []
         for d in data:
 
-            curRes = {}
-            curRes['id'] = d[0]
-            curRes['shape'] = d[1]
-            curRes['full_depth'] = d[2]
-            curRes['full_area'] = d[3]
-            curRes['hyd_rad'] = d[4]
-            curRes['max_width'] = d[5]
-            curRes['no_of_barrels'] = d[6]
-            curRes['full_flow'] = d[7]
+            curres = {}
+            curres['id'] = d[0]
+            curres['shape'] = d[1]
+            curres['full_depth'] = d[2]
+            curres['full_area'] = d[3]
+            curres['hyd_rad'] = d[4]
+            curres['max_width'] = d[5]
+            curres['no_of_barrels'] = d[6]
+            curres['full_flow'] = d[7]
 
-            result.append(curRes)
+            result.append(curres)
         return result
 
     def execute_swmm(self):
