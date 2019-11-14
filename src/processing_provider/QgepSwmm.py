@@ -27,14 +27,14 @@ import os
 class QgepSwmm:
 
     def __init__(self, title, service, inpfile, inptemplate, outfile, logfile, binfile, db_model_path):
-        """ 
+        """
         Initiate QgepSwmm
 
         Parameters:
         title (string): Title of the simulation
         service (string): name of the service to be used to connect to the QGEP database
         inpfile (path): path of the INP file (input file for swmm)
-        inptemplate (path): path of the INP file which store simulations parameters 
+        inptemplate (path): path of the INP file which store simulations parameters
         outfile (path): path of the OUT file which contains swmm results
         logfile (path): path of the log file which contains swmm log
         db_model_path (path): path of the folder which contains the db model
@@ -49,7 +49,7 @@ class QgepSwmm:
         self.db_model_path = db_model_path
 
     def create_swmm_schema(self):
-        """ 
+        """
         Create QGEP-SWMM schema
         """
 
@@ -61,7 +61,7 @@ class QgepSwmm:
         return
 
     def create_swmm_views(self):
-        """ 
+        """
         Create QGEP-SWMM views
         """
 
@@ -86,7 +86,7 @@ class QgepSwmm:
         return
 
     def delete_swmm_tables(self):
-        """ 
+        """
         Delete swmm tables
         """
         con = psycopg2.connect(service=self.service)
@@ -137,7 +137,7 @@ class QgepSwmm:
         return
 
     def get_swmm_table(self, table_name):
-        """ 
+        """
         Extract data from the swmm views in the database
 
         Parameters:
@@ -154,7 +154,7 @@ class QgepSwmm:
         cur = con.cursor()
         try:
             cur.execute('select * from qgep_swmm.{table_name}'.format(table_name=table_name))
-        except:
+        except psycopg2.ProgrammingError:
             print('Table %s doesnt exists' % table_name)
             return None, None
         data = cur.fetchall()
@@ -163,7 +163,7 @@ class QgepSwmm:
         return data, attributes
 
     def swmm_table(self, table_name):
-        """ 
+        """
         Create swmm table
 
         Parameters:
@@ -177,7 +177,7 @@ class QgepSwmm:
         # Create commented line which contains the field names
         fields = ""
         data, attributes = self.get_swmm_table(table_name)
-        if data != None:
+        if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
                 if field not in ('description', 'tag', 'geom'):
@@ -208,7 +208,7 @@ class QgepSwmm:
             return '\n'
 
     def copy_parameters_from_template(self, parameter_name):
-        """ 
+        """
         Create swmm table from the template
 
         Parameters:
@@ -239,7 +239,7 @@ class QgepSwmm:
             return optionText
 
     def write_input(self):
-        """ 
+        """
         Write the swmm input file
 
         """
@@ -249,7 +249,7 @@ class QgepSwmm:
 
         with codecs.open(filename, 'w', encoding='utf-8') as f:
 
-            #Title / Notes
+            # Title / Notes
             # --------------
             f.write('[TITLE]\n')
             f.write(self.title + '\n\n')
@@ -342,7 +342,7 @@ class QgepSwmm:
         return
 
     def extract_result_lines(self, table_title):
-        """ 
+        """
         Extract result data from swmm output file
 
         Parameters:
@@ -369,7 +369,7 @@ class QgepSwmm:
             if titleFound and lineAfterTitle > 7 and line == '':
                 endTableFound = True
 
-            if titleFound and endTableFound == False and lineAfterTitle > 7:
+            if titleFound and endTableFound is False and lineAfterTitle > 7:
                 lines.append(line.split())
 
             if titleFound:
@@ -381,7 +381,7 @@ class QgepSwmm:
         return lines
 
     def extract_node_depth_summary(self):
-        """ 
+        """
         Extract node depth result data from swmm output file
 
         Returns:
@@ -405,7 +405,7 @@ class QgepSwmm:
         return result
 
     def extract_link_flow_summary(self):
-        """ 
+        """
         Extract link flow result data from swmm output file
 
         Returns:
@@ -436,7 +436,7 @@ class QgepSwmm:
         return result
 
     def extract_cross_section_summary(self):
-        """ 
+        """
         Extract cross sections result data from swmm output file
 
         Returns:
@@ -461,7 +461,7 @@ class QgepSwmm:
         return result
 
     def execute_swmm(self):
-        """ 
+        """
         Execute SWMM
 
         Parameters:
@@ -469,7 +469,6 @@ class QgepSwmm:
 
         """
 
-        #command = self.bin_file+' '+self.input_file+' '+self.log_file +' '+self.output_file
         command = [self.bin_file, self.input_file, self.log_file, self.output_file]
         print('command', command)
         proc = subprocess.run(
