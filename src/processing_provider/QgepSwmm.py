@@ -221,7 +221,7 @@ class QgepSwmm:
         # Read template
         options_template = open(self.options_template_file, 'r').read()
         # Find and extract options
-        index_start = options_template.find('[%s]' % parameter_name)
+        index_start = options_template.find('[{parameter_name}]'.format(parameter_name=parameter_name))
         if index_start == -1:
             # The balise options is not found
             print('There is no [%s] in the template file' % parameter_name)
