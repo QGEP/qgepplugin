@@ -197,7 +197,7 @@ class QgepSwmm:
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
                     if attributes[i] not in ('description', 'tag', 'geom'):
-                        if str(v) != 'None':
+                        if v is not None:
                             tbl += str(v) + '\t'
                         else:
                             tbl += '\t'
