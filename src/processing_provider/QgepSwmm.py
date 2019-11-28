@@ -189,7 +189,7 @@ class QgepSwmm:
             for feature in data:
                 for i, v in enumerate(feature):
                     # Write description
-                    if attributes[i] == 'description' and str(v) != 'None':
+                    if attributes[i] == 'description' and v is not None:
                         tbl += ';'
                         tbl += str(v)
                         tbl += '\n'
