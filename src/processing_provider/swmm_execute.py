@@ -89,7 +89,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             # 'Swmm command line toom is not configured.\n\
             # Please configure it before running Swmm algorithms.')
             raise QgsProcessingException(
-                'Swmm command line toom is not configured.\n\
+                self.tr('Swmm command line tool is not configured.\n\
                     Please configure it before running Swmm algorithms.'
             )
             pass
