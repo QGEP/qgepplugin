@@ -21,7 +21,7 @@
 
 from qgis.core import QgsProcessingProvider
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
-from processing.gui.ProviderActions import (ProviderContextMenuActions)
+from processing.gui.ProviderActions import ProviderContextMenuActions
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
 from .sum_up_upstream import SumUpUpstreamAlgorithm
