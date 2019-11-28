@@ -90,7 +90,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             # Please configure it before running Swmm algorithms.')
             raise QgsProcessingException(
                 self.tr('Swmm command line tool is not configured.\n\
-                    Please configure it before running Swmm algorithms.'
+                    Please configure it before running Swmm algorithms.)'
             )
             pass
 
