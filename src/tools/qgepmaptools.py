@@ -379,8 +379,8 @@ class QgepProfileMapTool(QgepMapTool):
             self.profileChanged.emit(self.profile)
 
             # Create rubberband geometry
-            for featId in edge_ids:
-                self.pathPolyline.extend(edge_features[featId].geometry().asPolyline())
+            for feat_id in edge_ids:
+                self.pathPolyline.extend(edge_features[feat_id].geometry().asPolyline())
 
             self.rubberBand.addGeometry(QgsGeometry.fromPolylineXY(self.pathPolyline), node_layer)
             self.profileChanged.emit(self.profile)
@@ -558,7 +558,8 @@ class QgepAreaSnapper(QgsMapCanvasSnappingUtils):
 
         layer_tolerances = dict()
         for layer_config in self.layers():
-            layer_tolerances[layer_config.layer] = QgsTolerance.toleranceInProjectUnits(layer_config.tolerance, layer_config.layer, self.mapSettings(), layer_config.unit)
+            layer_tolerances[layer_config.layer] = QgsTolerance.toleranceInProjectUnits(
+                layer_config.tolerance, layer_config.layer, self.mapSettings(), layer_config.unit)
 
         matches = sorted(self.filter.matches, key=sorter)
         matches = [m for m in matches if m.distance() < layer_tolerances[m.layer()]]
@@ -834,7 +835,8 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                 if cbx.isChecked():
                     source_feature[cbx.objectName()] = target_feature['obj_id']
             if not source.layer().isEditable():
-                self.iface.messageBar().pushMessage('QGEP', self.tr('Layer "{layername}" is not in edit mode').format(layername=source.layer().name()), Qgis.Warning, 5)
+                self.iface.messageBar().pushMessage('QGEP', self.tr('Layer "{layername}" is not in edit mode').format(
+                    layername=source.layer().name()), Qgis.Warning, 5)
             elif source.layer().updateFeature(source_feature):
                 self.iface.messageBar().pushMessage('QGEP',
                                                     self.tr('Connected {} to {}').format(

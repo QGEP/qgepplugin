@@ -20,7 +20,6 @@
 """
 
 
-import qgis
 from qgis.core import (
     QgsExpression,
     QgsExpressionContext,
@@ -29,10 +28,8 @@ from qgis.core import (
     QgsFeatureRequest,
     QgsFeatureSink,
     QgsField,
-    QgsFields,
     QgsGeometry,
     QgsProcessing,
-    QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
@@ -51,7 +48,7 @@ import statistics
 
 from .qgep_algorithm import QgepAlgorithm
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from PyQt5.QtCore import QVariant
 
 __author__ = 'Matthias Kuhn'
 __date__ = '2019-04-09'
@@ -99,7 +96,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('Source value expression. Use <code>COALESCE("field_name", 0)</code> to treat <code>NULL</code> values as 0.')
+        description = self.tr(
+            'Source value expression. Use <code>COALESCE("field_name", 0)</code> to treat <code>NULL</code> values as 0.')
         self.addParameter(QgsProcessingParameterExpression(self.VALUE_EXPRESSION, description=description,
                                                            parentLayerParameterName=self.REACH_LAYER))
         description = self.tr('Branch behavior')
@@ -221,7 +219,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             times = []
             if from_node_id in reaches_by_from_node.keys():
                 for reach in reaches_by_from_node[from_node_id]:
-                    times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
+                    times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(
+                        processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
 
             if times:
                 time = aggregate_method(times)
@@ -264,7 +263,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             if feedback.isCanceled():
                 return NULL
 
-            if not node_id in reaches_by_from_node:
+            if node_id not in reaches_by_from_node:
                 # Blind connection: add proportionally
                 reach = reaches_by_id[node_id]
                 offset = reach.geometry.lineLocatePoint(QgsGeometry(previous_reach.geometry.constGet().endPoint()))
@@ -285,7 +284,8 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
                     # Branching occurred: calculate every possible path and aggregate all values
                     times = []
                     for reach in current_reaches:
-                        times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
+                        times.append(self.calculate_branch(reach, reaches_by_from_node, reaches_by_id, list(
+                            processed_nodes), calculated_values, aggregate_method, loop_nodes, feedback))
 
                     if times:
                         time += aggregate_method(times)

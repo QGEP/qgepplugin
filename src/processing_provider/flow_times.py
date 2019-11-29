@@ -28,7 +28,6 @@ from qgis.core import (
     QgsFeatureSink,
     QgsField,
     QgsFields,
-    QgsGeometry,
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingContext,
@@ -41,9 +40,8 @@ from qgis.core import (
 )
 
 from .qgep_algorithm import QgepAlgorithm
-from ..tools.qgepnetwork import QgepGraphManager
 
-from PyQt5.QtCore import QCoreApplication, QVariant
+from PyQt5.QtCore import QVariant
 
 __author__ = 'Denis Rouzaud'
 __date__ = '2018-07-19'
@@ -181,7 +179,7 @@ class FlowTimesAlgorithm(QgepAlgorithm):
             sink.addFeature(sf, QgsFeatureSink.FastInsert)
 
         # f.setAttributes(attrs)
-        #sink.addFeature(f, QgsFeatureSink.FastInsert)
-        #feedback.setProgress(int(current * total))
+        # sink.addFeature(f, QgsFeatureSink.FastInsert)
+        # feedback.setProgress(int(current * total))
 
         return {self.OUTPUT: dest_id}

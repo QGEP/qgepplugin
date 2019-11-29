@@ -71,7 +71,7 @@ class QgepPlugin(object):
     network_analyzer = None
 
     # Remember not to reopen the dock if there's already one opened
-    profileDock = None
+    profile_dock = None
 
     # Wizard
     wizarddock = None
@@ -176,7 +176,8 @@ class QgepPlugin(object):
         self.upstreamAction.setCheckable(True)
         self.upstreamAction.triggered.connect(self.upstreamToolClicked)
 
-        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")), "Wizard", self.iface.mainWindow())
+        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")),
+                                    "Wizard", self.iface.mainWindow())
         self.wizardAction.setWhatsThis(
             self.tr("Create new manholes and reaches"))
         self.wizardAction.setEnabled(False)
@@ -329,27 +330,27 @@ class QgepPlugin(object):
         """
         Opens the dock
         """
-        if self.profileDock is None:
+        if self.profile_dock is None:
             self.logger.debug('Open dock')
-            self.profileDock = QgepProfileDockWidget(self.iface.mainWindow(), self.iface.mapCanvas(),
-                                                     self.iface.addDockWidget)
-            self.profileDock.closed.connect(self.onDockClosed)
-            self.profileDock.showIt()
+            self.profile_dock = QgepProfileDockWidget(self.iface.mainWindow(), self.iface.mapCanvas(),
+                                                      self.iface.addDockWidget)
+            self.profile_dock.closed.connect(self.onDockClosed)
+            self.profile_dock.showIt()
 
-            self.plotWidget = QgepPlotSVGWidget(self.profileDock, self.network_analyzer)
+            self.plotWidget = QgepPlotSVGWidget(self.profile_dock, self.network_analyzer)
             self.plotWidget.specialStructureMouseOver.connect(self.highlightProfileElement)
             self.plotWidget.specialStructureMouseOut.connect(self.unhighlightProfileElement)
             self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
             self.plotWidget.reachMouseOut.connect(self.unhighlightProfileElement)
-            self.profileDock.addPlotWidget(self.plotWidget)
-            self.profileDock.setTree(self.nodes, self.edges)
+            self.profile_dock.addPlotWidget(self.plotWidget)
+            self.profile_dock.setTree(self.nodes, self.edges)
 
     def onDockClosed(self):  # used when Dock dialog is closed
         """
         Gets called when the dock is closed
         All the cleanup of the dock has to be done here
         """
-        self.profileDock = None
+        self.profile_dock = None
 
     def onProfileChanged(self, profile):
         """
@@ -362,8 +363,8 @@ class QgepPlugin(object):
             self.plotWidget.setProfile(profile)
 
     def onTreeChanged(self, nodes, edges):
-        if self.profileDock:
-            self.profileDock.setTree(nodes, edges)
+        if self.profile_dock:
+            self.profile_dock.setTree(nodes, edges)
         self.nodes = nodes
         self.edges = edges
 

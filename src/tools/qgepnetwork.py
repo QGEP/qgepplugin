@@ -45,11 +45,9 @@ from qgis.core import (
     Qgis,
     QgsMessageLog,
     QgsGeometry,
-    QgsDataSourceUri,
     QgsPointXY,
     NULL
 )
-from qgis.gui import QgsMessageBar
 from qgepplugin.utils.qt_utils import OverrideCursor
 import networkx as nx
 
@@ -176,7 +174,8 @@ class QgepGraphManager(QObject):
                 transaction = self.nodeLayer.dataProvider().transaction()
 
                 if not transaction:
-                    self.message_emitted.emit(self.tr("Error"), self.tr("Could not initialize transaction"), Qgis.Critical)
+                    self.message_emitted.emit(self.tr("Error"), self.tr(
+                        "Could not initialize transaction"), Qgis.Critical)
                     return
 
             query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
@@ -299,7 +298,8 @@ class QgepGraphManager(QObject):
         # Returns pred, weight
         pred, _ = nx.bellman_ford_predecessor_and_distance(my_graph, node)
         edges = [(v[0], u, my_graph.edges[v[0], u]) for (u, v) in list(pred.items()) if v]
-        nodes = [my_graph.nodes[n] for n in set(list(pred.keys()) + [v[0] for v in list(pred.values()) if v]) if n is not None]
+        nodes = [my_graph.nodes[n] for n in set(list(pred.keys()) + [v[0]
+                                                                     for v in list(pred.values()) if v]) if n is not None]
 
         return nodes, edges
 

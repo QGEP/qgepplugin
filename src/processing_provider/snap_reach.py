@@ -29,8 +29,6 @@ from qgis.core import (
     QgsPointXY
 )
 
-from PyQt5.QtCore import QCoreApplication
-
 from .qgep_algorithm import QgepAlgorithm
 
 __author__ = 'Matthias Kuhn'

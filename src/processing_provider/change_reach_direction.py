@@ -20,16 +20,9 @@
 """
 
 from qgis.core import (
-    QgsExpression,
-    QgsFeatureRequest,
-    QgsGeometry,
     QgsProcessingAlgorithm,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterVectorLayer
 )
-
-from PyQt5.QtCore import QCoreApplication
 
 from .qgep_algorithm import QgepAlgorithm
 
@@ -72,10 +65,10 @@ class ChangeReachDirection(QgepAlgorithm):
 
         reach_layer.startEditing()
 
-        feature_count = 0
+        # feature_count = 0
 
         iterator = reach_layer.getSelectedFeatures()
-        feature_count = reach_layer.selectedFeatureCount()
+        # feature_count = reach_layer.selectedFeatureCount()
 
         # Loop through relevant reaches
         reach_layer.beginEditCommand('change directions')
@@ -83,7 +76,8 @@ class ChangeReachDirection(QgepAlgorithm):
         # if not transaction:
         #    raise Exception: if there is no transaction, complain to the user!
         selected_obj_ids = [feature['obj_id'] for feature in iterator]
-        transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(obj_ids=','.join(selected_obj_ids)), True)
+        transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(
+            obj_ids=','.join(selected_obj_ids)), True)
         reach_layer.endEditCommand()
         feedback.setProgress(100)
 
