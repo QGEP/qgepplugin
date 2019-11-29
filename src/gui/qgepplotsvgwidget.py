@@ -69,7 +69,7 @@ class QgepPlotSVGWidget(QWidget):
     profileChanged = pyqtSignal([str], name='profileChanged')
     verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
 
-    def __init__(self, parent, network_analyzer: QgepGraphManager, url: str=None):
+    def __init__(self, parent, network_analyzer: QgepGraphManager, url: str = None):
         QWidget.__init__(self, parent)
 
         self.webView = QWebView()
