@@ -21,8 +21,6 @@
 import psycopg2
 import codecs
 import subprocess
-import os
-
 
 class QgepSwmm:
 

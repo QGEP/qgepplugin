@@ -102,7 +102,6 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
                 feedback.reportError(qs.feedbacks[i])
         node_summary = qs.extract_node_depth_summary()
 
-
         # Fill node summary with data
         for ns in node_summary:
             sf = QgsFeature()
