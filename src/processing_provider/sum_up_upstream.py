@@ -61,6 +61,7 @@ __copyright__ = '(C) 2018 by OPENGIS.ch'
 
 __revision__ = '$Format:%H$'
 
+
 class Reach:
     def __init__(self, from_id, to_id, value, geometry):
         self.from_id = from_id
@@ -68,12 +69,13 @@ class Reach:
         self.value = value
         self.geometry = geometry
 
+
 class SumUpUpstreamAlgorithm(QgepAlgorithm):
     """
     """
 
     REACH_LAYER = 'REACH_LAYER'
-    WASTEWATER_NODE_LAYER= 'WASTEWATER_NODE_LAYER'
+    WASTEWATER_NODE_LAYER = 'WASTEWATER_NODE_LAYER'
     VALUE_EXPRESSION = 'VALUE_EXPRESSION'
     REACH_PK_NAME = 'REACH_PK_NAME'
     NODE_PK_NAME = 'NODE_PK_NAME'
@@ -99,44 +101,44 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         # The parameters
         description = self.tr('Source value expression. Use <code>COALESCE("field_name", 0)</code> to treat <code>NULL</code> values as 0.')
         self.addParameter(QgsProcessingParameterExpression(self.VALUE_EXPRESSION, description=description,
-                                                      parentLayerParameterName=self.REACH_LAYER))
+                                                           parentLayerParameterName=self.REACH_LAYER))
         description = self.tr('Branch behavior')
         self.addParameter(QgsProcessingParameterEnum(self.BRANCH_BEHAVIOR, description=description,
-                                                      options=[self.tr('Minimum'), self.tr('Maximum'), self.tr('Average')]))
+                                                     options=[self.tr('Minimum'), self.tr('Maximum'), self.tr('Average')]))
 
         self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT,
                                                             self.tr('Summed up')))
 
         description = self.tr('Create a layer with nodes in loops')
         self.addAdvancedParameter(QgsProcessingParameterBoolean(self.CREATE_LOOP_LAYER, description=description,
-                                                                    defaultValue=False))
+                                                                defaultValue=False))
 
         self.addAdvancedParameter(QgsProcessingParameterFeatureSink(self.LOOP_OUTPUT,
-                                                            self.tr('Loop nodes (Only created if "Crate a layer with nodes in loops" option is activated)'), optional=True))
+                                                                    self.tr('Loop nodes (Only created if "Crate a layer with nodes in loops" option is activated)'), optional=True))
         description = self.tr('Reach Layer')
         self.addAdvancedParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=description,
-                                                            types=[QgsProcessing.TypeVectorLine], defaultValue='vw_qgep_reach'))
+                                                                    types=[QgsProcessing.TypeVectorLine], defaultValue='vw_qgep_reach'))
         description = self.tr('Wastewater Node Layer')
         self.addAdvancedParameter(QgsProcessingParameterVectorLayer(self.WASTEWATER_NODE_LAYER, description=description,
-                                                            types=[QgsProcessing.TypeVector], defaultValue='vw_wastewater_node'))
+                                                                    types=[QgsProcessing.TypeVector], defaultValue='vw_wastewater_node'))
 
         description = self.tr('Primary Key Field Reach')
         self.addAdvancedParameter(QgsProcessingParameterField(self.REACH_PK_NAME, description=description,
-                                                      parentLayerParameterName=self.REACH_LAYER, defaultValue='obj_id'))
+                                                              parentLayerParameterName=self.REACH_LAYER, defaultValue='obj_id'))
 
         description = self.tr('Primary Key Field Node')
         self.addAdvancedParameter(QgsProcessingParameterField(self.NODE_PK_NAME, description=description,
-                                                      parentLayerParameterName=self.WASTEWATER_NODE_LAYER, defaultValue='obj_id'))
+                                                              parentLayerParameterName=self.WASTEWATER_NODE_LAYER, defaultValue='obj_id'))
 
         description = self.tr('Foreign Key Field From')
         self.addAdvancedParameter(QgsProcessingParameterField(self.NODE_FROM_FK_NAME, description=description,
-                                                           parentLayerParameterName=self.REACH_LAYER,
-                                                           defaultValue='rp_from_fk_wastewater_networkelement'))
+                                                              parentLayerParameterName=self.REACH_LAYER,
+                                                              defaultValue='rp_from_fk_wastewater_networkelement'))
 
         description = self.tr('Foreign Key Field To')
         self.addAdvancedParameter(QgsProcessingParameterField(self.NODE_TO_FK_NAME, description=description,
-                                                           parentLayerParameterName=self.REACH_LAYER,
-                                                           defaultValue='rp_to_fk_wastewater_networkelement'))
+                                                              parentLayerParameterName=self.REACH_LAYER,
+                                                              defaultValue='rp_to_fk_wastewater_networkelement'))
 
     def addAdvancedParameter(self, parameter):
         parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
@@ -156,7 +158,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         node_from_fk_name = self.parameterAsFields(parameters, self.NODE_FROM_FK_NAME, context)[0]
         node_to_fk_name = self.parameterAsFields(parameters, self.NODE_TO_FK_NAME, context)[0]
         branch_behavior = self.parameterAsEnum(parameters, self.BRANCH_BEHAVIOR, context)
-        create_loop_layer =self.parameterAsBool(parameters, self.CREATE_LOOP_LAYER, context)
+        create_loop_layer = self.parameterAsBool(parameters, self.CREATE_LOOP_LAYER, context)
 
         if branch_behavior == 0:
             aggregate_method = lambda values: min(values) if values else 0
@@ -177,7 +179,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         loop_dest_id = None
         if create_loop_layer:
             (loop_sink, loop_dest_id) = self.parameterAsSink(parameters, self.LOOP_OUTPUT, context, fields,
-                                                   QgsWkbTypes.Point, reach_layer.sourceCrs())
+                                                             QgsWkbTypes.Point, reach_layer.sourceCrs())
 
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
@@ -203,7 +205,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             reaches_by_from_node.setdefault(reach_obj.from_id, []).append(reach_obj)
             reaches_by_id[reach[reach_pk_name]] = reach_obj
 
-            feedback.setProgress(progress/feature_count*10)
+            feedback.setProgress(progress / feature_count * 10)
             progress += 1
 
         loop_nodes = []
@@ -238,7 +240,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             if create_loop_layer and from_node_id in loop_nodes:
                 loop_sink.addFeature(node, QgsFeatureSink.FastInsert)
 
-            feedback.setProgress(10 + current_feature/feature_count * 90)
+            feedback.setProgress(10 + current_feature / feature_count * 90)
 
         result = {self.OUTPUT: dest_id}
         if create_loop_layer:
@@ -267,7 +269,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
                 reach = reaches_by_id[node_id]
                 offset = reach.geometry.lineLocatePoint(QgsGeometry(previous_reach.geometry.constGet().endPoint()))
                 length = reach.geometry.length()
-                remaining_part = 1-offset/length
+                remaining_part = 1 - offset / length
                 # feedback.pushInfo('Length: {} Offset: {} Part: {}'.format(length, offset, remaining_part, reach.value * remaining_part))
                 time += reach.value * remaining_part
                 node_id = reach.to_id
@@ -294,4 +296,3 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
 
     def calculate_branch(self, reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback):
         return reach.value + self.process_node(reach.to_id, reach, reaches_by_from_node, reaches_by_id, processed_nodes, calculated_values, aggregate_method, loop_nodes, feedback)
-

@@ -288,7 +288,7 @@ class QgepGraphManager(QObject):
 
         # fix point pickle
         def pickle_point(p):
-            return QgsPointXY, (p.x(),p.y(),)
+            return QgsPointXY, (p.x(), p.y(),)
         copyreg.pickle(QgsPointXY, pickle_point)
 
         if upstream:

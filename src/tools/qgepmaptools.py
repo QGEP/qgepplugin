@@ -165,7 +165,7 @@ class QgepMapTool(QgsMapTool):
             config.setIndividualLayerSettings(self.node_layer, ils)
             self.snapper.setConfig(config)
 
-    def snap_point(self, event, show_menu: bool=True) -> QgsPointLocator.Match:
+    def snap_point(self, event, show_menu: bool = True) -> QgsPointLocator.Match:
         """
         Snap to a point on this network
         :param event: A QMouseEvent
@@ -625,7 +625,6 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
 
             return distance_from_start < length / 2
 
-
         # A dict of layers
         #  and for each layer the fields to use as foreign key
         #  as well as the possible target layers
@@ -668,10 +667,10 @@ class QgepMapToolConnectNetworkElements(QgsMapTool):
                         'id': 'fk_wastewater_networkelement_ww_planned',
                         'name': QCoreApplication.translate('QgepMapToolConnectNetworkElements', 'Wastewater planned')
                     }
-            ],
+                ],
                 'target_layers': [
-                QgepLayerManager.layer('vw_wastewater_node')
-            ]}
+                    QgepLayerManager.layer('vw_wastewater_node')
+                ]}
         }
 
         self.setSnapLayers(self.source_snapper,

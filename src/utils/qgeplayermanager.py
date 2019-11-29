@@ -67,6 +67,7 @@ class QgepLayerManager(object):
     """
     Gives access to QGEP layers by the table name.
     """
+
     def __init__(self):
         pass
 

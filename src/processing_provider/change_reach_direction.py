@@ -44,15 +44,14 @@ __revision__ = '$Format:%H$'
 
 class ChangeReachDirection(QgepAlgorithm):
     """
-	Change the direction of the selected reaches
+        Change the direction of the selected reaches
     """
 
     REACH_LAYER = 'REACH_LAYER'
 
-
     def name(self):
         return 'change_direction'
-    
+
     def displayName(self):
         return self.tr('Change reach direction')
 
@@ -74,14 +73,14 @@ class ChangeReachDirection(QgepAlgorithm):
         reach_layer.startEditing()
 
         feature_count = 0
-		
+
         iterator = reach_layer.getSelectedFeatures()
         feature_count = reach_layer.selectedFeatureCount()
-        
+
         # Loop through relevant reaches
         reach_layer.beginEditCommand('change directions')
         transaction = reach_layer.dataProvider().transaction()
-        #if not transaction:
+        # if not transaction:
         #    raise Exception: if there is no transaction, complain to the user!
         selected_obj_ids = [feature['obj_id'] for feature in iterator]
         transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(obj_ids=','.join(selected_obj_ids)), True)

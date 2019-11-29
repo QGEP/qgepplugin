@@ -20,6 +20,7 @@
 
 from PyQt5.QtWidgets import QApplication
 
+
 class OverrideCursor():
 
     def __init__(self, cursor):
