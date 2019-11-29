@@ -87,5 +87,9 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         qs = QgepSwmm(datetime.datetime.today().isoformat(), database,
                       inp_file, template_inp_file, None, None, None, None)
         qs.write_input()
+        
+        if qs.feedbacks is not None:
+            for i in range(len(qs.feedbacks)):
+                feedback.reportError(qs.feedbacks[i])
 
         return {self.INP_FILE: inp_file}

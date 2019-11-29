@@ -71,7 +71,6 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
 
         self.addParameter(QgsProcessingParameterFeatureSink(self.NODE_SUMMARY, self.tr('Node summary')))
         self.addParameter(QgsProcessingParameterFeatureSink(self.LINK_SUMMARY, self.tr('Link summary')))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.XSECTION_SUMMARY, self.tr('Cross section summary')))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -98,15 +97,20 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
 
         # Get node summary from output file
         qs = QgepSwmm(None, None, None, None, out_file, None, None, None)
+        if qs.feedbacks is not None:
+            for i in range(len(qs.feedbacks)):
+                feedback.reportError(qs.feedbacks[i])
         node_summary = qs.extract_node_depth_summary()
+
 
         # Fill node summary with data
         for ns in node_summary:
-            print('ns', ns)
             sf = QgsFeature()
             sf.setFields(fields)
             for k in ns.keys():
-                sf.setAttribute(k, ns[k])
+                index = fields.indexOf(k)
+                if index != -1:
+                    sf.setAttribute(k, ns[k])
             sink_node.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(50)
 
@@ -132,7 +136,9 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             sf = QgsFeature()
             sf.setFields(fields)
             for k in ns.keys():
-                sf.setAttribute(k, ns[k])
+                index = fields.indexOf(k)
+                if index != -1:
+                    sf.setAttribute(k, ns[k])
             sink_link.addFeature(sf, QgsFeatureSink.FastInsert)
         feedback.setProgress(100)
 

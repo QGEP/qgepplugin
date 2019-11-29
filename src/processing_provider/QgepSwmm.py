@@ -47,101 +47,14 @@ class QgepSwmm:
         self.log_file = logfile
         self.bin_file = binfile
         self.db_model_path = db_model_path
-
-    def create_swmm_schema(self):
-        """
-        Create QGEP-SWMM schema
-        """
-
-        con = psycopg2.connect(service=self.service)
-        cur = con.cursor()
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_create_schema.sql"), "r").read())
-        con.commit()
-
-        return
-
-    def create_swmm_views(self):
-        """
-        Create QGEP-SWMM views
-        """
-
-        con = psycopg2.connect(service=self.service)
-        cur = con.cursor()
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_conduits.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_junctions.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_outfalls.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_pumps.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_storages.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_subcatchments.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_xsections.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_losses.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_coordinates.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_vertices.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_polygons.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_tags.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_aquifers.sql"), "r").read())
-        cur.execute(open(os.path.join(self.db_model_path, "vw_swmm_landuses.sql"), "r").read())
-        con.commit()
-
-        return
-
-    def delete_swmm_tables(self):
-        """
-        Delete swmm tables
-        """
-        con = psycopg2.connect(service=self.service)
-        cur = con.cursor()
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.conduits")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.junctions")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.outfalls")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.pumps")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.storages")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.subcatchments")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.subareas")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.infiltration")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.xsections")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.losses")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.coordinates")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.vertices")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.polygons")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.raingages")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.tags")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.aquifers")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.landuses")
-        cur.execute("DROP TABLE IF EXISTS qgep_swmm.coverages")
-        con.commit()
-        return
-
-    def create_fill_swmm_tables(self):
-        con = psycopg2.connect(service=self.service)
-        cur = con.cursor()
-        cur.execute("CREATE TABLE qgep_swmm.conduits AS TABLE qgep_swmm.vw_conduits")
-        cur.execute("CREATE TABLE qgep_swmm.junctions AS TABLE qgep_swmm.vw_junctions")
-        cur.execute("CREATE TABLE qgep_swmm.outfalls AS TABLE qgep_swmm.vw_outfalls")
-        cur.execute("CREATE TABLE qgep_swmm.pumps AS TABLE qgep_swmm.vw_pumps")
-        cur.execute("CREATE TABLE qgep_swmm.storage AS TABLE qgep_swmm.vw_storages")
-        cur.execute("CREATE TABLE qgep_swmm.subcatchments AS TABLE qgep_swmm.vw_subcatchments")
-        cur.execute("CREATE TABLE qgep_swmm.subareas AS TABLE qgep_swmm.vw_subareas")
-        cur.execute("CREATE TABLE qgep_swmm.infiltration AS TABLE qgep_swmm.vw_infiltration")
-        cur.execute("CREATE TABLE qgep_swmm.xsections AS TABLE qgep_swmm.vw_xsections")
-        cur.execute("CREATE TABLE qgep_swmm.losses AS TABLE qgep_swmm.vw_losses")
-        cur.execute("CREATE TABLE qgep_swmm.coordinates AS TABLE qgep_swmm.vw_coordinates")
-        cur.execute("CREATE TABLE qgep_swmm.vertices AS TABLE qgep_swmm.vw_vertices")
-        cur.execute("CREATE TABLE qgep_swmm.polygons AS TABLE qgep_swmm.vw_polygons")
-        cur.execute("CREATE TABLE qgep_swmm.raingages AS TABLE qgep_swmm.vw_raingages")
-        cur.execute("CREATE TABLE qgep_swmm.tags AS TABLE qgep_swmm.vw_tags")
-        cur.execute("CREATE TABLE qgep_swmm.aquifers AS TABLE qgep_swmm.vw_aquifers")
-        cur.execute("CREATE TABLE qgep_swmm.landuses AS TABLE qgep_swmm.vw_landuses")
-        cur.execute("CREATE TABLE qgep_swmm.coverages AS TABLE qgep_swmm.vw_coverages")
-        con.commit()
-        return
+        self.feedbacks = []
 
     def get_swmm_table(self, table_name):
         """
         Extract data from the swmm views in the database
 
         Parameters:
-        table_name (string): Name of the view or tablle
+        table_name (string): Name of the view or table
 
         Returns:
         dic: table content
@@ -153,9 +66,9 @@ class QgepSwmm:
         con = psycopg2.connect(service=self.service)
         cur = con.cursor()
         try:
-            cur.execute('select * from qgep_swmm.{table_name}'.format(table_name=table_name))
+            cur.execute('select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name))
         except psycopg2.ProgrammingError:
-            print('Table %s doesnt exists' % table_name)
+            self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
             return None, None
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
@@ -164,7 +77,7 @@ class QgepSwmm:
 
     def swmm_table(self, table_name):
         """
-        Create swmm table
+        Write swmm objects extracted from QGEP in swmm input file
 
         Parameters:
         table_name (string): Name of the swmm section
@@ -209,7 +122,7 @@ class QgepSwmm:
 
     def copy_parameters_from_template(self, parameter_name):
         """
-        Create swmm table from the template
+        Write swmm objects extracted from template in swmm input file
 
         Parameters:
         parameter_name (string): Name of the swmm section to be copied
@@ -224,7 +137,7 @@ class QgepSwmm:
         index_start = options_template.find('[{parameter_name}]'.format(parameter_name=parameter_name))
         if index_start == -1:
             # The balise options is not found
-            print('There is no [%s] in the template file' % parameter_name)
+            self.feedbacks.append('There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
             return ''
         else:
             # Search for the next opening bracket
@@ -435,31 +348,6 @@ class QgepSwmm:
             result.append(curres)
         return result
 
-    def extract_cross_section_summary(self):
-        """
-        Extract cross sections result data from swmm output file
-
-        Returns:
-        dic: Extracted computed values
-
-        """
-        data = self.extract_result_lines('Cross Section Summary')
-        result = []
-        for d in data:
-
-            curres = {}
-            curres['id'] = d[0]
-            curres['shape'] = d[1]
-            curres['full_depth'] = d[2]
-            curres['full_area'] = d[3]
-            curres['hyd_rad'] = d[4]
-            curres['max_width'] = d[5]
-            curres['no_of_barrels'] = d[6]
-            curres['full_flow'] = d[7]
-
-            result.append(curres)
-        return result
-
     def execute_swmm(self):
         """
         Execute SWMM
@@ -481,24 +369,3 @@ class QgepSwmm:
         ).stdout
 
         return proc
-
-
-# =============================================================================
-# Examples to show how theses functions can be used within Python scripts
-
-# TITLE = 'title simulation'
-# PGSERVICE = 'pg_qgep_demo_data'
-# INPFILE = '\\qgep_swmm\\input\\qgep_swmm.inp'
-# INPTEMPLATE = '\\qgep_swmm\\simulation_parameters\\default_qgep_swmm_parameters.inp'
-# OUTFILE = '\\qgep_swmm\\output\\swmm_test.out'
-# LOGFILE = '\\qgep_swmm\\output\\log.out'
-# BINFILE = 'C:\\Program Files (x86)\\EPA SWMM 5.1.013\\swmm5'
-# DBMODEL = '\\qgep_swmm\\02_datamodel\\swmm_views'
-#
-# qs = QgepSwmm(TITLE, PGSERVICE, INPFILE, INPTEMPLATE, OUTFILE, LOGFILE, BINFILE, DBMODEL)
-# qs.create_swmm_schema()
-# qs.create_swmm_views()
-# qs.delete_swmm_tables()
-# qs.create_fill_swmm_tables()
-# qs.execute_swmm()
-# =============================================================================

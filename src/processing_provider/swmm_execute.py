@@ -90,12 +90,14 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             # Please configure it before running Swmm algorithms.')
             raise QgsProcessingException(
                 self.tr('Swmm command line tool is not configured.\n\
-                    Please configure it before running Swmm algorithms.)'
+                    Please configure it before running Swmm algorithms.')
             )
-            pass
 
         qs = QgepSwmm(None, None, inp_file, None, output_file, log_file, swmm_cli, None)
         prompt = qs.execute_swmm()
+        if qs.feedbacks is not None:
+            for i in range(len(qs.feedbacks)):
+                feedback.reportError(qs.feedbacks[i])
 
         feedback.pushInfo(prompt)
 
@@ -104,5 +106,6 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             feedback.reportError('There were errors, look into logs for details: {log_file}'.format(log_file=log_file))
 
         feedback.setProgress(100)
+
 
         return {}
