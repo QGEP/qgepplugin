@@ -20,10 +20,15 @@
 """
 
 from qgis.core import QgsProcessingProvider
+from processing.core.ProcessingConfig import ProcessingConfig, Setting
+from processing.gui.ProviderActions import ProviderContextMenuActions
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
 from .sum_up_upstream import SumUpUpstreamAlgorithm
 from .change_reach_direction import ChangeReachDirection
+from .swmm_create_input import SwmmCreateInputAlgorithm
+from .swmm_extract_results import SwmmExtractResultsAlgorithm
+from .swmm_execute import SwmmExecuteAlgorithm
 
 from PyQt5.QtGui import QIcon
 import os
@@ -41,16 +46,19 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
     def __init__(self):
         QgsProcessingProvider.__init__(self)
+        # AlgorithmProvider.__init__(self)
 
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm()]
+        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(
+        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection()]
+        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(
+        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):
@@ -75,3 +83,19 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.algs = self.getAlgs()
         for a in self.algs:
             self.addAlgorithm(a)
+
+    def load(self):
+        ProcessingConfig.settingIcons[self.name()] = self.icon()
+        ProcessingConfig.addSetting(Setting(self.name(),
+                                            'SWMM_PATH',
+                                            self.tr("SWMM executable"),
+                                            r'C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe',
+                                            valuetype=Setting.FILE))
+
+        ProviderContextMenuActions.registerProviderContextMenuActions(self.alglist)
+        ProcessingConfig.readSettings()
+        self.refreshAlgorithms()
+        return True
+
+    def unload(self):
+        ProcessingConfig.removeSetting('SWMM_PATH')
