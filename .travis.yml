@@ -42,8 +42,6 @@ jobs:
 
 env:
   global:
-    - PUSH_TO=github # plugins (osgeo login, default), github (current repo)
-    - PLUGIN_SRC_DIR=src
     - CREATE_DATE=2015-08-07
 
     # GH_TOKEN for creating releases
