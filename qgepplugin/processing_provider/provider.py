@@ -21,7 +21,6 @@
 
 from qgis.core import QgsProcessingProvider
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
-from processing.gui.ProviderActions import ProviderContextMenuActions
 from .snap_reach import SnapReachAlgorithm
 from .flow_times import FlowTimesAlgorithm
 from .sum_up_upstream import SumUpUpstreamAlgorithm
@@ -92,7 +91,6 @@ class QgepProcessingProvider(QgsProcessingProvider):
                                             r'C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe',
                                             valuetype=Setting.FILE))
 
-        ProviderContextMenuActions.registerProviderContextMenuActions(self.alglist)
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()
         return True
