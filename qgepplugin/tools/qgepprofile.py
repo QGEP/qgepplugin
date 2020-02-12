@@ -146,10 +146,11 @@ class QgepProfileEdgeElement(QgepProfileElement):
         """
         Returns this element as a dict.
         """
-        startoffset = min([p['offset'] for p in list(self.reachPoints.values())])
-        endoffset = max([p['offset'] for p in list(self.reachPoints.values())])
-        fromlevel = max([p['level'] for p in list(self.reachPoints.values()) if p['level'] is not None] or [0])
-        tolevel = min([p['level'] for p in list(self.reachPoints.values()) if p['level'] is not None] or [fromlevel])
+        reach_points = sorted(list(self.reachPoints.values()), key=lambda p: p['offset'])
+        startoffset = min([p['offset'] for p in reach_points])
+        endoffset = max([p['offset'] for p in reach_points])
+        fromlevel = reach_points[0]['level'] or 0
+        tolevel = reach_points[-1]['level'] or fromlevel
 
         el = QgepProfileElement.asDict(self)
         el.update(
