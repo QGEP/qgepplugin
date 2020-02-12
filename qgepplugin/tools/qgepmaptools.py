@@ -342,7 +342,7 @@ class QgepProfileMapTool(QgepMapTool):
         if len(vertices) > 1:
             self.rubberBand.reset()
 
-            elem = QgepProfileNodeElement(vertices[0], node_features, 0)
+            elem = QgepProfileNodeElement(vertices[0], node_features, self.segmentOffset)
             self.profile.addElement(vertices[0], elem)
 
             for p1, p2, edge in edges:
