@@ -65,7 +65,8 @@ class QgepRubberBand3D(QgsRubberBand):
     def addPoint3D(self, point):
         assert type(point) == QgsPoint
         QgsRubberBand.addPoint(self, QgsPointXY(point.x(), point.y()))
-        self.points.append(QgsPoint(point))
+        new_point = QgsPoint(point.x(), point.y(), point.z(), point.m(), point.wkbType())
+        self.points.append(new_point)
 
     def reset3D(self):
         QgsRubberBand.reset(self)
