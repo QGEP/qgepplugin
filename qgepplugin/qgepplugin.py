@@ -118,7 +118,9 @@ class QgepPlugin(object):
             self.logger.removeHandler(self.logger.qgepFileHandler)
             del self.logger.qgepFileHandler
 
-        self.logger.addHandler(QgepQgsLogHandler())
+        current_handlers = [h.__class__.__name__ for h in self.logger.handlers]
+        if self.__class__.__name__ not in current_handlers:
+            self.logger.addHandler(QgepQgsLogHandler())
 
         if logfile:
             log_handler = logging.FileHandler(logfile)
@@ -256,6 +258,8 @@ class QgepPlugin(object):
 
         self.processing_provider = QgepProcessingProvider()
         QgsApplication.processingRegistry().addProvider(self.processing_provider)
+
+        self.network_layer_notifier.layersAdded([])
 
     def unload(self):
         """
