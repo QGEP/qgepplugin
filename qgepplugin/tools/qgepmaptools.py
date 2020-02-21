@@ -182,8 +182,9 @@ class QgepMapTool(QgsMapTool):
         if not match.isValid() or len(match_filter.matches) == 1:
             return match
         elif len(match_filter.matches) > 1:
-            point_ids = [match.featureId() for match in match_filter.matches]
-            node_features = self.network_analyzer.getFeaturesById(self.network_analyzer.getNodeLayer(), point_ids)
+            matches_by_id = {match.featureId(): match for match in match_filter.matches}
+            node_features = self.network_analyzer.getFeaturesById(self.network_analyzer.getNodeLayer(),
+                                                                  list(matches_by_id.keys()))
 
             # Filter wastewater nodes
             filtered_features = {
@@ -212,13 +213,14 @@ class QgepMapTool(QgsMapTool):
 
             menu = QMenu(self.canvas)
 
-            for _, feature in list(filtered_features.items()):
+            for fid, feature in filtered_features.items():
                 try:
                     title = feature.attribute('description') + " (" + feature.attribute('obj_id') + ")"
                 except TypeError:
                     title = " (" + feature.attribute('obj_id') + ")"
-                action = QAction(title, menu)
-                actions[action] = match
+                actions[QAction(title, menu)] = matches_by_id[fid]
+
+            for action in sorted(actions.keys(), key=lambda o: o.text()):
                 menu.addAction(action)
 
             clicked_action = menu.exec_(self.canvas.mapToGlobal(event.pos()))
@@ -342,7 +344,7 @@ class QgepProfileMapTool(QgepMapTool):
         if len(vertices) > 1:
             self.rubberBand.reset()
 
-            elem = QgepProfileNodeElement(vertices[0], node_features, 0)
+            elem = QgepProfileNodeElement(vertices[0], node_features, self.segmentOffset)
             self.profile.addElement(vertices[0], elem)
 
             for p1, p2, edge in edges:
