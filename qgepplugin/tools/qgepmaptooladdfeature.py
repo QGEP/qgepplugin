@@ -65,7 +65,9 @@ class QgepRubberBand3D(QgsRubberBand):
     def addPoint3D(self, point):
         assert type(point) == QgsPoint
         QgsRubberBand.addPoint(self, QgsPointXY(point.x(), point.y()))
-        self.points.append(QgsPoint(point))
+        # Workaround crash with QGIS 3.10.2 (https://github.com/qgis/QGIS/issues/34557)
+        new_point = QgsPoint(point.x(), point.y(), point.z(), point.m(), point.wkbType())
+        self.points.append(new_point)
 
     def reset3D(self):
         QgsRubberBand.reset(self)
