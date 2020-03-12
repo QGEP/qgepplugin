@@ -87,8 +87,8 @@ class QgepProcessingProvider(QgsProcessingProvider):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
         ProcessingConfig.addSetting(Setting(self.name(),
                                             'SWMM_PATH',
-                                            self.tr("SWMM executable"),
-                                            r'C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe',
+                                            self.tr(r'SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)'),
+                                            None,
                                             valuetype=Setting.FILE))
 
         ProcessingConfig.readSettings()
