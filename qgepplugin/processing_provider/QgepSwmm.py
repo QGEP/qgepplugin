@@ -188,7 +188,6 @@ class QgepSwmm:
             f.write(self.swmm_table('INFILTRATION'))
             f.write(self.swmm_table('POLYGONS'))
 
-            
             f.write(self.copy_parameters_from_template('GROUNDWATER'))
             f.write(self.copy_parameters_from_template('SNOWPACKS'))
             f.write(self.copy_parameters_from_template('HYDROGAPHS'))
@@ -204,7 +203,7 @@ class QgepSwmm:
             f.write(self.swmm_table('STORAGE'))
             f.write(self.swmm_table('COORDINATES'))
             f.write(self.swmm_table('DWF'))
-            
+
             f.write(self.copy_parameters_from_template('INFLOWS'))
             f.write(self.copy_parameters_from_template('DIVIDERS'))
 
