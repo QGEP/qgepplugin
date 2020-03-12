@@ -378,8 +378,6 @@ class QgepProfileMapTool(QgepMapTool):
 
                 self.segmentOffset = to_offset
 
-            self.profileChanged.emit(self.profile)
-
             # Create rubberband geometry
             for feat_id in edge_ids:
                 self.pathPolyline.extend(edge_features[feat_id].geometry().asPolyline())
