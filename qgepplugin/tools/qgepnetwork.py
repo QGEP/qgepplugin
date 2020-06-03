@@ -178,17 +178,11 @@ class QgepGraphManager(QObject):
                         "Could not initialize transaction"), Qgis.Critical)
                     return
 
-            query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_segment;"
-            edge_res, error = transaction.executeSql(query_template)
-            if not edge_res:
+            query_template = "SELECT qgep_network.refresh_network_simple();"
+            res, error = transaction.executeSql(query_template)
+            if not res:
                 self.message_emitted.emit(self.tr("Error"), error, Qgis.Critical)
-
-            query_template = "REFRESH MATERIALIZED VIEW qgep_od.vw_network_node;"
-            node_res, error = transaction.executeSql(query_template)
-            if not node_res:
-                self.message_emitted.emit(self.tr("Error"), error, Qgis.Critical)
-
-            if node_res and edge_res:
+            else:
                 self.message_emitted.emit(self.tr("Success"), self.tr("Network successfully updated"), Qgis.Success)
 
             if temporary_edit_session:
