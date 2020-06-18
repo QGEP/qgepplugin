@@ -6,6 +6,12 @@ qgisMinimumVersion=3.2
 category=Vector
 version=1.0.0
 
+changelog=
+    Release 1.5.0
+    -------------
+    * This version requires the qgep data model version 1.5.0
+    
+    Check out the complete changelog on: https://github.com/QGEP/qgepplugin/releases
 tags=gep, abwasser, wastewater
 author=QGEP group
 email=qgep@qgis.ch
