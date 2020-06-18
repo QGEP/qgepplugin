@@ -188,7 +188,6 @@ class QgepSwmm:
             f.write(self.swmm_table('INFILTRATION'))
             f.write(self.swmm_table('POLYGONS'))
 
-            f.write(self.copy_parameters_from_template('INFLOWS'))
             f.write(self.copy_parameters_from_template('GROUNDWATER'))
             f.write(self.copy_parameters_from_template('SNOWPACKS'))
             f.write(self.copy_parameters_from_template('HYDROGAPHS'))
@@ -203,7 +202,9 @@ class QgepSwmm:
             f.write(self.swmm_table('OUTFALLS'))
             f.write(self.swmm_table('STORAGE'))
             f.write(self.swmm_table('COORDINATES'))
+            f.write(self.swmm_table('DWF'))
 
+            f.write(self.copy_parameters_from_template('INFLOWS'))
             f.write(self.copy_parameters_from_template('DIVIDERS'))
 
             # Hydraulics: links
@@ -229,7 +230,6 @@ class QgepSwmm:
             f.write(self.copy_parameters_from_template('BUILDUP'))
             f.write(self.copy_parameters_from_template('WASHOFF'))
             f.write(self.copy_parameters_from_template('TREATMENT'))
-            f.write(self.copy_parameters_from_template('DWF'))
             f.write(self.copy_parameters_from_template('RDII'))
             f.write(self.copy_parameters_from_template('LOADINGS'))
 
