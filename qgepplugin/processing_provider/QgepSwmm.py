@@ -25,7 +25,7 @@ import subprocess
 
 class QgepSwmm:
 
-    def __init__(self, title, service, inpfile, inptemplate, outfile, logfile, binfile, db_model_path):
+    def __init__(self, title, service, state, inpfile, inptemplate, outfile, logfile, binfile, db_model_path):
         """
         Initiate QgepSwmm
 
@@ -47,13 +47,16 @@ class QgepSwmm:
         self.bin_file = binfile
         self.db_model_path = db_model_path
         self.feedbacks = []
+        self.state = state
 
-    def get_swmm_table(self, table_name):
+    def get_swmm_table(self, table_name, state, ws):
         """
         Extract data from the swmm views in the database
 
         Parameters:
         table_name (string): Name of the view or table
+        state (string): current or planned
+        ws (boolean): if the origin table is a wastewater structure
 
         Returns:
         dic: table content
@@ -64,8 +67,13 @@ class QgepSwmm:
         # Connects to service and get data and attributes from tableName
         con = psycopg2.connect(service=self.service)
         cur = con.cursor()
+        if (state == 'planned' and ws == True) or (state is None):
+            sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
+        else: 
+            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'".format(table_name=table_name, state=state)
+        
         try:
-            cur.execute('select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name))
+            cur.execute(sql)
         except psycopg2.ProgrammingError:
             self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
             return None, None
@@ -74,12 +82,16 @@ class QgepSwmm:
 
         return data, attributes
 
-    def swmm_table(self, table_name):
+    def swmm_table(self, table_name, state=None, ws=False):
         """
-        Write swmm objects extracted from QGEP in swmm input file
+        Write swmm objects extracted from QGEP in swmm input file. Selects according
+        to the state planned or current. If the object is a qgep wastewater structure
+        when the state is "planned" both "planned" and "operational" wastewater structures are selected
 
         Parameters:
         table_name (string): Name of the swmm section
+        state (string): current or planned
+        ws (boolean): if the origin table is a wastewater structure
 
         Returns:
         String: table content
@@ -88,11 +100,11 @@ class QgepSwmm:
 
         # Create commented line which contains the field names
         fields = ""
-        data, attributes = self.get_swmm_table(table_name)
+        data, attributes = self.get_swmm_table(table_name, state, ws)
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ('description', 'tag', 'geom'):
+                if field not in ('description', 'tag', 'geom', 'state'):
                     fields += field + "\t"
 
             # Create input paragraph
@@ -108,7 +120,7 @@ class QgepSwmm:
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ('description', 'tag', 'geom'):
+                    if attributes[i] not in ('description', 'tag', 'geom', 'state'):
                         if v is not None:
                             tbl += str(v) + '\t'
                         else:
@@ -158,6 +170,7 @@ class QgepSwmm:
 
         # From qgis swmm
         filename = self.input_file
+        state = self.state
 
         with codecs.open(filename, 'w', encoding='utf-8') as f:
 
@@ -181,11 +194,11 @@ class QgepSwmm:
 
             # Hydrology
             # ----------
-            f.write(self.swmm_table('RAINGAGES'))
-            f.write(self.swmm_table('SUBCATCHMENTS'))
-            f.write(self.swmm_table('SUBAREAS'))
+            f.write(self.swmm_table('RAINGAGES', state))
+            f.write(self.swmm_table('SUBCATCHMENTS', state))
+            f.write(self.swmm_table('SUBAREAS', state))
             f.write(self.swmm_table('AQUIFERS'))
-            f.write(self.swmm_table('INFILTRATION'))
+            f.write(self.swmm_table('INFILTRATION', state, ws=True))
             f.write(self.swmm_table('POLYGONS'))
 
             f.write(self.copy_parameters_from_template('GROUNDWATER'))
@@ -196,26 +209,27 @@ class QgepSwmm:
 
             # Hydraulics: nodes
             # ------------------
-            f.write(self.swmm_table('JUNCTIONS'))
+            f.write(self.swmm_table('JUNCTIONS', state))
             # Create default junction to avoid errors
             f.write('default_qgep_node\t0\t0\n\n')
-            f.write(self.swmm_table('OUTFALLS'))
-            f.write(self.swmm_table('STORAGE'))
+            f.write(self.swmm_table('OUTFALLS', state, ws=True))
+            f.write(self.swmm_table('STORAGE', state, ws=True))
             f.write(self.swmm_table('COORDINATES'))
-            f.write(self.swmm_table('DWF'))
+            f.write(self.swmm_table('DWF', state))
 
             f.write(self.copy_parameters_from_template('INFLOWS'))
             f.write(self.copy_parameters_from_template('DIVIDERS'))
 
             # Hydraulics: links
             # ------------------
-            f.write(self.swmm_table('CONDUITS'))
-            f.write(self.swmm_table('PUMPS'))
+            f.write(self.swmm_table('CONDUITS', state, ws=True))
+            f.write(self.swmm_table('LOSSES', state, ws=True))
+            f.write(self.swmm_table('PUMPS', state, ws=True ))
             f.write(self.copy_parameters_from_template('ORIFICES'))
             f.write(self.copy_parameters_from_template('WEIRS'))
             f.write(self.copy_parameters_from_template('OUTLETS'))
             f.write(self.swmm_table('XSECTIONS'))
-            f.write(self.swmm_table('LOSSES'))
+            f.write(self.swmm_table('LOSSES', state, ws=True))
             f.write(self.swmm_table('VERTICES'))
 
             f.write(self.copy_parameters_from_template('TRANSECTS'))
