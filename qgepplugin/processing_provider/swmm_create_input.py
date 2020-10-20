@@ -79,7 +79,6 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         description = self.tr('Template INP File')
         self.addParameter(QgsProcessingParameterFile(self.TEMPLATE_INP_FILE, description=description, extension="inp"))
 
-        description = self.tr('Result INP File')
         self.addParameter(QgsProcessingParameterFileDestination(
             self.INP_FILE, description=description, fileFilter="inp (*.inp)"))
 
