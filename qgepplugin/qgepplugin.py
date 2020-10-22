@@ -47,6 +47,7 @@ from .tools.qgepnetwork import QgepGraphManager
 from .gui.qgepprofiledockwidget import QgepProfileDockWidget
 from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
+from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
 from .gui.qgepwizard import QgepWizard
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
@@ -209,6 +210,10 @@ class QgepPlugin(object):
             self.tr('Settings'), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
+        self.datamodelInitToolAction = QAction(
+            self.tr('Datamodel tool'), self.iface.mainWindow())
+        self.datamodelInitToolAction.triggered.connect(self.showDatamodelInitTool)
+
         # Add toolbar button and menu item
         self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
         self.toolbar.addAction(self.profileAction)
@@ -219,6 +224,7 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.connectNetworkElementsAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
+        self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
 
@@ -388,3 +394,8 @@ class QgepPlugin(object):
     def showSettings(self):
         settings_dlg = QgepSettingsDialog(self.iface.mainWindow())
         settings_dlg.exec_()
+
+    def showDatamodelInitTool(self):
+        if not hasattr(self, '_datamodel_dlg'):
+            self.datamodel_dlg = QgepDatamodelInitToolDialog(self.iface.mainWindow())
+        self.datamodel_dlg.show()
