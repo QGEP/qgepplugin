@@ -19,7 +19,7 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsProcessingAlgorithm
+from qgis.core import QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm
 
 from PyQt5.QtCore import QCoreApplication
 
@@ -31,10 +31,9 @@ __copyright__ = '(C) 2018 by OPENGIS.ch'
 
 __revision__ = '$Format:%H$'
 
-
-class QgepAlgorithm(QgsProcessingAlgorithm):
+class QgepAlgorithmMixin:
     """
-    Boilerplate code for QGEP algorithms
+    Boilerplate mixin for QGEP algorithms
     """
 
     def group(self):
@@ -50,3 +49,11 @@ class QgepAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return type(self)()
+
+
+class QgepAlgorithm(QgepAlgorithmMixin, QgsProcessingAlgorithm):
+    pass
+
+
+class QgepFeatureBasedAlgorithm(QgepAlgorithmMixin, QgsProcessingFeatureBasedAlgorithm):
+    pass
