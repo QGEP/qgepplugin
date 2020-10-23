@@ -6,15 +6,25 @@ import subprocess
 import pkg_resources
 import site
 import importlib
+import configparser
 
 from qgis.PyQt.QtCore import QUrl, QFile, QIODevice
 from qgis.PyQt.QtNetwork import QNetworkRequest
+from qgis.PyQt.QtXml import QDomDocument
 from qgis.core import QgsNetworkAccessManager, QgsFeedback, QgsMessageLog, Qgis, QgsProject
 
 
 # Basic config
 DATAMODEL_RELEASE = '1.5.2'
 QGEP_RELEASE = '8.0'
+
+# Path for pg_service.conf
+if os.environ.get('PGSERVICEFILE'):
+    PG_CONFIG_PATH = os.environ.get('PGSERVICEFILE')
+elif os.environ.get('PGSYSCONFDIR'):
+    PG_CONFIG_PATH = os.path.join(os.environ.get('PGSYSCONFDIR'), 'pg_service.conf')
+else:
+    PG_CONFIG_PATH = ' ~/.pg_service.conf'
 
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_RELEASE_URL = f'https://github.com/QGEP/datamodel/archive/v{DATAMODEL_RELEASE}.zip'
@@ -131,12 +141,12 @@ def install_deps():
     importlib.reload(site)
 
 
-def get_current_version():
+def get_current_version(pgservice):
     if not os.path.exists(DATAMODEL_DELTAS_DIR):
         return None
 
     pum_info = _run_cmd(
-        f'pum info -p pg_qgep -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR}',
+        f'pum info -p {pgservice} -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR}',
         error_message='Could not get current version, are you sure the database is accessible ?'
     )
     for line in pum_info.splitlines():
@@ -166,13 +176,60 @@ def get_available_versions():
     return sorted(list(versions))
 
 
-def upgrade_version(version, srid):
+def upgrade_version(pgservice, version, srid):
+    try:
+        get_current_version(pgservice)
+    except QGEPDatamodelError:
+        # TODO : this should be done by PUM directly (see https://github.com/opengisch/pum/issues/94)
+        return _run_cmd(
+            f'pum baseline -p {pgservice} -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR} -b 0.0.0',
+            cwd=os.path.dirname(DATAMODEL_DELTAS_DIR),
+            error_message='Errors when initializing the database. Consult logs for more information.'
+        )
     return _run_cmd(
-        f'pum upgrade -p pg_qgep -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR} -u {version} -v int SRID {srid}',
+        f'pum upgrade -p {pgservice} -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR} -u {version} -v int SRID {srid}',
         cwd=os.path.dirname(DATAMODEL_DELTAS_DIR),
         error_message='Errors when upgrading the database. Consult logs for more information.'
     )
 
 
-def load_project():
-    QgsProject.instance().read(QGIS_PROJECT_PATH)
+def load_project(pgservice):
+    with open(QGIS_PROJECT_PATH, 'r') as original_project:
+        contents = original_project.read()
+
+    # replace the service name
+    contents = contents.replace("service='pg_qgep'", f"service='{pgservice}'")
+
+    output_file = tempfile.NamedTemporaryFile(suffix='.qgs', delete=False)
+    output_file.write(contents.encode('utf8'))
+
+    QgsProject.instance().read(output_file.name)
+
+
+def read_pgservice():
+    config = configparser.ConfigParser()
+    if os.path.exists(PG_CONFIG_PATH):
+        config.read(PG_CONFIG_PATH)
+    return config
+
+
+def get_pgservice_configs_names():
+    config = read_pgservice()
+    return config.sections()
+
+
+def write_pgservice_conf(service_name, config_dict):
+    config = read_pgservice()
+    config[service_name] = config_dict
+    
+    class EqualsSpaceRemover:
+        # see https://stackoverflow.com/a/25084055/13690651
+        output_file = None
+
+        def __init__(self, output_file):
+            self.output_file = output_file
+
+        def write(self, what):
+            self.output_file.write(what.replace(" = ", "=", 1))
+
+    config.write(EqualsSpaceRemover(open(PG_CONFIG_PATH, 'w')))
