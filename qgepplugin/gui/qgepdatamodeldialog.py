@@ -142,7 +142,10 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         self.pgserviceComboBox.activated.connect(self.select_pgconfig)
         self.pgserviceAddButton.pressed.connect(self.add_pgconfig)
 
+        self.targetVersionComboBox.activated.connect(self.check_version)
         self.versionUpgradeButton.pressed.connect(self.upgrade_version)
+        self.initializeButton.pressed.connect(self.initialize_version)
+
         self.loadProjectButton.pressed.connect(self.load_project)
 
         # Initialize the checks
@@ -158,6 +161,10 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     @property
     def version(self):
         return self.releaseVersionComboBox.currentText()
+
+    @property
+    def target_version(self):
+        return self.targetVersionComboBox.currentText()
 
     @property
     def conf(self):
@@ -273,8 +280,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         super().showEvent(event)
 
     def enable_buttons_if_ready(self):
-        self.versionUpgradeButton.setEnabled(all(self.checks.values()))
         self.installDepsButton.setEnabled(self.checks['datamodel'] and not self.checks['requirements'])
+        self.versionUpgradeButton.setEnabled(all(self.checks.values()))
         self.loadProjectButton.setEnabled(self.checks['datamodel'] and self.checks['pgconfig'])
 
     # Datamodel
@@ -422,12 +429,39 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     # Version
 
-    def check_version(self):
+    def check_version(self, _=None):
         check = False
+
+        # target version
+
+        # (re)populate the combobox
+        prev = self.targetVersionComboBox.currentText()
+        self.targetVersionComboBox.clear()
+        available_versions = set()
+        deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+        if os.path.exists(deltas_dir):
+            for f in os.listdir(deltas_dir):
+                if f.startswith('delta_'):
+                    available_versions.add(f.split('_')[1])
+        for available_version in sorted(list(available_versions), reverse=True):
+            self.targetVersionComboBox.addItem(available_version)
+        self.targetVersionComboBox.setCurrentText(prev)  # restore
+
+        target_version = self.targetVersionComboBox.currentText()
+
+        # current version
+
+        self.initializeButton.setVisible(False)
+        self.targetVersionComboBox.setVisible(True)
+        self.versionUpgradeButton.setVisible(True)
 
         pgservice = self.pgserviceComboBox.currentText()
         if not pgservice:
             self.versionCheckLabel.setText('service not selected')
+            self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+
+        elif not available_versions:
+            self.versionCheckLabel.setText('no delta in datamodel')
             self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
 
         else:
@@ -444,11 +478,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 check = True
                 self.versionCheckLabel.setText('not initialized')
                 self.versionCheckLabel.setStyleSheet('color: rgb(170, 65, 0);\nfont-weight: bold;')
-            elif current_version <= self.version:
+            elif current_version <= target_version:
                 check = True
                 self.versionCheckLabel.setText(current_version)
                 self.versionCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
-            elif current_version > self.version:
+            elif current_version > target_version:
                 check = False
                 self.versionCheckLabel.setText(f"{current_version} (cannot downgrade)")
                 self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
@@ -457,18 +491,97 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 self.versionCheckLabel.setText(f"{current_version} (invalid version)")
                 self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
 
+            self.initializeButton.setVisible(current_version is None)
+            self.targetVersionComboBox.setVisible(not current_version is None)
+            self.versionUpgradeButton.setVisible(not current_version is None)
+
         self.checks['current_version'] = check
         self.enable_buttons_if_ready()
 
         return check
 
     @qgep_datamodel_error_catcher
-    def upgrade_version(self):
-        version = self.releaseVersionComboBox.currentText()
-        pgservice = self.pgserviceComboBox.currentText()
+    def initialize_version(self):
 
         confirm = QMessageBox()
-        confirm.setText(f"You are about to update the datamodel on {pgservice} to version {version}. ")
+        confirm.setText(f"You are about to initialize the datamodel on {self.conf} to version {self.version}. ")
+        confirm.setInformativeText(
+            "Please confirm that you have a backup of your data as this operation can result in data loss."
+        )
+        confirm.setStandardButtons(QMessageBox.Apply | QMessageBox.Cancel)
+        confirm.setIcon(QMessageBox.Warning)
+
+        if confirm.exec_() == QMessageBox.Apply:
+
+            self._show_progress("Initializing the datamodel")
+
+            srid = self.sridLineEdit.text()
+
+            # If we can't get current version, it's probably that the DB is not initialized
+            # (or maybe we can't connect, but we can't know easily with PUM)
+
+            self._show_progress("Initializing the datamodel")
+
+            # TODO : this should be done by PUM directly (see https://github.com/opengisch/pum/issues/94)
+            # also currently SRID doesn't work
+            try:
+                self._show_progress("Downloading the structure script")
+                url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
+                sql_path = self._download(url, f"structure_with_value_lists-{self.version}-{srid}.sql")
+
+                # Dirty hack to customize SRID in a dump
+                if srid != '2056':
+                    with open(sql_path, 'r') as file:
+                        contents = file.read()
+                    contents = contents.replace('2056', srid)
+                    with open(sql_path, 'w') as file:
+                        file.write(contents)
+
+                try:
+                    conn = psycopg2.connect(f"service={self.conf}")
+                except psycopg2.Error:
+                    # It may be that the database doesn't exist yet
+                    # in that case, we try to connect to the postgres database and to create it from there
+                    self._show_progress("Creating the database")
+                    dbname = self._read_pgservice()[self.conf]['dbname']
+                    self._run_cmd(
+                        f'psql -c "CREATE DATABASE {dbname};" "service={self.conf} dbname=postgres"',
+                        error_message='Errors when initializing the database.'
+                    )
+                    conn = psycopg2.connect(f"service={self.conf}")
+
+                self._show_progress("Running the initialization scripts")
+                cur = conn.cursor()
+                cur.execute('CREATE SCHEMA IF NOT EXISTS qgep_sys;')
+                cur.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
+                # we cannot use this, as it doesn't support COPY statements
+                # this means we'll run through psql without transaction :-/
+                # cur.execute(open(sql_path, "r").read())
+                conn.commit()
+                cur.close()
+                conn.close()
+                self._run_cmd(
+                    f'psql -f {sql_path} "service={self.conf}"',
+                    error_message='Errors when initializing the database.'
+                )
+
+            except psycopg2.Error as e:
+                raise QGEPDatamodelError(str(e))
+
+            self.check_version()
+
+            self._done_progress()
+
+            success = QMessageBox()
+            success.setText("Datamodel successfully initialized")
+            success.setIcon(QMessageBox.Information)
+            success.exec_()
+
+    @qgep_datamodel_error_catcher
+    def upgrade_version(self):
+
+        confirm = QMessageBox()
+        confirm.setText(f"You are about to update the datamodel on {self.conf} to version {self.target_version}. ")
         confirm.setInformativeText(
             "Please confirm that you have a backup of your data as this operation can result in data loss."
         )
@@ -481,70 +594,12 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
             srid = self.sridLineEdit.text()
 
-            try:
-                current_version = self._get_current_version()
-            except QGEPDatamodelError:
-                # Can happend if PUM is not initialized, unfortunately we can't really
-                # determine if this is a connection error or if PUM is not initailized
-                # see https://github.com/opengisch/pum/issues/96
-                current_version = None
-
-            if current_version is None:
-                # If we can't get current version, it's probably that the DB is not initialized
-                # (or maybe we can't connect, but we can't know easily with PUM)
-
-                self._show_progress("Initializing the datamodel")
-
-                # TODO : this should be done by PUM directly (see https://github.com/opengisch/pum/issues/94)
-                # also currently SRID doesn't work
-                try:
-                    self._show_progress("Downloading the structure script")
-                    url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
-                    sql_path = self._download(url, f"structure_with_value_lists-{self.version}-{srid}.sql")
-
-                    # Dirty hack to customize SRID in a dump
-                    if srid != '2056':
-                        with open(sql_path, 'r') as file:
-                            contents = file.read()
-                        contents = contents.replace('2056', srid)
-                        with open(sql_path, 'w') as file:
-                            file.write(contents)
-
-                    try:
-                        conn = psycopg2.connect(f"service={self.conf}")
-                    except psycopg2.Error:
-                        # It may be that the database doesn't exist yet
-                        # in that case, we try to connect to the postgres database and to create it from there
-                        self._show_progress("Creating the database")
-                        dbname = self._read_pgservice()[self.conf]['dbname']
-                        self._run_cmd(
-                            f'psql -c "CREATE DATABASE {dbname};" "service={self.conf} dbname=postgres"',
-                            error_message='Errors when initializing the database.'
-                        )
-                        conn = psycopg2.connect(f"service={self.conf}")
-
-                    self._show_progress("Running the initialization scripts")
-                    cur = conn.cursor()
-                    cur.execute('CREATE SCHEMA IF NOT EXISTS qgep_sys;')
-                    cur.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
-                    # we cannot use this, as it doesn't support COPY statements
-                    # this means we'll run through psql without transaction :-/
-                    # cur.execute(open(sql_path, "r").read())
-                    conn.commit()
-                    cur.close()
-                    conn.close()
-                    self._run_cmd(
-                        f'psql -f {sql_path} "service={self.conf}"',
-                        error_message='Errors when initializing the database.'
-                    )
-
-                except psycopg2.Error as e:
-                    raise QGEPDatamodelError(str(e))
+            current_version = self._get_current_version()
 
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
             return self._run_cmd(
-                f'pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.version} -v int SRID {srid}',
+                f'pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}',
                 cwd=os.path.dirname(deltas_dir),
                 error_message='Errors when upgrading the database.'
             )
@@ -555,7 +610,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
             success = QMessageBox()
             success.setText("Datamodel successfully upgraded")
-            success.setIcon(QMessageBox.Success)
+            success.setIcon(QMessageBox.Information)
             success.exec_()
 
     # Project
