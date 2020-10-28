@@ -181,8 +181,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     @qgep_datamodel_error_catcher
     def update_versions_checks(self):
         self.checks['current_version'] = False
-        
-        available_versions = datamodel_initializer.get_available_versions()        
+
+        available_versions = datamodel_initializer.get_available_versions()
         self.targetVersionComboBox.clear()
         for version in reversed(available_versions):
             self.targetVersionComboBox.addItem(version)
@@ -201,7 +201,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             # see https://github.com/opengisch/pum/issues/96
             current_version = None
 
-        if current_version is None or current_version in available_versions:
+        if current_version is None or current_version == '0.0.0' or current_version in available_versions:
             self.checks['current_version'] = True
             self.versionCheckLabel.setText(current_version or 'not initialized')
             self.versionCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
@@ -215,7 +215,6 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         # disable unapplicable versions
         for i in range(self.targetVersionComboBox.model().rowCount()):
             item_version = self.targetVersionComboBox.model().item(i).text()
-            QgsMessageLog.logMessage(item_version)
             enabled = current_version is None or item_version >= current_version
             self.targetVersionComboBox.model().item(i).setEnabled(enabled)
 
@@ -239,6 +238,6 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             self.update_versions_checks()
 
     @qgep_datamodel_error_catcher
-    def load_project(self):        
+    def load_project(self):
         pgservice = self.pgserviceComboBox.currentText()
         datamodel_initializer.load_project(pgservice)

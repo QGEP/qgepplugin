@@ -7,6 +7,7 @@ import pkg_resources
 import site
 import importlib
 import configparser
+import psycopg2
 
 from qgis.PyQt.QtCore import QUrl, QFile, QIODevice
 from qgis.PyQt.QtNetwork import QNetworkRequest
@@ -56,6 +57,18 @@ def _run_cmd(shell_command, cwd=None, error_message='Subprocess error, see logs 
     return result.stdout.decode()
 
 
+def _download(url, filename, feedback):
+    network_manager = QgsNetworkAccessManager.instance()
+    QgsMessageLog.logMessage(f"Downloading {url} to {RELEASE_DIR}", "QGEP")
+    reply = network_manager.blockingGet(QNetworkRequest(QUrl(DATAMODEL_RELEASE_URL)), feedback=feedback)
+    download_path = os.path.join(RELEASE_DIR, filename)
+    download_file = QFile(download_path)
+    download_file.open(QIODevice.WriteOnly)
+    download_file.write(reply.content())
+    download_file.close()
+    return download_file.fileName()
+
+
 def check_release_exists():
     return os.path.exists(QGIS_PROJECT_PATH) and os.path.exists(DATAMODEL_DIR)
 
@@ -84,7 +97,6 @@ def missing_python_requirements():
 
 def install_deps():
 
-    network_manager = QgsNetworkAccessManager.instance()
     feedback = QgsFeedback()
 
     # Download the files if needed
@@ -95,30 +107,18 @@ def install_deps():
     else:
         os.makedirs(RELEASE_DIR, exist_ok=True)
 
-        # Download datamodel
-        QgsMessageLog.logMessage(f"Downloading {DATAMODEL_RELEASE_URL} to {RELEASE_DIR}", "QGEP")
-        reply = network_manager.blockingGet(QNetworkRequest(QUrl(DATAMODEL_RELEASE_URL)), feedback=feedback)
-        datamodel_file = QFile(os.path.join(RELEASE_DIR, 'datamodel.zip'))
-        datamodel_file.open(QIODevice.WriteOnly)
-        datamodel_file.write(reply.content())
-        datamodel_file.close()
-
-        # Download QGEP
-        QgsMessageLog.logMessage(f"Downloading {QGEP_RELEASE_URL} to {RELEASE_DIR}", "QGEP")
-        reply = network_manager.blockingGet(QNetworkRequest(QUrl(QGEP_RELEASE_URL)), feedback=feedback)
-        qgep_file = QFile(os.path.join(RELEASE_DIR, 'qgep.zip'))
-        qgep_file.open(QIODevice.WriteOnly)
-        qgep_file.write(reply.content())
-        qgep_file.close()
+        # Download files
+        datamodel_path = _download(DATAMODEL_RELEASE_URL, 'datamodel.zip', feedback=feedback)
+        qgep_path = _download(QGEP_RELEASE_URL, 'qgep.zip', feedback=feedback)
 
         QgsMessageLog.logMessage(f"Extracting files to {RELEASE_DIR}", "QGEP")
 
         # Unzip datamodel
-        datamodel_zip = zipfile.ZipFile(datamodel_file.fileName())
+        datamodel_zip = zipfile.ZipFile(datamodel_path)
         datamodel_zip.extractall(RELEASE_DIR)
 
         # Unzip QGEP
-        qgep_zip = zipfile.ZipFile(qgep_file.fileName())
+        qgep_zip = zipfile.ZipFile(qgep_path)
         qgep_zip.extractall(RELEASE_DIR)
 
     # TODO : Ideally, this should be done in a venv, as to avoid permission issues and/or modification
@@ -178,14 +178,37 @@ def get_available_versions():
 
 def upgrade_version(pgservice, version, srid):
     try:
+        # If we can't get current version, it's probably that the DB is not initialized
+        # (or maybe we can't connect, but we can't know easily with PUM)
         get_current_version(pgservice)
     except QGEPDatamodelError:
+
+        QgsMessageLog.logMessage("Upgrading failed, trying to initialize the datamodel", "QGEP")
+
+        feedback = QgsFeedback()
+
         # TODO : this should be done by PUM directly (see https://github.com/opengisch/pum/issues/94)
-        return _run_cmd(
+        # also currently SRID doesn't work
+        try:
+            sql_path = _download(DATAMODEL_STRUCTURE_URL.format(version=version), f"structure_with_value_lists-{version}.sql", feedback)
+            conn = psycopg2.connect(f"service={pgservice}")
+            cur = conn.cursor()
+            cur.execute('CREATE SCHEMA IF NOT EXISTS qgep_sys;')
+            cur.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
+            cur.execute(open(sql_path, "r").read())
+            conn.commit()
+            cur.close()
+            conn.close()
+        except psycopg2.Error as e:
+            raise QGEPDatamodelError(str(e))
+
+        # TODO : this also should be done by pum upgrade directly (see https://github.com/opengisch/pum/issues/94)
+        _run_cmd(
             f'pum baseline -p {pgservice} -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR} -b 0.0.0',
             cwd=os.path.dirname(DATAMODEL_DELTAS_DIR),
             error_message='Errors when initializing the database. Consult logs for more information.'
         )
+
     return _run_cmd(
         f'pum upgrade -p {pgservice} -t qgep_sys.pum_info -d {DATAMODEL_DELTAS_DIR} -u {version} -v int SRID {srid}',
         cwd=os.path.dirname(DATAMODEL_DELTAS_DIR),
@@ -221,7 +244,7 @@ def get_pgservice_configs_names():
 def write_pgservice_conf(service_name, config_dict):
     config = read_pgservice()
     config[service_name] = config_dict
-    
+
     class EqualsSpaceRemover:
         # see https://stackoverflow.com/a/25084055/13690651
         output_file = None
