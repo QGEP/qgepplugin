@@ -28,8 +28,9 @@ import configparser
 import functools
 
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
-from qgis.core import QgsSettings, QgsMessageLog
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QProgressDialog , QApplication
+from qgis.core import QgsSettings, QgsMessageLog, QgsFeedback
 
 from ..utils import get_ui_class
 from .. import datamodel_initializer
@@ -49,6 +50,20 @@ def qgep_datamodel_error_catcher(func):
             err.exec_()
     return wrapper
 
+class ProgressDialog(QProgressDialog):
+    def __init__(self, label, **kwargs):
+        super().__init__(label, "Cancel", 0, 100)
+        self.setRange(0, 0)
+        self.setLabelText("Starting...")
+        self.show()
+
+    def set_progress(self, progress):
+        self.setValue(int(progress))
+        QApplication.processEvents()
+
+    def set_action(self, text):
+        self.setLabelText(text)
+        QApplication.processEvents()
 
 
 class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog.ui')):
@@ -113,11 +128,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     def enable_buttons_if_ready(self):
         self.versionUpgradeButton.setEnabled(all(self.checks.values()))
-        self.loadProjectButton.setEnabled(self.checks['release'])
+        self.loadProjectButton.setEnabled(self.checks['release'] and self.checks['pgconfig'])
 
     @qgep_datamodel_error_catcher
     def install_deps(self):
-        datamodel_initializer.install_deps()
+        progress_dialog = ProgressDialog("Installing dependencies")
+
+        datamodel_initializer.install_deps(progress_dialog)
         self.update_requirements_checks()
 
     @qgep_datamodel_error_catcher
@@ -204,7 +221,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         if current_version is None or current_version == '0.0.0' or current_version in available_versions:
             self.checks['current_version'] = True
             self.versionCheckLabel.setText(current_version or 'not initialized')
-            self.versionCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.versionCheckLabel.setStyleSheet('color: rgb(170, 65, 0);\nfont-weight: bold;')
         elif current_version is None:
             self.versionCheckLabel.setText("could not determine version")
             self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
@@ -233,10 +250,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         confirm.setStandardButtons(QMessageBox.Apply | QMessageBox.Cancel)
         confirm.setIcon(QMessageBox.Warning)
 
-        if confirm.exec_() == QMessageBox.Apply:
-            datamodel_initializer.upgrade_version(pgservice, version, self.sridLineEdit.text())
+        if confirm.exec_() == QMessageBox.Apply:            
+            progress_dialog = ProgressDialog("Upgrading the datamodel")
+
+            srid = self.sridLineEdit.text()
+            datamodel_initializer.upgrade_version(pgservice, version, srid, progress_dialog)
             self.update_versions_checks()
 
+            success = QMessageBox()
+            success.setText("Datamodel successfully upgraded")
+            success.setIcon(QMessageBox.Success)
+            success.exec_()
+  
     @qgep_datamodel_error_catcher
     def load_project(self):
         pgservice = self.pgserviceComboBox.currentText()
