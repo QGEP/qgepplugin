@@ -7,48 +7,37 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>478</height>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Datamodel tool</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QFormLayout" name="formLayout_5">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Target version</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="targetVersionComboBox"/>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Depdencies</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Release files</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="releaseCheckLabel">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(170, 0, 0);
-font-weight: bold;</string>
-        </property>
-        <property name="text">
-         <string>Unknown</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="label_11">
         <property name="text">
          <string>Python requirements</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QLabel" name="pythonCheckLabel">
         <property name="styleSheet">
          <string notr="true">color: rgb(170, 0, 0);
@@ -62,7 +51,7 @@ font-weight: bold;</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <widget class="QPushButton" name="installDepsButton">
         <property name="text">
          <string>Install dependencies</string>
@@ -72,7 +61,7 @@ font-weight: bold;</string>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Postgres service configuration</string>
@@ -130,7 +119,7 @@ font-weight: bold;</string>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="4" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
       <string>Datamodel</string>
@@ -172,17 +161,28 @@ font-weight: bold;</string>
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="label_12">
         <property name="text">
-         <string>Target version</string>
+         <string>SRID</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
+       <widget class="QLineEdit" name="sridLineEdit">
+        <property name="text">
+         <string>2056</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Action</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QComboBox" name="targetVersionComboBox"/>
-        </item>
         <item>
          <widget class="QToolButton" name="versionUpgradeButton">
           <property name="text">
@@ -205,24 +205,10 @@ font-weight: bold;</string>
         </item>
        </layout>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>SRID</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="sridLineEdit">
-        <property name="text">
-         <string>2056</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="5" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>QGIS project</string>
@@ -245,7 +231,17 @@ font-weight: bold;</string>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="mBtnBoxOkCancel">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -258,13 +254,24 @@ font-weight: bold;</string>
      </property>
     </spacer>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="mBtnBoxOkCancel">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Release files</string>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="releaseCheckLabel">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(170, 0, 0);
+font-weight: bold;</string>
+     </property>
+     <property name="text">
+      <string>Unknown</string>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
