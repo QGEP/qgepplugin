@@ -40,13 +40,16 @@ from qgis.core import QgsMessageLog, QgsNetworkAccessManager, Qgis, QgsProject
 
 from ..utils import get_ui_class
 
-
+# TODO : get latest dynamically ?
 AVAILABLE_RELEASES = {
-    'master': '8.0',  # too dangerous to expose here
-    '1.5.2': '8.0',
-    '1.5.1': '8.0',
+    'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
+    '1.5.2': 'https://github.com/QGEP/datamodel/archive/1.5.2.zip',
+}
+# Allows to pick which QGIS project matches the version (will take the biggest <= match)
+DATAMODEL_QGEP_VERSIONS = {
     '1.5.0': '8.0',
     '1.4.0': '7.0',
+    '0': '6.2',
 }
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'QGEP', 'datamodel-init')
 
@@ -88,14 +91,23 @@ class QGEPDatamodelError(Exception):
 
 class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog.ui')):
 
-    def __init__(self, existing_config_names, parent=None):
-        QDialog.__init__(self, parent)
+    def __init__(self, cur_name, cur_config, taken_names):
+        super().__init__()
         self.setupUi(self)
-        self.existing_config_names = existing_config_names
+        self.taken_names = taken_names
         self.nameLineEdit.textChanged.connect(self.check_name)
 
+        self.nameLineEdit.setText(cur_name)
+        self.pgconfigHostLineEdit.setText(cur_config.get("host", ""))
+        self.pgconfigPortLineEdit.setText(cur_config.get("port", ""))
+        self.pgconfigDbLineEdit.setText(cur_config.get("dbname", ""))
+        self.pgconfigUserLineEdit.setText(cur_config.get("user", ""))
+        self.pgconfigPasswordLineEdit.setText(cur_config.get("password", ""))
+
+        self.check_name(cur_name)
+
     def check_name(self, new_text):
-        if new_text in self.existing_config_names:
+        if new_text in self.taken_names:
             self.nameCheckLabel.setText('will overwrite')
             self.nameCheckLabel.setStyleSheet('color: rgb(170, 65, 0);\nfont-weight: bold;')
         else:
@@ -154,6 +166,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             'requirements': False,
             'pgconfig': False,
             'current_version': False,
+            'project': False,
         }
 
     # Properties
@@ -229,10 +242,6 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             config.read(PG_CONFIG_PATH)
         return config
 
-    def _get_pgservice_configs_names(self):
-        config = self._read_pgservice()
-        return config.sections()
-
     def _write_pgservice_conf(self, service_name, config_dict):
         config = self._read_pgservice()
         config[service_name] = config_dict
@@ -277,12 +286,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         self.check_requirements()
         self.check_pgconfig()
         self.check_version()
+        self.check_project()
         super().showEvent(event)
 
     def enable_buttons_if_ready(self):
         self.installDepsButton.setEnabled(self.checks['datamodel'] and not self.checks['requirements'])
         self.versionUpgradeButton.setEnabled(all(self.checks.values()))
-        self.loadProjectButton.setEnabled(self.checks['datamodel'] and self.checks['pgconfig'])
+        self.loadProjectButton.setEnabled(self.checks['project'])
 
     # Datamodel
 
@@ -313,7 +323,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             self._show_progress("Downloading the release")
 
             # Download files
-            datamodel_path = self._download(self.DATAMODEL_URL_TEMPLATE.format(self.version), 'datamodel.zip')
+            datamodel_path = self._download(AVAILABLE_RELEASES[self.version], 'datamodel.zip')
 
             # Unzip
             datamodel_zip = zipfile.ZipFile(datamodel_path)
@@ -406,8 +416,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         return check
 
     def add_pgconfig(self):
-        existing_config_names = self._get_pgservice_configs_names()
-        add_dialog = QgepPgserviceEditorDialog(existing_config_names)
+        taken_names = self._read_pgservice().sections()
+        cur_config = self._read_pgservice()[self.conf]
+        add_dialog = QgepPgserviceEditorDialog(self.conf, cur_config, taken_names)
         if add_dialog.exec_() == QDialog.Accepted:
             name = add_dialog.conf_name()
             conf = add_dialog.conf_dict()
@@ -418,7 +429,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     def update_pgconfig_combobox(self):
         self.pgserviceComboBox.clear()
-        config_names = self._get_pgservice_configs_names()
+        config_names = self._read_pgservice().sections()
         for config_name in config_names:
             self.pgserviceComboBox.addItem(config_name)
         self.pgserviceComboBox.setCurrentIndex(0)
@@ -426,6 +437,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     def select_pgconfig(self, _=None):
         self.check_pgconfig()
         self.check_version()
+        self.check_project()
 
     # Version
 
@@ -492,8 +504,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
 
             self.initializeButton.setVisible(current_version is None)
-            self.targetVersionComboBox.setVisible(not current_version is None)
-            self.versionUpgradeButton.setVisible(not current_version is None)
+            self.targetVersionComboBox.setVisible(current_version is not None)
+            self.versionUpgradeButton.setVisible(current_version is not None)
 
         self.checks['current_version'] = check
         self.enable_buttons_if_ready()
@@ -569,6 +581,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 raise QGEPDatamodelError(str(e))
 
             self.check_version()
+            self.check_project()
 
             self._done_progress()
 
@@ -594,8 +607,6 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
             srid = self.sridLineEdit.text()
 
-            current_version = self._get_current_version()
-
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
             return self._run_cmd(
@@ -616,11 +627,41 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     # Project
 
     @qgep_datamodel_error_catcher
+    def check_project(self):
+
+        try:
+            current_version = self._get_current_version()
+        except QGEPDatamodelError:
+            # Can happend if PUM is not initialized, unfortunately we can't really
+            # determine if this is a connection error or if PUM is not initailized
+            # see https://github.com/opengisch/pum/issues/96
+            current_version = None
+
+        check = current_version is not None
+
+        if check:
+            self.projectCheckLabel.setText('ok')
+            self.projectCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+        else:
+            self.projectCheckLabel.setText('version not found')
+            self.projectCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+
+        self.checks['project'] = check
+        self.enable_buttons_if_ready()
+
+        return check
+
+    @qgep_datamodel_error_catcher
     def load_project(self):
 
-        # Unzip QGEP
-        qgep_release = AVAILABLE_RELEASES[self.version]
-        url = QGEP_PROJECT_URL_TEMPLATE.format(qgep_release)
+        current_version = self._get_current_version()
+
+        qgis_vers = None
+        for dm_vers in sorted(DATAMODEL_QGEP_VERSIONS):
+            if dm_vers <= current_version:
+                qgis_vers = DATAMODEL_QGEP_VERSIONS[dm_vers]
+
+        url = QGEP_PROJECT_URL_TEMPLATE.format(qgis_vers)
         qgep_path = self._download(url, 'qgep.zip')
         qgep_zip = zipfile.ZipFile(qgep_path)
         qgep_zip.extractall(TEMP_DIR)
