@@ -96,6 +96,8 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
         self.setupUi(self)
         self.taken_names = taken_names
         self.nameLineEdit.textChanged.connect(self.check_name)
+        self.pgconfigUserCheckBox.toggled.connect(self.pgconfigUserLineEdit.setEnabled)
+        self.pgconfigPasswordCheckBox.toggled.connect(self.pgconfigPasswordLineEdit.setEnabled)
 
         self.nameLineEdit.setText(cur_name)
         self.pgconfigHostLineEdit.setText(cur_config.get("host", ""))
@@ -103,6 +105,11 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
         self.pgconfigDbLineEdit.setText(cur_config.get("dbname", ""))
         self.pgconfigUserLineEdit.setText(cur_config.get("user", ""))
         self.pgconfigPasswordLineEdit.setText(cur_config.get("password", ""))
+
+        self.pgconfigUserCheckBox.setChecked(cur_config.get("user") is not None)
+        self.pgconfigPasswordCheckBox.setChecked(cur_config.get("password") is not None)
+        self.pgconfigUserLineEdit.setEnabled(cur_config.get("user") is not None)
+        self.pgconfigPasswordLineEdit.setEnabled(cur_config.get("password") is not None)
 
         self.check_name(cur_name)
 
@@ -118,13 +125,20 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
         return self.nameLineEdit.text()
 
     def conf_dict(self):
-        return {
+        retval = {
             "host": self.pgconfigHostLineEdit.text(),
             "port": self.pgconfigPortLineEdit.text(),
             "dbname": self.pgconfigDbLineEdit.text(),
-            "user": self.pgconfigUserLineEdit.text(),
-            "password": self.pgconfigPasswordLineEdit.text(),
         }
+        if self.pgconfigUserCheckBox.isChecked():
+            retval.update({
+                "user": self.pgconfigUserLineEdit.text(),
+            })
+        if self.pgconfigPasswordCheckBox.isChecked():
+            retval.update({
+                "password": self.pgconfigPasswordLineEdit.text(),
+            })
+        return retval
 
 
 class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui')):

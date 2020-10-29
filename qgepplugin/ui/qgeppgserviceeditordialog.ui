@@ -77,7 +77,18 @@ font-weight: bold;</string>
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="pgconfigUserLineEdit"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QCheckBox" name="pgconfigUserCheckBox">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="pgconfigUserLineEdit"/>
+     </item>
+    </layout>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_9">
@@ -87,7 +98,18 @@ font-weight: bold;</string>
     </widget>
    </item>
    <item row="5" column="1">
-    <widget class="QLineEdit" name="pgconfigPasswordLineEdit"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QCheckBox" name="pgconfigPasswordCheckBox">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="pgconfigPasswordLineEdit"/>
+     </item>
+    </layout>
    </item>
    <item row="6" column="1">
     <spacer name="verticalSpacer">
