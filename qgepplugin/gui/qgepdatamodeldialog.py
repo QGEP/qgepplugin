@@ -405,7 +405,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         # Install dependencies
         requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         QgsMessageLog.logMessage(f"Installing python dependencies from {requirements_file_path}", "QGEP")
-        self._run_cmd(f'pip install -r {requirements_file_path}', error_message='Could not install python dependencies')
+        self._run_cmd(f'pip install --user -r {requirements_file_path}', error_message='Could not install python dependencies')
 
         self._done_progress()
 
