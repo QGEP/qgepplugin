@@ -235,7 +235,12 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         if result.stderr:
             QgsMessageLog.logMessage(result.stderr.decode(), "QGEP", level=Qgis.Critical)
         if result.returncode:
-            raise QGEPDatamodelError(f"{error_message}\n{result.stdout.decode()}\n{result.stderr.decode()}")
+            message = f"{error_message}\nCommand :\n{shell_command}"
+            if result.stdout:
+                message += f"\n\nOutput :\n{result.stdout.decode()}"
+            if result.stderr:
+                message += f"\n\nError :\n{result.stderr.decode()}"
+            raise QGEPDatamodelError(message)
         return result.stdout.decode()
 
     def _download(self, url, filename):
@@ -405,7 +410,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         # Install dependencies
         requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         QgsMessageLog.logMessage(f"Installing python dependencies from {requirements_file_path}", "QGEP")
-        self._run_cmd(f'pip install --user -r {requirements_file_path}', error_message='Could not install python dependencies')
+        dependencies = " ".join([f"'{l.strip()}'" for l in open(requirements_file_path, 'r').read().splitlines() if l.strip()])
+        command_line = 'the OSGeo4W shell' if os.name == 'nt' else 'the terminal'
+        self._run_cmd(f'pip install --user {dependencies}', error_message=f'Could not install python dependencies. You can try to run the command manually from {command_line}.')
 
         self._done_progress()
 
