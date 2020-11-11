@@ -35,7 +35,7 @@ import psycopg2
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QProgressDialog, QApplication, QPushButton
 from qgis.PyQt.QtCore import QUrl, QFile, QIODevice
-from qgis.PyQt.QtNetwork import QNetworkRequest
+from qgis.PyQt.QtNetwork import QNetworkRequest, QNetworkReply
 
 from qgis.core import QgsMessageLog, QgsNetworkAccessManager, Qgis, QgsProject
 
@@ -244,12 +244,19 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             raise QGEPDatamodelError(message)
         return result.stdout.decode(sys.getdefaultencoding())
 
-    def _download(self, url, filename):
+    def _download(self, url, filename, error_message=None):
         os.makedirs(TEMP_DIR, exist_ok=True)
 
         network_manager = QgsNetworkAccessManager.instance()
         reply = network_manager.blockingGet(QNetworkRequest(QUrl(url)))
+        if reply.error() != QNetworkReply.NoError:
+            if error_message:
+                error_message = f"{error_message}\n{reply.errorString()}"
+            else:
+                error_message = reply.errorString()
+            raise QGEPDatamodelError(error_message)
         download_path = os.path.join(TEMP_DIR, filename)
+        QgsMessageLog.logMessage(f"Downloading {url} to {download_path}", "QGEP")
         download_file = QFile(download_path)
         download_file.open(QIODevice.WriteOnly)
         download_file.write(reply.content())
@@ -411,7 +418,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         # Install dependencies
         requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         QgsMessageLog.logMessage(f"Installing python dependencies from {requirements_file_path}", "QGEP")
-        dependencies = " ".join([f"'{l.strip()}'" for l in open(requirements_file_path, 'r').read().splitlines() if l.strip()])
+        dependencies = " ".join([f'"{l.strip()}"' for l in open(requirements_file_path, 'r').read().splitlines() if l.strip()])
         command_line = 'the OSGeo4W shell' if os.name == 'nt' else 'the terminal'
         self._run_cmd(f'pip install --user {dependencies}', error_message=f'Could not install python dependencies. You can try to run the command manually from {command_line}.')
 
@@ -561,7 +568,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             try:
                 self._show_progress("Downloading the structure script")
                 url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
-                sql_path = self._download(url, f"structure_with_value_lists-{self.version}-{srid}.sql")
+                sql_path = self._download(url, f"structure_with_value_lists-{self.version}-{srid}.sql", error_message=f"Initialization release file not found for version {self.version}")
 
                 # Dirty hack to customize SRID in a dump
                 if srid != '2056':
