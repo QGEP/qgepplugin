@@ -24,6 +24,7 @@
 # ---------------------------------------------------------------------
 
 import os
+import sys
 import configparser
 import functools
 import zipfile
@@ -231,17 +232,17 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         QgsMessageLog.logMessage(f"Running command : {shell_command}", "QGEP")
         result = subprocess.run(shell_command, cwd=cwd, shell=True, capture_output=True)
         if result.stdout:
-            QgsMessageLog.logMessage(result.stdout.decode(), "QGEP")
+            QgsMessageLog.logMessage(result.stdout.decode(sys.getdefaultencoding()), "QGEP")
         if result.stderr:
-            QgsMessageLog.logMessage(result.stderr.decode(), "QGEP", level=Qgis.Critical)
+            QgsMessageLog.logMessage(result.stderr.decode(sys.getdefaultencoding()), "QGEP", level=Qgis.Critical)
         if result.returncode:
             message = f"{error_message}\nCommand :\n{shell_command}"
             if result.stdout:
-                message += f"\n\nOutput :\n{result.stdout.decode()}"
+                message += f"\n\nOutput :\n{result.stdout.decode(sys.getdefaultencoding())}"
             if result.stderr:
-                message += f"\n\nError :\n{result.stderr.decode()}"
+                message += f"\n\nError :\n{result.stderr.decode(sys.getdefaultencoding())}"
             raise QGEPDatamodelError(message)
-        return result.stdout.decode()
+        return result.stdout.decode(sys.getdefaultencoding())
 
     def _download(self, url, filename):
         os.makedirs(TEMP_DIR, exist_ok=True)
