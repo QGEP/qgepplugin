@@ -89,7 +89,6 @@ def qgep_datamodel_error_catcher(func):
 class QGEPDatamodelError(Exception):
     pass
 
-
 class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog.ui')):
 
     def __init__(self, cur_name, cur_config, taken_names):
@@ -117,7 +116,7 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
     def check_name(self, new_text):
         if new_text in self.taken_names:
             self.nameCheckLabel.setText('will overwrite')
-            self.nameCheckLabel.setStyleSheet('color: rgb(170, 65, 0);\nfont-weight: bold;')
+            self.nameCheckLabel.setStyleSheet('color: rgb(170, 95, 0);\nfont-weight: bold;')
         else:
             self.nameCheckLabel.setText('will be created')
             self.nameCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
@@ -470,6 +469,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     # Version
 
+    @qgep_datamodel_error_catcher
     def check_version(self, _=None):
         check = False
 
@@ -507,18 +507,36 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         else:
 
+            error = None
+            current_version = None
+            connection_works = True
+
             try:
                 current_version = self._get_current_version()
             except QGEPDatamodelError:
                 # Can happend if PUM is not initialized, unfortunately we can't really
                 # determine if this is a connection error or if PUM is not initailized
                 # see https://github.com/opengisch/pum/issues/96
-                current_version = None
+                # We'll try to connect to see if it's a connection error
+                error = 'qgep not initialized'
+                try:
+                    self._run_cmd(f'psql -c "SELECT 1;" "service={self.conf}"')
+                except QGEPDatamodelError:
+                    error = 'database does not exist'
+                    try:
+                        self._run_cmd(f'psql -c "SELECT 1;" "service={self.conf} dbname=postgres"')
+                    except QGEPDatamodelError:
+                        error = 'could not connect to database'
+                        connection_works = False
 
-            if current_version is None:
-                check = True
-                self.versionCheckLabel.setText('not initialized')
-                self.versionCheckLabel.setStyleSheet('color: rgb(170, 65, 0);\nfont-weight: bold;')
+            if not connection_works:
+                check = False
+                self.versionCheckLabel.setText(error)
+                self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            elif error is not None:
+                check = False
+                self.versionCheckLabel.setText(error)
+                self.versionCheckLabel.setStyleSheet('color: rgb(170, 95, 0);\nfont-weight: bold;')
             elif current_version <= target_version:
                 check = True
                 self.versionCheckLabel.setText(current_version)
@@ -532,7 +550,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 self.versionCheckLabel.setText(f"{current_version} (invalid version)")
                 self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
 
-            self.initializeButton.setVisible(current_version is None)
+            self.initializeButton.setVisible(current_version is None and connection_works)
             self.targetVersionComboBox.setVisible(current_version is not None)
             self.versionUpgradeButton.setVisible(current_version is not None)
 
