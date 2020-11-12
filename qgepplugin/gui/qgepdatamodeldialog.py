@@ -48,9 +48,9 @@ AVAILABLE_RELEASES = {
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    '1.5.0': '8.0',
-    '1.4.0': '7.0',
-    '0': '6.2',
+    '1.5.0': 'v8.0',
+    '1.4.0': 'v7.0',
+    '0': 'v6.2',
 }
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'QGEP', 'datamodel-init')
 
@@ -69,8 +69,8 @@ QGEP_RELEASE = '8.0'
 DATAMODEL_URL_TEMPLATE = 'https://github.com/QGEP/datamodel/archive/{}.zip'
 REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", 'requirements.txt')
 DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", 'delta')
-INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_v{}_structure_with_value_lists.sql"
-QGEP_PROJECT_URL_TEMPLATE = 'https://github.com/QGEP/QGEP/releases/download/v{}/qgep.zip'
+INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
+QGEP_PROJECT_URL_TEMPLATE = 'https://github.com/QGEP/QGEP/releases/download/{}/qgep.zip'
 QGEP_PROJECT_PATH_TEMPLATE = os.path.join(TEMP_DIR, "project", 'qgep.qgs')
 
 
