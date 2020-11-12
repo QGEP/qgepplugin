@@ -623,6 +623,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                     f'psql -f {sql_path} "service={self.conf}"',
                     error_message='Errors when initializing the database.'
                 )
+                # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
+                self._run_cmd(
+                    f'psql -c "SELECT qgep_network.refresh_network_simple();" "service={self.conf}"',
+                    error_message='Errors when initializing the database.'
+                )
 
             except psycopg2.Error as e:
                 raise QGEPDatamodelError(str(e))
