@@ -44,7 +44,7 @@ from ..utils import get_ui_class
 # TODO : get latest dynamically ?
 AVAILABLE_RELEASES = {
     'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
-    '1.5.2': 'https://github.com/QGEP/datamodel/archive/1.5.2.zip',
+    '1.5.3': 'https://github.com/QGEP/datamodel/archive/1.5.3.zip',
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
