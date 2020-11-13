@@ -310,6 +310,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             f'python -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}',
             error_message='Could not get current version, are you sure the database is accessible ?'
         )
+        version = None
         for line in pum_info.splitlines():
             line = line.strip()
             if not line:
