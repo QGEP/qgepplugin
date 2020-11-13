@@ -224,20 +224,20 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     # Actions helpers
 
-    def _run_sql(self, connection_string, sql_command, error_message='Psycopg error, see logs for more information'):
+    def _run_sql(self, connection_string, sql_command, autocommit=False, error_message='Psycopg error, see logs for more information'):
         QgsMessageLog.logMessage(f"Running query against {connection_string}: {sql_command}", "QGEP")
         try:
             conn = psycopg2.connect(connection_string)
+            if autocommit:
+                conn.autocommit = True
             cur = conn.cursor()
             cur.execute(sql_command)
-            results = cur.fetchall()
             conn.commit()
             cur.close()
             conn.close()
         except psycopg2.OperationalError as e:
             message = f"{error_message}\nCommand :\n{sql_command}\n{e}"
             raise QGEPDatamodelError(message)
-        return results
 
     def _run_cmd(self, shell_command, cwd=None, error_message='Subprocess error, see logs for more information'):
         """
@@ -638,7 +638,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                     dbname = self._read_pgservice()[self.conf]['dbname']
                     self._run_sql(
                         f"service={self.conf} dbname=postgres",
-                        f'CREATE DATABASE {dbname};',
+                        f'CREATE DATABASE {dbname};', autocommit=True,
                         error_message='Could not create a new database.'
                     )
 
