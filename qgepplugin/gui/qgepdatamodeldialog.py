@@ -195,7 +195,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     @property
     def conf(self):
-        return self.pgserviceComboBox.currentText()
+        return self.pgserviceComboBox.currentData()
 
     # Feedback helpers
 
@@ -430,7 +430,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     def check_pgconfig(self):
 
-        check = self.pgserviceComboBox.currentText() != ''
+        check = bool(self.pgserviceComboBox.currentData())
         if check:
             self.pgconfigCheckLabel.setText('ok')
             self.pgconfigCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
@@ -452,17 +452,26 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             conf = add_dialog.conf_dict()
             self._write_pgservice_conf(name, conf)
             self.update_pgconfig_combobox()
-            self.pgserviceComboBox.setCurrentIndex(self.pgserviceComboBox.findText(name))
+            self.pgserviceComboBox.setCurrentIndex(self.pgserviceComboBox.findData(name))
             self.select_pgconfig()
 
     def update_pgconfig_combobox(self):
         self.pgserviceComboBox.clear()
-        config_names = self._read_pgservice().sections()
-        for config_name in config_names:
-            self.pgserviceComboBox.addItem(config_name)
+        for config_name in self._read_pgservice().sections():
+            self.pgserviceComboBox.addItem(config_name, config_name)
         self.pgserviceComboBox.setCurrentIndex(0)
 
     def select_pgconfig(self, _=None):
+        config = self._read_pgservice()
+        if self.conf in config.sections():
+            host = config.get(self.conf, 'host', fallback='-')
+            port = config.get(self.conf, 'port', fallback='-')
+            dbname = config.get(self.conf, 'dbname', fallback='-')
+            user = config.get(self.conf, 'user', fallback='-')
+            password = (len(config.get(self.conf, 'password', fallback='')) * '*') or '-'
+            self.pgserviceCurrentLabel.setText(f"host: {host}:{port}\ndbname: {dbname}\nuser: {user}\npassword: {password}")
+        else:
+            self.pgserviceCurrentLabel.setText('-')
         self.check_pgconfig()
         self.check_version()
         self.check_project()
@@ -496,7 +505,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         self.targetVersionComboBox.setVisible(True)
         self.versionUpgradeButton.setVisible(True)
 
-        pgservice = self.pgserviceComboBox.currentText()
+        pgservice = self.pgserviceComboBox.currentData()
         if not pgservice:
             self.versionCheckLabel.setText('service not selected')
             self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')

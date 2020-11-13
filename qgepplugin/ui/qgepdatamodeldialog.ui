@@ -84,24 +84,31 @@ font-weight: bold;</string>
       <string>Postgres service configuration</string>
      </property>
      <layout class="QFormLayout" name="formLayout_4">
-      <item row="2" column="0">
+      <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>File location</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="0" column="1">
        <widget class="QLabel" name="pgservicePathLabel">
         <property name="styleSheet">
          <string notr="true">font: italic; color: #888</string>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>-</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>PG Config setup</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QComboBox" name="pgserviceComboBox"/>
@@ -126,10 +133,23 @@ font-weight: bold;</string>
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_8">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>PG Config setup</string>
+         <string>Current selection</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="pgserviceCurrentLabel">
+        <property name="styleSheet">
+         <string notr="true">font: italic; color: #888</string>
+        </property>
+        <property name="text">
+         <string>-</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
