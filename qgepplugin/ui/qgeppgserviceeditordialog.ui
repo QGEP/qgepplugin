@@ -107,7 +107,11 @@ font-weight: bold;</string>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="pgconfigPasswordLineEdit"/>
+      <widget class="QLineEdit" name="pgconfigPasswordLineEdit">
+       <property name="echoMode">
+        <enum>QLineEdit::PasswordEchoOnEdit</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
