@@ -224,6 +224,21 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     # Actions helpers
 
+    def _run_sql(self, connection_string, sql_command, error_message='Psycopg error, see logs for more information'):
+        QgsMessageLog.logMessage(f"Running query against {connection_string}: {sql_command}", "QGEP")
+        try:
+            conn = psycopg2.connect(connection_string)
+            cur = conn.cursor()
+            cur.execute(sql_command)
+            results = cur.fetchall()
+            conn.commit()
+            cur.close()
+            conn.close()
+        except psycopg2.OperationalError as e:
+            message = f"{error_message}\nCommand :\n{sql_command}\n{e}"
+            raise QGEPDatamodelError(message)
+        return results
+
     def _run_cmd(self, shell_command, cwd=None, error_message='Subprocess error, see logs for more information'):
         """
         Helper to run commands through subprocess
@@ -529,11 +544,19 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 # We'll try to connect to see if it's a connection error
                 error = 'qgep not initialized'
                 try:
-                    self._run_cmd(f'psql -c "SELECT 1;" "service={self.conf}"')
+                    self._run_sql(
+                        f"service={self.conf}",
+                        'SELECT 1;',
+                        error_message='Errors when initializing the database.'
+                    )
                 except QGEPDatamodelError:
                     error = 'database does not exist'
                     try:
-                        self._run_cmd(f'psql -c "SELECT 1;" "service={self.conf} dbname=postgres"')
+                        self._run_sql(
+                            f"service={self.conf} dbname=postgres",
+                            'SELECT 1;',
+                            error_message='Errors when initializing the database.'
+                        )
                     except QGEPDatamodelError:
                         error = 'could not connect to database'
                         connection_works = False
@@ -612,28 +635,29 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                     # in that case, we try to connect to the postgres database and to create it from there
                     self._show_progress("Creating the database")
                     dbname = self._read_pgservice()[self.conf]['dbname']
-                    self._run_cmd(
-                        f'psql -c "CREATE DATABASE {dbname};" "service={self.conf} dbname=postgres"',
-                        error_message='Errors when initializing the database.'
+                    self._run_sql(
+                        f"service={self.conf} dbname=postgres",
+                        f'CREATE DATABASE {dbname};',
+                        error_message='Could not create a new database.'
                     )
-                    conn = psycopg2.connect(f"service={self.conf}")
 
                 self._show_progress("Running the initialization scripts")
-                cur = conn.cursor()
-                cur.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
+                self._run_sql(
+                    f"service={self.conf}",
+                    'CREATE EXTENSION IF NOT EXISTS postgis;',
+                    error_message='Errors when initializing the database.'
+                )
                 # we cannot use this, as it doesn't support COPY statements
                 # this means we'll run through psql without transaction :-/
                 # cur.execute(open(sql_path, "r").read())
-                conn.commit()
-                cur.close()
-                conn.close()
                 self._run_cmd(
                     f'psql -f {sql_path} "service={self.conf}"',
                     error_message='Errors when initializing the database.'
                 )
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
-                self._run_cmd(
-                    f'psql -c "SELECT qgep_network.refresh_network_simple();" "service={self.conf}"',
+                self._run_sql(
+                    f"service={self.conf}",
+                    'SELECT qgep_network.refresh_network_simple();',
                     error_message='Errors when initializing the database.'
                 )
 
