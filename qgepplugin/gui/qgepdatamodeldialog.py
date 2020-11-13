@@ -620,7 +620,6 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
                 self._show_progress("Running the initialization scripts")
                 cur = conn.cursor()
-                cur.execute('CREATE SCHEMA IF NOT EXISTS qgep_sys;')
                 cur.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
                 # we cannot use this, as it doesn't support COPY statements
                 # this means we'll run through psql without transaction :-/
