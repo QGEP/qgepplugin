@@ -228,7 +228,7 @@ class QgepSwmm:
             f.write(self.copy_parameters_from_template('ORIFICES'))
             f.write(self.copy_parameters_from_template('WEIRS'))
             f.write(self.copy_parameters_from_template('OUTLETS'))
-            f.write(self.swmm_table('XSECTIONS'))
+            f.write(self.swmm_table('XSECTIONS', state, ws=True))
             f.write(self.swmm_table('LOSSES', state, ws=True))
             f.write(self.swmm_table('VERTICES'))
 
