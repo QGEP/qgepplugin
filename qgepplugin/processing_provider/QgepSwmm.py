@@ -198,7 +198,7 @@ class QgepSwmm:
             f.write(self.swmm_table('SUBCATCHMENTS', state))
             f.write(self.swmm_table('SUBAREAS', state))
             f.write(self.swmm_table('AQUIFERS'))
-            f.write(self.swmm_table('INFILTRATION', state, ws=True))
+            f.write(self.swmm_table('INFILTRATION', state))
             f.write(self.swmm_table('POLYGONS'))
 
             f.write(self.copy_parameters_from_template('GROUNDWATER'))
@@ -209,7 +209,7 @@ class QgepSwmm:
 
             # Hydraulics: nodes
             # ------------------
-            f.write(self.swmm_table('JUNCTIONS', state))
+            f.write(self.swmm_table('JUNCTIONS', state, ws=True))
             # Create default junction to avoid errors
             f.write('default_qgep_node\t0\t0\n\n')
             f.write(self.swmm_table('OUTFALLS', state, ws=True))
