@@ -43,7 +43,7 @@ from ..utils import get_ui_class
 
 # TODO : get latest dynamically ?
 AVAILABLE_RELEASES = {
-    'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
+    # 'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
     '1.5.3': 'https://github.com/QGEP/datamodel/archive/1.5.3.zip',
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
@@ -151,8 +151,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         # Populate the versions
         self.releaseVersionComboBox.clear()
-        self.releaseVersionComboBox.addItem('- SELECT RELEASE VERSION -')
-        self.releaseVersionComboBox.model().item(0).setEnabled(False)
+        if len(AVAILABLE_RELEASES) > 1:
+            self.releaseVersionComboBox.addItem('- SELECT RELEASE VERSION -')
+            self.releaseVersionComboBox.model().item(0).setEnabled(False)
         for version in sorted(list(AVAILABLE_RELEASES.keys()), reverse=True):
             self.releaseVersionComboBox.addItem(version)
 
@@ -182,6 +183,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             'current_version': False,
             'project': False,
         }
+
+        if len(AVAILABLE_RELEASES) == 1:
+            self.switch_datamodel()
 
     # Properties
 
