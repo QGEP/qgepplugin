@@ -239,12 +239,12 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             message = f"{error_message}\nCommand :\n{sql_command}\n{e}"
             raise QGEPDatamodelError(message)
 
-    def _run_cmd(self, shell_command, cwd=None, error_message='Subprocess error, see logs for more information'):
+    def _run_cmd(self, shell_command, cwd=None, error_message='Subprocess error, see logs for more information', timeout=10):
         """
         Helper to run commands through subprocess
         """
         QgsMessageLog.logMessage(f"Running command : {shell_command}", "QGEP")
-        result = subprocess.run(shell_command, cwd=cwd, shell=True, capture_output=True)
+        result = subprocess.run(shell_command, cwd=cwd, shell=True, capture_output=True, timeout=timeout)
         if result.stdout:
             QgsMessageLog.logMessage(result.stdout.decode(sys.getdefaultencoding()), "QGEP")
         if result.stderr:
@@ -435,7 +435,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         QgsMessageLog.logMessage(f"Installing python dependencies from {requirements_file_path}", "QGEP")
         dependencies = " ".join([f'"{l.strip()}"' for l in open(requirements_file_path, 'r').read().splitlines() if l.strip()])
         command_line = 'the OSGeo4W shell' if os.name == 'nt' else 'the terminal'
-        self._run_cmd(f'python -m pip install --user {dependencies}', error_message=f'Could not install python dependencies. You can try to run the command manually from {command_line}.')
+        self._run_cmd(
+            f'python -m pip install --user {dependencies}',
+            error_message=f'Could not install python dependencies. You can try to run the command manually from {command_line}.',
+            timeout=None,
+        )
 
         self._done_progress()
 
@@ -653,7 +657,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 # cur.execute(open(sql_path, "r").read())
                 self._run_cmd(
                     f'psql -f {sql_path} "service={self.conf}"',
-                    error_message='Errors when initializing the database.'
+                    error_message='Errors when initializing the database.',
+                    timeout=300,
                 )
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
                 self._run_sql(
@@ -697,7 +702,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             return self._run_cmd(
                 f'python -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}',
                 cwd=os.path.dirname(deltas_dir),
-                error_message='Errors when upgrading the database.'
+                error_message='Errors when upgrading the database.',
+                timeout=300,
             )
 
             self.check_version()
