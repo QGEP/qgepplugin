@@ -1,0 +1,265 @@
+INTERLIS 2.3;
+
+MODEL SIA405_SCHUTZROHR_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "18.04.2018" =
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base;
+  IMPORTS SIA405_Base;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Die Originalmodelldatei SIA405_Schutzrohr_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / SIA 405 Kommission
+!!
+!! 28.7.2011: Erste Fassung
+!! 4.8.2011 OID eingefügt
+!! 30.8.2011 Schutzrohr.Material Polyethylen statt Polyaethylen
+!! 30.8.2011 Einbaujahr neu als Datentyp SIA405_Base.Jahr
+!! 30.8.2011 MD_Datenherr TEXT*80 statt TEXT*12
+!! 25.1.2012 CLASS als Vererbung von SIA405_BaseClass
+!! 25.1.2012 Damit auch Letzte_Aenderung und MD_Datenherr rausgenommen, weil neu geerbt
+!! 25.1.2012 Neuer TOPIC Name SIA405_Fernwirkkabel (Vereinheitlichung Modelle)
+!! 25.1.2012 Neuer MODELL Name MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+!! 25.1.2012 Material hierarchisch - neue Oberkategorie Kunststoff und Guss
+!! 11.2.2012  Nennweite: TEXT*10;  !! als TEXT, da zum Teil auch Doppelwerte mit Schrägstrich
+!! 21.2.2012 Eigentuemer Datentyp OrganisationBezeichnung
+!! 21.2.2012 Ueberdeckung neu SIA405_Base.Ueberdeckung
+!! 21.2.2012 Nennweite neu SIA405_Base.Nennweite
+!! 26.5.2012 View mit OBJ_ID, Metaattribute ergänzt, Letzte_Aenderung etc. rausgenommen
+!! 13.7.2015 Fehlerkorrektur   Schutzrohr statt SchutzohrRef -<#> {1} Schutzrohr;
+!! 13.7.2015 Status - Erweiterung für Medium
+!! 16.7.2015 View korrigiert - Anpassung gemäss Objektkatalog Auswahl LK
+!! 30.10.2017 Anpassung Beschreibung Nennweite: SIA405_Base.Nennweite;  !! als TEXT*10, da zum Teil auch Doppelwerte mit Schrägstrich (1500 oder 1500/1000)
+!! 30.10.2017 Anpassung _2015
+!! 18.4.2018 MODELL in Grossbuchstaben, Vereinheitlichung SIA405
+!! 18.4.2018 gleich wie Ferwirkkable Zustand: TEXT*40 statt 30;
+
+
+UNIT
+
+DOMAIN
+
+Statuswerte EXTENDS SIA405_Base.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 13.7.2015 Anpassung auf neue Variante von SIA405_Base.Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante,
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 9.7.2015  
+    Status = ALL OF Statuswerte;
+
+!! TOPIC Schutzrohr = 
+TOPIC SIA405_Schutzrohr =
+
+CLASS Schutzrohr EXTENDS SIA405_Base.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base.Polyline;
+!!    LineTyp: (Default, unsichtbar);
+    Material: MANDATORY (
+      unbekannt,
+!!      Polyaethylen,
+!! 25.1.2012 Material hierarchisch
+      Kunststoff (
+        Polyethylen,  !! angepasst 30.8.2011, schreibweise fachlich, wie in anderen Medien
+        Polyvinylchlorid
+      ),
+      Stahl,
+      Guss (
+        Guss_duktil,
+        Grauguss
+      ),
+      Beton
+      );
+!! neu 21.2.2012
+    Nennweite: SIA405_Base.Nennweite;  !! als TEXT*10, da zum Teil auch Doppelwerte mit Schrägstrich (1500 oder 1500/1000)
+!!    Nennweite: TEXT*10;  !! als TEXT, da zum Teil auch Doppelwerte mit Schrägstrich
+!!    Nennweite: 0..99999 [Units.mm];
+    Aussendurchmesser: 0..99999 [Units.mm];
+    Laenge: MANDATORY 0 .. 999999 [INTERLIS.m];
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base.Jahr;  
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+!! 13.7.2015    Status: MANDATORY SIA405_Base.Status;
+    Status: MANDATORY Status;
+!! neu 21.2.2012
+    Ueberdeckung: SIA405_Base.Ueberdeckung;
+!!    Ueberdeckung: 0.00 .. 9999.99 [INTERLIS.m];   !! mittlerer Wert eines Objektes
+!! 18.4.2018 gleich wie Ferwirkkable
+!!    Zustand: TEXT*30;
+    Zustand: TEXT*40;
+!!    Eigentuemer: TEXT*30;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    MD_Datenherr: TEXT*80;
+END Schutzrohr;
+
+CLASS Schutzrohr_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Schutzrohr_Text;
+
+ASSOCIATION Schutzrohr_TextAssoc =
+!! 13.7.2015 Fehlerkorrektur   SchutzohrRef -<#> {1} Schutzrohr;
+   SchutzrohrRef -<#> {1} Schutzrohr;
+   Text --   {0 .. *} Schutzrohr_Text;
+END Schutzrohr_TextAssoc;
+
+END SIA405_Schutzrohr;  !! Ende des Topics
+
+!! Neue View LK 25.1.2012 
+   VIEW TOPIC SIA405_Schutzrohr_LK =
+     DEPENDS ON SIA405_Schutzrohr;
+
+      VIEW Schutzrohr
+        PROJECTION OF base~SIA405_SCHUTZROHR_2015.SIA405_Schutzrohr.Schutzrohr;
+        =
+        ATTRIBUTE
+          OBJ_ID := base -> OBJ_ID;
+		  Metaattribute := base -> Metaattribute;
+          Geometrie := base -> Geometrie;
+          Aussendurchmesser := base -> Aussendurchmesser;
+          Lagebestimmung := base -> Lagebestimmung;
+          Status := base -> Status;
+          Ueberdeckung := base -> Ueberdeckung;
+          Eigentuemer := base -> Eigentuemer;
+  !!        Datenherr := base ->Datenherr;
+  !!        Datenlieferant := base ->Datenlieferant;
+  !!        Letzte_Aenderung := base ->Letzte_Aenderung;
+      END Schutzrohr;
+
+   END SIA405_Schutzrohr_LK;  !! Ende des Topics
+
+END SIA405_SCHUTZROHR_2015.
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_SCHUTZROHR_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "18.04.2018" =
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Die Originalmodelldatei SIA405_Schutzrohr_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / SIA 405 Kommission
+!!
+
+!! 18.4.2018 Version _LV95
+
+
+UNIT
+
+DOMAIN
+
+Statuswerte EXTENDS SIA405_Base_LV95.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 13.7.2015 Anpassung auf neue Variante von SIA405_Base_LV95Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante,
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 9.7.2015  
+    Status = ALL OF Statuswerte;
+
+!! TOPIC Schutzrohr = 
+TOPIC SIA405_Schutzrohr =
+
+CLASS Schutzrohr EXTENDS SIA405_Base_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base_LV95.Polyline;
+!!    LineTyp: (Default, unsichtbar);
+    Material: MANDATORY (
+      unbekannt,
+      Kunststoff (
+        Polyethylen,  !! angepasst 30.8.2011, schreibweise fachlich, wie in anderen Medien
+        Polyvinylchlorid
+      ),
+      Stahl,
+      Guss (
+        Guss_duktil,
+        Grauguss
+      ),
+      Beton
+      );
+!! neu 21.2.2012
+    Nennweite: SIA405_Base_LV95.Nennweite;  !! als TEXT*10, da zum Teil auch Doppelwerte mit Schrägstrich (1500 oder 1500/1000)
+    Aussendurchmesser: 0..99999 [Units.mm];
+    Laenge: MANDATORY 0 .. 999999 [INTERLIS.m];
+    Einbaujahr: SIA405_Base_LV95.Jahr;  
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY Status;
+    Ueberdeckung: SIA405_Base_LV95.Ueberdeckung;
+    Zustand: TEXT*40;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+END Schutzrohr;
+
+CLASS Schutzrohr_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Schutzrohr_Text;
+
+ASSOCIATION Schutzrohr_TextAssoc =
+   SchutzrohrRef -<#> {1} Schutzrohr;
+   Text --   {0 .. *} Schutzrohr_Text;
+END Schutzrohr_TextAssoc;
+
+END SIA405_Schutzrohr;  !! Ende des Topics
+
+   VIEW TOPIC SIA405_Schutzrohr_LK =
+     DEPENDS ON SIA405_Schutzrohr;
+
+      VIEW Schutzrohr
+        PROJECTION OF base~SIA405_SCHUTZROHR_2015_LV95.SIA405_Schutzrohr.Schutzrohr;
+        =
+        ATTRIBUTE
+          OBJ_ID := base -> OBJ_ID;
+		  Metaattribute := base -> Metaattribute;
+          Geometrie := base -> Geometrie;
+          Aussendurchmesser := base -> Aussendurchmesser;
+          Lagebestimmung := base -> Lagebestimmung;
+          Status := base -> Status;
+          Ueberdeckung := base -> Ueberdeckung;
+          Eigentuemer := base -> Eigentuemer;
+      END Schutzrohr;
+
+   END SIA405_Schutzrohr_LK;  !! Ende des Topics
+
+END SIA405_SCHUTZROHR_2015_LV95.
+
+
+

@@ -1,0 +1,915 @@
+INTERLIS 2.3;
+
+MODEL SIA405_LKMap_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "27.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS; 
+  IMPORTS Units;  
+  IMPORTS Base;
+  IMPORTS SIA405_Base;
+
+!! Copyright 2011 - 2018
+!! SIA, Zürich -  www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_LKMap_2012_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / Sepp Dorfschmid / SIA 405 Kommission
+
+!! 11.6.2010: Attribut Beschriftung eingeführt beim LKObjekt
+!! 20.8.2010: Attribut Beschriftung wieder gelöscht. Bezeichnung (Nummer) kann in BAG OF Eigenschaft transferiert werden. Sonstige Beschriftungen werden in LKObjekt_Text mitgeliefert.
+!! 23.9.2010: Status korrigiert: tot reingenommen in SIA405_Base
+!! 23.9.2010: Attribute Hoehe und Hoehenbestimmung bei LKPunkt, weitere Attribute für 3D fehlen noch bei Fläche/Linie
+!! 22.11.2010: Erweiterung 3D eingebaut / Umgruppierung Subwerte bei Spezialbauwerk (Kommunikation / Elektrizität) in LKFlaeche
+!! 30.11.2010: Korrektur Schreibfehler LKPunkt.Hoehenbestimmung statt Hoehenstimmung
+!! 16.5.2011: Reduktion Kommunikation Subwerte
+!! 26.5.2011: neu LKFlaeche: Elektritzitaet.Trasse_unterirdisch für Trasseflächen, die sich nicht als Linie mit Breite abbilden lassen (zusätzlich dazu). Notwendig aus Erfahrung LK BL Pilotprojekt
+!! 26.5.2011: neu LKFlaeche: Fernwaerme.Trasse_unterirdisch für Trasseflächen, die sich nicht als Linie mit Breite abbilden lassen (zusätzlich dazu). Notwendig aus Erfahrung LK BL Pilotprojekt
+!! 26.5.2011: überall Trasse statt Trassee
+!! 26.5.2011: TO DO: Version 2D und 3D auseinandernehmen
+!! 6.6.2011: Definition Letzte_Aenderung, MD_Datenherr, MD_Datenlieferant
+!! 6.6.2011: neu Attribut Sicherheitskorridor (Input aus Vernehmlassung)
+!! 6.6.2011: Structure Eigenschaften: TEXT*80 statt *50
+!! 6.6.2011: TO DO: MTEXT einführen in SIA_Base für Textinhalt
+!! 6.6.2011: neu Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 15.6.2011: Rohrprofil.weitere eingeführt
+!! 15.6.2011: Abwasser: Trockenwetterfallrohr rausgenommen. Nicht benötigt für belegten Raum
+!! 4.7.2011: OBJ_ID geändert auf OID AS UUIDOID (Antrag an SIA 405 Kommission)
+!! Zur Diskussion 4.7.2011: Bezeichnung wieder einführen gemäss http://www.geo.admin.ch -> Geodaten -> Geobasisdaten -> Geodatenmodelle -> KOGIS (2011): Allgemeine Empfehlungen zur Methodik der Definition "minimaler Geodatenmodelle
+!! 4.7.2011: Linie neu ungerichtet (DIRECTED gelöscht)
+!! rückgängig 6.6.2011 - geht nicht bei Höhen: neu Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 5.7.2011: MD_ weggenommen bei Datenherr / Datenlieferant. Reihenfolge neu wieder alphabetisch angepasst. MD_ist im GM03 Metamodell für Klassen als Präfix reserviert.
+!! 27.6.2011: Anpassung Kabelpunkt - für die Darstellung im LK sind nur die Kabelschächte relevant. Kabelpunkte sind Punkte die zur Erfassung des Linienzuges des Fernwirkkabels erfasst werden, aber danach nicht mehr dargestellt werden müssen. 
+!! 27.6.2011: Fernwirkabel, Kabelpunkt auch bei weitereMedien
+!! 2.8.2011 Anpassung 3D - neu Maechtigkeit statt Obj_Kote1 und Obj_Kote2 bei LKPunkt
+!! 2.8.2011 Anpassung 3D - neu Maechtigkeit statt Obj_Dimension1 bei LKLinie
+!! 2.8.2011 Dimension1 statt Obj_Dimension1 bei LKPunkt, dito für Dimension2
+!! 2.8.2011 OID Definition so angepasst, dass der Compiler sie für Richtig hält - UNIQUE rausgenommen.
+!! 2.8.2011 erledigt 3D Version als extends von 2D Version formulieren. SIA405_LKMap3D extends SIA405_LKMap
+!! 4.8.2011 neu (wieder) Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 4.8.2011 neu AbmessungMaechtigkeit bei 3D = 0 .. 99999 [Units.mm]
+!! 5.8.2011 Lagebestimmung und Hoehenbestimmung MANDATORY gesetzt, sonst kann man Linienart nicht ableiten für Darstellung
+!! 5.8.2011 LKLinie.Haltung neu Haltung_Kanal, Kommentar ergänzt
+!! 5.8.2011 LKPunkt.Haltungspunkt gelöscht - wird in 3D nicht dargestellt - Haltungspunkt.Kote wird für die Haltung(_Kanal) Darstellung verwendet, aber nicht seperat notwendig
+!! 29.8.2011 LKObjekt.Eigentuemer neu TEXT*80 statt 40
+!! 29.8.2011 LKFlaeche Fernwaerme: nur noch Kammer, Station, Spezialbauwerk (Zusammenfassung)
+!! 29.8.2011 LKLinie.weitereMedien: neuer Wert Schutzrohr
+!! 29.8.2011 Diverse Fehlerkorrekturen in den Kommentaren
+!! 29.8.2011 Textinhalt in SIA405_Base MANDATORY gesetzt
+!! 21.2.2012 Abmessung in SIA405_Base verschoben - neu Breite: SIA405_Base.Abmessung;
+!! 21.2.2012 Einzelflaechen neu geerbt von Base.Polyline
+!! 21.2.2012 Eigentuemer neu SIA405_Base.OrganisationBezeichnung
+!! 21.2.2012 LKLine.Breite: SIA405_Base.Breite; statt Abmessung
+!! 21.2.2012 DOMAIN Abmessung neu geerbt von SIA045_Base, dito Einzelflaechen
+!! 21.2.2012 DOMAIN Orientierung neu in Base.ili
+!! 2.4.2012 Umsetzung Sicherheitskorridor - allenfalls als LKLinie statt LKFlaeche - noch klären -> nein
+!! 4.4.2012 Neu Einleitstelle statt Vorflutereinlauf bei Abwasser
+!! 23.5.2012 überflüssige Kommentare gelöscht
+!! 23.5.2012 Anpassungen Liste Zusammenfassung für Abwasser.Funktion = weitere an Modellversion 2012
+!! 8.6.2012 ASSOCIATION LKObjekt_LKObjektTextAssoc =   !! neu als Komposition (statt Assoziation)
+!!  LKObjektRef -<#> {1} LKObjekt;  !! Rolle1 - Klasse1 / Rôle1 - Classe1 
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf bei LKFlaeche - Anpassung INTERLIS an MB 2015
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf bei LKPunkt - Anpassung INTERLIS an MB 2015
+!! Korrektur 11.3.2013 Fehler in Script (fehlende Kommata)
+!! Korrektur 22.8.2013 Elektrizitat -> OeffentlicherVerbraucher statt Oeffentlicher_Verbraucher - Anpassung an Objektkatalog Elektrizität, Fehler in Objektkatalog LKMap
+!! Korrektur 22.8.2013 LKLinie.Objektart.
+!!       Trasse ( !! LKLinie Objekt (oder LKFlaeche Objekt), neu Trasse statt Trassee
+!!			oberirdisch,  !! neu 22.8.2013 Matching: Trassetyp = Freileitung
+!!			unterirdisch  !! neu 22.8.2013  Matching alle anderen Werte von Trassetyp inkl. unbekannt
+!!			),
+!! Korrektur 25.9.2013 LKFlaeche.Objetkart.Elektrizitaet und Fernwaerme neu ohne Subwert unterirdisch (wie Kommunikation). Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch. (Feedback LK Baselland
+!! 28.6.2014 LKPunkt.Dimension1 und Dimension2 neu in LKMap - verschoben von LKMap3D. Wunsch aus Praxisanwendung
+!! 27.4.2018 Trasse,   !! Darstellung S. 136 2.6.5 (Kapitelangabe korrigiert)
+!! 27.4.2018 !! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+
+UNIT
+
+DOMAIN
+
+!! Definition Datentypen nach INTERLIS 2.3
+
+TOPIC SIA405_LKMap =
+
+DOMAIN
+
+STRUCTURE Eigenschaften =
+!! Weitere Attribute zum LKObjekt gemäss bilateralen Vereinbarungen und medienspezifisch, die über die Darstellung der belegten Fläche hinausgehen.
+    Bezeichnung: MANDATORY TEXT * 80;  !! Bezeichnung des weiteren Attributs zum LKObjekt (Attributname)
+    Wert: MANDATORY TEXT * 80;  !! Wert des weiteren Attributs zum LKObjekt als Text
+END Eigenschaften;
+
+CLASS LKObjekt (ABSTRACT) EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Klasse für alle Sachobjekte
+    Eigenschaft: BAG OF Eigenschaften;  !! Weitere Attribute zum LKObjekt gemäss bilateralen Vereinbarungen und medienspezifisch, die über die Darstellung der belegten Fläche hinausgehen.
+    Eigentuemer: MANDATORY SIA405_Base.OrganisationBezeichnung; !! Text "Keine_Angabe" wenn Eigentümer nicht freigegeben wird.
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Status: SIA405_Base.Status;   !! Betriebs- und Planungszustand. Es können auch nur die Datensätze bestimmter Statuswerte geliefert werden.
+END LKObjekt;
+
+CLASS LKFlaeche EXTENDS LKObjekt =
+!! Flächiges LKObjekt
+  ATTRIBUTE
+    Flaeche: MANDATORY Base.Surface;  !!  Detaillierte Geometrie insbesondere bei Spezialbauwerken. Bei Normbauwerken mit Dimensionen arbeiten -> LKPunkt
+    Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss LK Umfang dargestellt werden
+      Abwasser (  !! nur falls Detailgeometrie vorhanden, sonst LKPunkt. Bei Normschacht nur in Ausnahmefällen
+	    Einleitstelle,
+        Spezialbauwerk (
+          Oelabscheider_Schwimmstoffabscheider,  !! Zusammenfassung von Oel- und Schwimmstoffabscheider 
+!!*        Oelabscheider,  
+!!*        Schwimmstoffabscheider,  
+          Pumpwerk,  !! Anlage zum Heben von Abwasser innerhalb eines Kanalnetzes
+          Regenbecken,  !! Zusammenfassung aller Subwerte (Regenbecken_*)
+         weitere  !! Zusammenfassung der folgenden Werte (Definitionen siehe Objektkatalog Merkblatt 2015 bzw. VSA-DSS):
+!!*        Absturzbauwerk,  
+!!*        andere,
+!!*        Be_Entlueftung,  
+!!*        Duekerkammer,  
+!!*		   Duekeroberhaupt, 
+!!*        Entwaesserungsrinne,  
+!!*        Gelaendemulde,  
+!!*        Geschiebefang,  
+!!*        Hochwasserentlastung,  
+!!*        Jauchegrube,
+!!*        Kanal,   !! in Ausnahmefällen LKFlaeche (Staukanal), sonst wird Haltung als LKLinie abgebildet
+!!*        Klaergrube,  
+!!*        Kontrollschacht,  !! in Ausnahmefällen LKFlaeche, falls Detailgeometrie sonst LKPunkt Objekt.
+!!*        seitlicherZugang,  
+!!*        Spuelschacht,  
+!!*        Trennbauwerk,  !
+!!*        Wirbelfallschacht,  
+        ),
+        unbekannt,  !! Spezialbauwerk.Funktion.unbekannt. LKFlaeche
+        Versickerungsanlage  !! neu 2012 im Umfang LK
+!!        Vorflutereinlauf  !! neu 2012 im Umfang von LK
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf
+		
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        Spezialbauwerk (  !! flächenhafte Spezialschächte (Kabine, Station, Oeffentlicher_Verbraucher, Schacht mit Geometrie), sonst als LKPunkt abbilden
+          Kabine,  !!  LKPunkt Objekt Symbol S. 65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden 
+!! rausgenommen 6.6.2011 Fehler         Sonderbauwerk,  !! LKFlaeche
+          Schacht,  !!  LKFlaeche Symbol S. 65 Darstellung als Fläche massstäblich
+          Station,  !!  LKPunkt Objekt Symbol S. 65 oder oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden 
+          !! Oeffentlicher_Verbraucher  !! LKPunkt Objekt Symbol S.65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden
+		  OeffentlicherVerbraucher  !! LKPunkt Objekt Symbol S.65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden
+        ), !! End Spezialbauwerk
+        Tragwerk,  !!  LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 65. Tragwerke werden in der Regela als Symbol dargestellt. Bei Tragwerken mit grosser Fläche (z.B. Gittermast kann optional auch die Fläche dargestellt werden
+!! neu eingefügt 26.5.2011
+        Trasse,   !! Darstellung S. 65, Korrigiert 25.9.2013 (kein Subwert unterirdisch mehr, Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch.
+!!           unterirdisch  !! LKFlaeche Objekt oder LKLinie Objekt, Symbol S. 65 -> Flächen von Trasse sollen grundsätzlich als LinieLKObjekt mit Breite angegeben werden. Es gibt aber zusätzliche Flächen, die man nicht so abbilden kann (komplizierte Formen die auch den belegten Raum abbilden), diese werden als Flächen übergeben
+        unbekannt  !! LKFlaeche
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Bauwerk (  !! LKFlaeche Objekt
+            Kammer,  !! fasst folgende Werte zusammen
+!!*          Entleeerungskammer,
+!!*          Entlueftungskammer, 
+!!*          Hauptkammer,
+!!*          Kompensatorenkammer,
+!!*          Kontrollkammer,
+!!*          Messkammer,
+!!*          Steuerkammer,
+            Spezialbauwerk,
+            Station  !! fasst folgende Werte zusammen:
+!!*          Druckreduzierstation,
+!!*          Umformerstation
+        ),
+!! Neu Eingefügt 26.5.2011 neu Trasse statt Trassee
+        Trasse,   !! Darstellung S. 136 2.6.5, Korrigiert 25.9.2013 (kein Subwert unterirdisch mehr, Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch.
+!!          unterirdisch  !! LKFlaeche Objekt oder LKLinie Objekt, Symbol S. 65 -> Flächen von Trasse sollen grundsätzlich als LinieLKObjekt mit Breite angegeben werden. Es gibt aber zusätzliche Flächen, die man nicht so abbilden kann (komplizierte Formen die auch den belegten Raum abbilden), diese werden als Flächen übergeben
+        unbekannt  !! LKFlaeche
+      ),  !! Ende von Fernwaerme
+      Gas (
+!! neu 6.6.2011
+        Sicherheitskorridor,  !! Die Rohrleitungsverordnung (RLV) schreibt im Abschnitt 5, Art. 26 vor, dass alle Bauvorhaben innerhalb eines waagrecht gemessenen Abstandes von 10 m von der Rohrleitung bewilligungspflichtig sind. Diese Information wird aus den Basisdaten der amtlichen Vermessung (TOPIC Rohrleitungen, Medium Gas) generiert. (eigener Datenlieferant)
+        Spezialbauwerk,  !! LKFlaeche, alle Subwerte von Spezialbauwerk.Art
+!!        weitere,  !! Subwerte Spezialbauwerk.Art.weitere von Gas / Wasser wie Dueker etc. werden bei weitereMedien aufgeführt
+        unbekannt  !! LKFlaeche, gibt es im Moment im WI Modell nicht, Antrag
+      ),  !! Ende von Gas
+      Kommunikation (  !! Zusammenschluss von Tele- und Kabelkommmunikation
+!! gelöscht 16.5.2011       Spezialbauwerk,  !! Schacht.Typ.Spezialbauwerk (Antrag statt Sonderbauwerk), LKFlaeche
+!! gelöscht 16.5.2011          Kabine,  !!  LKPunkt Objekt Symbol S. 69/75 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+!! gelöscht 16.5.2011          Konsole,  !!  LKPunkt Objekt Symbol S. 65/75 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+!! gelöscht 16.5.2011          TechnikCenter, !! LKPunkt Objekt Symbol S. 74 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+        Bauwerk,  !! Schacht.Typ.Spezialbauwerk (Antrag statt Sonderbauwerk), LKFlaeche
+        Schacht,  !! 
+        Tragwerk,  !! LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 75
+        Trasse,  
+		!! In Kabelkommunikation INTERLIS 2 kann jeder Trasseknoten eine Flaeche haben??? -> besser auf Subklasse definieren?
+        unbekannt
+      ),  !! Ende von Kommunikation
+      Wasser (
+        Spezialbauwerk,  !! LKFlaeche, alle Subwerte von Spezialbauwerk.Art
+!!        weitere,  !! Subwerte weitere von Gas / Wasser wie Dueker etc. werden bei weitereMedien aufgeführt
+        unbekannt  !! LKFlaeche, gibt es im Moment im WI Modell nicht, Antrag
+      ),  !! Ende von Wasser
+      weitereMedien (
+!! neu 6.6.2011
+        Sicherheitskorridor,  !! Die Rohrleitungsverordnung (RLV) schreibt im Abschnitt 5, Art. 26 vor, dass alle Bauvorhaben innerhalb eines waagrecht gemessenen Abstandes von 10 m von der Rohrleitung bewilligungspflichtig sind. Diese Information wird aus den Basisdaten der amtlichen Vermessung (TOPIC Rohrleitungen, alle Medien ausser Gas) generiert. (eigener Datenlieferant)
+        Spezialbauwerk, !! FlaecheLKObjekt Spezialbauwerk.Art.weitere von Gas/Wasser
+!!*        weitere (  !! Flaeche LKObjekt (von Gas / Wasser übernommen -> oft mehr als ein Medium drin. Subwerte drinlassen?
+!!*            Dueker,
+!!*            Kulisse,
+!!*            Futterrohr,
+!!*            Leitungskanal (
+!!*              begehbar,
+!!*              nicht_begehbar),
+!!*            Stollen (
+!!*              begehbar,
+!!*              nicht_begehbar),
+!!*            uebrige
+!!*        )
+        unbekannt !! 
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart 
+END LKFlaeche;
+
+CLASS LKLinie EXTENDS LKObjekt =
+!! Linienförmiges LKObjekt
+  ATTRIBUTE
+    Breite: SIA405_Base.Breite;  !! Breite eines Objektes [mm], Doppellinie >= 300 mm (Massstab 1:200) bzw. >= 600 mm (Mst. 1:500) für alle Medien. Falls die Breite kleiner ist wird nur ein Strich konstanter Breite gezeichnet.
+    !! Breite aus folgenden Attributen bestimmen:
+    !! Abwasser: Rohrprofil.Hoehenbreitenverhaeltnis, Haltung.Lichte_Hoehe -> Lichte_Breite = Lichte_Hoehe / Hoehenbreitenverhaeltnis
+    !! Wasser: Abhängig von Leitung.Material: bei Kunststoffrohren -> Leitung.DurchmesserAussen (mm), bei Metallrohren -> Leitung.Durchmesser (mm)
+    !! Gas: Abhängig von Leitung.Material: bei Kunststoffrohren -> Leitung.DurchmesserAussen (mm), bei Metallrohren -> Leitung.Durchmesser (mm)
+    !! Fernwärme: Trasseabschnitt.Trassebreite (mm)
+    !! Elektrizität: Trasseabschnitt.Breite (mm)
+    !! Kommunikation: Trasseabschnitt.Breite (mm)
+    Linie: MANDATORY Base.Polyline;  !!  Reihenfolge von Punkten die den Verlauf eines linienförmigen Elementes beschreibt. 
+    Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss WI Modell dargestellt werden. Typ / Funktion / Art werden direkt übernommen und nicht zusammengefasst unter anderen Namen -> sonst braucht es wieder eine Matchinganweisung
+      Abwasser (
+        Fernwirkkabel, !! Steuer- und Signalkabel, Modellerweiterung 2010, noch nicht im aktuellen Release 2008 von SIA 405 Abwasser / VSA-DSS
+        Haltung_Kanal,  !! LKLinie Objekt: Pro Haltung wird ein Objekt erzeugt. Falls mehrere Haltungen pro Kanal gibt es auch mehrere Lininenobjekte, da z.B. Lichte_Hoehe oder Gefälle ändern kann.
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        AnkerStrebe,  !! LKLinie Objekt, Darstellung S. 65
+        Trasse (  !! Darstellung S. 65
+          oberirdisch,  !! LKLinie Objekt, Darstellung S. 65
+          unterirdisch  !! (LKFlaeche Objekt oder) LKLinie Objekt, Symbol S. 65
+        )
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Trasse ( !! LKLinie Objekt (oder LKFlaeche Objekt), neu Trasse statt Trassee
+			oberirdisch,  !! neu 22.8.2013 Matching: Trassetyp = Freileitung
+			unterirdisch  !! neu 22.8.2013  Matching alle anderen Werte von Trassetyp inkl. unbekannt
+			),
+		Schutzrohr  !! 
+      ),  !! Ende von Fernwaerme
+      Gas (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,  !! LKLinie Objekt (Subwerte mit Art andere, Anschlussleitung etc. gehört eigentlich nicht hinein, sonst müsste man auch bei Abwasser machen). Falls gewünscht in BAG of Eigenschaft mitgeben
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Gas
+      Kommunikation (
+        Trasse (  !! Darstellung S. 69
+          oberirdisch,  !! LKLinie Objekt, Darstellung S. 69
+          unterirdisch  !! LKLinie Objekt, Darstellung S. 69
+        )
+      ),  !! Ende von Kommunikation
+      Wasser (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,  !! LKLinie Objekt, Subwerte falls gewünscht in BAG of Eigenschaft mitgeben
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Wasser
+      weitereMedien (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,
+        Schutzrohr
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart 
+    Profiltyp: (     !! Erweiterung 2D (für Beschriftung Leitung) und 3D - Typ des Profils, Zuordnung Werte siehe jeweiliges Medium (bis dato nur in Abwasser vorhanden, andere Medien müssten das ergänzen in WI
+      Eiprofil,
+      Kreisprofil,
+      Rechteckprofil,
+      unbekannt,
+      weitere  !! Zusammenfassung von andere, Maulprofil, offenes_Profil, Spezialprofil. In 3D Darstellung als genähertes Rechteck.
+!!*      andere,
+!!*      Maulprofil, 
+!!*      offenes_Profil,
+!!*      Spezialprofil,
+    );
+END LKLinie;
+
+
+CLASS LKPunkt EXTENDS LKObjekt =
+!! Punktförmiges LKObjekt
+  ATTRIBUTE
+    Dimension1: SIA405_Base.Abmessung;  !! neu 2014, grösseres (Innen-)Mass eines Objektes (z. B. Länge/Durchmesser)
+	Dimension2: SIA405_Base.Abmessung;  !! neu 2014, kleineres (Innen-)Mass eines Objektes (z. B. Breite/Durchmesser
+	Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss WI Modell dargestellt werden. Typ / Funktion / Art werden direkt übernommen und nicht zusammengefasst unter anderen Namen -> sonst braucht es wieder eine Matchinganweisung
+      Abwasser (
+        Deckel,  !! LKPunkt Objekt. Abnehmbare Abdeckung eines Schachtbauwerkes
+!!        Haltungspunkt,  !! Erweiterung 3D - wird nicht dargestellt
+        Einleitstelle,
+		Kabelpunkt (  !! neu 2010, Modellerweiterung 2010, noch nicht im aktuellen Release 2008 von SIA 405 Abwasser / VSA-DSS
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+!!          Kabelmuffe,   !! werden im LK nicht dargestellt
+          Kabelschacht,
+          Kabine
+        ),
+        Kaliberwechsel,   !! LKPunkt Objekt. Funktion. Wird in LK dargestellt, Orientierung notwendig (senkrecht zum Kanal / Haltung)
+        Kanalanfang,  !! LKPunkt Objekt. Funktion. Wird in LK dargestellt, Orientierung notwendig (senkrecht zur Haltung)
+        Normschacht (
+          Einlaufschacht,  !! LKPunkt Objekt. 
+          Geleiseschacht,  !! LKPunkt Objekt. 
+          Kontrollschacht,  !! LKPunkt Objekt. Symbol siehe SIA MB 2015 (2005) Seite 21. 
+          Oelabscheider_Schwimmstoffabscheider,    !! Zusammenfassung von zwei Werten
+!!*         Oelabscheider,  
+!!*         Schwimmstoffabscheider,  
+          Schlammsammler,  !! LKPunkt Objekt. 
+          weitere  !! Gruppierung der folgenden weiteren Objekte Normschacht.Funktion, Symbol wie Kontrollschacht S.21
+!!*          Absturzbauwerk,  
+!!*          andere,
+!!*          Be_Entlueftung,  !
+!!*          Dachwasserschacht,  
+!!*          Hochwasserentlastung,  
+!!*          Klaergrube,  
+!!*          Pumpwerk,  
+!!*          Spuelschacht,  
+!!*          Trennbauwerk,  
+        ),
+!! Trockenwetterfallrohr ist ab Release 2012 nicht mehr im Umfang LK		
+!!        Trockenwetterfallrohr,  !! LKPunkt Objekt. Alle Werte Klasse Trockenwetterfallrohr. . 
+        unbekannt,  !! LKPunkt Objekt
+        Versickerungsanlage  !! neu 2011 im Umfang LK
+!!        Vorflutereinlauf  !! LKPunkt Objekt oder LKFlaeche Objekt, neu 2012 im Umfang von LK
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        Kabine,  !!  LKPunkt Objekt, Symbol S. 65
+        OeffentlicherVerbraucher,  !! LKPunkt Objekt, Symbol S. 65
+        Schacht (  !!
+          rechteckig, !! Attribut Schachtyp ergänzt in WI Modell mit Release 2012 (fehlte in Datenmodell WI 2004 -> Modellfehler), nur bei Darstellung S. 65 vorhanden
+          rund  !! Attribut Schachtyp ergänzt in WI Modell mit Release 2012 (fehlte in Datenmodell WI 2004 -> Modellfehler), nur bei Darstellung S. 65 vorhanden
+!! rausgenommen 6.6.2011 Fehlerkorrektur       Sonderbauwerk  !! Schachttyp = spezial als LKFlaeche Objekt abbilden, neuer Name 2012: Bauwerk
+        ),
+        Station,  !!  LKPunkt Objekt, Symbol S. 65
+        Tragwerk, !! LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 65. In INTERLIS 2 nur als LKFlaeche Objekt drin? Fehler?
+        unbekannt  !! kein Symbol bei Elektritzität in 2015:2005, Vorschlag gleich wie bei Kabelkommunikation S. 74
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Kabelpunkt (
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine),
+        Trassepunkt (
+          Abstuetzung,  !! kein Symbol
+          Ent_Belueftung,  !! Symbol S. 56
+          Entwaesserung,  !! Symbol S. 56
+          Fixpunkt,  !! Symbol S. 56
+          Geometriepunkt,  !! kein Symbol
+          Montageoeffnung_Schachteinstieg  !! Zusammenfassung von zwei Werten
+!!*          Montageoeffnung,  !! Symbol S. 56
+!!*          Schachteinstieg,  !! Symbol S. 56
+          ),
+        unbekannt 
+      ),  !! Ende von Fernwaerme
+      Gas (
+        Absperrorgan,  !!(  !! Absperrorgan.Art
+!!         unbekannt,  !! Kein Symbol in SIA MB 2015 (2005)
+!!         Schieber,  !! Symbol siehe SIA MB 2015 (2005) Seite 35
+!!         Klappe  !! Symbol siehe SIA MB 2015 (2005) Seite 35
+        Gaslaterne,  !!  Symbol siehe SIA MB 2015 (2005) Seite 31 / 35
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine
+        ),
+        Rohrleitungsteil (  !! Erweiterung 3D
+          Bogen_horizontal,
+          Bogen_vertikal
+        ),
+        Schacht,  !! kein Symbol vorhanden. In INTERLIS LK vorhanden. Vorschlag Symbol wie Messstation aber ohne MS
+        Siphon,
+!! Siphon.Art wird nicht berücksichtigt. Schreibfehler im Datenkatalog Seite 29 Syphon statt Siphon. Kein Kreuz im Datenkatalog bei Siphon.Art, nur bei Name_Nummer.
+        unbekannt  !! wie werden diese dargestellt? Vorschlag wie Schacht
+!!      weitere
+      ),  !! Ende von Gas
+      Kommunikation (  !! muss Tele- und Kabelkommunikation noch unterschieden werden? 
+!!        AnkerStrebe,  !! LKPunkt Objekt, Darstellung S. 69
+        Bauwerk,  !! Zusammenfassung alle Subklassenelemente (Baugruppenelement, Kabine, Konsole, TechnikCenter
+!!      Baugruppenelement,  !! LKPunkt Objekt, Darstellung S. 69, falls keine Flaechengeometrie
+!!        Kabine,  !! Kabelkommunikation
+!!        Konsole,  !! Kabelkommunikation
+        Schacht (
+          rechteckig,  !! LKPunkt Objekt, Darstellung S. 69 / 74
+          rund  !! LKPunkt Objekt, Darstellung S. 69 / 74
+!!        Sonderbauwerk  !! als LKFlaeche Objekt abbilden
+        ),
+!!        TechnikCenter,  !! LKPunkt Objekt oder LKFlaeche Objekt, Darstellung S. 74 (Kabelkommunikation)
+        Tragwerk, !! LKPunkt Objekt
+        unbekannt   !! Attribut Schacht.Typ. LKPunkt Objekt, Darstellung S. 69 / 74
+      ),  !! Ende von Kommunikation
+      Wasser (
+!!        Leitungspunkt (
+!!          andere,  !! wie werden diese dargestellt?
+        Absperrorgan, !! (  !! Absperrorgan.Art
+!!           unbekannt,  !! Kein Symbol in SIA MB 2015 (2005), Symbol für Oberflurhydrant verwenden?
+!!           Schieber,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+!!           Klappe  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+!!          Hydrant ( !! Hydrant.Art je einzeln
+        Gartenhydrant,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine
+        ),
+        Oberflurhydrant,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+        Rohrleitungsteil (  !! Erweiterung 3D
+          Bogen_horizontal,
+          Bogen_vertikal
+        ),
+        Schacht,
+        unbekannt,  !! wie werden diese dargestellt?
+        Unterflurhydrant  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+      ),  !! Ende von Wasser
+      weitereMedien (
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine),
+        Leitungspunkt  !!
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart
+    SymbolPos: MANDATORY Base.LKoord;  !!  Landeskoordinate Ost/Nord, 2D Koordinaten / analog wie bei Base.ili
+    SymbolOri: Base.Orientierung; !! Default: 90 Grad / analog wie Base.ili
+END LKPunkt;
+
+CLASS LKObjekt_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END LKObjekt_Text;
+
+ASSOCIATION LKObjekt_LKObjektTextAssoc =   !! Assoziation
+  LKObjektRef -<#> {1} LKObjekt;  !! Rolle1 - Klasse1 / Rôle1 - Classe1 Komposition
+  LKObjekt_LKObjekt_TextAssocRef -- {0 .. *} LKObjekt_Text;  !! Rolle2 - Klasse2 / Rôle2 - Classe2
+END LKObjekt_LKObjektTextAssoc;
+
+
+END SIA405_LKMap;  !! Ende des Topic
+
+END SIA405_LKMap_2015.   !! Ende des Modells / Fin du modèle
+
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_LKMap_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "27.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS; 
+  IMPORTS Units;  
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+
+!! Copyright 2011 - 2018
+!! SIA, Zürich -  www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_LKMap_2012_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / Sepp Dorfschmid / SIA 405 Kommission
+
+!! 11.6.2010: Attribut Beschriftung eingeführt beim LKObjekt
+!! 20.8.2010: Attribut Beschriftung wieder gelöscht. Bezeichnung (Nummer) kann in BAG OF Eigenschaft transferiert werden. Sonstige Beschriftungen werden in LKObjekt_Text mitgeliefert.
+!! 23.9.2010: Status korrigiert: tot reingenommen in SIA405_Base
+!! 23.9.2010: Attribute Hoehe und Hoehenbestimmung bei LKPunkt, weitere Attribute für 3D fehlen noch bei Fläche/Linie
+!! 22.11.2010: Erweiterung 3D eingebaut / Umgruppierung Subwerte bei Spezialbauwerk (Kommunikation / Elektrizität) in LKFlaeche
+!! 30.11.2010: Korrektur Schreibfehler LKPunkt.Hoehenbestimmung statt Hoehenstimmung
+!! 16.5.2011: Reduktion Kommunikation Subwerte
+!! 26.5.2011: neu LKFlaeche: Elektritzitaet.Trasse_unterirdisch für Trasseflächen, die sich nicht als Linie mit Breite abbilden lassen (zusätzlich dazu). Notwendig aus Erfahrung LK BL Pilotprojekt
+!! 26.5.2011: neu LKFlaeche: Fernwaerme.Trasse_unterirdisch für Trasseflächen, die sich nicht als Linie mit Breite abbilden lassen (zusätzlich dazu). Notwendig aus Erfahrung LK BL Pilotprojekt
+!! 26.5.2011: überall Trasse statt Trassee
+!! 26.5.2011: TO DO: Version 2D und 3D auseinandernehmen
+!! 6.6.2011: Definition Letzte_Aenderung, MD_Datenherr, MD_Datenlieferant
+!! 6.6.2011: neu Attribut Sicherheitskorridor (Input aus Vernehmlassung)
+!! 6.6.2011: Structure Eigenschaften: TEXT*80 statt *50
+!! 6.6.2011: TO DO: MTEXT einführen in SIA_Base für Textinhalt
+!! 6.6.2011: neu Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 15.6.2011: Rohrprofil.weitere eingeführt
+!! 15.6.2011: Abwasser: Trockenwetterfallrohr rausgenommen. Nicht benötigt für belegten Raum
+!! 4.7.2011: OBJ_ID geändert auf OID AS UUIDOID (Antrag an SIA 405 Kommission)
+!! Zur Diskussion 4.7.2011: Bezeichnung wieder einführen gemäss http://www.geo.admin.ch -> Geodaten -> Geobasisdaten -> Geodatenmodelle -> KOGIS (2011): Allgemeine Empfehlungen zur Methodik der Definition "minimaler Geodatenmodelle
+!! 4.7.2011: Linie neu ungerichtet (DIRECTED gelöscht)
+!! rückgängig 6.6.2011 - geht nicht bei Höhen: neu Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 5.7.2011: MD_ weggenommen bei Datenherr / Datenlieferant. Reihenfolge neu wieder alphabetisch angepasst. MD_ist im GM03 Metamodell für Klassen als Präfix reserviert.
+!! 27.6.2011: Anpassung Kabelpunkt - für die Darstellung im LK sind nur die Kabelschächte relevant. Kabelpunkte sind Punkte die zur Erfassung des Linienzuges des Fernwirkkabels erfasst werden, aber danach nicht mehr dargestellt werden müssen. 
+!! 27.6.2011: Fernwirkabel, Kabelpunkt auch bei weitereMedien
+!! 2.8.2011 Anpassung 3D - neu Maechtigkeit statt Obj_Kote1 und Obj_Kote2 bei LKPunkt
+!! 2.8.2011 Anpassung 3D - neu Maechtigkeit statt Obj_Dimension1 bei LKLinie
+!! 2.8.2011 Dimension1 statt Obj_Dimension1 bei LKPunkt, dito für Dimension2
+!! 2.8.2011 OID Definition so angepasst, dass der Compiler sie für Richtig hält - UNIQUE rausgenommen.
+!! 2.8.2011 erledigt 3D Version als extends von 2D Version formulieren. SIA405_LKMap3D extends SIA405_LKMap
+!! 4.8.2011 neu (wieder) Abmessung = 0 .. 4000 [Units.mm]; statt 99999   !! Einheit Milimeter [mm], falls grösser als Fläche abbilden.
+!! 4.8.2011 neu AbmessungMaechtigkeit bei 3D = 0 .. 99999 [Units.mm]
+!! 5.8.2011 Lagebestimmung und Hoehenbestimmung MANDATORY gesetzt, sonst kann man Linienart nicht ableiten für Darstellung
+!! 5.8.2011 LKLinie.Haltung neu Haltung_Kanal, Kommentar ergänzt
+!! 5.8.2011 LKPunkt.Haltungspunkt gelöscht - wird in 3D nicht dargestellt - Haltungspunkt.Kote wird für die Haltung(_Kanal) Darstellung verwendet, aber nicht seperat notwendig
+!! 29.8.2011 LKObjekt.Eigentuemer neu TEXT*80 statt 40
+!! 29.8.2011 LKFlaeche Fernwaerme: nur noch Kammer, Station, Spezialbauwerk (Zusammenfassung)
+!! 29.8.2011 LKLinie.weitereMedien: neuer Wert Schutzrohr
+!! 29.8.2011 Diverse Fehlerkorrekturen in den Kommentaren
+!! 29.8.2011 Textinhalt in SIA405_Base MANDATORY gesetzt
+!! 21.2.2012 Abmessung in SIA405_Base verschoben - neu Breite: SIA405_Base.Abmessung;
+!! 21.2.2012 Einzelflaechen neu geerbt von Base.Polyline
+!! 21.2.2012 Eigentuemer neu SIA405_Base.OrganisationBezeichnung
+!! 21.2.2012 LKLine.Breite: SIA405_Base.Breite; statt Abmessung
+!! 21.2.2012 DOMAIN Abmessung neu geerbt von SIA045_Base, dito Einzelflaechen
+!! 21.2.2012 DOMAIN Orientierung neu in Base.ili
+!! 2.4.2012 Umsetzung Sicherheitskorridor - allenfalls als LKLinie statt LKFlaeche - noch klären -> nein
+!! 4.4.2012 Neu Einleitstelle statt Vorflutereinlauf bei Abwasser
+!! 23.5.2012 überflüssige Kommentare gelöscht
+!! 23.5.2012 Anpassungen Liste Zusammenfassung für Abwasser.Funktion = weitere an Modellversion 2012
+!! 8.6.2012 ASSOCIATION LKObjekt_LKObjektTextAssoc =   !! neu als Komposition (statt Assoziation)
+!!  LKObjektRef -<#> {1} LKObjekt;  !! Rolle1 - Klasse1 / Rôle1 - Classe1 
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf bei LKFlaeche - Anpassung INTERLIS an MB 2015
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf bei LKPunkt - Anpassung INTERLIS an MB 2015
+!! Korrektur 11.3.2013 Fehler in Script (fehlende Kommata)
+!! Korrektur 22.8.2013 Elektrizitat -> OeffentlicherVerbraucher statt Oeffentlicher_Verbraucher - Anpassung an Objektkatalog Elektrizität, Fehler in Objektkatalog LKMap
+!! Korrektur 22.8.2013 LKLinie.Objektart.
+!!       Trasse ( !! LKLinie Objekt (oder LKFlaeche Objekt), neu Trasse statt Trassee
+!!			oberirdisch,  !! neu 22.8.2013 Matching: Trassetyp = Freileitung
+!!			unterirdisch  !! neu 22.8.2013  Matching alle anderen Werte von Trassetyp inkl. unbekannt
+!!			),
+!! Korrektur 25.9.2013 LKFlaeche.Objetkart.Elektrizitaet und Fernwaerme neu ohne Subwert unterirdisch (wie Kommunikation). Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch. (Feedback LK Baselland
+!! 28.6.2014 LKPunkt.Dimension1 und Dimension2 neu in LKMap - verschoben von LKMap3D. Wunsch aus Praxisanwendung
+!! 27.4.2018 Trasse,   !! Darstellung S. 136 2.6.5 (Kapitelangabe korrigiert)
+!! 27.4.2018 !! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+
+UNIT
+
+DOMAIN
+
+!! Definition Datentypen nach INTERLIS 2.3
+
+TOPIC SIA405_LKMap =
+
+DOMAIN
+
+STRUCTURE Eigenschaften =
+!! Weitere Attribute zum LKObjekt gemäss bilateralen Vereinbarungen und medienspezifisch, die über die Darstellung der belegten Fläche hinausgehen.
+    Bezeichnung: MANDATORY TEXT * 80;  !! Bezeichnung des weiteren Attributs zum LKObjekt (Attributname)
+    Wert: MANDATORY TEXT * 80;  !! Wert des weiteren Attributs zum LKObjekt als Text
+END Eigenschaften;
+
+CLASS LKObjekt (ABSTRACT) EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Klasse für alle Sachobjekte
+    Eigenschaft: BAG OF Eigenschaften;  !! Weitere Attribute zum LKObjekt gemäss bilateralen Vereinbarungen und medienspezifisch, die über die Darstellung der belegten Fläche hinausgehen.
+    Eigentuemer: MANDATORY SIA405_Base_LV95.OrganisationBezeichnung; !! Text "Keine_Angabe" wenn Eigentümer nicht freigegeben wird.
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Status: SIA405_Base_LV95.Status;   !! Betriebs- und Planungszustand. Es können auch nur die Datensätze bestimmter Statuswerte geliefert werden.
+END LKObjekt;
+
+CLASS LKFlaeche EXTENDS LKObjekt =
+!! Flächiges LKObjekt
+  ATTRIBUTE
+    Flaeche: MANDATORY Base_LV95.Surface;  !!  Detaillierte Geometrie insbesondere bei Spezialbauwerken. Bei Normbauwerken mit Dimensionen arbeiten -> LKPunkt
+    Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss LK Umfang dargestellt werden
+      Abwasser (  !! nur falls Detailgeometrie vorhanden, sonst LKPunkt. Bei Normschacht nur in Ausnahmefällen
+	    Einleitstelle,
+        Spezialbauwerk (
+          Oelabscheider_Schwimmstoffabscheider,  !! Zusammenfassung von Oel- und Schwimmstoffabscheider 
+!!*        Oelabscheider,  
+!!*        Schwimmstoffabscheider,  
+          Pumpwerk,  !! Anlage zum Heben von Abwasser innerhalb eines Kanalnetzes
+          Regenbecken,  !! Zusammenfassung aller Subwerte (Regenbecken_*)
+         weitere  !! Zusammenfassung der folgenden Werte (Definitionen siehe Objektkatalog Merkblatt 2015 bzw. VSA-DSS):
+!!*        Absturzbauwerk,  
+!!*        andere,
+!!*        Be_Entlueftung,  
+!!*        Duekerkammer,  
+!!*		   Duekeroberhaupt, 
+!!*        Entwaesserungsrinne,  
+!!*        Gelaendemulde,  
+!!*        Geschiebefang,  
+!!*        Hochwasserentlastung,  
+!!*        Jauchegrube,
+!!*        Kanal,   !! in Ausnahmefällen LKFlaeche (Staukanal), sonst wird Haltung als LKLinie abgebildet
+!!*        Klaergrube,  
+!!*        Kontrollschacht,  !! in Ausnahmefällen LKFlaeche, falls Detailgeometrie sonst LKPunkt Objekt.
+!!*        seitlicherZugang,  
+!!*        Spuelschacht,  
+!!*        Trennbauwerk,  !
+!!*        Wirbelfallschacht,  
+        ),
+        unbekannt,  !! Spezialbauwerk.Funktion.unbekannt. LKFlaeche
+        Versickerungsanlage  !! neu 2012 im Umfang LK
+!!        Vorflutereinlauf  !! neu 2012 im Umfang von LK
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf
+		
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        Spezialbauwerk (  !! flächenhafte Spezialschächte (Kabine, Station, Oeffentlicher_Verbraucher, Schacht mit Geometrie), sonst als LKPunkt abbilden
+          Kabine,  !!  LKPunkt Objekt Symbol S. 65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden 
+!! rausgenommen 6.6.2011 Fehler         Sonderbauwerk,  !! LKFlaeche
+          Schacht,  !!  LKFlaeche Symbol S. 65 Darstellung als Fläche massstäblich
+          Station,  !!  LKPunkt Objekt Symbol S. 65 oder oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden 
+          !! Oeffentlicher_Verbraucher  !! LKPunkt Objekt Symbol S.65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden
+		  OeffentlicherVerbraucher  !! LKPunkt Objekt Symbol S.65 oder LKFlaeche -> dann als Elektrizitaet.Spezialbauwerk abbilden
+        ), !! End Spezialbauwerk
+        Tragwerk,  !!  LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 65. Tragwerke werden in der Regela als Symbol dargestellt. Bei Tragwerken mit grosser Fläche (z.B. Gittermast kann optional auch die Fläche dargestellt werden
+!! neu eingefügt 26.5.2011
+        Trasse,   !! Darstellung S. 65, Korrigiert 25.9.2013 (kein Subwert unterirdisch mehr, Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch.
+!!           unterirdisch  !! LKFlaeche Objekt oder LKLinie Objekt, Symbol S. 65 -> Flächen von Trasse sollen grundsätzlich als LinieLKObjekt mit Breite angegeben werden. Es gibt aber zusätzliche Flächen, die man nicht so abbilden kann (komplizierte Formen die auch den belegten Raum abbilden), diese werden als Flächen übergeben
+        unbekannt  !! LKFlaeche
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Bauwerk (  !! LKFlaeche Objekt
+            Kammer,  !! fasst folgende Werte zusammen
+!!*          Entleeerungskammer,
+!!*          Entlueftungskammer, 
+!!*          Hauptkammer,
+!!*          Kompensatorenkammer,
+!!*          Kontrollkammer,
+!!*          Messkammer,
+!!*          Steuerkammer,
+            Spezialbauwerk,
+            Station  !! fasst folgende Werte zusammen:
+!!*          Druckreduzierstation,
+!!*          Umformerstation
+        ),
+!! Neu Eingefügt 26.5.2011 neu Trasse statt Trassee
+        Trasse,   !! Darstellung S. 136 2.6.5, Korrigiert 25.9.2013 (kein Subwert unterirdisch mehr, Unterscheidung macht nur Sinn wenn auch oberirdisch. Flaechen sind eigentlich immer unterirdisch.
+!!          unterirdisch  !! LKFlaeche Objekt oder LKLinie Objekt, Symbol S. 65 -> Flächen von Trasse sollen grundsätzlich als LinieLKObjekt mit Breite angegeben werden. Es gibt aber zusätzliche Flächen, die man nicht so abbilden kann (komplizierte Formen die auch den belegten Raum abbilden), diese werden als Flächen übergeben
+        unbekannt  !! LKFlaeche
+      ),  !! Ende von Fernwaerme
+      Gas (
+!! neu 6.6.2011
+        Sicherheitskorridor,  !! Die Rohrleitungsverordnung (RLV) schreibt im Abschnitt 5, Art. 26 vor, dass alle Bauvorhaben innerhalb eines waagrecht gemessenen Abstandes von 10 m von der Rohrleitung bewilligungspflichtig sind. Diese Information wird aus den Basisdaten der amtlichen Vermessung (TOPIC Rohrleitungen, Medium Gas) generiert. (eigener Datenlieferant)
+        Spezialbauwerk,  !! LKFlaeche, alle Subwerte von Spezialbauwerk.Art
+!!        weitere,  !! Subwerte Spezialbauwerk.Art.weitere von Gas / Wasser wie Dueker etc. werden bei weitereMedien aufgeführt
+        unbekannt  !! LKFlaeche, gibt es im Moment im WI Modell nicht, Antrag
+      ),  !! Ende von Gas
+      Kommunikation (  !! Zusammenschluss von Tele- und Kabelkommmunikation
+!! gelöscht 16.5.2011       Spezialbauwerk,  !! Schacht.Typ.Spezialbauwerk (Antrag statt Sonderbauwerk), LKFlaeche
+!! gelöscht 16.5.2011          Kabine,  !!  LKPunkt Objekt Symbol S. 69/75 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+!! gelöscht 16.5.2011          Konsole,  !!  LKPunkt Objekt Symbol S. 65/75 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+!! gelöscht 16.5.2011          TechnikCenter, !! LKPunkt Objekt Symbol S. 74 oder LKFlaeche -> dann als Kommunikation.Spezialbauwerk abbilden 
+        Bauwerk,  !! Schacht.Typ.Spezialbauwerk (Antrag statt Sonderbauwerk), LKFlaeche
+        Schacht,  !! 
+        Tragwerk,  !! LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 75
+        Trasse,  
+		!! In Kabelkommunikation INTERLIS 2 kann jeder Trasseknoten eine Flaeche haben??? -> besser auf Subklasse definieren?
+        unbekannt
+      ),  !! Ende von Kommunikation
+      Wasser (
+        Spezialbauwerk,  !! LKFlaeche, alle Subwerte von Spezialbauwerk.Art
+!!        weitere,  !! Subwerte weitere von Gas / Wasser wie Dueker etc. werden bei weitereMedien aufgeführt
+        unbekannt  !! LKFlaeche, gibt es im Moment im WI Modell nicht, Antrag
+      ),  !! Ende von Wasser
+      weitereMedien (
+!! neu 6.6.2011
+        Sicherheitskorridor,  !! Die Rohrleitungsverordnung (RLV) schreibt im Abschnitt 5, Art. 26 vor, dass alle Bauvorhaben innerhalb eines waagrecht gemessenen Abstandes von 10 m von der Rohrleitung bewilligungspflichtig sind. Diese Information wird aus den Basisdaten der amtlichen Vermessung (TOPIC Rohrleitungen, alle Medien ausser Gas) generiert. (eigener Datenlieferant)
+        Spezialbauwerk, !! FlaecheLKObjekt Spezialbauwerk.Art.weitere von Gas/Wasser
+!!*        weitere (  !! Flaeche LKObjekt (von Gas / Wasser übernommen -> oft mehr als ein Medium drin. Subwerte drinlassen?
+!!*            Dueker,
+!!*            Kulisse,
+!!*            Futterrohr,
+!!*            Leitungskanal (
+!!*              begehbar,
+!!*              nicht_begehbar),
+!!*            Stollen (
+!!*              begehbar,
+!!*              nicht_begehbar),
+!!*            uebrige
+!!*        )
+        unbekannt !! 
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart 
+END LKFlaeche;
+
+CLASS LKLinie EXTENDS LKObjekt =
+!! Linienförmiges LKObjekt
+  ATTRIBUTE
+    Breite: SIA405_Base_LV95.Breite;  !! Breite eines Objektes [mm], Doppellinie >= 300 mm (Massstab 1:200) bzw. >= 600 mm (Mst. 1:500) für alle Medien. Falls die Breite kleiner ist wird nur ein Strich konstanter Breite gezeichnet.
+    !! Breite aus folgenden Attributen bestimmen:
+    !! Abwasser: Rohrprofil.Hoehenbreitenverhaeltnis, Haltung.Lichte_Hoehe -> Lichte_Breite = Lichte_Hoehe / Hoehenbreitenverhaeltnis
+    !! Wasser: Abhängig von Leitung.Material: bei Kunststoffrohren -> Leitung.DurchmesserAussen (mm), bei Metallrohren -> Leitung.Durchmesser (mm)
+    !! Gas: Abhängig von Leitung.Material: bei Kunststoffrohren -> Leitung.DurchmesserAussen (mm), bei Metallrohren -> Leitung.Durchmesser (mm)
+    !! Fernwärme: Trasseabschnitt.Trassebreite (mm)
+    !! Elektrizität: Trasseabschnitt.Breite (mm)
+    !! Kommunikation: Trasseabschnitt.Breite (mm)
+    Linie: MANDATORY Base_LV95.Polyline;  !!  Reihenfolge von Punkten die den Verlauf eines linienförmigen Elementes beschreibt. 
+    Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss WI Modell dargestellt werden. Typ / Funktion / Art werden direkt übernommen und nicht zusammengefasst unter anderen Namen -> sonst braucht es wieder eine Matchinganweisung
+      Abwasser (
+        Fernwirkkabel, !! Steuer- und Signalkabel, Modellerweiterung 2010, noch nicht im aktuellen Release 2008 von SIA 405 Abwasser / VSA-DSS
+        Haltung_Kanal,  !! LKLinie Objekt: Pro Haltung wird ein Objekt erzeugt. Falls mehrere Haltungen pro Kanal gibt es auch mehrere Lininenobjekte, da z.B. Lichte_Hoehe oder Gefälle ändern kann.
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        AnkerStrebe,  !! LKLinie Objekt, Darstellung S. 65
+        Trasse (  !! Darstellung S. 65
+          oberirdisch,  !! LKLinie Objekt, Darstellung S. 65
+          unterirdisch  !! (LKFlaeche Objekt oder) LKLinie Objekt, Symbol S. 65
+        )
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Trasse ( !! LKLinie Objekt (oder LKFlaeche Objekt), neu Trasse statt Trassee
+			oberirdisch,  !! neu 22.8.2013 Matching: Trassetyp = Freileitung
+			unterirdisch  !! neu 22.8.2013  Matching alle anderen Werte von Trassetyp inkl. unbekannt
+			),
+		Schutzrohr  !! 
+      ),  !! Ende von Fernwaerme
+      Gas (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,  !! LKLinie Objekt (Subwerte mit Art andere, Anschlussleitung etc. gehört eigentlich nicht hinein, sonst müsste man auch bei Abwasser machen). Falls gewünscht in BAG of Eigenschaft mitgeben
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Gas
+      Kommunikation (
+        Trasse (  !! Darstellung S. 69
+          oberirdisch,  !! LKLinie Objekt, Darstellung S. 69
+          unterirdisch  !! LKLinie Objekt, Darstellung S. 69
+        )
+      ),  !! Ende von Kommunikation
+      Wasser (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,  !! LKLinie Objekt, Subwerte falls gewünscht in BAG of Eigenschaft mitgeben
+        Schutzrohr  !! neu 2010, noch nicht im aktuellen Release
+      ),  !! Ende von Wasser
+      weitereMedien (
+        Fernwirkkabel,  !! Steuer- und Signalkabel
+        Leitung,
+        Schutzrohr
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart 
+    Profiltyp: (     !! Erweiterung 2D (für Beschriftung Leitung) und 3D - Typ des Profils, Zuordnung Werte siehe jeweiliges Medium (bis dato nur in Abwasser vorhanden, andere Medien müssten das ergänzen in WI
+      Eiprofil,
+      Kreisprofil,
+      Rechteckprofil,
+      unbekannt,
+      weitere  !! Zusammenfassung von andere, Maulprofil, offenes_Profil, Spezialprofil. In 3D Darstellung als genähertes Rechteck.
+!!*      andere,
+!!*      Maulprofil, 
+!!*      offenes_Profil,
+!!*      Spezialprofil,
+    );
+END LKLinie;
+
+
+CLASS LKPunkt EXTENDS LKObjekt =
+!! Punktförmiges LKObjekt
+  ATTRIBUTE
+    Dimension1: SIA405_Base_LV95.Abmessung;  !! neu 2014, grösseres (Innen-)Mass eines Objektes (z. B. Länge/Durchmesser)
+	Dimension2: SIA405_Base_LV95.Abmessung;  !! neu 2014, kleineres (Innen-)Mass eines Objektes (z. B. Breite/Durchmesser
+	Objektart: MANDATORY (  !! Es werden alle Objekte aufgelistet, die gemäss WI Modell dargestellt werden. Typ / Funktion / Art werden direkt übernommen und nicht zusammengefasst unter anderen Namen -> sonst braucht es wieder eine Matchinganweisung
+      Abwasser (
+        Deckel,  !! LKPunkt Objekt. Abnehmbare Abdeckung eines Schachtbauwerkes
+!!        Haltungspunkt,  !! Erweiterung 3D - wird nicht dargestellt
+        Einleitstelle,
+		Kabelpunkt (  !! neu 2010, Modellerweiterung 2010, noch nicht im aktuellen Release 2008 von SIA 405 Abwasser / VSA-DSS
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+!!          Kabelmuffe,   !! werden im LK nicht dargestellt
+          Kabelschacht,
+          Kabine
+        ),
+        Kaliberwechsel,   !! LKPunkt Objekt. Funktion. Wird in LK dargestellt, Orientierung notwendig (senkrecht zum Kanal / Haltung)
+        Kanalanfang,  !! LKPunkt Objekt. Funktion. Wird in LK dargestellt, Orientierung notwendig (senkrecht zur Haltung)
+        Normschacht (
+          Einlaufschacht,  !! LKPunkt Objekt. 
+          Geleiseschacht,  !! LKPunkt Objekt. 
+          Kontrollschacht,  !! LKPunkt Objekt. Symbol siehe SIA MB 2015 (2005) Seite 21. 
+          Oelabscheider_Schwimmstoffabscheider,    !! Zusammenfassung von zwei Werten
+!!*         Oelabscheider,  
+!!*         Schwimmstoffabscheider,  
+          Schlammsammler,  !! LKPunkt Objekt. 
+          weitere  !! Gruppierung der folgenden weiteren Objekte Normschacht.Funktion, Symbol wie Kontrollschacht S.21
+!!*          Absturzbauwerk,  
+!!*          andere,
+!!*          Be_Entlueftung,  !
+!!*          Dachwasserschacht,  
+!!*          Hochwasserentlastung,  
+!!*          Klaergrube,  
+!!*          Pumpwerk,  
+!!*          Spuelschacht,  
+!!*          Trennbauwerk,  
+        ),
+!! Trockenwetterfallrohr ist ab Release 2012 nicht mehr im Umfang LK		
+!!        Trockenwetterfallrohr,  !! LKPunkt Objekt. Alle Werte Klasse Trockenwetterfallrohr. . 
+        unbekannt,  !! LKPunkt Objekt
+        Versickerungsanlage  !! neu 2011 im Umfang LK
+!!        Vorflutereinlauf  !! LKPunkt Objekt oder LKFlaeche Objekt, neu 2012 im Umfang von LK
+!! Korrektur 24.1.2013 - Einleitstelle statt Vorflutereinlauf
+      ),  !! Ende von Abwasser
+      Elektrizitaet (
+        Kabine,  !!  LKPunkt Objekt, Symbol S. 65
+        OeffentlicherVerbraucher,  !! LKPunkt Objekt, Symbol S. 65
+        Schacht (  !!
+          rechteckig, !! Attribut Schachtyp ergänzt in WI Modell mit Release 2012 (fehlte in Datenmodell WI 2004 -> Modellfehler), nur bei Darstellung S. 65 vorhanden
+          rund  !! Attribut Schachtyp ergänzt in WI Modell mit Release 2012 (fehlte in Datenmodell WI 2004 -> Modellfehler), nur bei Darstellung S. 65 vorhanden
+!! rausgenommen 6.6.2011 Fehlerkorrektur       Sonderbauwerk  !! Schachttyp = spezial als LKFlaeche Objekt abbilden, neuer Name 2012: Bauwerk
+        ),
+        Station,  !!  LKPunkt Objekt, Symbol S. 65
+        Tragwerk, !! LKPunkt Objekt oder LKFlaeche Objekt (bei grosser Fläche, z.B. Gittermast), Symbol S. 65. In INTERLIS 2 nur als LKFlaeche Objekt drin? Fehler?
+        unbekannt  !! kein Symbol bei Elektritzität in 2015:2005, Vorschlag gleich wie bei Kabelkommunikation S. 74
+      ),  !! Ende von Elektrizitaet
+      Fernwaerme (
+        Kabelpunkt (
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine),
+        Trassepunkt (
+          Abstuetzung,  !! kein Symbol
+          Ent_Belueftung,  !! Symbol S. 56
+          Entwaesserung,  !! Symbol S. 56
+          Fixpunkt,  !! Symbol S. 56
+          Geometriepunkt,  !! kein Symbol
+          Montageoeffnung_Schachteinstieg  !! Zusammenfassung von zwei Werten
+!!*          Montageoeffnung,  !! Symbol S. 56
+!!*          Schachteinstieg,  !! Symbol S. 56
+          ),
+        unbekannt 
+      ),  !! Ende von Fernwaerme
+      Gas (
+        Absperrorgan,  !!(  !! Absperrorgan.Art
+!!         unbekannt,  !! Kein Symbol in SIA MB 2015 (2005)
+!!         Schieber,  !! Symbol siehe SIA MB 2015 (2005) Seite 35
+!!         Klappe  !! Symbol siehe SIA MB 2015 (2005) Seite 35
+        Gaslaterne,  !!  Symbol siehe SIA MB 2015 (2005) Seite 31 / 35
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine
+        ),
+        Rohrleitungsteil (  !! Erweiterung 3D
+          Bogen_horizontal,
+          Bogen_vertikal
+        ),
+        Schacht,  !! kein Symbol vorhanden. In INTERLIS LK vorhanden. Vorschlag Symbol wie Messstation aber ohne MS
+        Siphon,
+!! Siphon.Art wird nicht berücksichtigt. Schreibfehler im Datenkatalog Seite 29 Syphon statt Siphon. Kein Kreuz im Datenkatalog bei Siphon.Art, nur bei Name_Nummer.
+        unbekannt  !! wie werden diese dargestellt? Vorschlag wie Schacht
+!!      weitere
+      ),  !! Ende von Gas
+      Kommunikation (  !! muss Tele- und Kabelkommunikation noch unterschieden werden? 
+!!        AnkerStrebe,  !! LKPunkt Objekt, Darstellung S. 69
+        Bauwerk,  !! Zusammenfassung alle Subklassenelemente (Baugruppenelement, Kabine, Konsole, TechnikCenter
+!!      Baugruppenelement,  !! LKPunkt Objekt, Darstellung S. 69, falls keine Flaechengeometrie
+!!        Kabine,  !! Kabelkommunikation
+!!        Konsole,  !! Kabelkommunikation
+        Schacht (
+          rechteckig,  !! LKPunkt Objekt, Darstellung S. 69 / 74
+          rund  !! LKPunkt Objekt, Darstellung S. 69 / 74
+!!        Sonderbauwerk  !! als LKFlaeche Objekt abbilden
+        ),
+!!        TechnikCenter,  !! LKPunkt Objekt oder LKFlaeche Objekt, Darstellung S. 74 (Kabelkommunikation)
+        Tragwerk, !! LKPunkt Objekt
+        unbekannt   !! Attribut Schacht.Typ. LKPunkt Objekt, Darstellung S. 69 / 74
+      ),  !! Ende von Kommunikation
+      Wasser (
+!!        Leitungspunkt (
+!!          andere,  !! wie werden diese dargestellt?
+        Absperrorgan, !! (  !! Absperrorgan.Art
+!!           unbekannt,  !! Kein Symbol in SIA MB 2015 (2005), Symbol für Oberflurhydrant verwenden?
+!!           Schieber,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+!!           Klappe  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+!!          Hydrant ( !! Hydrant.Art je einzeln
+        Gartenhydrant,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine
+        ),
+        Oberflurhydrant,  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+        Rohrleitungsteil (  !! Erweiterung 3D
+          Bogen_horizontal,
+          Bogen_vertikal
+        ),
+        Schacht,
+        unbekannt,  !! wie werden diese dargestellt?
+        Unterflurhydrant  !! Symbol siehe SIA MB 2015 (2005) Seite 49
+      ),  !! Ende von Wasser
+      weitereMedien (
+        Kabelpunkt (  !! neu 2010, Erweiterung Fernwirkkabel
+!!          Kabelpunkt,   !! werden im LK nicht dargestellt, da mit der Linie des Fernwirkkabels schon vorhanden
+          Kabelschacht,
+          Kabine),
+        Leitungspunkt  !!
+      )  !! Ende von weitereMedien
+    );   !! Ende von Objektart
+    SymbolPos: MANDATORY Base_LV95.LKoord;  !!  Landeskoordinate Ost/Nord, 2D Koordinaten / analog wie bei Base_LV95.ili
+    SymbolOri: Base_LV95.Orientierung; !! Default: 90 Grad / analog wie Base_LV95.ili
+END LKPunkt;
+
+CLASS LKObjekt_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END LKObjekt_Text;
+
+ASSOCIATION LKObjekt_LKObjektTextAssoc =   !! Assoziation
+  LKObjektRef -<#> {1} LKObjekt;  !! Rolle1 - Klasse1 / Rôle1 - Classe1 Komposition
+  LKObjekt_LKObjekt_TextAssocRef -- {0 .. *} LKObjekt_Text;  !! Rolle2 - Klasse2 / Rôle2 - Classe2
+END LKObjekt_LKObjektTextAssoc;
+
+
+END SIA405_LKMap;  !! Ende des Topic
+
+END SIA405_LKMap_2015_LV95.   !! Ende des Modells / Fin du modèle
+
+

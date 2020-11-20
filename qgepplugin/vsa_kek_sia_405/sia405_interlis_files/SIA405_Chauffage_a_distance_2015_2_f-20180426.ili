@@ -1,0 +1,1779 @@
+!! SIA405_Chauffage_a_distance_2015_2_f.ili
+
+INTERLIS 2.3;
+
+MODEL SIA405_CHAUFFAGE_A_DISTANCE_2015 (fr) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" TRANSLATION OF SIA405_FERNWAERME_2015 [ "26.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_f;
+  IMPORTS SIA405_Base_f;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! en cooperation avec Société suisse des ingénieurs et architectes (sia), Zurich
+!! L'utilisation de ce fichier modèle INTERLIS a besoin une licence!
+
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_2015_2_f.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / VSA par le destinataire.
+
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+UNIT
+
+TOPIC SIA405_Chauffage_a_distance =
+
+DOMAIN
+
+
+EtatValeurs EXTENDS SIA405_Base_f.Etat = (  !! Etat de fonctionnement et de planification de l’ouvrage. 
+!! 13.7.2015 Adaptation à la nouvelle version de SIA405_Base_f.Etat – Extension des valeurs de base du fluide, modélisation hiérarchique et compiler 4.5.13 ff 
+      hors_service ( !! comporte hors_service et les valeurs suivantes
+         !! hors_service,
+         en_reserve
+      ),
+      en_service (  !! comporte en_service et les valeurs suivantes 
+         !! en_service,
+         provisoire
+      ),
+      !! abandonne,
+      !! inconnu,
+      autre ( !! comporte les valeurs suivantes
+         variante_de_calcul,  !! nouveau 24.4.2018
+         planifie,  
+         projet
+      )
+    );  
+    !! nouveau 13.7.2015  
+    Etat = ALL OF EtatValeurs;    !! Erweitert Wertebereich von SIA405 Status
+
+
+Temperature = 0..9999 [Units.oC];    !! 
+
+
+Pression = 0 .. 9999 [Units.bar];    !! Bar [bar]
+
+
+Kilowatt = 0 .. 9999999999 [SIA405_Base_f.kW];    !! Kilowatt [kW]
+
+
+!! Copyright 2002 - 2015
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! L'utilisation de ce fichier modèle INTERLIS a besoin une licence!
+
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_2015_2_f.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du VSA par le destinataire.
+CLASS Noeud_hydraulique EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! points choisis des tables organe de fermetures, composant, etc.
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;  !! par ex. numéro de noeud
+    Type_de_noeud: (        
+      fixe,
+      variable
+    );
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Remarque: TEXT*80;
+END Noeud_hydraulique;
+
+CLASS Noeud_hydraulique_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Noeud_hydraulique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Noeud_hydraulique_TextAssoc =   !! Composition
+ASSOCIATION Noeud_hydraulique_TexteAssoc =   !! Composition
+  Noeud_hydrauliqueRef -<#> {1} Noeud_hydraulique;
+  Texte -- {0 .. *} Noeud_hydraulique_Texte;
+!!  END Noeud_hydraulique_TextAssoc;
+END Noeud_hydraulique_TexteAssoc;
+
+CLASS Troncon_hydraulique EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! plusieurs conduites contiguës
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Remarque: TEXT*80;
+END Troncon_hydraulique;
+
+CLASS Troncon_hydraulique_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Troncon_hydraulique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Troncon_hydraulique_TextAssoc =   !! Composition
+ASSOCIATION Troncon_hydraulique_TexteAssoc =   !! Composition
+  Troncon_hydrauliqueRef -<#> {1} Troncon_hydraulique;
+  Texte -- {0 .. *} Troncon_hydraulique_Texte;
+!!  END Troncon_hydraulique_TextAssoc;
+END Troncon_hydraulique_TexteAssoc;
+
+ASSOCIATION Troncon_hydraulique_DuNoeudAssoc =    !! Association
+  DuNoeudRef  -- {1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_hydraulique_DuNoeudAssocRef -- {1..*} Troncon_hydraulique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_hydraulique_DuNoeudAssoc;
+
+ASSOCIATION Troncon_hydraulique_AuNoeudAssoc =    !! Association
+  AuNoeudRef  -- {1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_hydraulique_AuNoeudAssocRef -- {1..*} Troncon_hydraulique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_hydraulique_AuNoeudAssoc;
+
+CLASS Noeud_statique EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! points choisis des tables organe de fermetures, composant, etc.
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;
+    Type_de_noeud: (        
+      fixe,
+      variable
+    );
+    Zone_du_reseau: TEXT*40;
+    Remarque: TEXT*80;
+END Noeud_statique;
+
+CLASS Noeud_statique_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Noeud_statique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Noeud_statique_TextAssoc =   !! Composition
+ASSOCIATION Noeud_statique_TexteAssoc =   !! Composition
+  Noeud_statiqueRef -<#> {1} Noeud_statique;
+  Texte -- {0 .. *} Noeud_statique_Texte;
+!!  END Noeud_statique_TextAssoc;
+END Noeud_statique_TexteAssoc;
+
+CLASS Troncon_statique EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! plusieurs conduites contigués
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;  !! par ex. numéro de noeud
+    Zone_du_reseau: (        
+      fixe,
+      variable
+    );
+    Remarque: TEXT*80;
+END Troncon_statique;
+
+CLASS Troncon_statique_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Troncon_statique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Troncon_statique_TextAssoc =   !! Composition
+ASSOCIATION Troncon_statique_TexteAssoc =   !! Composition
+  Troncon_statiqueRef -<#> {1} Troncon_statique;
+  Texte -- {0 .. *} Troncon_statique_Texte;
+!!  END Troncon_statique_TextAssoc;
+END Troncon_statique_TexteAssoc;
+
+ASSOCIATION Troncon_statique_DuNoeudAssoc =    !! Association
+  DuNoeudRef  -- {1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_statique_DuNoeudAssocRef -- {1..*} Troncon_statique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_statique_DuNoeudAssoc;
+
+ASSOCIATION Troncon_statique_AuNoeudAssoc =    !! Association
+  AuNoeudRef  -- {1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_statique_AuNoeudAssocRef -- {1..*} Troncon_statique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_statique_AuNoeudAssoc;
+
+CLASS Section_de_conduite EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Section de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;
+    Geometrie: MANDATORY Base_f.Polyligne;  !! avec points d’appuis en coordonnées nationales [mm]
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Etat: MANDATORY Etat;
+    Fonction: (        
+      conduite_de_transport,
+      conduite_de_distribution,  !! conduite principale
+      conduite_de_raccordement  !! conduite secondaire
+    );
+    Genre_de_conduite: (        
+      aller,
+      retour
+    );
+    Fluide: (        
+      eau_surchauffee,
+      eau_chaude,
+      vapeur,
+      condensat,
+      autre
+    );
+    Temperature: MANDATORY Temperature;
+    Pression_nominale: Pression;
+    Pression_exploitation: MANDATORY Pression;
+    Epaisseur_isolation: MANDATORY 0 .. 9999 [Units.mm];
+    Genre_isolation: (        
+      caniveau_isolation_individuelle,
+      laine_de_verre_ou_de_roche,
+      caniveau_remplissage_bourre_laine_verre,
+      tube_preisole,
+      vide
+    );
+    Enveloppe: (        
+      PVC,
+      PE,
+      aluminium,
+      fibrociment,
+      carton_bitume,
+      acier_inoxydable,
+      tole_zinguee,
+      bande,
+      tube_acier
+    );
+    Diametre_interieur: MANDATORY SIA405_Base_f.Metrage;
+    Diametre_exterieur: MANDATORY SIA405_Base_f.Metrage;
+    Largeur_nominale: TEXT*10;  !! comme TEXTE, parcequ'on a aussi des valeurs doubles (par example 1500/800);
+    Longueur1: MANDATORY 0 .. 999999 [Units.mm];  !! longueur développée
+    Longueur2: MANDATORY 0 .. 999999 [Units.mm];  !! longueur calculée
+    Fabrication_tube: MANDATORY TEXT*40;
+    Qualite_tube: (        
+      acier_35,
+      acier_35_8,
+      acier_37,
+      acier_52,
+      cuivre,
+      matiere_synthetique,
+      acier_chrome
+    );
+    Annee_de_construction: MANDATORY SIA405_Base_f.Annee;
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Entreprise_tuyauterie: TEXT*40;
+    Documentation: TEXT*40;  !! numéro de dessin / numéro de dossier
+    Mandat: TEXT*40;  !! désignation du mandat
+    Remarque: TEXT*80;
+END Section_de_conduite;
+
+CLASS Section_de_conduite_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Section_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Section_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Section_de_conduite_TexteAssoc =   !! Composition
+  Section_de_conduiteRef -<#> {1} Section_de_conduite;
+  Texte -- {0 .. *} Section_de_conduite_Texte;
+!!  END Section_de_conduite_TextAssoc;
+END Section_de_conduite_TexteAssoc;
+
+ASSOCIATION Section_de_conduite_Troncon_hydrauliqueAssoc =    !! Association
+  Troncon_hydrauliqueRef  -- {0..1} Troncon_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Section_de_conduite_Troncon_hydrauliqueAssocRef -- {1..*} Section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Section_de_conduite_Troncon_hydrauliqueAssoc;
+
+ASSOCIATION Section_de_conduite_Troncon_statiqueAssoc =    !! Association
+  Troncon_statiqueRef  -- {0..1} Troncon_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Section_de_conduite_Troncon_statiqueAssocRef -- {1..*} Section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Section_de_conduite_Troncon_statiqueAssoc;
+
+CLASS Point_de_conduite (ABSTRACT) EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Point de conduite
+  ATTRIBUTE
+    Geometrie: MANDATORY Base_f.CoordNat;
+    SymboleOri: MANDATORY 0.0 .. 359.9 CIRCULAR [Units.Angle_Degree];
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Altitude1: Base_f.Altitude;  !! bord supérieur tube préisolé
+    Altitude2: Base_f.Altitude;  !! axe du tube
+    Determination_altimetrique: SIA405_Base_f.Determination_planimetrique;
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Remarque: TEXT*80;
+END Point_de_conduite;
+
+CLASS Point_de_conduite_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Point_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Point_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Point_de_conduite_TexteAssoc =   !! Composition
+  Point_de_conduiteRef -<#> {1} Point_de_conduite;
+  Texte -- {0 .. *} Point_de_conduite_Texte;
+!!  END Point_de_conduite_TextAssoc;
+END Point_de_conduite_TexteAssoc;
+
+ASSOCIATION Point_de_conduite_Noeud_hydrauliqueAssoc =    !! Association
+  Noeud_hydrauliqueRef  -- {0..1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Point_de_conduite_Noeud_hydrauliqueAssocRef -- {1..*} Point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Point_de_conduite_Noeud_hydrauliqueAssoc;
+
+ASSOCIATION Point_de_conduite_Noeud_statiqueAssoc =    !! Association
+  Noeud_statiqueRef  -- {0..1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Point_de_conduite_Noeud_statiqueAssocRef -- {1..*} Point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Point_de_conduite_Noeud_statiqueAssoc;
+
+CLASS Point_de_conduite_normal EXTENDS Point_de_conduite =  
+!! 
+  ATTRIBUTE
+    Genre: (     
+      reseau (
+        boite_de_mesure_et_detection_de_fuites,
+         detection_de_fuites_boite_terminale
+      ),
+      armatures (
+         vanne_non_motorisee,
+         vanne_motorisee (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           clapet_non_motorise,
+         clapet_motorise (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           clapet_anti_retour,
+         soupape_non_motorisee,
+         soupape_motorisee (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           vidange,
+         purge,
+         bypass,
+         pieces_moulees (
+            reduction,
+            te,
+            coude
+         ),
+         equipements  (
+            condenseur,
+            separateur,
+            separateur_de_condensats,
+            tuyeau_metallique,
+            vanne_de_reglage
+         ),
+         point_de_conduite  (
+            point_de_geometrie,
+            soudure,
+            changement_de_materiau,
+            manchon,
+            diaphragme
+         ),
+         point_statique  (
+            point_fixe,
+            butee_superieure,
+            guidage_lateral_a_rouleau,
+            suspension,
+            compensateur_axial,
+            compensateur_articule,
+            support_a_rouleaux,
+            support_transversal_a_billes,
+            guidage_proche_des_compensateurs,
+            guidage_eloigne_du_coude_conduite,
+            compensateur
+         )
+      )
+    );
+    Position_armatures: (        
+      ouverte,
+      fermee
+    );
+    Materiau: (        
+      inconnu,
+      acier,
+      fonte,
+      matiere_synthetique
+    );
+END Point_de_conduite_normal;
+
+CLASS Point_de_conduite_alimentation EXTENDS Point_de_conduite =  
+!! 
+  ATTRIBUTE
+    Genre: (        
+      alimentation_du_reseau,
+      derivation,
+      poste_de_raccordement,
+      autre
+    );
+    Puissance_abonnee: MANDATORY Kilowatt;
+    Puissance_installee: MANDATORY Kilowatt;
+    Valeur_diaphragme: MANDATORY Kilowatt;
+    Q_abonnee: MANDATORY 0.000 .. 9999.999 [SIA405_Base_f.m3h];
+    Categorie: (        
+      MI,  !! Maison individuelle
+      IL,  !! immeuble
+      hopital,
+      batiments_publics,
+      prestataire_de_services,
+      artisanat_industrie,
+      clients_speciaux
+    );
+    Mise_en_service: MANDATORY SIA405_Base_f.Annee;
+    Transformation: MANDATORY SIA405_Base_f.Annee;
+    Pression: MANDATORY Pression;  !! pression de construction primaire [bar]
+    Temperature_aller: MANDATORY Temperature;  !! température
+    Temperature_retour: MANDATORY Temperature;  !! température
+    Volume_chauffe: MANDATORY 0 .. 9999 [Units.m3];
+    Chaleur_consommee: MANDATORY 0 .. 9999999999 [Units.kWh];  !! par année
+    Puissance: MANDATORY Kilowatt;
+END Point_de_conduite_alimentation;
+
+CLASS Ouvrage EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Ouvrage
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. nom de l’ouvrage
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Etat: MANDATORY Etat;
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Genre: (        
+      inconnu,
+      chambre_de_controle,
+      chambre_de_purge,
+      chambre_de_commande,
+      chambre_de_vidange,
+      chambre_de_mesure,
+      chambre_principale,
+      chambre_des_compensateurs,
+      reducteur_de_pression,
+      poste_de_transformation,
+      ouvrage_special
+    );
+    Couverture_ouvrage: MANDATORY SIA405_Base_f.Couverture;  !! valeur moyenne de l’objet
+    Annee_de_construction: SIA405_Base_f.Annee;
+    Purge: (        
+      inconnu,
+      mecanique,
+      naturelle,
+      aucune
+    );
+    Type_ecoulement: (        
+      eaux_usees,
+      sol,
+      eau_propre,
+      puisard_d_aspiration,
+      puits_perdu
+    );
+    Type_de_grille: (        
+      avec_siphon,
+      sans_siphon,
+      avec_vidange,
+      sans_vidange,
+      grille_de_type_special
+    );
+    Pompe_evacuation: (        
+      installation_fixe,
+      mobile,
+      aucune
+    );
+    Branchement_electrique: (        
+      oui,
+      non
+    );
+    Dispositif_de_mesure: (        
+      aucune,
+      avec_telemesure,
+      sans_telemesure
+    );
+    Condition: (        
+      bon,
+      sec,
+      humide
+    );
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Entreprise_construction: MANDATORY TEXT*40;
+    Indication_schema: MANDATORY TEXT*40;
+    Derniere_maintenance: MANDATORY INTERLIS_1_DATE;
+    Documentation: MANDATORY TEXT*40;  !! par ex. numéro de dossier
+    Mandat: MANDATORY TEXT*40;  !! par ex. numéro du mandat
+    SIC: MANDATORY TEXT*40;  !! n° du système d’identification des centrales
+    Remarque: TEXT*80;
+END Ouvrage;
+
+CLASS Ouvrage_Surface =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base_f_LV95.CoordNat
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_f.Surface;
+END Ouvrage_Surface;
+
+ASSOCIATION Ouvrage_SurfaceAssoc =
+   OuvrageRef  -<#> {1} Ouvrage;
+   Surface --   {0 .. *} Ouvrage_Surface;
+END Ouvrage_SurfaceAssoc;
+
+CLASS Ouvrage_Ligne =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_f.Polyligne;
+END Ouvrage_Ligne;
+
+ASSOCIATION Ouvrage_LigneAssoc =
+   OuvrageRef  -<#> {1} Ouvrage;
+   Ligne --   {0 .. *} Ouvrage_Ligne;
+END Ouvrage_LigneAssoc;
+
+CLASS Ouvrage_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Ouvrage_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Ouvrage_TextAssoc =   !! Composition
+ASSOCIATION Ouvrage_TexteAssoc =   !! Composition
+  OuvrageRef -<#> {1} Ouvrage;
+  Texte -- {0 .. *} Ouvrage_Texte;
+!!  END Ouvrage_TextAssoc;
+END Ouvrage_TexteAssoc;
+
+CLASS Trace EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! désignation univoque
+    Geometrie: MANDATORY Base_f.Surface;  !! polyligne ouverte ou fermée avec des points d’appui en coordonnées nationales
+    Determination_planimetrique: (        
+      precis,
+      inconnue,
+      imprecis
+    );
+    Etat: MANDATORY Etat;
+    Type_de_trace: (     
+      inconnu,
+      caniveau,
+      caniveau_en_beton,
+      canal_accessible,
+      voute,
+      conduite_aerienne,
+      pousse_tube,
+      fourreau,
+      enterre (
+         normale,
+         matelas_de_dilatation
+      )
+    );
+    Largeur_du_trace: MANDATORY SIA405_Base_f.Metrage;
+    Annee_de_construction: MANDATORY SIA405_Base_f.Annee;
+    Lit_de_pose: (        
+      normal,
+      nappe_phreatique,
+      zone_de_glissement_de_terrain
+    );
+    Systeme_de_controle: (        
+      autre,
+      aucun,
+      Isovit,
+      Brandes
+    );
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Tubes_de_cables: (     
+      oui (
+        position_superieure,
+         position_laterale,
+         position_interieure
+      ),
+      non
+    );
+    Entreprise_construction: TEXT*40;
+    Reparation: INTERLIS_1_DATE;
+    Documentation: TEXT*40;
+    Mandat: TEXT*40;  !! par ex. numéro du mandat
+    Remarque: TEXT*80;
+END Trace;
+
+CLASS Trace_Surface =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base_f_LV95.CoordNat
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_f.Surface;
+END Trace_Surface;
+
+ASSOCIATION Trace_SurfaceAssoc =
+   TraceRef  -<#> {1} Trace;
+   Surface --   {0 .. *} Trace_Surface;
+END Trace_SurfaceAssoc;
+
+CLASS Trace_Ligne =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_f.Polyligne;
+END Trace_Ligne;
+
+ASSOCIATION Trace_LigneAssoc =
+   TraceRef  -<#> {1} Trace;
+   Ligne --   {0 .. *} Trace_Ligne;
+END Trace_LigneAssoc;
+
+CLASS Trace_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Trace_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Trace_TextAssoc =   !! Composition
+ASSOCIATION Trace_TexteAssoc =   !! Composition
+  TraceRef -<#> {1} Trace;
+  Texte -- {0 .. *} Trace_Texte;
+!!  END Trace_TextAssoc;
+END Trace_TexteAssoc;
+
+CLASS Point_du_trace EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Point du trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! désignation univoque
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Genre: (        
+      inconnu,
+      acces_de_chambre,
+      ouverture_de_montage,
+      ventilation_drainage,
+      drainage,
+      point_fixe,
+      support,
+      point_de_geometrie
+    );
+    Altitude_radier_caniveau: MANDATORY Base_f.Altitude;
+    Altitude_regard_caniveau: MANDATORY Base_f.Altitude;
+    Altitude_regard_acces: MANDATORY Base_f.Altitude;
+    Couverture: MANDATORY SIA405_Base_f.Couverture;
+    Determination_altimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Remarque: TEXT*80;
+    Dimension1: SIA405_Base_f.Metrage;  !! pour chambre d’accès et ouverture de montage
+END Point_du_trace;
+
+CLASS Degats_section_de_conduite EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Dégâts section de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Genre_du_defaut: (        
+      defaut_matiere,
+      fatique_matiere,
+      corrosion,
+      manchon_humide,
+      manchon_defectueux,
+      soudure_defectueuse,
+      isolation_defectueuse,
+      rupture_de_fil,
+      contact_entre_fils,
+      contact_avec_le_tube,
+      contact_intermittent,
+      erreur_de_manipulation_de_service,
+      defaut_de_mesure_construction,
+      intervention_de_tiers_dans_zone_trace,
+      degats_de_tiers,
+      autres
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_section_de_conduite;
+
+CLASS Degats_section_de_conduite_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Degats_section_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_section_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Degats_section_de_conduite_TexteAssoc =   !! Composition
+  Degats_section_de_conduiteRef -<#> {1} Degats_section_de_conduite;
+  Texte -- {0 .. *} Degats_section_de_conduite_Texte;
+!!  END Degats_section_de_conduite_TextAssoc;
+END Degats_section_de_conduite_TexteAssoc;
+
+ASSOCIATION Degats_section_de_conduite_Section_de_conduiteAssoc =    !! Association
+  Section_de_conduiteRef  -- {1} Section_de_conduite; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_section_de_conduite_Section_de_conduiteAssocRef -- {0..*} Degats_section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_section_de_conduite_Section_de_conduiteAssoc;
+
+CLASS Degats_point_de_conduite EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Dégâts point de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Genre_du_defaut: (        
+      soudure_defectueuse,
+      corrosion,
+      contact_fil_tube,
+      manchon_permeable
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_point_de_conduite;
+
+CLASS Degats_point_de_conduite_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Degats_point_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_point_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Degats_point_de_conduite_TexteAssoc =   !! Composition
+  Degats_point_de_conduiteRef -<#> {1} Degats_point_de_conduite;
+  Texte -- {0 .. *} Degats_point_de_conduite_Texte;
+!!  END Degats_point_de_conduite_TextAssoc;
+END Degats_point_de_conduite_TexteAssoc;
+
+ASSOCIATION Degats_point_de_conduite_Point_de_conduiteAssoc =    !! Association
+  Point_de_conduiteRef  -- {1} Point_de_conduite; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_point_de_conduite_Point_de_conduiteAssocRef -- {0..*} Degats_point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_point_de_conduite_Point_de_conduiteAssoc;
+
+CLASS Degats_ouvrage EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Dégâts ouvrage
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Genre_du_defaut: (        
+      soudure_defectueuse,
+      corrosion,
+      contact_fil_tube,
+      manchon_permeable
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Condition: TEXT*40;
+    Remarque: TEXT*80;
+END Degats_ouvrage;
+
+CLASS Degats_ouvrage_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Degats_ouvrage_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_ouvrage_TextAssoc =   !! Composition
+ASSOCIATION Degats_ouvrage_TexteAssoc =   !! Composition
+  Degats_ouvrageRef -<#> {1} Degats_ouvrage;
+  Texte -- {0 .. *} Degats_ouvrage_Texte;
+!!  END Degats_ouvrage_TextAssoc;
+END Degats_ouvrage_TexteAssoc;
+
+ASSOCIATION Degats_ouvrage_OuvrageAssoc =    !! Association
+  OuvrageRef  -- {1} Ouvrage; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_ouvrage_OuvrageAssocRef -- {0..*} Degats_ouvrage; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_ouvrage_OuvrageAssoc;
+
+CLASS Degats_trace EXTENDS SIA405_Base_f.SIA405_BaseClass =  
+!! Dégâts trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Genre_du_defaut: (        
+      inconnu,
+      tassement,
+      arrivee_d_eau,
+      humidite
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_trace;
+
+CLASS Degats_trace_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Degats_trace_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_trace_TextAssoc =   !! Composition
+ASSOCIATION Degats_trace_TexteAssoc =   !! Composition
+  Degats_traceRef -<#> {1} Degats_trace;
+  Texte -- {0 .. *} Degats_trace_Texte;
+!!  END Degats_trace_TextAssoc;
+END Degats_trace_TexteAssoc;
+
+ASSOCIATION Degats_trace_TraceAssoc =    !! Association
+  TraceRef  -- {1} Trace; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_trace_TraceAssocRef -- {0..*} Degats_trace; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_trace_TraceAssoc;
+
+CLASS Position_plan_d_ensemble EXTENDS SIA405_Base_f.SIA405_SymbolePos =
+END Position_plan_d_ensemble;
+
+ASSOCIATION Point_de_conduite_Position_plan_d_ensembleAssoc =
+      Point_de_conduiteRef  -<#> {1} Point_de_conduite;
+      Symbole --   {0 .. *} Position_plan_d_ensemble;
+END Point_de_conduite_Position_plan_d_ensembleAssoc;
+
+END SIA405_Chauffage_a_distance; !! end of TOPIC SIA405_Chauffage_a_distance
+
+VIEW TOPIC SIA405_Chauffage_a_distance_CS =
+    DEPENDS ON SIA405_Chauffage_a_distance;
+
+VIEW Ouvrage
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Genre :=base-> Genre;
+END Ouvrage;
+
+
+VIEW Ouvrage_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_Surface;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Ouvrage_Surface;
+
+VIEW Ouvrage_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_SurfaceAssoc;
+
+VIEW Ouvrage_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Ouvrage_Ligne;
+
+VIEW Ouvrage_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_LigneAssoc;
+
+VIEW Trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Type_de_trace :=base-> Type_de_trace;
+    Largeur_du_trace :=base-> Largeur_du_trace;
+    Proprietaire :=base-> Proprietaire;
+END Trace;
+
+
+VIEW Trace_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_Surface;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Trace_Surface;
+
+VIEW Trace_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_SurfaceAssoc;
+
+VIEW Trace_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Trace_Ligne;
+
+VIEW Trace_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_LigneAssoc;
+
+VIEW Point_du_trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_du_trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Geometrie :=base-> Geometrie;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Genre :=base-> Genre;
+    Altitude_radier_caniveau :=base-> Altitude_radier_caniveau;
+    Altitude_regard_caniveau :=base-> Altitude_regard_caniveau;
+    Altitude_regard_acces :=base-> Altitude_regard_acces;
+    Determination_altimetrique :=base-> Determination_altimetrique;
+    Proprietaire :=base-> Proprietaire;
+    Dimension1 :=base-> Dimension1;
+END Point_du_trace;
+
+END SIA405_Chauffage_a_distance_CS;  !! Ende der View
+
+END SIA405_CHAUFFAGE_A_DISTANCE_2015.   !! Ende des Modells / Fin du modèle
+
+
+!! SIA405_Chauffage_a_distance_2015_2_f_LV95.ili
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95 (fr) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" TRANSLATION OF SIA405_FERNWAERME_2015_LV95 [ "26.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_f_LV95;
+  IMPORTS SIA405_Base_f_LV95;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! en cooperation avec Société suisse des ingénieurs et architectes (sia), Zurich
+!! L'utilisation de ce fichier modèle INTERLIS a besoin une licence!
+
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_2015_2_f_LV95.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / VSA par le destinataire.
+
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+UNIT
+
+TOPIC SIA405_Chauffage_a_distance =
+
+DOMAIN
+
+
+EtatValeurs EXTENDS SIA405_Base_f_LV95.Etat = (  !! Etat de fonctionnement et de planification de l’ouvrage. 
+!! 13.7.2015 Adaptation à la nouvelle version de SIA405_Base_f_LV95.Etat – Extension des valeurs de base du fluide, modélisation hiérarchique et compiler 4.5.13 ff 
+      hors_service ( !! comporte hors_service et les valeurs suivantes
+         !! hors_service,
+         en_reserve
+      ),
+      en_service (  !! comporte en_service et les valeurs suivantes 
+         !! en_service,
+         provisoire
+      ),
+      !! abandonne,
+      !! inconnu,
+      autre ( !! comporte les valeurs suivantes
+         variante_de_calcul,  !! nouveau 24.4.2018
+         planifie,
+         projet
+      )
+    );  
+    !! nouveau 13.7.2015  
+    Etat = ALL OF EtatValeurs;    !! Erweitert Wertebereich von SIA405 Status
+
+
+Temperature = 0..9999 [Units.oC];    !! 
+
+
+Pression = 0 .. 9999 [Units.bar];    !! Bar [bar]
+
+
+Kilowatt = 0 .. 9999999999 [SIA405_Base_f_LV95.kW];    !! Kilowatt [kW]
+
+
+!! Copyright 2002 - 2015
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! L'utilisation de ce fichier modèle INTERLIS a besoin une licence!
+
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_2015_2_f_LV95.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du VSA par le destinataire.
+CLASS Noeud_hydraulique EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! points choisis des tables organe de fermetures, composant, etc.
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;  !! par ex. numéro de noeud
+    Type_de_noeud: (        
+      fixe,
+      variable
+    );
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Remarque: TEXT*80;
+END Noeud_hydraulique;
+
+CLASS Noeud_hydraulique_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Noeud_hydraulique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Noeud_hydraulique_TextAssoc =   !! Composition
+ASSOCIATION Noeud_hydraulique_TexteAssoc =   !! Composition
+  Noeud_hydrauliqueRef -<#> {1} Noeud_hydraulique;
+  Texte -- {0 .. *} Noeud_hydraulique_Texte;
+!!  END Noeud_hydraulique_TextAssoc;
+END Noeud_hydraulique_TexteAssoc;
+
+CLASS Troncon_hydraulique EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! plusieurs conduites contiguës
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Remarque: TEXT*80;
+END Troncon_hydraulique;
+
+CLASS Troncon_hydraulique_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Troncon_hydraulique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Troncon_hydraulique_TextAssoc =   !! Composition
+ASSOCIATION Troncon_hydraulique_TexteAssoc =   !! Composition
+  Troncon_hydrauliqueRef -<#> {1} Troncon_hydraulique;
+  Texte -- {0 .. *} Troncon_hydraulique_Texte;
+!!  END Troncon_hydraulique_TextAssoc;
+END Troncon_hydraulique_TexteAssoc;
+
+ASSOCIATION Troncon_hydraulique_DuNoeudAssoc =    !! Association
+  DuNoeudRef  -- {1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_hydraulique_DuNoeudAssocRef -- {1..*} Troncon_hydraulique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_hydraulique_DuNoeudAssoc;
+
+ASSOCIATION Troncon_hydraulique_AuNoeudAssoc =    !! Association
+  AuNoeudRef  -- {1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_hydraulique_AuNoeudAssocRef -- {1..*} Troncon_hydraulique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_hydraulique_AuNoeudAssoc;
+
+CLASS Noeud_statique EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! points choisis des tables organe de fermetures, composant, etc.
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;
+    Type_de_noeud: (        
+      fixe,
+      variable
+    );
+    Zone_du_reseau: TEXT*40;
+    Remarque: TEXT*80;
+END Noeud_statique;
+
+CLASS Noeud_statique_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Noeud_statique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Noeud_statique_TextAssoc =   !! Composition
+ASSOCIATION Noeud_statique_TexteAssoc =   !! Composition
+  Noeud_statiqueRef -<#> {1} Noeud_statique;
+  Texte -- {0 .. *} Noeud_statique_Texte;
+!!  END Noeud_statique_TextAssoc;
+END Noeud_statique_TexteAssoc;
+
+CLASS Troncon_statique EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! plusieurs conduites contigués
+  ATTRIBUTE
+    Nom_numero: MANDATORY TEXT*40;  !! par ex. numéro de noeud
+    Zone_du_reseau: (        
+      fixe,
+      variable
+    );
+    Remarque: TEXT*80;
+END Troncon_statique;
+
+CLASS Troncon_statique_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Troncon_statique_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Troncon_statique_TextAssoc =   !! Composition
+ASSOCIATION Troncon_statique_TexteAssoc =   !! Composition
+  Troncon_statiqueRef -<#> {1} Troncon_statique;
+  Texte -- {0 .. *} Troncon_statique_Texte;
+!!  END Troncon_statique_TextAssoc;
+END Troncon_statique_TexteAssoc;
+
+ASSOCIATION Troncon_statique_DuNoeudAssoc =    !! Association
+  DuNoeudRef  -- {1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_statique_DuNoeudAssocRef -- {1..*} Troncon_statique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_statique_DuNoeudAssoc;
+
+ASSOCIATION Troncon_statique_AuNoeudAssoc =    !! Association
+  AuNoeudRef  -- {1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Troncon_statique_AuNoeudAssocRef -- {1..*} Troncon_statique; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Troncon_statique_AuNoeudAssoc;
+
+CLASS Section_de_conduite EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Section de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;
+    Geometrie: MANDATORY Base_f_LV95.Polyligne;  !! avec points d’appuis en coordonnées nationales [mm]
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Etat: MANDATORY Etat;
+    Fonction: (        
+      conduite_de_transport,
+      conduite_de_distribution,  !! conduite principale
+      conduite_de_raccordement  !! conduite secondaire
+    );
+    Genre_de_conduite: (        
+      aller,
+      retour
+    );
+    Fluide: (        
+      eau_surchauffee,
+      eau_chaude,
+      vapeur,
+      condensat,
+      autre
+    );
+    Temperature: MANDATORY Temperature;
+    Pression_nominale: Pression;
+    Pression_exploitation: MANDATORY Pression;
+    Epaisseur_isolation: MANDATORY 0 .. 9999 [Units.mm];
+    Genre_isolation: (        
+      caniveau_isolation_individuelle,
+      laine_de_verre_ou_de_roche,
+      caniveau_remplissage_bourre_laine_verre,
+      tube_preisole,
+      vide
+    );
+    Enveloppe: (        
+      PVC,
+      PE,
+      aluminium,
+      fibrociment,
+      carton_bitume,
+      acier_inoxydable,
+      tole_zinguee,
+      bande,
+      tube_acier
+    );
+    Diametre_interieur: MANDATORY SIA405_Base_f_LV95.Metrage;
+    Diametre_exterieur: MANDATORY SIA405_Base_f_LV95.Metrage;
+    Largeur_nominale: TEXT*10;  !! comme TEXTE, parcequ'on a aussi des valeurs doubles (par example 1500/800);
+    Longueur1: MANDATORY 0 .. 999999 [Units.mm];  !! longueur développée
+    Longueur2: MANDATORY 0 .. 999999 [Units.mm];  !! longueur calculée
+    Fabrication_tube: MANDATORY TEXT*40;
+    Qualite_tube: (        
+      acier_35,
+      acier_35_8,
+      acier_37,
+      acier_52,
+      cuivre,
+      matiere_synthetique,
+      acier_chrome
+    );
+    Annee_de_construction: MANDATORY SIA405_Base_f_LV95.Annee;
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Entreprise_tuyauterie: TEXT*40;
+    Documentation: TEXT*40;  !! numéro de dessin / numéro de dossier
+    Mandat: TEXT*40;  !! désignation du mandat
+    Remarque: TEXT*80;
+END Section_de_conduite;
+
+CLASS Section_de_conduite_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Section_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Section_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Section_de_conduite_TexteAssoc =   !! Composition
+  Section_de_conduiteRef -<#> {1} Section_de_conduite;
+  Texte -- {0 .. *} Section_de_conduite_Texte;
+!!  END Section_de_conduite_TextAssoc;
+END Section_de_conduite_TexteAssoc;
+
+ASSOCIATION Section_de_conduite_Troncon_hydrauliqueAssoc =    !! Association
+  Troncon_hydrauliqueRef  -- {0..1} Troncon_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Section_de_conduite_Troncon_hydrauliqueAssocRef -- {1..*} Section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Section_de_conduite_Troncon_hydrauliqueAssoc;
+
+ASSOCIATION Section_de_conduite_Troncon_statiqueAssoc =    !! Association
+  Troncon_statiqueRef  -- {0..1} Troncon_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Section_de_conduite_Troncon_statiqueAssocRef -- {1..*} Section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Section_de_conduite_Troncon_statiqueAssoc;
+
+CLASS Point_de_conduite (ABSTRACT) EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Point de conduite
+  ATTRIBUTE
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    SymboleOri: MANDATORY 0.0 .. 359.9 CIRCULAR [Units.Angle_Degree];
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Altitude1: Base_f_LV95.Altitude;  !! bord supérieur tube préisolé
+    Altitude2: Base_f_LV95.Altitude;  !! axe du tube
+    Determination_altimetrique: SIA405_Base_f_LV95.Determination_planimetrique;
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Remarque: TEXT*80;
+END Point_de_conduite;
+
+CLASS Point_de_conduite_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Point_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Point_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Point_de_conduite_TexteAssoc =   !! Composition
+  Point_de_conduiteRef -<#> {1} Point_de_conduite;
+  Texte -- {0 .. *} Point_de_conduite_Texte;
+!!  END Point_de_conduite_TextAssoc;
+END Point_de_conduite_TexteAssoc;
+
+ASSOCIATION Point_de_conduite_Noeud_hydrauliqueAssoc =    !! Association
+  Noeud_hydrauliqueRef  -- {0..1} Noeud_hydraulique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Point_de_conduite_Noeud_hydrauliqueAssocRef -- {1..*} Point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Point_de_conduite_Noeud_hydrauliqueAssoc;
+
+ASSOCIATION Point_de_conduite_Noeud_statiqueAssoc =    !! Association
+  Noeud_statiqueRef  -- {0..1} Noeud_statique; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Point_de_conduite_Noeud_statiqueAssocRef -- {1..*} Point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Point_de_conduite_Noeud_statiqueAssoc;
+
+CLASS Point_de_conduite_normal EXTENDS Point_de_conduite =  
+!! 
+  ATTRIBUTE
+    Genre: (     
+      reseau (
+        boite_de_mesure_et_detection_de_fuites,
+         detection_de_fuites_boite_terminale
+      ),
+      armatures (
+         vanne_non_motorisee,
+         vanne_motorisee (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           clapet_non_motorise,
+         clapet_motorise (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           clapet_anti_retour,
+         soupape_non_motorisee,
+         soupape_motorisee (
+            avec_commande_a_distance,
+            sans_commande_a_distance
+         ),
+           vidange,
+         purge,
+         bypass,
+         pieces_moulees (
+            reduction,
+            te,
+            coude
+         ),
+         equipements  (
+            condenseur,
+            separateur,
+            separateur_de_condensats,
+            tuyeau_metallique,
+            vanne_de_reglage
+         ),
+         point_de_conduite  (
+            point_de_geometrie,
+            soudure,
+            changement_de_materiau,
+            manchon,
+            diaphragme
+         ),
+         point_statique  (
+            point_fixe,
+            butee_superieure,
+            guidage_lateral_a_rouleau,
+            suspension,
+            compensateur_axial,
+            compensateur_articule,
+            support_a_rouleaux,
+            support_transversal_a_billes,
+            guidage_proche_des_compensateurs,
+            guidage_eloigne_du_coude_conduite,
+            compensateur
+         )
+      )
+    );
+    Position_armatures: (        
+      ouverte,
+      fermee
+    );
+    Materiau: (        
+      inconnu,
+      acier,
+      fonte,
+      matiere_synthetique
+    );
+END Point_de_conduite_normal;
+
+CLASS Point_de_conduite_alimentation EXTENDS Point_de_conduite =  
+!! 
+  ATTRIBUTE
+    Genre: (        
+      alimentation_du_reseau,
+      derivation,
+      poste_de_raccordement,
+      autre
+    );
+    Puissance_abonnee: MANDATORY Kilowatt;
+    Puissance_installee: MANDATORY Kilowatt;
+    Valeur_diaphragme: MANDATORY Kilowatt;
+    Q_abonnee: MANDATORY 0.000 .. 9999.999 [SIA405_Base_f_LV95.m3h];
+    Categorie: (        
+      MI,  !! Maison individuelle
+      IL,  !! immeuble
+      hopital,
+      batiments_publics,
+      prestataire_de_services,
+      artisanat_industrie,
+      clients_speciaux
+    );
+    Mise_en_service: MANDATORY SIA405_Base_f_LV95.Annee;
+    Transformation: MANDATORY SIA405_Base_f_LV95.Annee;
+    Pression: MANDATORY Pression;  !! pression de construction primaire [bar]
+    Temperature_aller: MANDATORY Temperature;  !! température
+    Temperature_retour: MANDATORY Temperature;  !! température
+    Volume_chauffe: MANDATORY 0 .. 9999 [Units.m3];
+    Chaleur_consommee: MANDATORY 0 .. 9999999999 [Units.kWh];  !! par année
+    Puissance: MANDATORY Kilowatt;
+END Point_de_conduite_alimentation;
+
+CLASS Ouvrage EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Ouvrage
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. nom de l’ouvrage
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Etat: MANDATORY Etat;
+    Zone_du_reseau: TEXT*40;  !! désignation du lieu
+    Genre: (        
+      inconnu,
+      chambre_de_controle,
+      chambre_de_purge,
+      chambre_de_commande,
+      chambre_de_vidange,
+      chambre_de_mesure,
+      chambre_principale,
+      chambre_des_compensateurs,
+      reducteur_de_pression,
+      poste_de_transformation,
+      ouvrage_special
+    );
+    Couverture_ouvrage: MANDATORY SIA405_Base_f_LV95.Couverture;  !! valeur moyenne de l’objet
+    Annee_de_construction: SIA405_Base_f_LV95.Annee;
+    Purge: (        
+      inconnu,
+      mecanique,
+      naturelle,
+      aucune
+    );
+    Type_ecoulement: (        
+      eaux_usees,
+      sol,
+      eau_propre,
+      puisard_d_aspiration,
+      puits_perdu
+    );
+    Type_de_grille: (        
+      avec_siphon,
+      sans_siphon,
+      avec_vidange,
+      sans_vidange,
+      grille_de_type_special
+    );
+    Pompe_evacuation: (        
+      installation_fixe,
+      mobile,
+      aucune
+    );
+    Branchement_electrique: (        
+      oui,
+      non
+    );
+    Dispositif_de_mesure: (        
+      aucune,
+      avec_telemesure,
+      sans_telemesure
+    );
+    Condition: (        
+      bon,
+      sec,
+      humide
+    );
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Entreprise_construction: MANDATORY TEXT*40;
+    Indication_schema: MANDATORY TEXT*40;
+    Derniere_maintenance: MANDATORY INTERLIS_1_DATE;
+    Documentation: MANDATORY TEXT*40;  !! par ex. numéro de dossier
+    Mandat: MANDATORY TEXT*40;  !! par ex. numéro du mandat
+    SIC: MANDATORY TEXT*40;  !! n° du système d’identification des centrales
+    Remarque: TEXT*80;
+END Ouvrage;
+
+CLASS Ouvrage_Surface =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base_f_LV95.CoordNat
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_f_LV95.Surface;
+END Ouvrage_Surface;
+
+ASSOCIATION Ouvrage_SurfaceAssoc =
+   OuvrageRef  -<#> {1} Ouvrage;
+   Surface --   {0 .. *} Ouvrage_Surface;
+END Ouvrage_SurfaceAssoc;
+
+CLASS Ouvrage_Ligne =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_f_LV95.Polyligne;
+END Ouvrage_Ligne;
+
+ASSOCIATION Ouvrage_LigneAssoc =
+   OuvrageRef  -<#> {1} Ouvrage;
+   Ligne --   {0 .. *} Ouvrage_Ligne;
+END Ouvrage_LigneAssoc;
+
+CLASS Ouvrage_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Ouvrage_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Ouvrage_TextAssoc =   !! Composition
+ASSOCIATION Ouvrage_TexteAssoc =   !! Composition
+  OuvrageRef -<#> {1} Ouvrage;
+  Texte -- {0 .. *} Ouvrage_Texte;
+!!  END Ouvrage_TextAssoc;
+END Ouvrage_TexteAssoc;
+
+CLASS Trace EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! désignation univoque
+    Geometrie: MANDATORY Base_f_LV95.Surface;  !! polyligne ouverte ou fermée avec des points d’appui en coordonnées nationales
+    Determination_planimetrique: (        
+      precis,
+      inconnue,
+      imprecis
+    );
+    Etat: MANDATORY Etat;
+    Type_de_trace: (     
+      inconnu,
+      caniveau,
+      caniveau_en_beton,
+      canal_accessible,
+      voute,
+      conduite_aerienne,
+      pousse_tube,
+      fourreau,
+      enterre (
+         normale,
+         matelas_de_dilatation
+      )
+    );
+    Largeur_du_trace: MANDATORY SIA405_Base_f_LV95.Metrage;
+    Annee_de_construction: MANDATORY SIA405_Base_f_LV95.Annee;
+    Lit_de_pose: (        
+      normal,
+      nappe_phreatique,
+      zone_de_glissement_de_terrain
+    );
+    Systeme_de_controle: (        
+      autre,
+      aucun,
+      Isovit,
+      Brandes
+    );
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Tubes_de_cables: (     
+      oui (
+        position_superieure,
+         position_laterale,
+         position_interieure
+      ),
+      non
+    );
+    Entreprise_construction: TEXT*40;
+    Reparation: INTERLIS_1_DATE;
+    Documentation: TEXT*40;
+    Mandat: TEXT*40;  !! par ex. numéro du mandat
+    Remarque: TEXT*80;
+END Trace;
+
+CLASS Trace_Surface =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base_f_LV95.CoordNat
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_f_LV95.Surface;
+END Trace_Surface;
+
+ASSOCIATION Trace_SurfaceAssoc =
+   TraceRef  -<#> {1} Trace;
+   Surface --   {0 .. *} Trace_Surface;
+END Trace_SurfaceAssoc;
+
+CLASS Trace_Ligne =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_f_LV95.Polyligne;
+END Trace_Ligne;
+
+ASSOCIATION Trace_LigneAssoc =
+   TraceRef  -<#> {1} Trace;
+   Ligne --   {0 .. *} Trace_Ligne;
+END Trace_LigneAssoc;
+
+CLASS Trace_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Trace_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Trace_TextAssoc =   !! Composition
+ASSOCIATION Trace_TexteAssoc =   !! Composition
+  TraceRef -<#> {1} Trace;
+  Texte -- {0 .. *} Trace_Texte;
+!!  END Trace_TextAssoc;
+END Trace_TexteAssoc;
+
+CLASS Point_du_trace EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Point du trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! désignation univoque
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Genre: (        
+      inconnu,
+      acces_de_chambre,
+      ouverture_de_montage,
+      ventilation_drainage,
+      drainage,
+      point_fixe,
+      support,
+      point_de_geometrie
+    );
+    Altitude_radier_caniveau: MANDATORY Base_f_LV95.Altitude;
+    Altitude_regard_caniveau: MANDATORY Base_f_LV95.Altitude;
+    Altitude_regard_acces: MANDATORY Base_f_LV95.Altitude;
+    Couverture: MANDATORY SIA405_Base_f_LV95.Couverture;
+    Determination_altimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Remarque: TEXT*80;
+    Dimension1: SIA405_Base_f_LV95.Metrage;  !! pour chambre d’accès et ouverture de montage
+END Point_du_trace;
+
+CLASS Degats_section_de_conduite EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Dégâts section de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Genre_du_defaut: (        
+      defaut_matiere,
+      fatique_matiere,
+      corrosion,
+      manchon_humide,
+      manchon_defectueux,
+      soudure_defectueuse,
+      isolation_defectueuse,
+      rupture_de_fil,
+      contact_entre_fils,
+      contact_avec_le_tube,
+      contact_intermittent,
+      erreur_de_manipulation_de_service,
+      defaut_de_mesure_construction,
+      intervention_de_tiers_dans_zone_trace,
+      degats_de_tiers,
+      autres
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_section_de_conduite;
+
+CLASS Degats_section_de_conduite_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Degats_section_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_section_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Degats_section_de_conduite_TexteAssoc =   !! Composition
+  Degats_section_de_conduiteRef -<#> {1} Degats_section_de_conduite;
+  Texte -- {0 .. *} Degats_section_de_conduite_Texte;
+!!  END Degats_section_de_conduite_TextAssoc;
+END Degats_section_de_conduite_TexteAssoc;
+
+ASSOCIATION Degats_section_de_conduite_Section_de_conduiteAssoc =    !! Association
+  Section_de_conduiteRef  -- {1} Section_de_conduite; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_section_de_conduite_Section_de_conduiteAssocRef -- {0..*} Degats_section_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_section_de_conduite_Section_de_conduiteAssoc;
+
+CLASS Degats_point_de_conduite EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Dégâts point de conduite
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Genre_du_defaut: (        
+      soudure_defectueuse,
+      corrosion,
+      contact_fil_tube,
+      manchon_permeable
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_point_de_conduite;
+
+CLASS Degats_point_de_conduite_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Degats_point_de_conduite_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_point_de_conduite_TextAssoc =   !! Composition
+ASSOCIATION Degats_point_de_conduite_TexteAssoc =   !! Composition
+  Degats_point_de_conduiteRef -<#> {1} Degats_point_de_conduite;
+  Texte -- {0 .. *} Degats_point_de_conduite_Texte;
+!!  END Degats_point_de_conduite_TextAssoc;
+END Degats_point_de_conduite_TexteAssoc;
+
+ASSOCIATION Degats_point_de_conduite_Point_de_conduiteAssoc =    !! Association
+  Point_de_conduiteRef  -- {1} Point_de_conduite; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_point_de_conduite_Point_de_conduiteAssocRef -- {0..*} Degats_point_de_conduite; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_point_de_conduite_Point_de_conduiteAssoc;
+
+CLASS Degats_ouvrage EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Dégâts ouvrage
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Genre_du_defaut: (        
+      soudure_defectueuse,
+      corrosion,
+      contact_fil_tube,
+      manchon_permeable
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Condition: TEXT*40;
+    Remarque: TEXT*80;
+END Degats_ouvrage;
+
+CLASS Degats_ouvrage_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Degats_ouvrage_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_ouvrage_TextAssoc =   !! Composition
+ASSOCIATION Degats_ouvrage_TexteAssoc =   !! Composition
+  Degats_ouvrageRef -<#> {1} Degats_ouvrage;
+  Texte -- {0 .. *} Degats_ouvrage_Texte;
+!!  END Degats_ouvrage_TextAssoc;
+END Degats_ouvrage_TexteAssoc;
+
+ASSOCIATION Degats_ouvrage_OuvrageAssoc =    !! Association
+  OuvrageRef  -- {1} Ouvrage; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_ouvrage_OuvrageAssocRef -- {0..*} Degats_ouvrage; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_ouvrage_OuvrageAssoc;
+
+CLASS Degats_trace EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =  
+!! Dégâts trace
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! par ex. numéro du procès-verbal
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Genre_du_defaut: (        
+      inconnu,
+      tassement,
+      arrivee_d_eau,
+      humidite
+    );
+    Instigateur: TEXT*40;
+    Saisie: MANDATORY INTERLIS_1_DATE;
+    Reparation: INTERLIS_1_DATE;
+    Remarque: TEXT*80;
+END Degats_trace;
+
+CLASS Degats_trace_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Degats_trace_Texte;
+
+!!  Correction 10.12.2014
+!!  ASSOCIATION Degats_trace_TextAssoc =   !! Composition
+ASSOCIATION Degats_trace_TexteAssoc =   !! Composition
+  Degats_traceRef -<#> {1} Degats_trace;
+  Texte -- {0 .. *} Degats_trace_Texte;
+!!  END Degats_trace_TextAssoc;
+END Degats_trace_TexteAssoc;
+
+ASSOCIATION Degats_trace_TraceAssoc =    !! Association
+  TraceRef  -- {1} Trace; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Degats_trace_TraceAssocRef -- {0..*} Degats_trace; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Degats_trace_TraceAssoc;
+
+CLASS Position_plan_d_ensemble EXTENDS SIA405_Base_f_LV95.SIA405_SymbolePos =
+END Position_plan_d_ensemble;
+
+ASSOCIATION Point_de_conduite_Position_plan_d_ensembleAssoc =
+      Point_de_conduiteRef  -<#> {1} Point_de_conduite;
+      Symbole --   {0 .. *} Position_plan_d_ensemble;
+END Point_de_conduite_Position_plan_d_ensembleAssoc;
+
+END SIA405_Chauffage_a_distance; !! end of TOPIC SIA405_Chauffage_a_distance
+
+VIEW TOPIC SIA405_Chauffage_a_distance_CS =
+    DEPENDS ON SIA405_Chauffage_a_distance;
+
+VIEW Ouvrage
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Genre :=base-> Genre;
+END Ouvrage;
+
+
+VIEW Ouvrage_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_Surface;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Ouvrage_Surface;
+
+VIEW Ouvrage_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_SurfaceAssoc;
+
+VIEW Ouvrage_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Ouvrage_Ligne;
+
+VIEW Ouvrage_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_LigneAssoc;
+
+VIEW Trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Type_de_trace :=base-> Type_de_trace;
+    Largeur_du_trace :=base-> Largeur_du_trace;
+    Proprietaire :=base-> Proprietaire;
+END Trace;
+
+
+VIEW Trace_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_Surface;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Trace_Surface;
+
+VIEW Trace_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_SurfaceAssoc;
+
+VIEW Trace_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Trace_Ligne;
+
+VIEW Trace_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_LigneAssoc;
+
+VIEW Point_du_trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_du_trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Geometrie :=base-> Geometrie;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Genre :=base-> Genre;
+    Altitude_radier_caniveau :=base-> Altitude_radier_caniveau;
+    Altitude_regard_caniveau :=base-> Altitude_regard_caniveau;
+    Altitude_regard_acces :=base-> Altitude_regard_acces;
+    Determination_altimetrique :=base-> Determination_altimetrique;
+    Proprietaire :=base-> Proprietaire;
+    Dimension1 :=base-> Dimension1;
+END Point_du_trace;
+
+END SIA405_Chauffage_a_distance_CS;  !! Ende der View
+
+END SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.   !! Ende des Modells / Fin du modèle
+

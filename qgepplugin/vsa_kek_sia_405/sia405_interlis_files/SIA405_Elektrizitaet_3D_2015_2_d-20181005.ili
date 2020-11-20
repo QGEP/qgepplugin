@@ -1,0 +1,426 @@
+INTERLIS 2.3;
+
+MODEL SIA405_ELEKTRIZITAET_3D_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "05.10.2018" =
+
+   IMPORTS Units;
+   IMPORTS Base;
+   IMPORTS SIA405_Base;
+   IMPORTS SIA405_ELEKTRIZITAET_2015;
+
+!! Copyright 2016 - 2018 SIA und VSE  
+!! Verband Schweizerischer Elektrizitätaunternehmen (VSE), Aarau
+!! www.strom.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Elektrizitaet_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia / VSA durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Anpassungen Stefan Burckhardt / SIA 405 Kommission
+
+!! 8.5.2018 Teilmenge Leitungskataster aus dem Werkinformationen
+!! 4.10.2018 Korrekturen Teilmenge Leitungskataster (Verbraucher rausgenommen, Schachtartikel hinzugefügt)
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+TOPIC SIA405_Elektrizitaet_3D =
+
+
+CLASS Tragwerk EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Tragwerk = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  Flaeche3D: Base.Surface3D;
+  KnotenKote1 : Base.HKoord;
+END Tragwerk;
+
+CLASS Schacht EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Schacht = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  Flaeche3D: Base.Surface3D;
+  KnotenKote1 : Base.HKoord;
+END Schacht;
+
+!! CLASS Kabelleitungsabschnitt EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Kabelleitungsabschnitt = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END Kabelleitungsabschnitt;
+
+!! CLASS KabelLeiter EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.KabelLeiter = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END KabelLeiter;
+
+!! CLASS Freileitungsabschnitt EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Freileitungsabschnitt = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END Freileitungsabschnitt;
+
+!! CLASS Freileitungleiter EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Freileitungleiter = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END Freileitungleiter;
+
+!! CLASS InterneLeitung EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.InterneLeitung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END InterneLeitung;
+
+!! CLASS FremdeVersorgungen EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.FremdeVersorgungen = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END FremdeVersorgungen;
+
+CLASS Trasse EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Trasse = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  Flaeche3D: Base.Surface3D;
+  Linie3D: MANDATORY Base.Polyline3D;
+END Trasse;
+
+!! CLASS BeleuchtungsSeil EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.BeleuchtungsSeil = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+!! END BeleuchtungsSeil;
+
+CLASS AnkerStrebe EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.AnkerStrebe = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Linie3D: MANDATORY Base.Polyline3D;
+END AnkerStrebe;
+
+!! CLASS Querschnittswechsel EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Querschnittswechsel = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Querschnittswechsel;
+
+!! CLASS ApparatExtern EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.ApparatExtern = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END ApparatExtern;
+
+CLASS Beleuchtung EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Beleuchtung = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  KnotenKote1 : Base.HKoord;
+END Beleuchtung;
+
+!! CLASS Endverschluss EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Endverschluss = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Endverschluss;
+
+!! CLASS Netzanschluss EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Netzanschluss = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Netzanschluss;
+
+!! CLASS Erzeuger EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Erzeuger = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Erzeuger;
+
+!! CLASS Verbraucher EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Verbraucher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Verbraucher;
+
+!! CLASS Speicher EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Speicher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Speicher;
+
+!! CLASS Kleinverbraucher EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Kleinverbraucher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Kleinverbraucher;
+
+!! CLASS Muffe EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Muffe = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Muffe;
+
+!! CLASS DetailMuffe EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.DetailMuffe = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END DetailMuffe;
+
+!! CLASS Sicherungskasten EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Sicherungskasten = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Sicherungskasten;
+
+!! CLASS Freileitungstrennelement EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Freileitungstrennelement = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Freileitungstrennelement;
+
+!! CLASS Kabelmarkierung EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Kabelmarkierung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Kabelmarkierung;
+
+!! CLASS Schluesselkasten EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Schluesselkasten = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Schluesselkasten;
+
+!! CLASS Zugentlastung EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Zugentlastung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Zugentlastung;
+
+CLASS Kabine EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Kabine = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  Flaeche3D: Base.Surface3D;
+  KnotenKote1 : Base.HKoord;
+END Kabine;
+
+CLASS Station EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Station = 
+  Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  Maechtigkeit: SIA405_Base.Maechtigkeit;
+  Flaeche3D: Base.Surface3D;
+  KnotenKote1 : Base.HKoord;
+END Station;
+
+!! CLASS Mast EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Mast = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Maechtigkeit: SIA405_Base.Maechtigkeit;
+  !! KnotenKote1 : Base.HKoord;
+!! END Mast;
+
+!! CLASS Erdungssystem EXTENDS SIA405_ELEKTRIZITAET_2015.SIA405_Elektrizitaet.Erdungssystem = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+  !! Maechtigkeit: SIA405_Base.Maechtigkeit;
+  !! Flaeche3D: Base.Surface3D;
+  !! Linie3D: MANDATORY Base.Polyline3D;
+  !! KnotenKote1 : Base.HKoord;
+!! END Erdungssystem;
+   
+   END SIA405_Elektrizitaet_3D; !! End of View
+   
+END SIA405_ELEKTRIZITAET_3D_2015.  !! End of Model
+
+
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_ELEKTRIZITAET_3D_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "05.10.2018" =
+
+   IMPORTS Units;
+   IMPORTS Base_LV95;
+   IMPORTS SIA405_Base_LV95;
+   IMPORTS SIA405_ELEKTRIZITAET_2015_LV95;
+
+!! Copyright 2016 - 2018 SIA und VSE  
+!! Verband Schweizerischer Elektrizitätaunternehmen (VSE), Aarau
+!! www.strom.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Elektrizitaet_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia / VSA durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Anpassungen Stefan Burckhardt / SIA 405 Kommission
+
+!! 8.5.2018 Teilmenge Leitungskataster aus dem Werkinformationen
+!! 8.5.2018 LV95 Version
+!! 4.10.2018 Korrekturen Teilmenge Leitungskataster (Verbraucher rausgenommen, Schachtartikel hinzugefügt)
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+TOPIC SIA405_Elektrizitaet_3D =
+
+
+CLASS Tragwerk EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Tragwerk = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  Flaeche3D: Base_LV95.Surface3D;
+  KnotenKote1 : Base_LV95.HKoord;
+END Tragwerk;
+
+CLASS Schacht EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Schacht = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  Flaeche3D: Base_LV95.Surface3D;
+  KnotenKote1 : Base_LV95.HKoord;
+END Schacht;
+
+!! CLASS Kabelleitungsabschnitt EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Kabelleitungsabschnitt = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END Kabelleitungsabschnitt;
+
+!! CLASS KabelLeiter EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.KabelLeiter = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END KabelLeiter;
+
+!! CLASS Freileitungsabschnitt EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Freileitungsabschnitt = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END Freileitungsabschnitt;
+
+!! CLASS Freileitungleiter EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Freileitungleiter = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END Freileitungleiter;
+
+!! CLASS InterneLeitung EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.InterneLeitung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END InterneLeitung;
+
+!! CLASS FremdeVersorgungen EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.FremdeVersorgungen = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END FremdeVersorgungen;
+
+CLASS Trasse EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Trasse = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  Flaeche3D: Base_LV95.Surface3D;
+  Linie3D: MANDATORY Base_LV95.Polyline3D;
+END Trasse;
+
+!! CLASS BeleuchtungsSeil EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.BeleuchtungsSeil = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+!! END BeleuchtungsSeil;
+
+CLASS AnkerStrebe EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.AnkerStrebe = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Linie3D: MANDATORY Base_LV95.Polyline3D;
+END AnkerStrebe;
+
+!! CLASS Querschnittswechsel EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Querschnittswechsel = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Querschnittswechsel;
+
+!! CLASS ApparatExtern EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.ApparatExtern = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END ApparatExtern;
+
+CLASS Beleuchtung EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Beleuchtung = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  KnotenKote1 : Base_LV95.HKoord;
+END Beleuchtung;
+
+!! CLASS Endverschluss EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Endverschluss = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Endverschluss;
+
+!! CLASS Netzanschluss EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Netzanschluss = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Netzanschluss;
+
+!! CLASS Erzeuger EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Erzeuger = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Erzeuger;
+
+!! CLASS Verbraucher EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Verbraucher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Verbraucher;
+
+!! CLASS Speicher EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Speicher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Speicher;
+
+!! CLASS Kleinverbraucher EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Kleinverbraucher = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Kleinverbraucher;
+
+!! CLASS Muffe EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Muffe = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Muffe;
+
+!! CLASS DetailMuffe EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.DetailMuffe = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END DetailMuffe;
+
+!! CLASS Sicherungskasten EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Sicherungskasten = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Sicherungskasten;
+
+!! CLASS Freileitungstrennelement EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Freileitungstrennelement = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Freileitungstrennelement;
+
+!! CLASS Kabelmarkierung EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Kabelmarkierung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Kabelmarkierung;
+
+!! CLASS Schluesselkasten EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Schluesselkasten = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Schluesselkasten;
+
+!! CLASS Zugentlastung EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Zugentlastung = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Zugentlastung;
+
+CLASS Kabine EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Kabine = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  Flaeche3D: Base_LV95.Surface3D;
+  KnotenKote1 : Base_LV95.HKoord;
+END Kabine;
+
+CLASS Station EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Station = 
+  Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  Flaeche3D: Base_LV95.Surface3D;
+  KnotenKote1 : Base_LV95.HKoord;
+END Station;
+
+!! CLASS Mast EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Mast = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Mast;
+
+!! CLASS Erdungssystem EXTENDS SIA405_ELEKTRIZITAET_2015_LV95.SIA405_Elektrizitaet.Erdungssystem = 
+  !! Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+  !! Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+  !! Flaeche3D: Base_LV95.Surface3D;
+  !! Linie3D: MANDATORY Base_LV95.Polyline3D;
+  !! KnotenKote1 : Base_LV95.HKoord;
+!! END Erdungssystem;
+   
+   END SIA405_Elektrizitaet_3D; !! End of View
+   
+END SIA405_ELEKTRIZITAET_3D_2015_LV95.  !! End of Model
+
+
+

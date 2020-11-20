@@ -1,0 +1,195 @@
+INTERLIS 2.3;
+
+MODEL SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015 (de) AT "http://www.sia.ch/405"
+VERSION "18.04.2018" TRANSLATION OF SIA405_FERNWIRKKABEL_3D_2015 [ "18.04.2018" ] = 
+
+   IMPORTS Units;
+   IMPORTS Base_f;
+   IMPORTS SIA405_Base_f;
+   IMPORTS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Greffier: Stefan Burckhardt / SIA 405 Commission
+
+!! nouveau 17.7.2015
+!! 30.10.2017 Updated version
+!! 18.4.2018 Noms MODEL en capital
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+   TOPIC SIA405_Cable_de_controle_a_distance_3D =
+   
+       CLASS Cable EXTENDS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Cable =
+             Largeur: SIA405_Base_f.Largeur;
+             Geometrie3D: MANDATORY Base_f.CoordH;
+             Determination_altimetrique: SIA405_Base_f.Determination_planimetrique;
+             Epaisseur: MANDATORY SIA405_Base_f.Epaisseur;  !! Extension 3D, Mächtigkeit (Höhe) eines Objektes [mm]. Differenz aus z.B. Altitude minus AltitudeKappe. Vorzeichen abhängig von 
+        END Cable;
+        
+        CLASS Point_cable EXTENDS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Point_cable =
+             Dimension1: Base_f.Altitude;
+             Dimension2: Base_f.Altitude;
+             Altitude_BI: Base_f.Altitude;
+             SymboleOri: Base_f.Orientation;
+             Epaisseur: MANDATORY SIA405_Base_f.Epaisseur;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. Differenz aus z.B. Altitude minus AltitudeKappe. 
+        END Point_cable;
+        
+    END SIA405_Cable_de_controle_a_distance_3D;
+    
+    VIEW TOPIC SIA405_Cable_de_controle_a_distance_LK_3D =
+    DEPENDS ON SIA405_Cable_de_controle_a_distance_3D;
+
+    VIEW Cable
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015.SIA405_Cable_de_controle_a_distance_3D.Cable;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		METAATTRIBUTS := base -> METAATTRIBUTS;
+        Geometrie := base -> Geometrie;
+        Fonction := base -> Fonction;
+        Determination_planimetrique := base -> Determination_planimetrique;
+        Etat  := base -> Etat;
+        Proprietaire := base -> Proprietaire;
+        Largeur := base -> Largeur;
+		Geometrie3D := base -> Geometrie3D;  !! Erweiterung 3D
+        Determination_altimetrique := base -> Determination_altimetrique;
+        Epaisseur := base -> Epaisseur;
+    END Cable;
+    
+    VIEW Point_cable
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015.SIA405_Cable_de_controle_a_distance_3D.Point_cable;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		METAATTRIBUTS := base -> METAATTRIBUTS;
+        Geometrie := base -> Geometrie;
+        !! Abfuellung des Art Attributs nur via Funktion moeglich
+        Art : (
+            chambre_cable,
+            cabine
+            );
+        Determination_planimetrique := base -> Determination_planimetrique;
+        Altitude := base -> Altitude;
+        Determination_altimetrique := base -> Determination_altimetrique;
+        Etat  := base -> Etat;
+        Proprietaire := base -> Proprietaire;
+        Dimension1 := base -> Dimension1;
+        Dimension2 := base -> Dimension2;
+        Altitude_BI := base -> Altitude_BI;
+        SymboleOri := base -> SymboleOri;
+        Epaisseur := base -> Epaisseur;
+    END Point_cable;
+   
+   END SIA405_Cable_de_controle_a_distance_LK_3D;
+   
+END SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015.
+
+
+INTERLIS 2.3;
+
+MODEL SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015_LV95 (de) AT "http://www.sia.ch/405"
+VERSION "18.04.2018" TRANSLATION OF SIA405_FERNWIRKKABEL_3D_2015_LV95 [ "18.04.2018" ] = 
+
+   IMPORTS Units;
+   IMPORTS Base_f_LV95;
+   IMPORTS SIA405_Base_f_LV95;
+   IMPORTS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Greffier: Stefan Burckhardt / SIA 405 Commission
+
+!! 18.4.2018 nouvelle Version _LV95
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+   TOPIC SIA405_Cable_de_controle_a_distance_3D =
+   
+       CLASS Cable EXTENDS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Cable =
+             Largeur: SIA405_Base_f_LV95.Largeur;
+             Geometrie3D: MANDATORY Base_f_LV95.CoordH;
+             Determination_altimetrique: SIA405_Base_f_LV95.Determination_planimetrique;
+             Epaisseur: MANDATORY SIA405_Base_f_LV95.Epaisseur;  !! Extension 3D, Mächtigkeit (Höhe) eines Objektes [mm]. Differenz aus z.B. Altitude minus AltitudeKappe. Vorzeichen abhängig von 
+        END Cable;
+        
+        CLASS Point_cable EXTENDS SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Point_cable =
+             Dimension1: Base_f_LV95.Altitude;
+             Dimension2: Base_f_LV95.Altitude;
+             Altitude_BI: Base_f_LV95.Altitude;
+             SymboleOri: Base_f_LV95.Orientation;
+             Epaisseur: MANDATORY SIA405_Base_f_LV95.Epaisseur;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. Differenz aus z.B. Altitude minus AltitudeKappe. 
+        END Point_cable;
+        
+    END SIA405_Cable_de_controle_a_distance_3D;
+    
+    VIEW TOPIC SIA405_Cable_de_controle_a_distance_LK_3D =
+    DEPENDS ON SIA405_Cable_de_controle_a_distance_3D;
+
+    VIEW Cable
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015_LV95.SIA405_Cable_de_controle_a_distance_3D.Cable;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		METAATTRIBUTS := base -> METAATTRIBUTS;
+        Geometrie := base -> Geometrie;
+        Fonction := base -> Fonction;
+        Determination_planimetrique := base -> Determination_planimetrique;
+        Etat  := base -> Etat;
+        Proprietaire := base -> Proprietaire;
+        Largeur := base -> Largeur;
+		Geometrie3D := base -> Geometrie3D;  !! Erweiterung 3D
+        Determination_altimetrique := base -> Determination_altimetrique;
+        Epaisseur := base -> Epaisseur;
+    END Cable;
+    
+    VIEW Point_cable
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015_LV95.SIA405_Cable_de_controle_a_distance_3D.Point_cable;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		METAATTRIBUTS := base -> METAATTRIBUTS;
+        Geometrie := base -> Geometrie;
+        !! Abfuellung des Art Attributs nur via Funktion moeglich
+        Art : (
+            chambre_cable,
+            cabine
+            );
+        Determination_planimetrique := base -> Determination_planimetrique;
+        Altitude := base -> Altitude;
+        Determination_altimetrique := base -> Determination_altimetrique;
+        Etat  := base -> Etat;
+        Proprietaire := base -> Proprietaire;
+        Dimension1 := base -> Dimension1;
+        Dimension2 := base -> Dimension2;
+        Altitude_BI := base -> Altitude_BI;
+        SymboleOri := base -> SymboleOri;
+        Epaisseur := base -> Epaisseur;
+    END Point_cable;
+   
+   END SIA405_Cable_de_controle_a_distance_LK_3D;
+   
+END SIA405_CABLE_DE_CONTROLE_A_DISTANCE_3D_2015_LV95.
+

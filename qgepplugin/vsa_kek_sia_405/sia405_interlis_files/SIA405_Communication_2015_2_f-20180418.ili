@@ -1,0 +1,178 @@
+INTERLIS 2.3;
+
+MODEL SIA405_COMMUNICATION_2015 (fr) AT "http://www.sia.ch/405"
+   VERSION "18.04.2018" TRANSLATION OF SIA405_KOMMUNIKATION_2015 [ "18.04.2018" ] = 
+
+   IMPORTS Units;
+   IMPORTS Base_f;
+   IMPORTS SIA405_Base_f;
+
+!! Copyright 2010 - 2018 SIA   
+
+!! Les fichiers modèles originaux SIA405_Eaux_usees_2014_2_f.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Greffier: Stefan Burckhardt / SIA 405 Commission
+
+!! 30.10.2017 Adaption _2015
+!! 18.4.2018 Noms MODEL en capital
+
+  DOMAIN
+
+    TypeTrace = (
+      souterrain,
+      aerien
+    );
+
+    TypeNoeud = (
+      ouvrage,
+      chambre (
+        rond,
+        rectangulaire
+      ),
+      support,
+      virtuel !! Les noeuds de tracé virtuels ne sont pas représentés dans LKMap, car ils sont insignifiants pour l’illustration de l’étendue géographique.
+    );
+
+
+  TOPIC SIA405_Communication_CS =
+
+    CLASS Signalisation EXTENDS SIA405_Base_f.SIA405_TextePos =
+    END Signalisation;
+
+    CLASS LKObjet (ABSTRACT) EXTENDS SIA405_Base_f.SIA405_BaseClass =
+      Etat : MANDATORY SIA405_Base_f.Etat;
+      Determination_planimetrique : MANDATORY SIA405_Base_f.Determination_planimetrique;
+!!      Letzte_Aenderung: OPTIONAL DATE;
+!!      Datenlieferant : MANDATORY TEXT*80;
+	  Proprietaire: SIA405_Base_f.Organisation_Designation;  !! neu 2.6.2012, falls leer Wert "Keine_Angabe" für LKMap übergeben
+    END LKObjet;
+
+    CLASS Arete_de_trace
+    EXTENDS LKObjet =
+      Type : MANDATORY TypeTrace;
+!!      Linie : MANDATORY POLYLINE WITH (ARCS,STRAIGHTS) VERTEX Base.LKoord;
+      Ligne: MANDATORY Base_f.Polyligne;
+!!      Breite : MANDATORY 0.00 .. 100000.00 [Units.cm];
+!! neu 21.2.2012 
+      Largeur: SIA405_Base_f.Largeur;
+      Surface : Base_f.Surface;
+      Remarque : TEXT*255;
+    END Arete_de_trace;
+
+    CLASS Noeud_de_trace
+    EXTENDS LKObjet =
+      Type : MANDATORY TypeNoeud;
+      SymobolePos : MANDATORY Base_f.CoordNat;
+      SymboleOri : MANDATORY Base_f.Orientation;
+      Surface : Base_f.Surface;
+      Remarque : TEXT*255;
+    END Noeud_de_trace;
+
+    ASSOCIATION AssocEdgeNode =
+      buildsEdge -<> {0..*} Arete_de_trace;
+      isStartEndPoint -- {2} Noeud_de_trace;
+    END AssocEdgeNode;
+
+    ASSOCIATION AssocObjectLabel =
+      isLabel -- {0..*} Signalisation;
+      labels -<#> {1} LKObjet;
+    END AssocObjectLabel;
+
+!!  END LK_Kommunikation;
+   END SIA405_Communication_CS;  !! End TOPIC
+
+END SIA405_COMMUNICATION_2015.
+
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_COMMUNICATION_2015_LV95 (fr) AT "http://www.sia.ch/405"
+   VERSION "18.04.2018" TRANSLATION OF SIA405_KOMMUNIKATION_2015_LV95 [ "18.04.2018" ] = 
+
+   IMPORTS Units;
+   IMPORTS Base_f_LV95;
+   IMPORTS SIA405_Base_f_LV95;
+
+!! Copyright 2010 - 2018 SIA   
+
+!! Les fichiers modèles originaux SIA405_Eaux_usees_2014_2_f.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+
+!! Greffeur: Andreas Häsler mailto:andreas.haesler@swisscom.com
+!! Adaptions Stefan Burckhardt / SIA 405 Kommission
+
+!! 18.4.2018 nouveau version _LV95
+
+  DOMAIN
+
+    TypeTrace = (
+      souterrain,
+      aerien
+    );
+
+    TypeNoeud = (
+      ouvrage,
+      chambre (
+        rond,
+        rectangulaire
+      ),
+      support,
+      virtuel !! Les noeuds de tracé virtuels ne sont pas représentés dans LKMap, car ils sont insignifiants pour l’illustration de l’étendue géographique.
+    );
+
+
+  TOPIC SIA405_Communication_CS =
+
+    CLASS Signalisation EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+    END Signalisation;
+
+    CLASS LKObjet (ABSTRACT) EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =
+      Etat : MANDATORY SIA405_Base_f_LV95.Etat;
+      Determination_planimetrique : MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+	  Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;  !! neu 2.6.2012, falls leer Wert "Keine_Angabe" für LKMap übergeben
+    END LKObjet;
+
+    CLASS Arete_de_trace
+    EXTENDS LKObjet =
+      Type : MANDATORY TypeTrace;
+      Ligne: MANDATORY Base_f_LV95.Polyligne;
+      Largeur: SIA405_Base_f_LV95.Largeur;
+      Surface : Base_f_LV95.Surface;
+      Remarque : TEXT*255;
+    END Arete_de_trace;
+
+    CLASS Noeud_de_trace
+    EXTENDS LKObjet =
+      Type : MANDATORY TypeNoeud;
+      SymobolePos : MANDATORY Base_f_LV95.CoordNat;
+      SymboleOri : MANDATORY Base_f_LV95.Orientation;
+      Surface : Base_f_LV95.Surface;
+      Remarque : TEXT*255;
+    END Noeud_de_trace;
+
+    ASSOCIATION AssocEdgeNode =
+      buildsEdge -<> {0..*} Arete_de_trace;
+      isStartEndPoint -- {2} Noeud_de_trace;
+    END AssocEdgeNode;
+
+    ASSOCIATION AssocObjectLabel =
+      isLabel -- {0..*} Signalisation;
+      labels -<#> {1} LKObjet;
+    END AssocObjectLabel;
+
+   END SIA405_Communication_CS;  !! End TOPIC
+
+END SIA405_COMMUNICATION_2015_LV95.
+

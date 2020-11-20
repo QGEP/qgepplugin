@@ -1,0 +1,1691 @@
+!! SIA405_Fernwaerme_2015_2_d.ili
+
+INTERLIS 2.3;
+
+MODEL SIA405_FERNWAERME_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base;
+  IMPORTS SIA405_Base;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Fernwaerme_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+UNIT
+
+TOPIC SIA405_Fernwaerme =
+
+DOMAIN
+
+
+Statuswerte EXTENDS SIA405_Base.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 7.7.2015 Anpassung auf neue Variante von SIA405_Base.Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante,  !! neu 25.4.2018
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 9.7.2015  
+    Status = ALL OF Statuswerte;    !! Erweitert Wertebereich von SIA405 Status
+
+
+Temperatur = 0..9999 [Units.oC];    !! 
+
+
+Druck = 0 .. 9999 [Units.bar];    !! Bar [bar]
+
+
+Kilowatt = 0 .. 9999999999 [SIA405_Base.kW];    !! Kilowatt [kW]
+
+
+CLASS Hydraulischer_Knoten EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! ausgewählte Punkte der Tabellen Absperrorgan, usw.
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;  !! z.B. Nummer des Knotens
+    Knotentyp: (        
+      fix,
+      variabel
+    );
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Hydraulischer_Knoten;
+
+CLASS Hydraulischer_Knoten_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Hydraulischer_Knoten_Text;
+
+ASSOCIATION Hydraulischer_Knoten_TextAssoc =   !! Komposition
+  Hydraulischer_KnotenRef -<#> {1} Hydraulischer_Knoten;
+  Text -- {0 .. *} Hydraulischer_Knoten_Text;
+END Hydraulischer_Knoten_TextAssoc;
+
+CLASS Hydraulischer_Strang EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! mehrere zusammenhängende Leitungen
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Hydraulischer_Strang;
+
+CLASS Hydraulischer_Strang_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Hydraulischer_Strang_Text;
+
+ASSOCIATION Hydraulischer_Strang_TextAssoc =   !! Komposition
+  Hydraulischer_StrangRef -<#> {1} Hydraulischer_Strang;
+  Text -- {0 .. *} Hydraulischer_Strang_Text;
+END Hydraulischer_Strang_TextAssoc;
+
+ASSOCIATION Hydraulischer_Strang_von_KnotenAssoc =    !! Assoziation
+  von_KnotenRef  -- {1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Hydraulischer_Strang_von_KnotenAssocRef -- {1..*} Hydraulischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Hydraulischer_Strang_von_KnotenAssoc;
+
+ASSOCIATION Hydraulischer_Strang_bis_KnotenAssoc =    !! Assoziation
+  bis_KnotenRef  -- {1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Hydraulischer_Strang_bis_KnotenAssocRef -- {1..*} Hydraulischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Hydraulischer_Strang_bis_KnotenAssoc;
+
+CLASS Statischer_Knoten EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! ausgewählte Punkte der Leitungsknoten-Tabellen Absperr
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;
+    Knotentyp: (        
+      fix,
+      variabel
+    );
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Statischer_Knoten;
+
+CLASS Statischer_Knoten_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Statischer_Knoten_Text;
+
+ASSOCIATION Statischer_Knoten_TextAssoc =   !! Komposition
+  Statischer_KnotenRef -<#> {1} Statischer_Knoten;
+  Text -- {0 .. *} Statischer_Knoten_Text;
+END Statischer_Knoten_TextAssoc;
+
+CLASS Statischer_Strang EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! mehrere nacheinanderfolgende Leitungen
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;  !! z.B. Nummer des Knotens
+    Netzgebiet: (        
+      fix,
+      variabel
+    );
+    Bemerkung: TEXT*80;
+END Statischer_Strang;
+
+CLASS Statischer_Strang_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Statischer_Strang_Text;
+
+ASSOCIATION Statischer_Strang_TextAssoc =   !! Komposition
+  Statischer_StrangRef -<#> {1} Statischer_Strang;
+  Text -- {0 .. *} Statischer_Strang_Text;
+END Statischer_Strang_TextAssoc;
+
+ASSOCIATION Statischer_Strang_von_KnotenAssoc =    !! Assoziation
+  von_KnotenRef  -- {1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Statischer_Strang_von_KnotenAssocRef -- {1..*} Statischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Statischer_Strang_von_KnotenAssoc;
+
+ASSOCIATION Statischer_Strang_bis_KnotenAssoc =    !! Assoziation
+  bis_KnotenRef  -- {1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Statischer_Strang_bis_KnotenAssocRef -- {1..*} Statischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Statischer_Strang_bis_KnotenAssoc;
+
+CLASS Leitungsabschnitt EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Leitungsabschnitt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base.Polyline;
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Status: MANDATORY Status;
+    Funktion: (        
+      Transportleitung,
+      Versorgungsleitung,
+      Anschlussleitung
+    );
+    Leitungsart: (        
+      Vorlauf,
+      Ruecklauf
+    );
+    Medium: (        
+      Heisswasser,
+      Warmwasser,
+      Dampf,
+      Kondensat,
+      weitere
+    );
+    Temperatur: MANDATORY Temperatur;
+    Nenndruck: Druck;
+    Betriebsdruck: MANDATORY Druck;
+    Isolationsstaerke: MANDATORY 0 .. 9999 [Units.mm];
+    Isolationsart: (        
+      Kanal_Einzelisolation,
+      Glas_oder_Steinwolle,
+      Kanal_Stopfisolation_Glaswolle,
+      Verbundmantelrohre,
+      Vakuum
+    );
+    Ummantelung: (        
+      Polyvinilchlorid,
+      Polyethylen,
+      Aluminium,
+      Faserzement,
+      Dachpappe,
+      Chromstahl,
+      Blech_verzinkt,
+      Band,
+      Stahlrohr
+    );
+    DurchmesserInnen: MANDATORY SIA405_Base.Abmessung;
+    DurchmesserAussen: MANDATORY SIA405_Base.Abmessung;
+    Nennweite: TEXT*10;  !! als TEXT, da zum Teil auch Doppelwerte mit Schrägstrich
+    Laenge1: MANDATORY 0 .. 999999 [Units.mm];  !! Laenge_abgewickelt
+    Laenge2: MANDATORY 0 .. 999999 [Units.mm];  !! Laenge_berechnet
+    Rohrfabrikat: MANDATORY TEXT*40;
+    Rohrqualitaet: (        
+      Stahl_35,
+      Stahl_35_8,
+      Stahl_37,
+      Stahl_52,
+      Kupfer,
+      Kunststoff,
+      Chromstahl
+    );
+    Einbaujahr: MANDATORY SIA405_Base.Jahr;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Rohrltg_unternehmung: TEXT*40;
+    Dokumentation: TEXT*40;  !! Zeichnungsnummer / Dossiernummer
+    Auftrag: TEXT*40;  !! Bezeichnung des Auftrags
+    Bemerkung: TEXT*80;
+END Leitungsabschnitt;
+
+CLASS Leitungsabschnitt_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Leitungsabschnitt_Text;
+
+ASSOCIATION Leitungsabschnitt_TextAssoc =   !! Komposition
+  LeitungsabschnittRef -<#> {1} Leitungsabschnitt;
+  Text -- {0 .. *} Leitungsabschnitt_Text;
+END Leitungsabschnitt_TextAssoc;
+
+ASSOCIATION Leitungsabschnitt_Hydraulischer_StrangAssoc =    !! Assoziation
+  Hydraulischer_StrangRef  -- {0..1} Hydraulischer_Strang; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungsabschnitt_Hydraulischer_StrangAssocRef -- {1..*} Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungsabschnitt_Hydraulischer_StrangAssoc;
+
+ASSOCIATION Leitungsabschnitt_Statischer_StrangAssoc =    !! Assoziation
+  Statischer_StrangRef  -- {0..1} Statischer_Strang; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungsabschnitt_Statischer_StrangAssocRef -- {1..*} Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungsabschnitt_Statischer_StrangAssoc;
+
+CLASS Leitungspunkt (ABSTRACT) EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Leitungspunkt
+  ATTRIBUTE
+    Geometrie: MANDATORY Base.LKoord;
+    SymbolOri: MANDATORY 0.0 .. 359.9 CIRCULAR [Units.Angle_Degree];
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Hoehe1: Base.Hoehe;  !! OK Mantelrohr
+    Hoehe2: Base.Hoehe;  !! Rohrachse
+    Hoehenbestimmung: SIA405_Base.Genauigkeit;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+END Leitungspunkt;
+
+CLASS Leitungspunkt_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Leitungspunkt_Text;
+
+ASSOCIATION Leitungspunkt_TextAssoc =   !! Komposition
+  LeitungspunktRef -<#> {1} Leitungspunkt;
+  Text -- {0 .. *} Leitungspunkt_Text;
+END Leitungspunkt_TextAssoc;
+
+ASSOCIATION Leitungspunkt_Hydraulischer_KnotenAssoc =    !! Assoziation
+  Hydraulischer_KnotenRef  -- {0..1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungspunkt_Hydraulischer_KnotenAssocRef -- {1..*} Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungspunkt_Hydraulischer_KnotenAssoc;
+
+ASSOCIATION Leitungspunkt_Statischer_KnotenAssoc =    !! Assoziation
+  Statischer_KnotenRef  -- {0..1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungspunkt_Statischer_KnotenAssocRef -- {1..*} Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungspunkt_Statischer_KnotenAssoc;
+
+CLASS Leitungspunkt_normal EXTENDS Leitungspunkt =  
+!! Leitungspunkt normal
+  ATTRIBUTE
+    Art: (     
+      Netz (
+        Leckortung_Messbuechse,
+         Leckortung_Endbuechse
+      ),
+      Armaturen (
+         Schieber_ohne_Motor,
+         Schieber_mit_Motor (
+            mit_Fernsteuerung,
+            ohne_Fernsteuerung
+         ),
+           Klappe_ohne_Motor,
+         Klappe_mit_Motor (
+            mit_Fernsteuerung,
+            ohne_Fernsteuerung
+         ),
+           Rueckschlagklappe,
+         Ventil_ohne_Motor,
+         Ventil_mit_Motor (
+            mit_Fernsteuerung,
+            sans_commande_a_distance
+         ),
+           Entleerung,
+         Entlueftung,
+         Bypass,
+         Formstuecke (
+            Reduktion,
+            T_Stueck,
+            Bogen
+         ),
+         Einbauten  (
+            Kondenser,
+            Abscheider,
+            Kondensatabscheider,
+            Metallschlauch,
+            Stationsventil
+         ),
+         Leitungspunkt  (
+            Geometriepunkt,
+            Schweissnaht,
+            Materialwechsel,
+            Muffe,
+            Blende
+         ),
+         Statikpunkt  (
+            Fixpunkt,
+            Auftriebssicherung,
+            Querrollenlager,
+            Aufhaengung,
+            Axialkompensator,
+            Gelenkkompensator,
+            Gleitrollenlager,
+            Kugelquerlager,
+            Fuehrungslager_eng_vor_Kompensatoren,
+            Fuehrungslager_weit_vor_LT_Bogen,
+            Kompensator
+         )
+      )
+    );
+    Armaturenstellung: (        
+      offen,
+      geschlossen
+    );
+    Material: (        
+      unbekannt,
+      Stahl,
+      Guss,
+      Kunststoff
+    );
+END Leitungspunkt_normal;
+
+CLASS Leitungspunkt_Einspeisung EXTENDS Leitungspunkt =  
+!! Leitungspunkt Einspeisung
+  ATTRIBUTE
+    Art: (        
+      Netzeinspeisung,
+      Netzuebergabe,
+      Hausuebergabestation,
+      weitere
+    );
+    Leistung_abonniert: MANDATORY Kilowatt;
+    Leistung_installiert: MANDATORY Kilowatt;
+    Blendenwert: MANDATORY Kilowatt;
+    Q_abonniert: MANDATORY 0.000 .. 9999.999 [SIA405_Base.m3h];
+    Kategorie: (        
+      EFH,  !! Einfamilienhaus
+      MFH,  !! Mehrfamilienhaus
+      Spital,
+      Oeffentliche_Gebaeude,
+      Dienstleister,
+      Gewerbe_Industrie,
+      Spez_Kunden
+    );
+    Inbetriebsetzung: MANDATORY SIA405_Base.Jahr;
+    Umbau: MANDATORY SIA405_Base.Jahr;
+    Druck: MANDATORY Druck;  !! Primaerer_Konstruktionsdruck (bar_Ue);
+    Vorlauftemperatur: MANDATORY Temperatur;
+    Ruecklauftemperatur: MANDATORY Temperatur;
+    Geheiztes_Volumen: MANDATORY 0 .. 9999 [Units.m3];  !! Beheiztes Volume
+    Waermeverbrauch: MANDATORY 0 .. 9999999999 [Units.kWh];  !! Pro Jahr
+    Leistung: MANDATORY Kilowatt;
+END Leitungspunkt_Einspeisung;
+
+CLASS Bauwerk EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Bauwerk
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Bauwerksname
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Status: MANDATORY Status;
+    Netzgebiet: TEXT*40;  !! Ortsbezeichnung
+    Art: (        
+      unbekannt,
+      Kontrollkammer,
+      Entlueftungskammer,
+      Steuerkammer,
+      Entleeerungskammer,
+      Messkammer,
+      Hauptkammer,
+      Kompensatorenkammer,
+      Druckreduzierstation,
+      Umformerstation,
+      Spezialbauwerk
+    );
+    Bauwerkueberdeckung: MANDATORY SIA405_Base.Ueberdeckung;  !! Mittlere Überdeckung
+    Einbaujahr: SIA405_Base.Jahr;
+    Entlueftung: (        
+      unbekannt,
+      mechanisch,
+      natuerlich,
+      keine
+    );
+    Abflusstyp: (        
+      Abwasser,
+      Boden,
+      Sauberwasser,
+      Pumpensumpf,
+      Sickerloch
+    );
+    Gittertyp: (        
+      mit_Syphon,
+      ohne_Syphon,
+      mit_Entleerung,
+      ohne_Entleerung,
+      spez_Gittertyp
+    );
+    Entwaesserungspumpe: (        
+      fest_installiert,
+      mobil,
+      keine
+    );
+    Stromanschluss: (        
+      ja,
+      nein
+    );
+    Messeinrichtung: (        
+      keine,
+      mit_Fernablesung,
+      ohne_Fernablesung
+    );
+    Zustand: (        
+      gut,
+      trocken,
+      nass
+    );
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bauunternehmung: MANDATORY TEXT*40;
+    Schemahinweis: MANDATORY TEXT*40;
+    Letzter_Unterhalt: MANDATORY INTERLIS_1_DATE;
+    Dokumentation: MANDATORY TEXT*40;  !! z.B. Dossiernummer
+    Auftrag: MANDATORY TEXT*40;  !! z.B. Auftragsnummer
+    KKS: MANDATORY TEXT*40;  !! Kraftwerk Kennzeichnung System Nr.
+    Bemerkung: TEXT*80;
+END Bauwerk;
+
+CLASS Bauwerk_Flaeche =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base.LKoord
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base.Surface;
+END Bauwerk_Flaeche;
+
+ASSOCIATION Bauwerk_FlaecheAssoc =
+   BauwerkRef  -<#> {1} Bauwerk;
+   Flaeche --   {0 .. *} Bauwerk_Flaeche;
+END Bauwerk_FlaecheAssoc;
+
+CLASS Bauwerk_Linie =
+ATTRIBUTE
+    Geometrie: MANDATORY Base.Polyline;
+END Bauwerk_Linie;
+
+ASSOCIATION Bauwerk_LinieAssoc =
+   BauwerkRef  -<#> {1} Bauwerk;
+   Linie --   {0 .. *} Bauwerk_Linie;
+END Bauwerk_LinieAssoc;
+
+CLASS Bauwerk_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Bauwerk_Text;
+
+ASSOCIATION Bauwerk_TextAssoc =   !! Komposition
+  BauwerkRef -<#> {1} Bauwerk;
+  Text -- {0 .. *} Bauwerk_Text;
+END Bauwerk_TextAssoc;
+
+CLASS Trasse EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Trasse
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! Eindeutige Bezeichnung
+    Geometrie: MANDATORY Base.Surface;  !! offener oder geschlossener Linienzug, Stützpunkte in Landeskoordinaten
+    Lagebestimmung: (        
+      genau,
+      unbekannt,
+      ungenau
+    );
+    Status: MANDATORY Status;
+    Trassetyp: (     
+      unbekannt,
+      Haubenkanal,
+      Ortsbetonkanal,
+      begehbarer_Kanal,
+      Gewoelbe,
+      Freileitung,
+      Pressrohr,
+      Schutzrohr,
+      erdverlegt (
+         normal,
+         Dehnungspolster
+      )
+    );
+    Trassebreite: MANDATORY SIA405_Base.Abmessung;
+    Einbaujahr: MANDATORY SIA405_Base.Jahr;
+    Einbettung: (        
+      normal,
+      Grundwasser,
+      Rutschgebiet
+    );
+    Kontrollsystem: (        
+      weitere,
+      keines,
+      Isovit,
+      Brandes
+    );
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Kabelrohre: (     
+      ja (
+        Lage_oben,
+         Lage_seitlich,
+         Lage_innen
+      ),
+      nein
+    );
+    Bauunternehmung: TEXT*40;
+    Reparatur: INTERLIS_1_DATE;
+    Dokumentation: TEXT*40;
+    Auftrag: TEXT*40;  !! z.B. Auftragsnummer
+    Bemerkung: TEXT*80;
+END Trasse;
+
+CLASS Trasse_Flaeche =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base.LKoord
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base.Surface;
+END Trasse_Flaeche;
+
+ASSOCIATION Trasse_FlaecheAssoc =
+   TrasseRef  -<#> {1} Trasse;
+   Flaeche --   {0 .. *} Trasse_Flaeche;
+END Trasse_FlaecheAssoc;
+
+CLASS Trasse_Linie =
+ATTRIBUTE
+    Geometrie: MANDATORY Base.Polyline;
+END Trasse_Linie;
+
+ASSOCIATION Trasse_LinieAssoc =
+   TrasseRef  -<#> {1} Trasse;
+   Linie --   {0 .. *} Trasse_Linie;
+END Trasse_LinieAssoc;
+
+CLASS Trasse_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Trasse_Text;
+
+ASSOCIATION Trasse_TextAssoc =   !! Komposition
+  TrasseRef -<#> {1} Trasse;
+  Text -- {0 .. *} Trasse_Text;
+END Trasse_TextAssoc;
+
+CLASS Trassepunkt EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Trassepunkt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base.LKoord;
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Art: (        
+      unbekannt,
+      Schachteinstieg,
+      Montageoeffnung,
+      Ent_Belueftung,
+      Entwaesserung,
+      Fixpunkt,
+      Abstuetzung,
+      Geometriepunkt
+    );
+    Hoehe_Kanalsohle: MANDATORY Base.Hoehe;
+    Hoehe_Kanaldeckel: MANDATORY Base.Hoehe;
+    Hoehe_Einstiegdeckel: MANDATORY Base.Hoehe;
+    Ueberdeckung: MANDATORY SIA405_Base.Ueberdeckung;
+    Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+    Dimension1: SIA405_Base.Abmessung;  !! Dimension1 für Schachtöffnung, Montageeinstieg
+END Trassepunkt;
+
+CLASS Schaden_Leitungsabschnitt EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Schaden Leitungsabschnitt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base.LKoord;
+    Stoerungsart: (        
+      Materialfehler,
+      Materialermuedung,
+      Korrosion,
+      nasse_Verbindungsmuffe,
+      Schweissnahtdefekt,
+      Isolationsmuffen_defekt,
+      Isolationsdefekt,
+      Drahtunterbruch,
+      Draht_Drahtberuehrung,
+      Draht_Rohrberuehung,
+      Wackelkontakt,
+      Fehlmanipulation_Betrieb,
+      Mess_Bautechnischer_Fehler,
+      Fremdeinwirkung_Trasseumfeld,
+      Schaeden_durch_Dritte,
+      weitere
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Leitungsabschnitt;
+
+CLASS Schaden_Leitungsabschnitt_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Schaden_Leitungsabschnitt_Text;
+
+ASSOCIATION Schaden_Leitungsabschnitt_TextAssoc =   !! Komposition
+  Schaden_LeitungsabschnittRef -<#> {1} Schaden_Leitungsabschnitt;
+  Text -- {0 .. *} Schaden_Leitungsabschnitt_Text;
+END Schaden_Leitungsabschnitt_TextAssoc;
+
+ASSOCIATION Schaden_Leitungsabschnitt_LeitungsabschnittAssoc =    !! Assoziation
+  LeitungsabschnittRef  -- {1} Leitungsabschnitt; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Leitungsabschnitt_LeitungsabschnittAssocRef -- {0..*} Schaden_Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Leitungsabschnitt_LeitungsabschnittAssoc;
+
+CLASS Schaden_Leitungspunkt EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Schaden Leitungspunkt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base.LKoord;
+    Stoerungsart: (        
+      Schweissnahtdefekt,
+      Korrosion,
+      Draht_Rohrberuehrung,
+      Muffe_undicht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Leitungspunkt;
+
+CLASS Schaden_Leitungspunkt_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Schaden_Leitungspunkt_Text;
+
+ASSOCIATION Schaden_Leitungspunkt_TextAssoc =   !! Komposition
+  Schaden_LeitungspunktRef -<#> {1} Schaden_Leitungspunkt;
+  Text -- {0 .. *} Schaden_Leitungspunkt_Text;
+END Schaden_Leitungspunkt_TextAssoc;
+
+ASSOCIATION Schaden_Leitungspunkt_LeitungspunktAssoc =    !! Assoziation
+  LeitungspunktRef  -- {1} Leitungspunkt; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Leitungspunkt_LeitungspunktAssocRef -- {0..*} Schaden_Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Leitungspunkt_LeitungspunktAssoc;
+
+CLASS Schaden_Bauwerk EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Schaden Bauwerk
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base.LKoord;
+    Stoerungsart: (        
+      Schweissnahtdefekt,
+      Korrosion,
+      Draht_Rohrberuehrung,
+      Muffe_undicht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Zustand: TEXT*40;
+    Bemerkung: TEXT*80;
+END Schaden_Bauwerk;
+
+CLASS Schaden_Bauwerk_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Schaden_Bauwerk_Text;
+
+ASSOCIATION Schaden_Bauwerk_TextAssoc =   !! Komposition
+  Schaden_BauwerkRef -<#> {1} Schaden_Bauwerk;
+  Text -- {0 .. *} Schaden_Bauwerk_Text;
+END Schaden_Bauwerk_TextAssoc;
+
+ASSOCIATION Schaden_Bauwerk_BauwerkAssoc =    !! Assoziation
+  BauwerkRef  -- {1} Bauwerk; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Bauwerk_BauwerkAssocRef -- {0..*} Schaden_Bauwerk; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Bauwerk_BauwerkAssoc;
+
+CLASS Schaden_Trasse EXTENDS SIA405_Base.SIA405_BaseClass =  
+!! Schaden Trasse
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protkollnummer
+    Geometrie: MANDATORY Base.LKoord;
+    Stoerungsart: (        
+      unbekannt,
+      Setzung,
+      Wassereintritt,
+      feucht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Trasse;
+
+CLASS Schaden_Trasse_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Schaden_Trasse_Text;
+
+ASSOCIATION Schaden_Trasse_TextAssoc =   !! Komposition
+  Schaden_TrasseRef -<#> {1} Schaden_Trasse;
+  Text -- {0 .. *} Schaden_Trasse_Text;
+END Schaden_Trasse_TextAssoc;
+
+ASSOCIATION Schaden_Trasse_TrasseAssoc =    !! Assoziation
+  TrasseRef  -- {1} Trasse; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Trasse_TrasseAssocRef -- {0..*} Schaden_Trasse; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Trasse_TrasseAssoc;
+
+CLASS Uebersichtsplanposition EXTENDS SIA405_Base.SIA405_SymbolPos =
+END Uebersichtsplanposition;
+
+ASSOCIATION Leitungspunkt_UebersichtsplanpositionAssoc =
+      LeitungspunktRef  -<#> {1} Leitungspunkt;
+      Symbol --   {0 .. *} Uebersichtsplanposition;
+END Leitungspunkt_UebersichtsplanpositionAssoc;
+
+END SIA405_Fernwaerme; !! end of TOPIC SIA405_Fernwaerme
+
+VIEW TOPIC SIA405_Fernwaerme_LK =
+    DEPENDS ON SIA405_Fernwaerme;
+
+VIEW Bauwerk
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Art :=base-> Art;
+END Bauwerk;
+
+
+VIEW Bauwerk_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Bauwerk_Flaeche;
+
+VIEW Bauwerk_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_FlaecheAssoc;
+
+VIEW Bauwerk_Linie
+PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_Linie;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Bauwerk_Linie;
+
+VIEW Bauwerk_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_LinieAssoc;
+
+VIEW Trasse
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Trassetyp :=base-> Trassetyp;
+    Trassebreite :=base-> Trassebreite;
+    Eigentuemer :=base-> Eigentuemer;
+END Trasse;
+
+
+VIEW Trasse_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Trasse_Flaeche;
+
+VIEW Trasse_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_FlaecheAssoc;
+
+VIEW Trasse_Linie
+PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_Linie;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Trasse_Linie;
+
+VIEW Trasse_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_LinieAssoc;
+
+VIEW Trassepunkt
+  PROJECTION OF base~SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trassepunkt;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Geometrie :=base-> Geometrie;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Art :=base-> Art;
+    Hoehe_Kanalsohle :=base-> Hoehe_Kanalsohle;
+    Hoehe_Kanaldeckel :=base-> Hoehe_Kanaldeckel;
+    Hoehe_Einstiegdeckel :=base-> Hoehe_Einstiegdeckel;
+    Hoehenbestimmung :=base-> Hoehenbestimmung;
+    Eigentuemer :=base-> Eigentuemer;
+    Dimension1 :=base-> Dimension1;
+END Trassepunkt;
+
+END SIA405_Fernwaerme_LK;  !! Ende der View
+
+END SIA405_FERNWAERME_2015.   !! Ende des Modells / Fin du modèle
+
+
+
+
+!! SIA405_Fernwaerme_2015_2_d_LV95.ili
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_FERNWAERME_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Fernwaerme_2015_2_d_LV95.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+UNIT
+
+TOPIC SIA405_Fernwaerme =
+
+DOMAIN
+
+
+Statuswerte EXTENDS SIA405_Base_LV95.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 7.7.2015 Anpassung auf neue Variante von SIA405_Base_LV95.Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante, !! neu 25.4.2018
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 9.7.2015  
+    Status = ALL OF Statuswerte;    !! Erweitert Wertebereich von SIA405 Status
+
+
+Temperatur = 0..9999 [Units.oC];    !! 
+
+
+Druck = 0 .. 9999 [Units.bar];    !! Bar [bar]
+
+
+Kilowatt = 0 .. 9999999999 [SIA405_Base_LV95.kW];    !! Kilowatt [kW]
+
+
+CLASS Hydraulischer_Knoten EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! ausgewählte Punkte der Tabellen Absperrorgan, usw.
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;  !! z.B. Nummer des Knotens
+    Knotentyp: (        
+      fix,
+      variabel
+    );
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Hydraulischer_Knoten;
+
+CLASS Hydraulischer_Knoten_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Hydraulischer_Knoten_Text;
+
+ASSOCIATION Hydraulischer_Knoten_TextAssoc =   !! Komposition
+  Hydraulischer_KnotenRef -<#> {1} Hydraulischer_Knoten;
+  Text -- {0 .. *} Hydraulischer_Knoten_Text;
+END Hydraulischer_Knoten_TextAssoc;
+
+CLASS Hydraulischer_Strang EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! mehrere zusammenhängende Leitungen
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Hydraulischer_Strang;
+
+CLASS Hydraulischer_Strang_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Hydraulischer_Strang_Text;
+
+ASSOCIATION Hydraulischer_Strang_TextAssoc =   !! Komposition
+  Hydraulischer_StrangRef -<#> {1} Hydraulischer_Strang;
+  Text -- {0 .. *} Hydraulischer_Strang_Text;
+END Hydraulischer_Strang_TextAssoc;
+
+ASSOCIATION Hydraulischer_Strang_von_KnotenAssoc =    !! Assoziation
+  von_KnotenRef  -- {1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Hydraulischer_Strang_von_KnotenAssocRef -- {1..*} Hydraulischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Hydraulischer_Strang_von_KnotenAssoc;
+
+ASSOCIATION Hydraulischer_Strang_bis_KnotenAssoc =    !! Assoziation
+  bis_KnotenRef  -- {1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Hydraulischer_Strang_bis_KnotenAssocRef -- {1..*} Hydraulischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Hydraulischer_Strang_bis_KnotenAssoc;
+
+CLASS Statischer_Knoten EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! ausgewählte Punkte der Leitungsknoten-Tabellen Absperr
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;
+    Knotentyp: (        
+      fix,
+      variabel
+    );
+    Netzgebiet: TEXT*40;
+    Bemerkung: TEXT*80;
+END Statischer_Knoten;
+
+CLASS Statischer_Knoten_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Statischer_Knoten_Text;
+
+ASSOCIATION Statischer_Knoten_TextAssoc =   !! Komposition
+  Statischer_KnotenRef -<#> {1} Statischer_Knoten;
+  Text -- {0 .. *} Statischer_Knoten_Text;
+END Statischer_Knoten_TextAssoc;
+
+CLASS Statischer_Strang EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! mehrere nacheinanderfolgende Leitungen
+  ATTRIBUTE
+    Name_Nummer: MANDATORY TEXT*40;  !! z.B. Nummer des Knotens
+    Netzgebiet: (        
+      fix,
+      variabel
+    );
+    Bemerkung: TEXT*80;
+END Statischer_Strang;
+
+CLASS Statischer_Strang_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Statischer_Strang_Text;
+
+ASSOCIATION Statischer_Strang_TextAssoc =   !! Komposition
+  Statischer_StrangRef -<#> {1} Statischer_Strang;
+  Text -- {0 .. *} Statischer_Strang_Text;
+END Statischer_Strang_TextAssoc;
+
+ASSOCIATION Statischer_Strang_von_KnotenAssoc =    !! Assoziation
+  von_KnotenRef  -- {1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Statischer_Strang_von_KnotenAssocRef -- {1..*} Statischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Statischer_Strang_von_KnotenAssoc;
+
+ASSOCIATION Statischer_Strang_bis_KnotenAssoc =    !! Assoziation
+  bis_KnotenRef  -- {1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Statischer_Strang_bis_KnotenAssocRef -- {1..*} Statischer_Strang; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Statischer_Strang_bis_KnotenAssoc;
+
+CLASS Leitungsabschnitt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Leitungsabschnitt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base_LV95.Polyline;
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY Status;
+    Funktion: (        
+      Transportleitung,
+      Versorgungsleitung,
+      Anschlussleitung
+    );
+    Leitungsart: (        
+      Vorlauf,
+      Ruecklauf
+    );
+    Medium: (        
+      Heisswasser,
+      Warmwasser,
+      Dampf,
+      Kondensat,
+      weitere
+    );
+    Temperatur: MANDATORY Temperatur;
+    Nenndruck: Druck;
+    Betriebsdruck: MANDATORY Druck;
+    Isolationsstaerke: MANDATORY 0 .. 9999 [Units.mm];
+    Isolationsart: (        
+      Kanal_Einzelisolation,
+      Glas_oder_Steinwolle,
+      Kanal_Stopfisolation_Glaswolle,
+      Verbundmantelrohre,
+      Vakuum
+    );
+    Ummantelung: (        
+      Polyvinilchlorid,
+      Polyethylen,
+      Aluminium,
+      Faserzement,
+      Dachpappe,
+      Chromstahl,
+      Blech_verzinkt,
+      Band,
+      Stahlrohr
+    );
+    DurchmesserInnen: MANDATORY SIA405_Base_LV95.Abmessung;
+    DurchmesserAussen: MANDATORY SIA405_Base_LV95.Abmessung;
+    Nennweite: TEXT*10;  !! als TEXT, da zum Teil auch Doppelwerte mit Schrägstrich
+    Laenge1: MANDATORY 0 .. 999999 [Units.mm];  !! Laenge_abgewickelt
+    Laenge2: MANDATORY 0 .. 999999 [Units.mm];  !! Laenge_berechnet
+    Rohrfabrikat: MANDATORY TEXT*40;
+    Rohrqualitaet: (        
+      Stahl_35,
+      Stahl_35_8,
+      Stahl_37,
+      Stahl_52,
+      Kupfer,
+      Kunststoff,
+      Chromstahl
+    );
+    Einbaujahr: MANDATORY SIA405_Base_LV95.Jahr;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Rohrltg_unternehmung: TEXT*40;
+    Dokumentation: TEXT*40;  !! Zeichnungsnummer / Dossiernummer
+    Auftrag: TEXT*40;  !! Bezeichnung des Auftrags
+    Bemerkung: TEXT*80;
+END Leitungsabschnitt;
+
+CLASS Leitungsabschnitt_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Leitungsabschnitt_Text;
+
+ASSOCIATION Leitungsabschnitt_TextAssoc =   !! Komposition
+  LeitungsabschnittRef -<#> {1} Leitungsabschnitt;
+  Text -- {0 .. *} Leitungsabschnitt_Text;
+END Leitungsabschnitt_TextAssoc;
+
+ASSOCIATION Leitungsabschnitt_Hydraulischer_StrangAssoc =    !! Assoziation
+  Hydraulischer_StrangRef  -- {0..1} Hydraulischer_Strang; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungsabschnitt_Hydraulischer_StrangAssocRef -- {1..*} Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungsabschnitt_Hydraulischer_StrangAssoc;
+
+ASSOCIATION Leitungsabschnitt_Statischer_StrangAssoc =    !! Assoziation
+  Statischer_StrangRef  -- {0..1} Statischer_Strang; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungsabschnitt_Statischer_StrangAssocRef -- {1..*} Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungsabschnitt_Statischer_StrangAssoc;
+
+CLASS Leitungspunkt (ABSTRACT) EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Leitungspunkt
+  ATTRIBUTE
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    SymbolOri: MANDATORY 0.0 .. 359.9 CIRCULAR [Units.Angle_Degree];
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Hoehe1: Base_LV95.Hoehe;  !! OK Mantelrohr
+    Hoehe2: Base_LV95.Hoehe;  !! Rohrachse
+    Hoehenbestimmung: SIA405_Base_LV95.Genauigkeit;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+END Leitungspunkt;
+
+CLASS Leitungspunkt_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Leitungspunkt_Text;
+
+ASSOCIATION Leitungspunkt_TextAssoc =   !! Komposition
+  LeitungspunktRef -<#> {1} Leitungspunkt;
+  Text -- {0 .. *} Leitungspunkt_Text;
+END Leitungspunkt_TextAssoc;
+
+ASSOCIATION Leitungspunkt_Hydraulischer_KnotenAssoc =    !! Assoziation
+  Hydraulischer_KnotenRef  -- {0..1} Hydraulischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungspunkt_Hydraulischer_KnotenAssocRef -- {1..*} Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungspunkt_Hydraulischer_KnotenAssoc;
+
+ASSOCIATION Leitungspunkt_Statischer_KnotenAssoc =    !! Assoziation
+  Statischer_KnotenRef  -- {0..1} Statischer_Knoten; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Leitungspunkt_Statischer_KnotenAssocRef -- {1..*} Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Leitungspunkt_Statischer_KnotenAssoc;
+
+CLASS Leitungspunkt_normal EXTENDS Leitungspunkt =  
+!! Leitungspunkt normal
+  ATTRIBUTE
+    Art: (     
+      Netz (
+        Leckortung_Messbuechse,
+         Leckortung_Endbuechse
+      ),
+      Armaturen (
+         Schieber_ohne_Motor,
+         Schieber_mit_Motor (
+            mit_Fernsteuerung,
+            ohne_Fernsteuerung
+         ),
+           Klappe_ohne_Motor,
+         Klappe_mit_Motor (
+            mit_Fernsteuerung,
+            ohne_Fernsteuerung
+         ),
+           Rueckschlagklappe,
+         Ventil_ohne_Motor,
+         Ventil_mit_Motor (
+            mit_Fernsteuerung,
+            sans_commande_a_distance
+         ),
+           Entleerung,
+         Entlueftung,
+         Bypass,
+         Formstuecke (
+            Reduktion,
+            T_Stueck,
+            Bogen
+         ),
+         Einbauten  (
+            Kondenser,
+            Abscheider,
+            Kondensatabscheider,
+            Metallschlauch,
+            Stationsventil
+         ),
+         Leitungspunkt  (
+            Geometriepunkt,
+            Schweissnaht,
+            Materialwechsel,
+            Muffe,
+            Blende
+         ),
+         Statikpunkt  (
+            Fixpunkt,
+            Auftriebssicherung,
+            Querrollenlager,
+            Aufhaengung,
+            Axialkompensator,
+            Gelenkkompensator,
+            Gleitrollenlager,
+            Kugelquerlager,
+            Fuehrungslager_eng_vor_Kompensatoren,
+            Fuehrungslager_weit_vor_LT_Bogen,
+            Kompensator
+         )
+      )
+    );
+    Armaturenstellung: (        
+      offen,
+      geschlossen
+    );
+    Material: (        
+      unbekannt,
+      Stahl,
+      Guss,
+      Kunststoff
+    );
+END Leitungspunkt_normal;
+
+CLASS Leitungspunkt_Einspeisung EXTENDS Leitungspunkt =  
+!! Leitungspunkt Einspeisung
+  ATTRIBUTE
+    Art: (        
+      Netzeinspeisung,
+      Netzuebergabe,
+      Hausuebergabestation,
+      weitere
+    );
+    Leistung_abonniert: MANDATORY Kilowatt;
+    Leistung_installiert: MANDATORY Kilowatt;
+    Blendenwert: MANDATORY Kilowatt;
+    Q_abonniert: MANDATORY 0.000 .. 9999.999 [SIA405_Base_LV95.m3h];
+    Kategorie: (        
+      EFH,  !! Einfamilienhaus
+      MFH,  !! Mehrfamilienhaus
+      Spital,
+      Oeffentliche_Gebaeude,
+      Dienstleister,
+      Gewerbe_Industrie,
+      Spez_Kunden
+    );
+    Inbetriebsetzung: MANDATORY SIA405_Base_LV95.Jahr;
+    Umbau: MANDATORY SIA405_Base_LV95.Jahr;
+    Druck: MANDATORY Druck;  !! Primaerer_Konstruktionsdruck (bar_Ue);
+    Vorlauftemperatur: MANDATORY Temperatur;
+    Ruecklauftemperatur: MANDATORY Temperatur;
+    Geheiztes_Volumen: MANDATORY 0 .. 9999 [Units.m3];  !! Beheiztes Volume
+    Waermeverbrauch: MANDATORY 0 .. 9999999999 [Units.kWh];  !! Pro Jahr
+    Leistung: MANDATORY Kilowatt;
+END Leitungspunkt_Einspeisung;
+
+CLASS Bauwerk EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Bauwerk
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Bauwerksname
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY Status;
+    Netzgebiet: TEXT*40;  !! Ortsbezeichnung
+    Art: (        
+      unbekannt,
+      Kontrollkammer,
+      Entlueftungskammer,
+      Steuerkammer,
+      Entleeerungskammer,
+      Messkammer,
+      Hauptkammer,
+      Kompensatorenkammer,
+      Druckreduzierstation,
+      Umformerstation,
+      Spezialbauwerk
+    );
+    Bauwerkueberdeckung: MANDATORY SIA405_Base_LV95.Ueberdeckung;  !! Mittlere Überdeckung
+    Einbaujahr: SIA405_Base_LV95.Jahr;
+    Entlueftung: (        
+      unbekannt,
+      mechanisch,
+      natuerlich,
+      keine
+    );
+    Abflusstyp: (        
+      Abwasser,
+      Boden,
+      Sauberwasser,
+      Pumpensumpf,
+      Sickerloch
+    );
+    Gittertyp: (        
+      mit_Syphon,
+      ohne_Syphon,
+      mit_Entleerung,
+      ohne_Entleerung,
+      spez_Gittertyp
+    );
+    Entwaesserungspumpe: (        
+      fest_installiert,
+      mobil,
+      keine
+    );
+    Stromanschluss: (        
+      ja,
+      nein
+    );
+    Messeinrichtung: (        
+      keine,
+      mit_Fernablesung,
+      ohne_Fernablesung
+    );
+    Zustand: (        
+      gut,
+      trocken,
+      nass
+    );
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bauunternehmung: MANDATORY TEXT*40;
+    Schemahinweis: MANDATORY TEXT*40;
+    Letzter_Unterhalt: MANDATORY INTERLIS_1_DATE;
+    Dokumentation: MANDATORY TEXT*40;  !! z.B. Dossiernummer
+    Auftrag: MANDATORY TEXT*40;  !! z.B. Auftragsnummer
+    KKS: MANDATORY TEXT*40;  !! Kraftwerk Kennzeichnung System Nr.
+    Bemerkung: TEXT*80;
+END Bauwerk;
+
+CLASS Bauwerk_Flaeche =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base _LV95.LKoord
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_LV95.Surface;
+END Bauwerk_Flaeche;
+
+ASSOCIATION Bauwerk_FlaecheAssoc =
+   BauwerkRef  -<#> {1} Bauwerk;
+   Flaeche --   {0 .. *} Bauwerk_Flaeche;
+END Bauwerk_FlaecheAssoc;
+
+CLASS Bauwerk_Linie =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_LV95.Polyline;
+END Bauwerk_Linie;
+
+ASSOCIATION Bauwerk_LinieAssoc =
+   BauwerkRef  -<#> {1} Bauwerk;
+   Linie --   {0 .. *} Bauwerk_Linie;
+END Bauwerk_LinieAssoc;
+
+CLASS Bauwerk_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Bauwerk_Text;
+
+ASSOCIATION Bauwerk_TextAssoc =   !! Komposition
+  BauwerkRef -<#> {1} Bauwerk;
+  Text -- {0 .. *} Bauwerk_Text;
+END Bauwerk_TextAssoc;
+
+CLASS Trasse EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Trasse
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! Eindeutige Bezeichnung
+    Geometrie: MANDATORY Base_LV95.Surface;  !! offener oder geschlossener Linienzug, Stützpunkte in Landeskoordinaten
+    Lagebestimmung: (        
+      genau,
+      unbekannt,
+      ungenau
+    );
+    Status: MANDATORY Status;
+    Trassetyp: (     
+      unbekannt,
+      Haubenkanal,
+      Ortsbetonkanal,
+      begehbarer_Kanal,
+      Gewoelbe,
+      Freileitung,
+      Pressrohr,
+      Schutzrohr,
+      erdverlegt (
+         normal,
+         Dehnungspolster
+      )
+    );
+    Trassebreite: MANDATORY SIA405_Base_LV95.Abmessung;
+    Einbaujahr: MANDATORY SIA405_Base_LV95.Jahr;
+    Einbettung: (        
+      normal,
+      Grundwasser,
+      Rutschgebiet
+    );
+    Kontrollsystem: (        
+      weitere,
+      keines,
+      Isovit,
+      Brandes
+    );
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Kabelrohre: (     
+      ja (
+        Lage_oben,
+         Lage_seitlich,
+         Lage_innen
+      ),
+      nein
+    );
+    Bauunternehmung: TEXT*40;
+    Reparatur: INTERLIS_1_DATE;
+    Dokumentation: TEXT*40;
+    Auftrag: TEXT*40;  !! z.B. Auftragsnummer
+    Bemerkung: TEXT*80;
+END Trasse;
+
+CLASS Trasse_Flaeche =
+ATTRIBUTE
+!!   Geometrie: MANDATORY SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base _LV95.LKoord
+!!              WITHOUT OVERLAPS > 0.050;
+   Geometrie: MANDATORY Base_LV95.Surface;
+END Trasse_Flaeche;
+
+ASSOCIATION Trasse_FlaecheAssoc =
+   TrasseRef  -<#> {1} Trasse;
+   Flaeche --   {0 .. *} Trasse_Flaeche;
+END Trasse_FlaecheAssoc;
+
+CLASS Trasse_Linie =
+ATTRIBUTE
+    Geometrie: MANDATORY Base_LV95.Polyline;
+END Trasse_Linie;
+
+ASSOCIATION Trasse_LinieAssoc =
+   TrasseRef  -<#> {1} Trasse;
+   Linie --   {0 .. *} Trasse_Linie;
+END Trasse_LinieAssoc;
+
+CLASS Trasse_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Trasse_Text;
+
+ASSOCIATION Trasse_TextAssoc =   !! Komposition
+  TrasseRef -<#> {1} Trasse;
+  Text -- {0 .. *} Trasse_Text;
+END Trasse_TextAssoc;
+
+CLASS Trassepunkt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Trassepunkt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Art: (        
+      unbekannt,
+      Schachteinstieg,
+      Montageoeffnung,
+      Ent_Belueftung,
+      Entwaesserung,
+      Fixpunkt,
+      Abstuetzung,
+      Geometriepunkt
+    );
+    Hoehe_Kanalsohle: MANDATORY Base_LV95.Hoehe;
+    Hoehe_Kanaldeckel: MANDATORY Base_LV95.Hoehe;
+    Hoehe_Einstiegdeckel: MANDATORY Base_LV95.Hoehe;
+    Ueberdeckung: MANDATORY SIA405_Base_LV95.Ueberdeckung;
+    Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+    Dimension1: SIA405_Base_LV95.Abmessung;  !! Dimension1 für Schachtöffnung, Montageeinstieg
+END Trassepunkt;
+
+CLASS Schaden_Leitungsabschnitt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Schaden Leitungsabschnitt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Stoerungsart: (        
+      Materialfehler,
+      Materialermuedung,
+      Korrosion,
+      nasse_Verbindungsmuffe,
+      Schweissnahtdefekt,
+      Isolationsmuffen_defekt,
+      Isolationsdefekt,
+      Drahtunterbruch,
+      Draht_Drahtberuehrung,
+      Draht_Rohrberuehung,
+      Wackelkontakt,
+      Fehlmanipulation_Betrieb,
+      Mess_Bautechnischer_Fehler,
+      Fremdeinwirkung_Trasseumfeld,
+      Schaeden_durch_Dritte,
+      weitere
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Leitungsabschnitt;
+
+CLASS Schaden_Leitungsabschnitt_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Schaden_Leitungsabschnitt_Text;
+
+ASSOCIATION Schaden_Leitungsabschnitt_TextAssoc =   !! Komposition
+  Schaden_LeitungsabschnittRef -<#> {1} Schaden_Leitungsabschnitt;
+  Text -- {0 .. *} Schaden_Leitungsabschnitt_Text;
+END Schaden_Leitungsabschnitt_TextAssoc;
+
+ASSOCIATION Schaden_Leitungsabschnitt_LeitungsabschnittAssoc =    !! Assoziation
+  LeitungsabschnittRef  -- {1} Leitungsabschnitt; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Leitungsabschnitt_LeitungsabschnittAssocRef -- {0..*} Schaden_Leitungsabschnitt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Leitungsabschnitt_LeitungsabschnittAssoc;
+
+CLASS Schaden_Leitungspunkt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Schaden Leitungspunkt
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Stoerungsart: (        
+      Schweissnahtdefekt,
+      Korrosion,
+      Draht_Rohrberuehrung,
+      Muffe_undicht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Leitungspunkt;
+
+CLASS Schaden_Leitungspunkt_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Schaden_Leitungspunkt_Text;
+
+ASSOCIATION Schaden_Leitungspunkt_TextAssoc =   !! Komposition
+  Schaden_LeitungspunktRef -<#> {1} Schaden_Leitungspunkt;
+  Text -- {0 .. *} Schaden_Leitungspunkt_Text;
+END Schaden_Leitungspunkt_TextAssoc;
+
+ASSOCIATION Schaden_Leitungspunkt_LeitungspunktAssoc =    !! Assoziation
+  LeitungspunktRef  -- {1} Leitungspunkt; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Leitungspunkt_LeitungspunktAssocRef -- {0..*} Schaden_Leitungspunkt; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Leitungspunkt_LeitungspunktAssoc;
+
+CLASS Schaden_Bauwerk EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Schaden Bauwerk
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protokollnummer
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Stoerungsart: (        
+      Schweissnahtdefekt,
+      Korrosion,
+      Draht_Rohrberuehrung,
+      Muffe_undicht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Zustand: TEXT*40;
+    Bemerkung: TEXT*80;
+END Schaden_Bauwerk;
+
+CLASS Schaden_Bauwerk_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Schaden_Bauwerk_Text;
+
+ASSOCIATION Schaden_Bauwerk_TextAssoc =   !! Komposition
+  Schaden_BauwerkRef -<#> {1} Schaden_Bauwerk;
+  Text -- {0 .. *} Schaden_Bauwerk_Text;
+END Schaden_Bauwerk_TextAssoc;
+
+ASSOCIATION Schaden_Bauwerk_BauwerkAssoc =    !! Assoziation
+  BauwerkRef  -- {1} Bauwerk; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Bauwerk_BauwerkAssocRef -- {0..*} Schaden_Bauwerk; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Bauwerk_BauwerkAssoc;
+
+CLASS Schaden_Trasse EXTENDS SIA405_Base_LV95.SIA405_BaseClass =  
+!! Schaden Trasse
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Protkollnummer
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Stoerungsart: (        
+      unbekannt,
+      Setzung,
+      Wassereintritt,
+      feucht
+    );
+    Ausloeser: TEXT*40;
+    Erhebung: MANDATORY INTERLIS_1_DATE;
+    Behebung: INTERLIS_1_DATE;
+    Bemerkung: TEXT*80;
+END Schaden_Trasse;
+
+CLASS Schaden_Trasse_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Schaden_Trasse_Text;
+
+ASSOCIATION Schaden_Trasse_TextAssoc =   !! Komposition
+  Schaden_TrasseRef -<#> {1} Schaden_Trasse;
+  Text -- {0 .. *} Schaden_Trasse_Text;
+END Schaden_Trasse_TextAssoc;
+
+ASSOCIATION Schaden_Trasse_TrasseAssoc =    !! Assoziation
+  TrasseRef  -- {1} Trasse; !! Rolle1 - Klasse1 / Rôle1 - Classe1
+  Schaden_Trasse_TrasseAssocRef -- {0..*} Schaden_Trasse; !! , Rolle2 - Klasse2 / Rôle2 - Classe2
+END Schaden_Trasse_TrasseAssoc;
+
+CLASS Uebersichtsplanposition EXTENDS SIA405_Base_LV95.SIA405_SymbolPos =
+END Uebersichtsplanposition;
+
+ASSOCIATION Leitungspunkt_UebersichtsplanpositionAssoc =
+      LeitungspunktRef  -<#> {1} Leitungspunkt;
+      Symbol --   {0 .. *} Uebersichtsplanposition;
+END Leitungspunkt_UebersichtsplanpositionAssoc;
+
+END SIA405_Fernwaerme; !! end of TOPIC SIA405_Fernwaerme
+
+VIEW TOPIC SIA405_Fernwaerme_LK =
+    DEPENDS ON SIA405_Fernwaerme;
+
+VIEW Bauwerk
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Art :=base-> Art;
+END Bauwerk;
+
+
+VIEW Bauwerk_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Bauwerk_Flaeche;
+
+VIEW Bauwerk_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_FlaecheAssoc;
+
+VIEW Bauwerk_Linie
+PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_Linie;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Bauwerk_Linie;
+
+VIEW Bauwerk_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_LinieAssoc;
+
+VIEW Trasse
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Trassetyp :=base-> Trassetyp;
+    Trassebreite :=base-> Trassebreite;
+    Eigentuemer :=base-> Eigentuemer;
+END Trasse;
+
+
+VIEW Trasse_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie := base->Geometrie;
+  END Trasse_Flaeche;
+
+VIEW Trasse_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_FlaecheAssoc;
+
+VIEW Trasse_Linie
+PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_Linie;
+  =
+  ATTRIBUTE
+      Geometrie := base->Geometrie;
+END Trasse_Linie;
+
+VIEW Trasse_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_LinieAssoc;
+
+VIEW Trassepunkt
+  PROJECTION OF base~SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trassepunkt;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Geometrie :=base-> Geometrie;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Art :=base-> Art;
+    Hoehe_Kanalsohle :=base-> Hoehe_Kanalsohle;
+    Hoehe_Kanaldeckel :=base-> Hoehe_Kanaldeckel;
+    Hoehe_Einstiegdeckel :=base-> Hoehe_Einstiegdeckel;
+    Hoehenbestimmung :=base-> Hoehenbestimmung;
+    Eigentuemer :=base-> Eigentuemer;
+    Dimension1 :=base-> Dimension1;
+END Trassepunkt;
+
+END SIA405_Fernwaerme_LK;  !! Ende der View
+
+END SIA405_FERNWAERME_2015_LV95.   !! Ende des Modells / Fin du modèle
+

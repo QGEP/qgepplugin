@@ -1,0 +1,552 @@
+!! SIA405_Fernwaerme_3D_2015_2_d.ili
+!! Erweiterung 3D
+
+INTERLIS 2.3;
+
+MODEL SIA405_FERNWAERME_3D_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base;
+  IMPORTS SIA405_Base;
+  IMPORTS SIA405_FERNWAERME_2015;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Fernwaerme_3D_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+TOPIC SIA405_Fernwaerme_3D =
+
+CLASS Hydraulischer_Knoten EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Knoten =  
+END Hydraulischer_Knoten;
+
+CLASS Hydraulischer_Knoten_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Knoten_Text = 
+END Hydraulischer_Knoten_Text;
+
+ASSOCIATION Hydraulischer_Knoten_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Knoten_TextAssoc = 
+END Hydraulischer_Knoten_TextAssoc;
+
+CLASS Hydraulischer_Strang EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Strang =  
+END Hydraulischer_Strang;
+
+CLASS Hydraulischer_Strang_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Strang_Text = 
+END Hydraulischer_Strang_Text;
+
+ASSOCIATION Hydraulischer_Strang_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Hydraulischer_Strang_TextAssoc = 
+END Hydraulischer_Strang_TextAssoc;
+
+CLASS Statischer_Knoten EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Knoten =  
+END Statischer_Knoten;
+
+CLASS Statischer_Knoten_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Knoten_Text = 
+END Statischer_Knoten_Text;
+
+ASSOCIATION Statischer_Knoten_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Knoten_TextAssoc = 
+END Statischer_Knoten_TextAssoc;
+
+CLASS Statischer_Strang EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Strang =  
+END Statischer_Strang;
+
+CLASS Statischer_Strang_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Strang_Text = 
+END Statischer_Strang_Text;
+
+ASSOCIATION Statischer_Strang_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Statischer_Strang_TextAssoc = 
+END Statischer_Strang_TextAssoc;
+
+CLASS Leitungsabschnitt EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungsabschnitt =  
+END Leitungsabschnitt;
+
+CLASS Leitungsabschnitt_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungsabschnitt_Text = 
+END Leitungsabschnitt_Text;
+
+ASSOCIATION Leitungsabschnitt_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungsabschnitt_TextAssoc = 
+END Leitungsabschnitt_TextAssoc;
+
+CLASS Leitungspunkt (ABSTRACT) EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungspunkt =  
+END Leitungspunkt;
+
+CLASS Leitungspunkt_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungspunkt_Text = 
+END Leitungspunkt_Text;
+
+ASSOCIATION Leitungspunkt_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungspunkt_TextAssoc = 
+END Leitungspunkt_TextAssoc;
+
+CLASS Leitungspunkt_normal EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungspunkt_normal =  
+END Leitungspunkt_normal;
+
+CLASS Leitungspunkt_Einspeisung EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Leitungspunkt_Einspeisung =  
+END Leitungspunkt_Einspeisung;
+
+CLASS Bauwerk EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk =  
+    Deckenkote: Base.Hoehe;
+    Maechtigkeit: SIA405_Base.Maechtigkeit;
+    Sohlenkote: Base.Hoehe;
+END Bauwerk;
+
+CLASS Bauwerk_Flaeche EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_Flaeche =
+   Geometrie3D: MANDATORY Base.Surface3D;
+END Bauwerk_Flaeche;
+
+ASSOCIATION Bauwerk_FlaecheAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_FlaecheAssoc =
+END Bauwerk_FlaecheAssoc;
+
+CLASS Bauwerk_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_Text = 
+END Bauwerk_Text;
+
+ASSOCIATION Bauwerk_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Bauwerk_TextAssoc = 
+END Bauwerk_TextAssoc;
+
+CLASS Trasse EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse =  
+    Maechtigkeit: SIA405_Base.Maechtigkeit;  !! Mächtigkeit (Höhe) eines Objektes [mm]. Differenz Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trasse;
+
+CLASS Trasse_Flaeche EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_Flaeche =
+   Geometrie3D: MANDATORY Base.Surface3D;
+END Trasse_Flaeche;
+
+ASSOCIATION Trasse_FlaecheAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_FlaecheAssoc =
+END Trasse_FlaecheAssoc;
+
+CLASS Trasse_Linie EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_Linie =
+    Geometrie3D: MANDATORY Base.Polyline3D;  !! Fehlerkorrektur Polyline3D statt Surface3D (17.11.2014)
+END Trasse_Linie;
+
+ASSOCIATION Trasse_LinieAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_LinieAssoc =
+END Trasse_LinieAssoc;
+
+CLASS Trasse_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_Text = 
+END Trasse_Text;
+
+ASSOCIATION Trasse_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trasse_TextAssoc = 
+END Trasse_TextAssoc;
+
+CLASS Trassepunkt EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Trassepunkt =  
+    Maechtigkeit: SIA405_Base.Maechtigkeit;  !! Funktionsattribut Mächtigkeit (Höhe) eines Objektes [mm]. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trassepunkt;
+
+CLASS Schaden_Leitungsabschnitt EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungsabschnitt =  
+END Schaden_Leitungsabschnitt;
+
+CLASS Schaden_Leitungsabschnitt_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungsabschnitt_Text = 
+END Schaden_Leitungsabschnitt_Text;
+
+ASSOCIATION Schaden_Leitungsabschnitt_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungsabschnitt_TextAssoc = 
+END Schaden_Leitungsabschnitt_TextAssoc;
+
+CLASS Schaden_Leitungspunkt EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungspunkt =  
+END Schaden_Leitungspunkt;
+
+CLASS Schaden_Leitungspunkt_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungspunkt_Text = 
+END Schaden_Leitungspunkt_Text;
+
+ASSOCIATION Schaden_Leitungspunkt_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Leitungspunkt_TextAssoc = 
+END Schaden_Leitungspunkt_TextAssoc;
+
+CLASS Schaden_Bauwerk EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Bauwerk =  
+END Schaden_Bauwerk;
+
+CLASS Schaden_Bauwerk_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Bauwerk_Text = 
+END Schaden_Bauwerk_Text;
+
+ASSOCIATION Schaden_Bauwerk_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Bauwerk_TextAssoc = 
+END Schaden_Bauwerk_TextAssoc;
+
+CLASS Schaden_Trasse EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Trasse =  
+END Schaden_Trasse;
+
+CLASS Schaden_Trasse_Text EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Trasse_Text = 
+END Schaden_Trasse_Text;
+
+ASSOCIATION Schaden_Trasse_TextAssoc EXTENDS SIA405_FERNWAERME_2015.SIA405_Fernwaerme.Schaden_Trasse_TextAssoc = 
+END Schaden_Trasse_TextAssoc;
+
+END SIA405_Fernwaerme_3D; !! end of TOPIC SIA405_Fernwaerme_3D
+
+VIEW TOPIC SIA405_Fernwaerme_3D_LK =
+    DEPENDS ON SIA405_Fernwaerme_3D;
+
+VIEW Bauwerk
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Bauwerk;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Art :=base-> Art;
+    Deckenkote := base-> Deckenkote;
+    Maechtigkeit := base-> Maechtigkeit;
+    Sohlenkote := base-> Sohlenkote;
+END Bauwerk;
+
+
+VIEW Bauwerk_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Bauwerk_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie3D := base->Geometrie3D;
+  END Bauwerk_Flaeche;
+
+VIEW Bauwerk_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Bauwerk_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_FlaecheAssoc;
+
+
+VIEW Trasse
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trasse;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Trassetyp :=base-> Trassetyp;
+    Trassebreite :=base-> Trassebreite;
+    Eigentuemer :=base-> Eigentuemer;
+    Maechtigkeit := base-> Maechtigkeit;
+END Trasse;
+
+
+VIEW Trasse_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trasse_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie3D := base->Geometrie3D;
+  END Trasse_Flaeche;
+
+VIEW Trasse_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trasse_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_FlaecheAssoc;
+
+VIEW Trasse_Linie
+PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trasse_Linie;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+END Trasse_Linie;
+
+VIEW Trasse_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trasse_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_LinieAssoc;
+
+VIEW Trassepunkt
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015.SIA405_Fernwaerme_3D.Trassepunkt;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Art :=base-> Art;
+    Hoehe_Kanalsohle :=base-> Hoehe_Kanalsohle;
+    Hoehe_Kanaldeckel :=base-> Hoehe_Kanaldeckel;
+    Hoehe_Einstiegdeckel :=base-> Hoehe_Einstiegdeckel;
+    Hoehenbestimmung :=base-> Hoehenbestimmung;
+    Eigentuemer :=base-> Eigentuemer;
+    Dimension1 :=base-> Dimension1;
+    Maechtigkeit := base-> Maechtigkeit;
+END Trassepunkt;
+
+END SIA405_Fernwaerme_3D_LK;  !! Ende der View
+END SIA405_FERNWAERME_3D_2015.   !! Ende des Modells / Fin du modèle
+
+
+
+!! SIA405_Fernwaerme_3D_2015_2_d_LV95.ili
+!! Erweiterung 3D
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_FERNWAERME_3D_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+  IMPORTS SIA405_FERNWAERME_2015_LV95;
+
+!! Copyright 2002 - 2015
+!! Verband Fernwärme Schweiz (FS)
+!! www.fernwaerme-schweiz.ch
+!! in Zusammenarbeit mit schweizer ingenieur und architektenverein (sia), Zürich
+!! www.sia.ch
+
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_Fernwaerme_3D_2015_2_d_LV95.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim sia durch den Empfänger erlaubt. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+TOPIC SIA405_Fernwaerme_3D =
+
+CLASS Hydraulischer_Knoten EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Knoten =  
+END Hydraulischer_Knoten;
+
+CLASS Hydraulischer_Knoten_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Knoten_Text = 
+END Hydraulischer_Knoten_Text;
+
+ASSOCIATION Hydraulischer_Knoten_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Knoten_TextAssoc = 
+END Hydraulischer_Knoten_TextAssoc;
+
+CLASS Hydraulischer_Strang EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Strang =  
+END Hydraulischer_Strang;
+
+CLASS Hydraulischer_Strang_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Strang_Text = 
+END Hydraulischer_Strang_Text;
+
+ASSOCIATION Hydraulischer_Strang_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Hydraulischer_Strang_TextAssoc = 
+END Hydraulischer_Strang_TextAssoc;
+
+CLASS Statischer_Knoten EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Knoten =  
+END Statischer_Knoten;
+
+CLASS Statischer_Knoten_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Knoten_Text = 
+END Statischer_Knoten_Text;
+
+ASSOCIATION Statischer_Knoten_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Knoten_TextAssoc = 
+END Statischer_Knoten_TextAssoc;
+
+CLASS Statischer_Strang EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Strang =  
+END Statischer_Strang;
+
+CLASS Statischer_Strang_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Strang_Text = 
+END Statischer_Strang_Text;
+
+ASSOCIATION Statischer_Strang_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Statischer_Strang_TextAssoc = 
+END Statischer_Strang_TextAssoc;
+
+CLASS Leitungsabschnitt EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungsabschnitt =  
+END Leitungsabschnitt;
+
+CLASS Leitungsabschnitt_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungsabschnitt_Text = 
+END Leitungsabschnitt_Text;
+
+ASSOCIATION Leitungsabschnitt_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungsabschnitt_TextAssoc = 
+END Leitungsabschnitt_TextAssoc;
+
+CLASS Leitungspunkt (ABSTRACT) EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungspunkt =  
+END Leitungspunkt;
+
+CLASS Leitungspunkt_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungspunkt_Text = 
+END Leitungspunkt_Text;
+
+ASSOCIATION Leitungspunkt_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungspunkt_TextAssoc = 
+END Leitungspunkt_TextAssoc;
+
+CLASS Leitungspunkt_normal EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungspunkt_normal =  
+END Leitungspunkt_normal;
+
+CLASS Leitungspunkt_Einspeisung EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Leitungspunkt_Einspeisung =  
+END Leitungspunkt_Einspeisung;
+
+CLASS Bauwerk EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk =  
+    Deckenkote: Base_LV95.Hoehe;
+    Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;
+    Sohlenkote: Base_LV95.Hoehe;
+END Bauwerk;
+
+CLASS Bauwerk_Flaeche EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_Flaeche =
+   Geometrie3D: MANDATORY Base_LV95.Surface3D;
+END Bauwerk_Flaeche;
+
+ASSOCIATION Bauwerk_FlaecheAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_FlaecheAssoc =
+END Bauwerk_FlaecheAssoc;
+
+CLASS Bauwerk_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_Text = 
+END Bauwerk_Text;
+
+ASSOCIATION Bauwerk_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Bauwerk_TextAssoc = 
+END Bauwerk_TextAssoc;
+
+CLASS Trasse EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse =  
+    Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;  !! Mächtigkeit (Höhe) eines Objektes [mm]. Differenz Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trasse;
+
+CLASS Trasse_Flaeche EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_Flaeche =
+   Geometrie3D: MANDATORY Base_LV95.Surface3D;
+END Trasse_Flaeche;
+
+ASSOCIATION Trasse_FlaecheAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_FlaecheAssoc =
+END Trasse_FlaecheAssoc;
+
+CLASS Trasse_Linie EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_Linie =
+    Geometrie3D: MANDATORY Base_LV95.Polyline3D;  !! Fehlerkorrektur Polyline3D statt Surface3D (17.11.2014)
+END Trasse_Linie;
+
+ASSOCIATION Trasse_LinieAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_LinieAssoc =
+END Trasse_LinieAssoc;
+
+CLASS Trasse_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_Text = 
+END Trasse_Text;
+
+ASSOCIATION Trasse_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trasse_TextAssoc = 
+END Trasse_TextAssoc;
+
+CLASS Trassepunkt EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Trassepunkt =  
+    Maechtigkeit: SIA405_Base_LV95.Maechtigkeit;  !! Funktionsattribut Mächtigkeit (Höhe) eines Objektes [mm]. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trassepunkt;
+
+CLASS Schaden_Leitungsabschnitt EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungsabschnitt =  
+END Schaden_Leitungsabschnitt;
+
+CLASS Schaden_Leitungsabschnitt_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungsabschnitt_Text = 
+END Schaden_Leitungsabschnitt_Text;
+
+ASSOCIATION Schaden_Leitungsabschnitt_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungsabschnitt_TextAssoc = 
+END Schaden_Leitungsabschnitt_TextAssoc;
+
+CLASS Schaden_Leitungspunkt EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungspunkt =  
+END Schaden_Leitungspunkt;
+
+CLASS Schaden_Leitungspunkt_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungspunkt_Text = 
+END Schaden_Leitungspunkt_Text;
+
+ASSOCIATION Schaden_Leitungspunkt_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Leitungspunkt_TextAssoc = 
+END Schaden_Leitungspunkt_TextAssoc;
+
+CLASS Schaden_Bauwerk EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Bauwerk =  
+END Schaden_Bauwerk;
+
+CLASS Schaden_Bauwerk_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Bauwerk_Text = 
+END Schaden_Bauwerk_Text;
+
+ASSOCIATION Schaden_Bauwerk_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Bauwerk_TextAssoc = 
+END Schaden_Bauwerk_TextAssoc;
+
+CLASS Schaden_Trasse EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Trasse =  
+END Schaden_Trasse;
+
+CLASS Schaden_Trasse_Text EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Trasse_Text = 
+END Schaden_Trasse_Text;
+
+ASSOCIATION Schaden_Trasse_TextAssoc EXTENDS SIA405_FERNWAERME_2015_LV95.SIA405_Fernwaerme.Schaden_Trasse_TextAssoc = 
+END Schaden_Trasse_TextAssoc;
+
+END SIA405_Fernwaerme_3D; !! end of TOPIC SIA405_Fernwaerme_3D
+
+VIEW TOPIC SIA405_Fernwaerme_3D_LK =
+    DEPENDS ON SIA405_Fernwaerme_3D;
+
+VIEW Bauwerk
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Bauwerk;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Art :=base-> Art;
+    Deckenkote := base-> Deckenkote;
+    Maechtigkeit := base-> Maechtigkeit;
+    Sohlenkote := base-> Sohlenkote;
+END Bauwerk;
+
+
+VIEW Bauwerk_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Bauwerk_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie3D := base->Geometrie3D;
+  END Bauwerk_Flaeche;
+
+VIEW Bauwerk_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Bauwerk_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Bauwerk_FlaecheAssoc;
+
+
+VIEW Trasse
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trasse;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Status :=base-> Status;
+    Trassetyp :=base-> Trassetyp;
+    Trassebreite :=base-> Trassebreite;
+    Eigentuemer :=base-> Eigentuemer;
+    Maechtigkeit := base-> Maechtigkeit;
+END Trasse;
+
+
+VIEW Trasse_Flaeche
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trasse_Flaeche;
+  =
+  ATTRIBUTE
+     Geometrie3D := base->Geometrie3D;
+  END Trasse_Flaeche;
+
+VIEW Trasse_FlaecheAssoc
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trasse_FlaecheAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_FlaecheAssoc;
+
+VIEW Trasse_Linie
+PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trasse_Linie;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+END Trasse_Linie;
+
+VIEW Trasse_LinieAssoc
+PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trasse_LinieAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trasse_LinieAssoc;
+
+VIEW Trassepunkt
+  PROJECTION OF base~SIA405_FERNWAERME_3D_2015_LV95.SIA405_Fernwaerme_3D.Trassepunkt;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    Metaattribute := base-> Metaattribute;
+    Lagebestimmung :=base-> Lagebestimmung;
+    Art :=base-> Art;
+    Hoehe_Kanalsohle :=base-> Hoehe_Kanalsohle;
+    Hoehe_Kanaldeckel :=base-> Hoehe_Kanaldeckel;
+    Hoehe_Einstiegdeckel :=base-> Hoehe_Einstiegdeckel;
+    Hoehenbestimmung :=base-> Hoehenbestimmung;
+    Eigentuemer :=base-> Eigentuemer;
+    Dimension1 :=base-> Dimension1;
+    Maechtigkeit := base-> Maechtigkeit;
+END Trassepunkt;
+
+END SIA405_Fernwaerme_3D_LK;  !! Ende der View
+END SIA405_FERNWAERME_3D_2015_LV95.   !! Ende des Modells / Fin du modèle
+

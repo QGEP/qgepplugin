@@ -1,0 +1,1 @@
+Retrieved from https://www.sia.ch/de/dienstleistungen/sia-norm/geodaten/ on 2020-11-20

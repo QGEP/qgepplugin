@@ -1,0 +1,368 @@
+INTERLIS 2.3;
+
+!! MODEL SIA405_Cable_de_controle_a_distance (de) AT "http://www.sia.ch/models"
+MODEL SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015 (de) AT "http://www.sia.ch/models"
+  VERSION "18.04.2018" TRANSLATION OF SIA405_FERNWIRKKABEL_2015 [ "18.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base_f; 
+  IMPORTS SIA405_Base_f; 
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Greffier: Stefan Burckhardt / SIA 405 Kommission
+!!
+!! 17.7.2015 Première version
+!! 30.10.2017 Nouveau valeur inconnue Cable.Genre
+!! 30.10.2017 Correction inconnue au lieu de incconue Cable.Fonction et VIEW Point_cable
+!! 18.4.2018 Noms MODEL en capital
+
+UNIT
+
+DOMAIN
+
+EtatValeurs EXTENDS SIA405_Base_f.Etat = (  !! Etat de fonctionnement et de planification de l’ouvrage. 
+!! 13.7.2015 Adaptation à la nouvelle version de SIA405_Base_f.Etat – Extension des valeurs de base du fluide, modélisation hiérarchique et compiler 4.5.13 ff 
+      hors_service ( !! comporte hors_service et les valeurs suivantes
+         !! hors_service,
+         en_reserve
+      ),
+      en_service (  !! comporte en_service et les valeurs suivantes 
+         !! en_service,
+         provisoire
+      ),
+      !! abandonne,
+      !! inconnu,
+      autre ( !! comporte les valeurs suivantes
+         variante_de_calcule,
+         planifie,
+         projet
+      )
+    );    !! Erweitert Wertebereich von SIA405 Status
+    !! nouveau 13.7.2015  
+    Etat = ALL OF EtatValeurs;
+    
+
+TOPIC SIA405_Cable_de_controle_a_distance = 
+
+CLASS Cable EXTENDS SIA405_Base_f.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Nom_numero: TEXT*40;  !! z.B. Point_cableanfang_Point_cableeende
+    Geometrie: MANDATORY POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Base_f.CoordNat;  !! offener Linienzug, Stützpunkte in Landeskoordinaten
+    Fonction: MANDATORY (
+      !! incconnue,  !! correction 30.10.2017
+      inconnue,
+      !! cable_de_communication,  !! nur bei Fernwärme - utiliser cable_de_signal
+      cable_de_signal,
+      cable_de_conduite,
+      cable_de_courant,  !! nur bei Fernwärme
+      autre);
+    Genre: MANDATORY (
+      inconnue,  !! 30.10.2017 nouvelle valeur
+      cuivre,
+      coaxial,
+      optique);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Etat: MANDATORY Etat;  !! erweitern in den einzelnen Medien
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Annee_construction: SIA405_Base_f.Annee;  
+    Couverture_ouvrage: SIA405_Base_f.Couverture;  !! valeur moyenne de l’objet
+    Condition: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert  
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Remarque: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    MD_Datenherr: TEXT*80;
+END Cable;
+
+CLASS Cable_Texte EXTENDS SIA405_Base_f.SIA405_TextePos =
+END Cable_Texte;
+
+ASSOCIATION Cable_TexteAssoc =
+   CableRef -<#> {1}  Cable;
+      Texte --   {0 .. *} Cable_Texte;
+END Cable_TexteAssoc;
+
+CLASS Point_cable EXTENDS SIA405_Base_f.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Nom_numero: TEXT*40;
+    Geometrie: MANDATORY Base_f.CoordNat;
+    Genre: MANDATORY (
+      inconnue,
+      manchon_cable,
+      chambre_cable,
+      cabine,
+      point_de_cable,
+      autre
+      );
+    Determination_planimetrique: MANDATORY SIA405_Base_f.Determination_planimetrique;
+    Altitude: Base_f.Altitude; 
+    Determination_altimetrique: SIA405_Base_f.Determination_planimetrique;
+!! 13.7.2014    Etat: MANDATORY SIA405_Base_f.Etat;
+    Etat: MANDATORY Etat;
+    Annee_construction: SIA405_Base_f.Annee;  
+    Couverture_ouvrage: SIA405_Base_f.Couverture;  !! valeur moyenne de l’objet
+    Condition: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert
+!!    Proprietaire: TEXT*30;
+    Proprietaire: SIA405_Base_f.Organisation_Designation;
+    Remarque: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    Datenherr: TEXT*80;
+  UNIQUE Geometrie;
+END Point_cable;
+
+
+END SIA405_Cable_de_controle_a_distance;  !! Ende des Topics
+
+!! 25.1.2012 Neue View LK
+   VIEW TOPIC SIA405_Cable_de_controle_a_distance_LK =
+     DEPENDS ON SIA405_Cable_de_controle_a_distance;
+
+      VIEW Point_cable
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Point_cable;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  METAATTRIBUTS := base->METAATTRIBUTS;
+          Geometrie := base->Geometrie;
+          !! Abfuellung des Art Attributs nur via Fonction moeglich
+          Genre: MANDATORY (
+            !! inconnu,
+            inconnue,
+            chambre_cable,
+            cabine,
+            point_de_cable,
+            autre
+          );
+          Determination_planimetrique := base->Determination_planimetrique;
+          Altitude := base->Altitude;
+          Determination_altimetrique := base->Determination_altimetrique;
+  !!        Datenherr := base->Datenherr;
+  !!        Datenlieferant := base->Datenlieferant;
+  !!        Letzte_Aenderung := base->Letzte_Aenderung;
+      END Point_cable;
+
+      VIEW Cable
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Cable;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  METAATTRIBUTS := base->METAATTRIBUTS;
+          Nom_numero := base->Nom_numero;
+          Geometrie := base->Geometrie;
+          Determination_planimetrique := base->Determination_planimetrique;
+          Proprietaire := base->Proprietaire;
+  !!        Datenherr := base->Datenherr;
+  !!        Datenlieferant := base->Datenlieferant;
+  !!        Letzte_Aenderung := base->Letzte_Aenderung;
+      END Cable;
+
+      VIEW Cable_Texte
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Cable_Texte;
+        =
+        ATTRIBUTE
+          ALL OF base;
+      END Cable_Texte;
+
+ !!     ASSOCIATION Cable_TexteAssoc 
+ !!       DERIVED FROM SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Cable_TexteAssoc =
+ !!  neu 26.5.2012 als PROJECTION OF	
+	VIEW Cable_TexteAssoc 
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.SIA405_Cable_de_controle_a_distance.Cable_TexteAssoc;
+	  =
+       ATTRIBUTE
+         ALL OF base;
+      END Cable_TexteAssoc;
+
+   END SIA405_Cable_de_controle_a_distance_LK;  !! Ende des Topics
+
+END SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015.   !! Ende des Modells / Fin du modèle
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95 (de) AT "http://www.sia.ch/models"
+  VERSION "18.04.2018" TRANSLATION OF SIA405_FERNWIRKKABEL_2015_LV95 [ "18.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base_f_LV95; 
+  IMPORTS SIA405_Base_f_LV95; 
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Association suisse des professionnels de la protection des eaux (VSA), Zürich
+!! www.vsa.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / ASE par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Greffier: Stefan Burckhardt / SIA 405 Kommission
+
+!! 18.4.2018 nouvelle Version _LV95
+
+UNIT
+
+DOMAIN
+
+EtatValeurs EXTENDS SIA405_Base_f_LV95.Etat = (  !! Etat de fonctionnement et de planification de l’ouvrage. 
+!! 13.7.2015 Adaptation à la nouvelle version de SIA405_Base_f_LV95.Etat – Extension des valeurs de base du fluide, modélisation hiérarchique et compiler 4.5.13 ff 
+      hors_service ( !! comporte hors_service et les valeurs suivantes
+         !! hors_service,
+         en_reserve
+      ),
+      en_service (  !! comporte en_service et les valeurs suivantes 
+         !! en_service,
+         provisoire
+      ),
+      !! abandonne,
+      !! inconnu,
+      autre ( !! comporte les valeurs suivantes
+         variante_de_calcule,
+         planifie,
+         projet
+      )
+    );    !! Erweitert Wertebereich von SIA405 Status
+    !! nouveau 13.7.2015  
+    Etat = ALL OF EtatValeurs;
+    
+
+TOPIC SIA405_Cable_de_controle_a_distance = 
+
+CLASS Cable EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+    Nom_numero: TEXT*40;  !! z.B. Point_cableanfang_Point_cableeende
+    Geometrie: MANDATORY POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Base_f_LV95.CoordNat;  !! offener Linienzug, Stützpunkte in Landeskoordinaten
+    Fonction: MANDATORY (
+      !! incconnue,  !! correction 30.10.2017
+      inconnue,
+      !! cable_de_communication,  !! nur bei Fernwärme - utiliser cable_de_signal
+      cable_de_signal,
+      cable_de_conduite,
+      cable_de_courant,  !! nur bei Fernwärme
+      autre);
+    Genre: MANDATORY (
+      inconnue,  !! 30.10.2017 nouvelle valeur
+      cuivre,
+      coaxial,
+      optique);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Etat: MANDATORY Etat;  !! erweitern in den einzelnen Medien
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Annee_construction: SIA405_Base_f_LV95.Annee;  
+    Couverture_ouvrage: SIA405_Base_f_LV95.Couverture;  !! valeur moyenne de l’objet
+    Condition: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert  
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Remarque: TEXT*80;
+END Cable;
+
+CLASS Cable_Texte EXTENDS SIA405_Base_f_LV95.SIA405_TextePos =
+END Cable_Texte;
+
+ASSOCIATION Cable_TexteAssoc =
+   CableRef -<#> {1}  Cable;
+      Texte --   {0 .. *} Cable_Texte;
+END Cable_TexteAssoc;
+
+CLASS Point_cable EXTENDS SIA405_Base_f_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+    Nom_numero: TEXT*40;
+    Geometrie: MANDATORY Base_f_LV95.CoordNat;
+    Genre: MANDATORY (
+      inconnue,
+      manchon_cable,
+      chambre_cable,
+      cabine,
+      point_de_cable,
+      autre
+      );
+    Determination_planimetrique: MANDATORY SIA405_Base_f_LV95.Determination_planimetrique;
+    Altitude: Base_f_LV95.Altitude; 
+    Determination_altimetrique: SIA405_Base_f_LV95.Determination_planimetrique;
+!! 13.7.2014    Etat: MANDATORY SIA405_Base_f_LV95.Etat;
+    Etat: MANDATORY Etat;
+    Annee_construction: SIA405_Base_f_LV95.Annee;  
+    Couverture_ouvrage: SIA405_Base_f_LV95.Couverture;  !! valeur moyenne de l’objet
+    Condition: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert
+!!    Proprietaire: TEXT*30;
+    Proprietaire: SIA405_Base_f_LV95.Organisation_Designation;
+    Remarque: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    Datenherr: TEXT*80;
+  UNIQUE Geometrie;
+END Point_cable;
+
+
+END SIA405_Cable_de_controle_a_distance;  !! Ende des Topics
+
+!! 25.1.2012 Neue View LK
+   VIEW TOPIC SIA405_Cable_de_controle_a_distance_LK =
+     DEPENDS ON SIA405_Cable_de_controle_a_distance;
+
+      VIEW Point_cable
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Point_cable;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  METAATTRIBUTS := base->METAATTRIBUTS;
+          Geometrie := base->Geometrie;
+          !! Abfuellung des Art Attributs nur via Fonction moeglich
+          Genre: MANDATORY (
+            !! inconnu,
+            inconnue,
+            chambre_cable,
+            cabine,
+            point_de_cable,
+            autre
+          );
+          Determination_planimetrique := base->Determination_planimetrique;
+          Altitude := base->Altitude;
+          Determination_altimetrique := base->Determination_altimetrique;
+      END Point_cable;
+
+      VIEW Cable
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Cable;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  METAATTRIBUTS := base->METAATTRIBUTS;
+          Nom_numero := base->Nom_numero;
+          Geometrie := base->Geometrie;
+          Determination_planimetrique := base->Determination_planimetrique;
+          Proprietaire := base->Proprietaire;
+      END Cable;
+
+      VIEW Cable_Texte
+        PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Cable_Texte;
+        =
+        ATTRIBUTE
+          ALL OF base;
+      END Cable_Texte;
+
+	VIEW Cable_TexteAssoc 
+      PROJECTION OF base~SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.SIA405_Cable_de_controle_a_distance.Cable_TexteAssoc;
+	  =
+       ATTRIBUTE
+         ALL OF base;
+      END Cable_TexteAssoc;
+
+   END SIA405_Cable_de_controle_a_distance_LK;  !! Ende des Topics
+
+END SIA405_CABLE_DE_CONTROLE_A_DISTANCE_2015_LV95.   !! Ende des Modells / Fin du modèle
+

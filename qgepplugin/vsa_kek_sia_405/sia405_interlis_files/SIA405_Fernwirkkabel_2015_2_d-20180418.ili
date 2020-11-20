@@ -1,0 +1,378 @@
+INTERLIS 2.3;
+
+!! MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+MODEL SIA405_FERNWIRKKABEL_2015 (de) AT "http://www.sia.ch/models"
+  VERSION "18.04.2018" =
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base;  !! VERSION "21.2.2012"
+  IMPORTS SIA405_Base;  !! VERSION "21.2.2012"
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Änderungen und Ergänzungen dürfen zum Eigengebrauch getätigt werden. 
+!! Sie müssen innerhalb der Datei so dokumentiert sein, dass sichtbar wird, 
+!! welche Änderungen getätigt wurden (Einfügen von INTERLIS Kommentar). 
+!! Die Originalmodelldatei SIA405_Ferwirkkabel_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / SIA 405 Kommission
+!!
+!! 28.7.2011: Erste Fassung
+!! 4.8.2011 OID eingefügt -> wieder rausgenommen 25.1.2012
+!! 30.8.2011 Einbaujahr neu als Datentyp SIA405_Base.Jahr
+!! 30.8.2011 MD_Datenherr TEXT*80 statt TEXT*12
+!! 25.1.2012 CLASS als Vererbung von SIA405_BaseClass
+!! 25.1.2012 Damit auch Letzte_Aenderung und MD_Datenherr rausgenommen, weil neu geerbt
+!! 25.1.2012 Neuer TOPIC Name SIA405_Fernwirkkabel (Vereinheitlichung Modelle)
+!! 25.1.2012 Neuer MODELL Name MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+!! 21.2.2012 Ueberdeckung neu SIA405_Base.Ueberdeckung
+!! 21.2.2012 Nennweite neu SIA405_Base.Nennweite
+!! 21.2.2012 Eigentuemer Datentyp OrganisationBezeichnung
+!! 26.5.2012 View mit OBJ_ID, Metaattribute ergänzt, Letzte_Aenderung etc. rausgenommen
+!! 13.7.2015 Korrektur  neu   Ueberdeckung: SIA405_Base.Ueberdeckung;
+!! 13.7.2015 Korrektur Eigentuemer neu Eigentuemer: OrganisationBezeichnung;
+!! 13.7.2015 Status - Erweiterung für Medium
+!! 30.10.2017 Korrektur: Kabel.Kabelart: Lichtwellenleiter statt Lichwellenleiter
+!! 30.10.2017 neu Wert unbekannt bei Kabel.Kabelart
+!! 18.4.2018 MODEL in Grossbuchstaben, Vereinheitlichung SIA405
+
+
+UNIT
+
+DOMAIN
+
+Statuswerte EXTENDS SIA405_Base.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 13.7.2015 Anpassung auf neue Variante von SIA405_Base.Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante,
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 13.7.2015  
+    Status = ALL OF Statuswerte;
+
+
+TOPIC SIA405_Fernwirkkabel = 
+
+CLASS Kabel EXTENDS SIA405_Base.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;  !! z.B. Kabelpunktanfang_Kabelpunkteende
+    Geometrie: MANDATORY POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Base.LKoord;  !! offener Linienzug, Stützpunkte in Landeskoordinaten
+    Funktion: MANDATORY (
+      unbekannt,
+      !! Kommunikationskabel,  !! nur bei Fernwärme - neu mit Signalkabel attributieren
+      Signalkabel,
+      Steuerkabel,
+      Stromkabel,  !! nur bei Fernwärme
+      weitere);
+    Kabelart: MANDATORY (
+      unbekannt, !! neu 30.10.2017
+      Kupfer,
+      koaxial,
+      !! Lichwellenleiter);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+      Lichtwellenleiter);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+!! 13.7.2015    Status: MANDATORY SIA405_Base.Status;  !! erweitern in den einzelnen Medien
+    Status: MANDATORY Status;
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base.Jahr;  
+!! 13.7.2015 Korrektur
+!!    Ueberdeckung: 0.00 .. 9999.99 [INTERLIS.m];  !! mittlerer Wert eines Objektes
+    Ueberdeckung: SIA405_Base.Ueberdeckung;
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert  
+!! 13.7.2015 Fehlerkorrektur    Eigentuemer: TEXT*30;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    MD_Datenherr: TEXT*80;
+END Kabel;
+
+CLASS Kabel_Text EXTENDS SIA405_Base.SIA405_TextPos =
+END Kabel_Text;
+
+ASSOCIATION Kabel_TextAssoc =
+   KabelRef -<#> {1}  Kabel;
+      Text --   {0 .. *} Kabel_Text;
+END Kabel_TextAssoc;
+
+CLASS Kabelpunkt EXTENDS SIA405_Base.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base.LKoord;
+    Art: MANDATORY (
+      unbekannt,
+      Kabelmuffe,
+      Kabelschacht,
+      Kabine,
+      Kabelpunkt,
+      weitere
+      );
+    Lagebestimmung: MANDATORY SIA405_Base.Genauigkeit;
+    Hoehe: Base.Hoehe;
+    Hoehenbestimmung: SIA405_Base.Genauigkeit;
+!! 13.7.2015    Status: MANDATORY SIA405_Base.Status;
+    Status: MANDATORY Status;
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base.Jahr;  
+!! neu 21.2.2012
+    Ueberdeckung: SIA405_Base.Ueberdeckung;
+!!    Ueberdeckung: 0.00 .. 9999.99 [INTERLIS.m];
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert
+!!    Eigentuemer: TEXT*30;
+    Eigentuemer: SIA405_Base.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    Datenherr: TEXT*80;
+  UNIQUE Geometrie;
+END Kabelpunkt;
+
+
+END SIA405_Fernwirkkabel;  !! Ende des Topics
+
+!! 25.1.2012 Neue View LK
+   VIEW TOPIC SIA405_Fernwirkkabel_LK =
+     DEPENDS ON SIA405_Fernwirkkabel;
+
+      VIEW Kabelpunkt
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015.SIA405_Fernwirkkabel.Kabelpunkt;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  Metaattribute := base->Metaattribute;
+          Geometrie := base->Geometrie;
+          !! Abfuellung des Art Attributs nur via Funktion moeglich
+          Art: MANDATORY (
+            unbekannt,
+            Kabelschacht,
+            Kabine,
+            Kabelpunkt,
+            andere
+          );
+          Lagebestimmung := base->Lagebestimmung;
+          Hoehe := base->Hoehe;
+          Hoehenbestimmung := base->Hoehenbestimmung;
+  !!        Datenherr := base->Datenherr;
+  !!        Datenlieferant := base->Datenlieferant;
+  !!        Letzte_Aenderung := base->Letzte_Aenderung;
+      END Kabelpunkt;
+
+      VIEW Kabel
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015.SIA405_Fernwirkkabel.Kabel;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  Metaattribute := base->Metaattribute;
+          Name_Nummer := base->Name_Nummer;
+          Geometrie := base->Geometrie;
+          Lagebestimmung := base->Lagebestimmung;
+          Eigentuemer := base->Eigentuemer;
+  !!        Datenherr := base->Datenherr;
+  !!        Datenlieferant := base->Datenlieferant;
+  !!        Letzte_Aenderung := base->Letzte_Aenderung;
+      END Kabel;
+
+      VIEW Kabel_Text
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015.SIA405_Fernwirkkabel.Kabel_Text;
+        =
+        ATTRIBUTE
+          ALL OF base;
+      END Kabel_Text;
+
+ !!     ASSOCIATION Kabel_TextAssoc 
+ !!       DERIVED FROM SIA405_FERNWIRKKABEL_2015.SIA405_Fernwirkkabel.Kabel_TextAssoc =
+ !!  neu 26.5.2012 als PROJECTION OF	
+	VIEW Kabel_TextAssoc 
+      PROJECTION OF base~SIA405_FERNWIRKKABEL_2015.SIA405_Fernwirkkabel.Kabel_TextAssoc;
+	  =
+       ATTRIBUTE
+         ALL OF base;
+      END Kabel_TextAssoc;
+
+   END SIA405_Fernwirkkabel_LK;  !! Ende des Topics
+
+END SIA405_FERNWIRKKABEL_2015.   !! Ende des Modells / Fin du modèle
+
+
+
+
+!! INTERLIS 2.3;
+
+!! MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+MODEL SIA405_FERNWIRKKABEL_2015_LV95 (de) AT "http://www.sia.ch/models"
+  VERSION "18.04.2018" =
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Die Originalmodelldatei SIA405_Ferwirkkabel_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / SIA 405 Kommission
+!!
+!! 18.4.2018 neu Version _LV95
+
+
+UNIT
+
+DOMAIN
+
+Statuswerte EXTENDS SIA405_Base_LV95.Status = (  !! Betriebs- und Planungszustand. neu 2010: Erweiterungen dazu in den einzelnen Medien definieren
+!! 13.7.2015 Anpassung auf neue Variante von SIA405_Base_LV95.Status - Erweiterung Basiswerte im Medium, hierarchische Modellierung und Compiler 4.5.13 ff
+      ausser_Betrieb (  !! fasst ausser_Betrieb und folgende Werte zusammen
+      !! ausser_Betrieb,
+      Reserve
+	  ), 
+      in_Betrieb (
+      !!   in_Betrieb,
+         provisorisch),
+      !! tot, 
+      !! unbekannt, 
+      weitere ( !! fasst folgende Werte zusammen
+         Berechnungsvariante,
+         geplant,  
+         Projekt
+         )
+      );    !! Erweitert Wertebereich von SIA405 Status;    !! Erweitert Wertebereich von SIA405 Status
+    !! neu 13.7.2015  
+    Status = ALL OF Statuswerte;
+
+
+TOPIC SIA405_Fernwirkkabel = 
+
+CLASS Kabel EXTENDS SIA405_Base_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;  !! z.B. Kabelpunktanfang_Kabelpunkteende
+    Geometrie: MANDATORY POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Base_LV95.LKoord;  !! offener Linienzug, Stützpunkte in Landeskoordinaten
+    Funktion: MANDATORY (
+      unbekannt,
+      !! Kommunikationskabel,  !! nur bei Fernwärme - neu mit Signalkabel attributieren
+      Signalkabel,
+      Steuerkabel,
+      Stromkabel,  !! nur bei Fernwärme
+      weitere);
+    Kabelart: MANDATORY (
+      unbekannt, !! neu 30.10.2017
+      Kupfer,
+      koaxial,
+      !! Lichwellenleiter);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+      Lichtwellenleiter);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+!! 13.7.2015    Status: MANDATORY SIA405_Base_LV95.Status;  !! erweitern in den einzelnen Medien
+    Status: MANDATORY Status;
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base_LV95.Jahr;  
+    Ueberdeckung: SIA405_Base_LV95.Ueberdeckung;
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert  
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+END Kabel;
+
+CLASS Kabel_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Kabel_Text;
+
+ASSOCIATION Kabel_TextAssoc =
+   KabelRef -<#> {1}  Kabel;
+      Text --   {0 .. *} Kabel_Text;
+END Kabel_TextAssoc;
+
+CLASS Kabelpunkt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Art: MANDATORY (
+      unbekannt,
+      Kabelmuffe,
+      Kabelschacht,
+      Kabine,
+      Kabelpunkt,
+      weitere
+      );
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Hoehe: Base_LV95.Hoehe;
+    Hoehenbestimmung: SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY Status;
+    Einbaujahr: SIA405_Base_LV95.Jahr;  
+    Ueberdeckung: SIA405_Base_LV95.Ueberdeckung;
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert
+!!    Eigentuemer: TEXT*30;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+  UNIQUE Geometrie;
+END Kabelpunkt;
+
+
+END SIA405_Fernwirkkabel;  !! Ende des Topics
+
+   VIEW TOPIC SIA405_Fernwirkkabel_LK =
+     DEPENDS ON SIA405_Fernwirkkabel;
+
+      VIEW Kabelpunkt
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015_LV95.SIA405_Fernwirkkabel.Kabelpunkt;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  Metaattribute := base->Metaattribute;
+          Geometrie := base->Geometrie;
+          !! Abfuellung des Art Attributs nur via Funktion moeglich
+          Art: MANDATORY (
+            unbekannt,
+            Kabelschacht,
+            Kabine,
+            Kabelpunkt,
+            andere
+          );
+          Lagebestimmung := base->Lagebestimmung;
+          Hoehe := base->Hoehe;
+          Hoehenbestimmung := base->Hoehenbestimmung;
+      END Kabelpunkt;
+
+      VIEW Kabel
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015_LV95.SIA405_Fernwirkkabel.Kabel;
+        =
+        ATTRIBUTE
+		  OBJ_ID := base->OBJ_ID;
+		  Metaattribute := base->Metaattribute;
+          Name_Nummer := base->Name_Nummer;
+          Geometrie := base->Geometrie;
+          Lagebestimmung := base->Lagebestimmung;
+          Eigentuemer := base->Eigentuemer;
+      END Kabel;
+
+      VIEW Kabel_Text
+        PROJECTION OF base~SIA405_FERNWIRKKABEL_2015_LV95.SIA405_Fernwirkkabel.Kabel_Text;
+        =
+        ATTRIBUTE
+          ALL OF base;
+      END Kabel_Text;
+
+	VIEW Kabel_TextAssoc 
+      PROJECTION OF base~SIA405_FERNWIRKKABEL_2015_LV95.SIA405_Fernwirkkabel.Kabel_TextAssoc;
+	  =
+       ATTRIBUTE
+         ALL OF base;
+      END Kabel_TextAssoc;
+
+   END SIA405_Fernwirkkabel_LK;  !! Ende des Topics
+
+END SIA405_FERNWIRKKABEL_2015_LV95.   !! Ende des Modells / Fin du modèle
+

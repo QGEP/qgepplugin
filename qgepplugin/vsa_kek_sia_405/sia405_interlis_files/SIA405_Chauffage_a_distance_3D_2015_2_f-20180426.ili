@@ -1,0 +1,546 @@
+!! SIA405_Chauffage_a_distance_3D_2015_2_f.ili
+!! Extension 3D
+
+INTERLIS 2.3;
+
+MODEL SIA405_CHAUFFAGE_A_DISTANCE_3D_2015 (fr) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" TRANSLATION OF SIA405_FERNWAERME_3D_2015 [ "26.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_f;
+  IMPORTS SIA405_Base_f;
+  IMPORTS SIA405_CHAUFFAGE_A_DISTANCE_2015;
+
+!! Copyright 2002 - 2015
+!! Association suisse de chauffage à distance
+!! www.fernwaerme-schweiz.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! L'utilisation de ce fichier modèle INTERLIS besoin une licence!
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_3D_2015_2_f.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / VSA par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+TOPIC SIA405_Chauffage_a_distance_3D =
+
+CLASS Noeud_hydraulique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_hydraulique =  
+END Noeud_hydraulique;
+
+CLASS Noeud_hydraulique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_hydraulique_Texte = 
+END Noeud_hydraulique_Texte;
+
+ASSOCIATION Noeud_hydraulique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_hydraulique_TexteAssoc = 
+END Noeud_hydraulique_TexteAssoc;
+
+CLASS Troncon_hydraulique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_hydraulique =  
+END Troncon_hydraulique;
+
+CLASS Troncon_hydraulique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_hydraulique_Texte = 
+END Troncon_hydraulique_Texte;
+
+ASSOCIATION Troncon_hydraulique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_hydraulique_TexteAssoc = 
+END Troncon_hydraulique_TexteAssoc;
+
+CLASS Noeud_statique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_statique =  
+END Noeud_statique;
+
+CLASS Noeud_statique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_statique_Texte = 
+END Noeud_statique_Texte;
+
+ASSOCIATION Noeud_statique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Noeud_statique_TexteAssoc = 
+END Noeud_statique_TexteAssoc;
+
+CLASS Troncon_statique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_statique =  
+END Troncon_statique;
+
+CLASS Troncon_statique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_statique_Texte = 
+END Troncon_statique_Texte;
+
+ASSOCIATION Troncon_statique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Troncon_statique_TexteAssoc = 
+END Troncon_statique_TexteAssoc;
+
+CLASS Section_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Section_de_conduite =  
+END Section_de_conduite;
+
+CLASS Section_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Section_de_conduite_Texte = 
+END Section_de_conduite_Texte;
+
+ASSOCIATION Section_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Section_de_conduite_TexteAssoc = 
+END Section_de_conduite_TexteAssoc;
+
+CLASS Point_de_conduite (ABSTRACT) EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_de_conduite =  
+END Point_de_conduite;
+
+CLASS Point_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_de_conduite_Texte = 
+END Point_de_conduite_Texte;
+
+ASSOCIATION Point_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_de_conduite_TexteAssoc = 
+END Point_de_conduite_TexteAssoc;
+
+CLASS Point_de_conduite_normal EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_de_conduite_normal =  
+END Point_de_conduite_normal;
+
+CLASS Point_de_conduite_alimentation EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_de_conduite_alimentation =  
+END Point_de_conduite_alimentation;
+
+CLASS Ouvrage EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage =  
+    Cote_plafond: Base_f.Altitude;
+    Epaisseur: SIA405_Base_f.Epaisseur;
+    Cote_plancher: Base_f.Altitude;
+END Ouvrage;
+
+CLASS Ouvrage_Surface EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_Surface =
+   Geometrie3D: MANDATORY Base_f.Surface3D;
+END Ouvrage_Surface;
+
+ASSOCIATION Ouvrage_SurfaceAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_SurfaceAssoc =
+END Ouvrage_SurfaceAssoc;
+
+CLASS Ouvrage_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_Texte = 
+END Ouvrage_Texte;
+
+ASSOCIATION Ouvrage_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Ouvrage_TexteAssoc = 
+END Ouvrage_TexteAssoc;
+
+CLASS Trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace =  
+    Epaisseur: SIA405_Base_f.Epaisseur;  !! xxx_Mächtigkeit (Höhe) eines Objektes [mm]. Differenz Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trace;
+
+CLASS Trace_Surface EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_Surface =
+   Geometrie3D: MANDATORY Base_f.Surface3D;
+END Trace_Surface;
+
+ASSOCIATION Trace_SurfaceAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_SurfaceAssoc =
+END Trace_SurfaceAssoc;
+
+CLASS Trace_Ligne EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_Ligne =
+    Geometrie3D: MANDATORY Base_f.Polyligne3D;  !! Correction Polyligne3D au lieu de Surface3D (10.12.2014)
+END Trace_Ligne;
+
+ASSOCIATION Trace_LigneAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_LigneAssoc =
+END Trace_LigneAssoc;
+
+CLASS Trace_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_Texte = 
+END Trace_Texte;
+
+ASSOCIATION Trace_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Trace_TexteAssoc = 
+END Trace_TexteAssoc;
+
+CLASS Point_du_trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Point_du_trace =  
+    Epaisseur: SIA405_Base_f.Epaisseur;  !! xxx_ALTITUDE_REGARD_CANIVEAU moins ALTITUDE_RADIER_CANIVEAU pour ventilation, drainage et points fixes fonction (valeur calculée) = ALTITUDE_REGARD_ACCES moins ALTITUDE_REGARD_CANIVEAU pour chambre d’accès et ouverture demontage
+END Point_du_trace;
+
+CLASS Degats_section_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_section_de_conduite =  
+END Degats_section_de_conduite;
+
+CLASS Degats_section_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_section_de_conduite_Texte = 
+END Degats_section_de_conduite_Texte;
+
+ASSOCIATION Degats_section_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_section_de_conduite_TexteAssoc = 
+END Degats_section_de_conduite_TexteAssoc;
+
+CLASS Degats_point_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_point_de_conduite =  
+END Degats_point_de_conduite;
+
+CLASS Degats_point_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_point_de_conduite_Texte = 
+END Degats_point_de_conduite_Texte;
+
+ASSOCIATION Degats_point_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_point_de_conduite_TexteAssoc = 
+END Degats_point_de_conduite_TexteAssoc;
+
+CLASS Degats_ouvrage EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_ouvrage =  
+END Degats_ouvrage;
+
+CLASS Degats_ouvrage_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_ouvrage_Texte = 
+END Degats_ouvrage_Texte;
+
+ASSOCIATION Degats_ouvrage_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_ouvrage_TexteAssoc = 
+END Degats_ouvrage_TexteAssoc;
+
+CLASS Degats_trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_trace =  
+END Degats_trace;
+
+CLASS Degats_trace_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_trace_Texte = 
+END Degats_trace_Texte;
+
+ASSOCIATION Degats_trace_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015.SIA405_Chauffage_a_distance.Degats_trace_TexteAssoc = 
+END Degats_trace_TexteAssoc;
+
+END SIA405_Chauffage_a_distance_3D; !! end of TOPIC SIA405_Chauffage_a_distance_3D
+
+VIEW TOPIC SIA405_Chauffage_a_distance_3D_CS =
+    DEPENDS ON SIA405_Chauffage_a_distance_3D;
+
+VIEW Ouvrage
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Ouvrage;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Genre :=base-> Genre;
+    Cote_plafond := base-> Cote_plafond;
+    Epaisseur := base-> Epaisseur;
+    Cote_plancher := base-> Cote_plancher;
+END Ouvrage;
+
+
+VIEW Ouvrage_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Ouvrage_Surface;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+  END Ouvrage_Surface;
+
+VIEW Ouvrage_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Ouvrage_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_SurfaceAssoc;
+
+
+VIEW Trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Type_de_trace :=base-> Type_de_trace;
+    Largeur_du_trace :=base-> Largeur_du_trace;
+    Proprietaire :=base-> Proprietaire;
+    Epaisseur := base-> Epaisseur;
+END Trace;
+
+
+VIEW Trace_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Trace_Surface;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+  END Trace_Surface;
+
+VIEW Trace_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Trace_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_SurfaceAssoc;
+
+VIEW Trace_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Trace_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+END Trace_Ligne;
+
+VIEW Trace_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Trace_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_LigneAssoc;
+
+VIEW Point_du_trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.SIA405_Chauffage_a_distance_3D.Point_du_trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Genre :=base-> Genre;
+    Altitude_radier_caniveau :=base-> Altitude_radier_caniveau;
+    Altitude_regard_caniveau :=base-> Altitude_regard_caniveau;
+    Altitude_regard_acces :=base-> Altitude_regard_acces;
+    Determination_altimetrique :=base-> Determination_altimetrique;
+    Proprietaire :=base-> Proprietaire;
+    Dimension1 :=base-> Dimension1;
+    Epaisseur := base-> Epaisseur;
+END Point_du_trace;
+
+END SIA405_Chauffage_a_distance_3D_CS;  !! Ende der View
+END SIA405_CHAUFFAGE_A_DISTANCE_3D_2015.   !! Ende des Modells / Fin du modèle
+
+
+
+!! SIA405_Chauffage_a_distance_3D_2015_2_f_LV95.ili
+!! Extension 3D
+
+INTERLIS 2.3;
+
+MODEL SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95 (fr) AT "http://www.sia.ch/405"
+  VERSION "26.04.2018" TRANSLATION OF SIA405_FERNWAERME_3D_2015_LV95 [ "26.04.2018" ] = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! imports INTERLIS 2 Baseunits
+  IMPORTS Units;
+  IMPORTS Base_f_LV95;
+  IMPORTS SIA405_Base_f_LV95;
+  IMPORTS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95;
+
+!! Copyright 2002 - 2015
+!! Association suisse de chauffage à distance
+!! www.fernwaerme-schweiz.ch
+!! en cooperation avec schweizer ingenieur und architektenverein (sia), Zürich
+
+!! L'utilisation de ce fichier modèle INTERLIS besoin une licence!
+!! Les fichiers modèles originaux SIA405_Chauffage_a_distance_3D_2015_2_f_LV95.ili et les versions 
+!! modifiées à partir de ceux-ci ne peuvent pas être revendus.
+!! La distribution du fichier original (comme tout ou une partie de celui-ci) 
+!! n'est permise qu'avec l'achat d'une licence du sia / VSA par le destinataire.
+
+!! libéré pour utilisation publique et application commerciale avec la licence.
+!! Fichier modèle INTERLIS examiné avec Compiler INTERLIS Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+TOPIC SIA405_Chauffage_a_distance_3D =
+
+CLASS Noeud_hydraulique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_hydraulique =  
+END Noeud_hydraulique;
+
+CLASS Noeud_hydraulique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_hydraulique_Texte = 
+END Noeud_hydraulique_Texte;
+
+ASSOCIATION Noeud_hydraulique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_hydraulique_TexteAssoc = 
+END Noeud_hydraulique_TexteAssoc;
+
+CLASS Troncon_hydraulique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_hydraulique =  
+END Troncon_hydraulique;
+
+CLASS Troncon_hydraulique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_hydraulique_Texte = 
+END Troncon_hydraulique_Texte;
+
+ASSOCIATION Troncon_hydraulique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_hydraulique_TexteAssoc = 
+END Troncon_hydraulique_TexteAssoc;
+
+CLASS Noeud_statique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_statique =  
+END Noeud_statique;
+
+CLASS Noeud_statique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_statique_Texte = 
+END Noeud_statique_Texte;
+
+ASSOCIATION Noeud_statique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Noeud_statique_TexteAssoc = 
+END Noeud_statique_TexteAssoc;
+
+CLASS Troncon_statique EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_statique =  
+END Troncon_statique;
+
+CLASS Troncon_statique_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_statique_Texte = 
+END Troncon_statique_Texte;
+
+ASSOCIATION Troncon_statique_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Troncon_statique_TexteAssoc = 
+END Troncon_statique_TexteAssoc;
+
+CLASS Section_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Section_de_conduite =  
+END Section_de_conduite;
+
+CLASS Section_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Section_de_conduite_Texte = 
+END Section_de_conduite_Texte;
+
+ASSOCIATION Section_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Section_de_conduite_TexteAssoc = 
+END Section_de_conduite_TexteAssoc;
+
+CLASS Point_de_conduite (ABSTRACT) EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_de_conduite =  
+END Point_de_conduite;
+
+CLASS Point_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_de_conduite_Texte = 
+END Point_de_conduite_Texte;
+
+ASSOCIATION Point_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_de_conduite_TexteAssoc = 
+END Point_de_conduite_TexteAssoc;
+
+CLASS Point_de_conduite_normal EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_de_conduite_normal =  
+END Point_de_conduite_normal;
+
+CLASS Point_de_conduite_alimentation EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_de_conduite_alimentation =  
+END Point_de_conduite_alimentation;
+
+CLASS Ouvrage EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage =  
+    Cote_plafond: Base_f_LV95.Altitude;
+    Epaisseur: SIA405_Base_f_LV95.Epaisseur;
+    Cote_plancher: Base_f_LV95.Altitude;
+END Ouvrage;
+
+CLASS Ouvrage_Surface EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_Surface =
+   Geometrie3D: MANDATORY Base_f_LV95.Surface3D;
+END Ouvrage_Surface;
+
+ASSOCIATION Ouvrage_SurfaceAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_SurfaceAssoc =
+END Ouvrage_SurfaceAssoc;
+
+CLASS Ouvrage_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_Texte = 
+END Ouvrage_Texte;
+
+ASSOCIATION Ouvrage_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Ouvrage_TexteAssoc = 
+END Ouvrage_TexteAssoc;
+
+CLASS Trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace =  
+    Epaisseur: SIA405_Base_f_LV95.Epaisseur;  !! xxx_Mächtigkeit (Höhe) eines Objektes [mm]. Differenz Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes.
+END Trace;
+
+CLASS Trace_Surface EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_Surface =
+   Geometrie3D: MANDATORY Base_f_LV95.Surface3D;
+END Trace_Surface;
+
+ASSOCIATION Trace_SurfaceAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_SurfaceAssoc =
+END Trace_SurfaceAssoc;
+
+CLASS Trace_Ligne EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_Ligne =
+    Geometrie3D: MANDATORY Base_f_LV95.Polyligne3D;  !! Correction Polyligne3D au lieu de Surface3D (10.12.2014)
+END Trace_Ligne;
+
+ASSOCIATION Trace_LigneAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_LigneAssoc =
+END Trace_LigneAssoc;
+
+CLASS Trace_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_Texte = 
+END Trace_Texte;
+
+ASSOCIATION Trace_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Trace_TexteAssoc = 
+END Trace_TexteAssoc;
+
+CLASS Point_du_trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Point_du_trace =  
+    Epaisseur: SIA405_Base_f_LV95.Epaisseur;  !! xxx_ALTITUDE_REGARD_CANIVEAU moins ALTITUDE_RADIER_CANIVEAU pour ventilation, drainage et points fixes fonction (valeur calculée) = ALTITUDE_REGARD_ACCES moins ALTITUDE_REGARD_CANIVEAU pour chambre d’accès et ouverture demontage
+END Point_du_trace;
+
+CLASS Degats_section_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_section_de_conduite =  
+END Degats_section_de_conduite;
+
+CLASS Degats_section_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_section_de_conduite_Texte = 
+END Degats_section_de_conduite_Texte;
+
+ASSOCIATION Degats_section_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_section_de_conduite_TexteAssoc = 
+END Degats_section_de_conduite_TexteAssoc;
+
+CLASS Degats_point_de_conduite EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_point_de_conduite =  
+END Degats_point_de_conduite;
+
+CLASS Degats_point_de_conduite_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_point_de_conduite_Texte = 
+END Degats_point_de_conduite_Texte;
+
+ASSOCIATION Degats_point_de_conduite_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_point_de_conduite_TexteAssoc = 
+END Degats_point_de_conduite_TexteAssoc;
+
+CLASS Degats_ouvrage EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_ouvrage =  
+END Degats_ouvrage;
+
+CLASS Degats_ouvrage_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_ouvrage_Texte = 
+END Degats_ouvrage_Texte;
+
+ASSOCIATION Degats_ouvrage_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_ouvrage_TexteAssoc = 
+END Degats_ouvrage_TexteAssoc;
+
+CLASS Degats_trace EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_trace =  
+END Degats_trace;
+
+CLASS Degats_trace_Texte EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_trace_Texte = 
+END Degats_trace_Texte;
+
+ASSOCIATION Degats_trace_TexteAssoc EXTENDS SIA405_CHAUFFAGE_A_DISTANCE_2015_LV95.SIA405_Chauffage_a_distance.Degats_trace_TexteAssoc = 
+END Degats_trace_TexteAssoc;
+
+END SIA405_Chauffage_a_distance_3D; !! end of TOPIC SIA405_Chauffage_a_distance_3D
+
+VIEW TOPIC SIA405_Chauffage_a_distance_3D_CS =
+    DEPENDS ON SIA405_Chauffage_a_distance_3D;
+
+VIEW Ouvrage
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Ouvrage;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Genre :=base-> Genre;
+    Cote_plafond := base-> Cote_plafond;
+    Epaisseur := base-> Epaisseur;
+    Cote_plancher := base-> Cote_plancher;
+END Ouvrage;
+
+
+VIEW Ouvrage_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Ouvrage_Surface;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+  END Ouvrage_Surface;
+
+VIEW Ouvrage_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Ouvrage_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Ouvrage_SurfaceAssoc;
+
+
+VIEW Trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Etat :=base-> Etat;
+    Type_de_trace :=base-> Type_de_trace;
+    Largeur_du_trace :=base-> Largeur_du_trace;
+    Proprietaire :=base-> Proprietaire;
+    Epaisseur := base-> Epaisseur;
+END Trace;
+
+
+VIEW Trace_Surface
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Trace_Surface;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+  END Trace_Surface;
+
+VIEW Trace_SurfaceAssoc
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Trace_SurfaceAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_SurfaceAssoc;
+
+VIEW Trace_Ligne
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Trace_Ligne;
+  =
+  ATTRIBUTE
+      Geometrie3D := base->Geometrie3D;
+END Trace_Ligne;
+
+VIEW Trace_LigneAssoc
+PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Trace_LigneAssoc;
+  =
+  ATTRIBUTE
+     ALL OF base;
+END Trace_LigneAssoc;
+
+VIEW Point_du_trace
+  PROJECTION OF base~SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.SIA405_Chauffage_a_distance_3D.Point_du_trace;
+  =  
+  ATTRIBUTE
+    OBJ_ID := base -> OBJ_ID;
+    METAATTRIBUTS := base-> METAATTRIBUTS;
+    Determination_planimetrique :=base-> Determination_planimetrique;
+    Genre :=base-> Genre;
+    Altitude_radier_caniveau :=base-> Altitude_radier_caniveau;
+    Altitude_regard_caniveau :=base-> Altitude_regard_caniveau;
+    Altitude_regard_acces :=base-> Altitude_regard_acces;
+    Determination_altimetrique :=base-> Determination_altimetrique;
+    Proprietaire :=base-> Proprietaire;
+    Dimension1 :=base-> Dimension1;
+    Epaisseur := base-> Epaisseur;
+END Point_du_trace;
+
+END SIA405_Chauffage_a_distance_3D_CS;  !! Ende der View
+END SIA405_CHAUFFAGE_A_DISTANCE_3D_2015_LV95.   !! Ende des Modells / Fin du modèle
+

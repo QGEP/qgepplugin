@@ -1,0 +1,115 @@
+INTERLIS 2.3;
+
+!! MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+MODEL SIA405_Fernwirkkabel_2012_LV95 (de) AT "http://www.sia.ch/models"
+  VERSION "21.2.2012" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base_LV95;  !! VERSION "21.2.2012"
+  IMPORTS SIA405_Base_LV95;  !! VERSION "21.2.2012"
+
+!! Copyright 2011 - 2012 sia / SVGW / VFS
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+!! Änderungen und Ergänzungen dürfen zum Eigengebrauch getätigt werden. 
+!! Sie müssen innerhalb der Datei so dokumentiert sein, dass sichtbar wird, 
+!! welche Änderungen getätigt wurden (Einfügen von INTERLIS Kommentar). 
+!! Die Originalmodelldatei SIA405_Ferwirkkabel_2012_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+!! Die Weitergabe der Originaldatei (als Ganzes oder Teile davon) ist nur 
+!! zusammen mit dem Erwerb einer Lizenz beim SIA (www.sia.ch) durch den Empfänger erlaubt. 
+
+!! Geprueft mit Compiler Version 4.4.3 vom 4.1.2012
+!! Sachbearbeiter Stefan Burckhardt / SIA 405 Kommission
+!!
+!! 28.7.2011: Erste Fassung
+!! 4.8.2011 OID eingefügt -> wieder rausgenommen 25.1.2012
+!! 30.8.2011 Einbaujahr neu als Datentyp SIA405_Base_LV95.Jahr
+!! 30.8.2011 MD_Datenherr TEXT*80 statt TEXT*12
+!! 25.1.2012 CLASS als Vererbung von SIA405_BaseClass
+!! 25.1.2012 Damit auch Letzte_Aenderung und MD_Datenherr rausgenommen, weil neu geerbt
+!! 25.1.2012 Neuer TOPIC Name SIA405_Fernwirkkabel (Vereinheitlichung Modelle)
+!! 25.1.2012 Neuer MODELL Name MODEL SIA405_Fernwirkkabel (de) AT "http://www.sia.ch/models"
+!! 21.2.2012 Ueberdeckung neu SIA405_Base_LV95.Ueberdeckung
+!! 21.2.2012 Nennweite neu SIA405_Base_LV95.Nennweite
+!! 21.2.2012 Eigentuemer Datentyp OrganisationBezeichnung
+!! 26.5.2012 View mit OBJ_ID, Metaattribute ergänzt, Letzte_Aenderung etc. rausgenommen
+
+    
+UNIT
+
+DOMAIN
+
+TOPIC SIA405_Fernwirkkabel = 
+
+CLASS Kabelpunkt EXTENDS SIA405_Base_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;
+    Geometrie: MANDATORY Base_LV95.LKoord;
+    Art: MANDATORY (
+      unbekannt,
+      Kabelmuffe,
+      Kabelschacht,
+      Kabine,
+      Kabelpunkt,
+      weitere
+      );
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Hoehe: Base_LV95.Hoehe;
+    Hoehenbestimmung: SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY SIA405_Base_LV95.Status;
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base_LV95.Jahr;  
+!! neu 21.2.2012
+    Ueberdeckung: SIA405_Base_LV95.Ueberdeckung;
+!!    Ueberdeckung: 0.00 .. 9999.99 [INTERLIS.m];
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert
+!!    Eigentuemer: TEXT*30;
+    Eigentuemer: SIA405_Base_LV95.OrganisationBezeichnung;
+    Bemerkung: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    Datenherr: TEXT*80;
+  UNIQUE Geometrie;
+END Kabelpunkt;
+
+CLASS Kabel EXTENDS SIA405_Base_LV95.SIA405_BaseClass =
+  ATTRIBUTE
+!!    OID AS ANYOID; !! Hier definiert als ANY. Genaue Definition und Wahl durch die Transfergemeindschaft gemäss folgenden Varianten: Objektidentifikation gemäss INTERLIS 2 Definition für OID (entweder als UUIDOID nach ISO 11578 oder INTERLIS 2 STANDARDOID), siehe auch INTERLIS 2 Referenzhandbuch www.interlis.ch
+    Name_Nummer: TEXT*40;  !! z.B. Kabelpunktanfang_Kabelpunkteende
+    Geometrie: MANDATORY POLYLINE WITH (STRAIGHTS, ARCS) VERTEX Base_LV95.LKoord;  !! offener Linienzug, Stützpunkte in Landeskoordinaten
+    Funktion: MANDATORY (
+      unbekannt,
+      Kommunikationskabel,  !! nur bei Fernwärme
+      Signalkabel,
+      Steuerkabel,
+      Stromkabel,  !! nur bei Fernwärme
+      weitere);
+    Kabelart: MANDATORY (
+      Kupfer,
+      koaxial,
+      Lichwellenleiter);  !! bei Wasser Lichtwellenleiter, bei Gas optisch - was ist der Unterschied?
+    Lagebestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+    Status: MANDATORY SIA405_Base_LV95.Status;  !! erweitern in den einzelnen Medien
+!!    Einbaujahr: 0 .. 9999;  !! Wertebereich einschränken
+    Einbaujahr: SIA405_Base_LV95.Jahr;  
+    Ueberdeckung: 0.00 .. 9999.99 [INTERLIS.m];  !! mittlerer Wert eines Objektes
+    Zustand: TEXT*40;  !! Was kommt hier rein - Wertebereich vorschlagen? !! bei Fernwaerme als TEXT*40 sonst TEXT*30 definiert  
+    Eigentuemer: TEXT*30;
+    Bemerkung: TEXT*80;
+!!    Letzte_Aenderung: MANDATORY INTERLIS.INTERLIS_1_DATE;
+!!    MD_Datenherr: TEXT*80;
+END Kabel;
+
+CLASS Kabel_Text EXTENDS SIA405_Base_LV95.SIA405_TextPos =
+END Kabel_Text;
+
+ASSOCIATION Kabel_TextAssoc =
+   KabelRef -<#> {1}  Kabel;
+      Text --   {0 .. *} Kabel_Text;
+END Kabel_TextAssoc;
+
+END SIA405_Fernwirkkabel;  !! Ende des Topics
+
+END SIA405_Fernwirkkabel_2012_LV95.   !! Ende des Modells / Fin du modèle

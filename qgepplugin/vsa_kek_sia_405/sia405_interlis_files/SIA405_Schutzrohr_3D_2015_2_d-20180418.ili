@@ -1,0 +1,113 @@
+INTERLIS 2.3;
+
+MODEL SIA405_SCHUTZROHR_3D_2015 (de) AT "http://www.sia.ch/405"
+VERSION "18.04.2018"  =
+
+   IMPORTS Units;
+   IMPORTS Base;
+   IMPORTS SIA405_Base;
+   IMPORTS SIA405_SCHUTZROHR_2015;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Die Originalmodelldatei SIA405_Schutzrohr_3D_2015_2.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+!! neu 17.7.2015
+!! 18.4.2018 MODELL in Grossbuchstaben, Vereinheitlichung SIA405
+
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+   TOPIC SIA405_Schutzrohr_3D =
+   
+      CLASS Schutzrohr EXTENDS SIA405_SCHUTZROHR_2015.SIA405_Schutzrohr.Schutzrohr =
+         Geometrie3D: MANDATORY Base.HKoord;
+      END Schutzrohr;
+      
+   END SIA405_Schutzrohr_3D;
+   
+   VIEW TOPIC SIA405_Schutzrohr_LK_3D =
+    DEPENDS ON SIA405_Schutzrohr_3D;
+   
+   VIEW Schutzrohr
+      PROJECTION OF base~SIA405_SCHUTZROHR_3D_2015.SIA405_Schutzrohr_3D.Schutzrohr;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		Metaattribute := base -> Metaattribute;
+        Geometrie := base -> Geometrie;
+        Aussendurchmesser := base -> Aussendurchmesser;
+        Lagebestimmung := base -> Lagebestimmung;
+        Status := base -> Status;
+        Ueberdeckung := base -> Ueberdeckung;
+        Eigentuemer := base -> Eigentuemer;
+		Geometrie3D := base -> Geometrie3D;  !! Erweiterung 3D
+    END Schutzrohr;
+  
+  END SIA405_Schutzrohr_LK_3D;
+   
+END SIA405_SCHUTZROHR_3D_2015.
+
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_SCHUTZROHR_3D_2015_LV95 (de) AT "http://www.sia.ch/405"
+VERSION "18.04.2018"  =
+
+   IMPORTS Units;
+   IMPORTS Base_LV95;
+   IMPORTS SIA405_Base_LV95;
+   IMPORTS SIA405_SCHUTZROHR_2015_LV95;
+
+!! Copyright 2011 - 2018 sia / SVGW / VFS
+
+!! Die Originalmodelldatei SIA405_Schutzrohr_3D_2015_2.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter: Stefan Burckhardt / SIA 405 Kommission
+
+!! neu 17.7.2015
+!! 18.4.2018 Version _LV95 neu
+
+
+   DOMAIN
+!! Definition Datentypen nach INTERLIS 2.3
+
+   TOPIC SIA405_Schutzrohr_3D =
+   
+      CLASS Schutzrohr EXTENDS SIA405_SCHUTZROHR_2015_LV95.SIA405_Schutzrohr.Schutzrohr =
+         Geometrie3D: MANDATORY Base_LV95.HKoord;
+      END Schutzrohr;
+      
+   END SIA405_Schutzrohr_3D;
+   
+   VIEW TOPIC SIA405_Schutzrohr_LK_3D =
+    DEPENDS ON SIA405_Schutzrohr_3D;
+   
+   VIEW Schutzrohr
+      PROJECTION OF base~SIA405_SCHUTZROHR_3D_2015_LV95.SIA405_Schutzrohr_3D.Schutzrohr;
+      =
+      ATTRIBUTE
+	    OBJ_ID := base -> OBJ_ID;
+		Metaattribute := base -> Metaattribute;
+        Geometrie := base -> Geometrie;
+        Aussendurchmesser := base -> Aussendurchmesser;
+        Lagebestimmung := base -> Lagebestimmung;
+        Status := base -> Status;
+        Ueberdeckung := base -> Ueberdeckung;
+        Eigentuemer := base -> Eigentuemer;
+		Geometrie3D := base -> Geometrie3D;  !! Erweiterung 3D
+    END Schutzrohr;
+  
+  END SIA405_Schutzrohr_LK_3D;
+   
+END SIA405_SCHUTZROHR_3D_2015_LV95.
+
+

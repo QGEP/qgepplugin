@@ -1,0 +1,23 @@
+<!DOCTYPE qgis_bookmarks>
+<qgis_bookmarks>
+  <bookmark>
+    <id>{df93d0e2-0e2c-458c-9307-36ffffa6a440}</id>
+    <name>bauwerk ohne nutzungsart und fehlenden schächte/deckel</name>
+    <project></project>
+    <xmin>2666058.32869999995455146</xmin>
+    <ymin>1208373.94399999990127981</ymin>
+    <xmax>2666123.72269999980926514</xmax>
+    <ymax>1208419.29169999994337559</ymax>
+    <sr_id>47</sr_id>
+  </bookmark>
+  <bookmark>
+    <id>{f50b9863-359e-4a8d-b96c-65e5ae185aca}</id>
+    <name>bauwerk ohne nutzungsart und bauwerke welche im webgis nicht dargestellt werden(rot)</name>
+    <project></project>
+    <xmin>2666055.06870000017806888</xmin>
+    <ymin>1208057.53190000005997717</ymin>
+    <xmax>2666316.64509999984875321</xmax>
+    <ymax>1208238.92269999999552965</ymax>
+    <sr_id>47</sr_id>
+  </bookmark>
+</qgis_bookmarks>

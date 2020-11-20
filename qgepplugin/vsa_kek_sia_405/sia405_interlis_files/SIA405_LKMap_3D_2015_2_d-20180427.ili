@@ -1,0 +1,212 @@
+INTERLIS 2.3;
+
+MODEL SIA405_LKMap_3D_2015 (de) AT "http://www.sia.ch/405"
+  VERSION "27.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;     !! neu 8.11.2004, importiert INTERLIS 2 Basisunits
+  IMPORTS Units;  
+  IMPORTS Base;  !! Version 18.4.2014
+  IMPORTS SIA405_Base;  !! Version 18.4.2014
+  IMPORTS SIA405_LKMap_2015;  
+
+!! Copyright 2011 - 2018
+!! SIA, Zürich -  www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_LKMap_3D_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / Sepp Dorfschmid / SIA 405 Kommission
+!!
+!! 28.7.2011: Erste Fassung
+!! 5.8.2011 Maechtigkeit in Superklasse verschoben
+!! 5.8.2011 Maechtigkeit MANDATORY gesetzt
+!! 5.8.2011 Surface3D und Polyline3D von base.ili importiert
+!! 30.8.2011 Hoehenbestimmungt wie Lagebestimmung MANDATORY gesetzt
+!! 30.8.2011 Einzelflaechen3D ersetzt durch Base.Surface3D
+!! 30.8.2011 Polyline3D ersetzt durch Base.Polyline3D
+!! 21.2.2012 AbmessungMaechtigkeit nach SIA405_Base verschoben
+!! 21.2.2012 MODEL und TOPIC neu SIA405_LKMap_3D statt SIA405_LKMap3D (Vereinheitlichung Schreibweise alle Modelle)
+!! 29.5.2012 Anpassung Lizenztext, neuer Dateiname SIA405_LKMap_3D_2012_2_d.ili 
+!! 29.5.2012 neu MODEL SIA405_LKMap_3D (de) AT "http://www.sia.ch/405"
+!! 28.6.2014 Dimension1 und Dimension2 in LKMap verschoben.
+!! 30.10.2017 Verschiebung der Attribute Hoehenbestimmung und Maechtigkeit in LKFlaeche, LKLinie und LKPunkt
+!! 27.4.2018 !! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+
+
+DOMAIN
+!! AbmessungMaechtigkeit  = 0 .. 99999 [Units.mm]; !! 
+!! Einzelflaechen3D = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base.HKoord;    !! Punkte mit Schweizer Landeskoordinaten 3D
+
+
+	TOPIC SIA405_LKMap_3D = 
+
+		CLASS LKObjekt EXTENDS SIA405_LKMap_2015.SIA405_LKMap.LKObjekt =
+		!!  ATTRIBUTE
+		!!    Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+		!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+		!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+		!!      unbekannt,
+		!!      ungenau  !! siehe genau
+		!!    );
+		!!    Maechtigkeit: MANDATORY AbmessungMaechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+		!!    Maechtigkeit: MANDATORY SIA405_Base.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+								!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+								!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+								!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+
+		END LKObjekt;
+
+		CLASS LKFlaeche EXTENDS SIA405_LKMap_2015.SIA405_LKMap.LKFlaeche =
+		  ATTRIBUTE
+		!!    Flaeche3D: MANDATORY Einzelflaechen3D;  !!  Detaillierte Geometrie insbesondere bei Spezialbauwerken. Bei Normbauwerken mit Dimensionen arbeiten -> LKPunkt
+			Flaeche3D: MANDATORY Base.Surface3D;  !!  Detaillierte Geometrie insbesondere bei Spezialbauwerken. Bei Normbauwerken mit Dimensionen arbeiten -> LKPunkt
+			Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			Maechtigkeit: MANDATORY SIA405_Base.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+		END LKFlaeche;
+
+
+		CLASS LKLinie EXTENDS SIA405_LKMap_2015.SIA405_LKMap.LKLinie =
+		  ATTRIBUTE
+			Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			!!    Linie3D: MANDATORY Polyline3D;  !!  Reihenfolge von Punkten die den Verlauf eines linienförmigen Elementes beschreibt
+			Linie3D: MANDATORY Base.Polyline3D;  !!  Reihenfolge von Punkten die den Verlauf eines linienförmigen Elementes beschreibt.
+			Maechtigkeit: MANDATORY SIA405_Base.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+		END LKLinie;
+
+		CLASS LKPunkt EXTENDS SIA405_LKMap_2015.SIA405_LKMap.LKPunkt =
+		  ATTRIBUTE
+		!!    Dimension1: SIA405_LKMap.Abmessung;  !! Erweiterung 3D, grösseres Mass eines Objektes (z. B. Länge/Durchmesser)
+		!! 28.6.2014 verschoben in LKMap	
+		!! 	Dimension1: SIA405_Base.Abmessung;  !! Erweiterung 3D, grösseres Mass eines Objektes (z. B. Länge/Durchmesser)
+		!!    Dimension2: SIA405_LKMap.Abmessung;  !! Erweiterung 3D, kleineres Mass eines Objektes (z. B. Breite/Durchmesser
+		!! 28.6.2014 verschoben in LKMap	
+		!! Dimension2: SIA405_Base.Abmessung;  !! Erweiterung 3D, kleineres Mass eines Objektes (z. B. Breite/Durchmesser
+			Hoehenbestimmung: MANDATORY SIA405_Base.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			Maechtigkeit: MANDATORY SIA405_Base.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+			SymbolPos3D: MANDATORY Base.HKoord;  !!  Landeskoordinate Ost/Nord, 3D Koordinaten
+		END LKPunkt;
+
+	END SIA405_LKMap_3D;    !! Ende des Topics
+
+END SIA405_LKMap_3D_2015.   !! Ende des Modells
+
+
+
+
+!! INTERLIS 2.3;
+
+MODEL SIA405_LKMap_3D_2015_LV95 (de) AT "http://www.sia.ch/405"
+  VERSION "27.04.2018" = 
+
+  IMPORTS UNQUALIFIED INTERLIS;
+  IMPORTS Units;  
+  IMPORTS Base_LV95;
+  IMPORTS SIA405_Base_LV95;
+  IMPORTS SIA405_LKMap_2015_LV95;
+
+!! Copyright 2011 - 2018
+!! SIA, Zürich -  www.sia.ch
+
+!! Die Nutzung dieser INTERLIS-Datei ist lizenzpflichtig!
+
+!! Die Originalmodelldatei SIA405_LKMap_3D_2015_2_d.ili und darauf basierende 
+!! abgeänderte Versionen dürfen nicht weiterverkauft werden. 
+
+!! Freigegeben für öffentlichen Gebrauch und kommerzielle Anwendung mit Lizenz.
+!! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+!! Sachbearbeiter Stefan Burckhardt / Sepp Dorfschmid / SIA 405 Kommission
+!!
+!! 27.4.2018 Erste Fassung _LV95
+!! 27.4.2018 !! Geprueft mit Compiler Version 4.7.7 (8.02.2018)
+
+
+DOMAIN
+!! AbmessungMaechtigkeit  = 0 .. 99999 [Units.mm]; !! 
+!! Einzelflaechen3D = SURFACE WITH (STRAIGHTS, ARCS) VERTEX Base_LV95.HKoord;    !! Punkte mit Schweizer Landeskoordinaten 3D
+
+
+	TOPIC SIA405_LKMap_3D = 
+
+		CLASS LKObjekt EXTENDS SIA405_LKMap_2015_LV95.SIA405_LKMap.LKObjekt =
+
+		END LKObjekt;
+
+		CLASS LKFlaeche EXTENDS SIA405_LKMap_2015_LV95.SIA405_LKMap.LKFlaeche =
+		  ATTRIBUTE
+			Flaeche3D: MANDATORY Base_LV95.Surface3D;  !!  Detaillierte Geometrie insbesondere bei Spezialbauwerken. Bei Normbauwerken mit Dimensionen arbeiten -> LKPunkt
+			Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			Maechtigkeit: MANDATORY SIA405_Base_LV95.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+		END LKFlaeche;
+
+
+		CLASS LKLinie EXTENDS SIA405_LKMap_2015_LV95.SIA405_LKMap.LKLinie =
+		  ATTRIBUTE
+			Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			Linie3D: MANDATORY Base_LV95.Polyline3D;  !!  Reihenfolge von Punkten die den Verlauf eines linienförmigen Elementes beschreibt.
+			Maechtigkeit: MANDATORY SIA405_Base_LV95.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+		END LKLinie;
+
+		CLASS LKPunkt EXTENDS SIA405_LKMap_2015_LV95.SIA405_LKMap.LKPunkt =
+		  ATTRIBUTE
+			Hoehenbestimmung: MANDATORY SIA405_Base_LV95.Genauigkeit;
+				!!    (     !! Definiert die Höhengenauigkeit der Koten, aus denen die Mächtigkeit berechnet wurde.
+				!!      genau,  !! +/- 10 cm, bei der Hoehenbestimmung aus unterschiedlichen Messungen das dreifache, d.h. +/- 30 cm (Norm SIA405 1998, Punkt 4 23 3)
+				!!      unbekannt,
+				!!      ungenau  !! siehe genau
+				!!    );
+			Maechtigkeit: MANDATORY SIA405_Base_LV95.Maechtigkeit;  !! Erweiterung 3D, Mächtigkeit (Höhe) eines Objektes [mm]. 
+				!! bei LKFlaeche: Differenz aus z.B. Sohlenkote minus Deckenkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKLinie z.B. Lichte_Hoehe (Abwasser) oder Mächtigkeit der Trasse. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+				!! bei LKPunkt Differenz aus z.B. Sohlenkote minus Deckelkote. Vorzeichen abhängig von der Referenzebenen / Referenzpunkt des LKObjektes. Matching siehe Objektkatalog der einzelnenen Medien SIA 405 2015
+			SymbolPos3D: MANDATORY Base_LV95.HKoord;  !!  Landeskoordinate Ost/Nord, 3D Koordinaten
+		END LKPunkt;
+
+	END SIA405_LKMap_3D;    !! Ende des Topics
+
+END SIA405_LKMap_3D_2015_LV95.   !! Ende des Modells
+
+
