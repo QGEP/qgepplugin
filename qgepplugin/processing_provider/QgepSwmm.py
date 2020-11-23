@@ -25,17 +25,18 @@ import subprocess
 
 class QgepSwmm:
 
-    def __init__(self, title, service, state, inpfile, inptemplate, outfile, logfile, binfile, db_model_path):
+    def __init__(self, title, service, state, inpfile, inptemplate, outfile, binfile, db_model_path):
         """
         Initiate QgepSwmm
 
         Parameters:
         title (string): Title of the simulation
         service (string): name of the service to be used to connect to the QGEP database
+        state (string): state for which the network is extracted (current or planned)
         inpfile (path): path of the INP file (input file for swmm)
         inptemplate (path): path of the INP file which store simulations parameters
         outfile (path): path of the OUT file which contains swmm results
-        logfile (path): path of the log file which contains swmm log
+        binfile (path): path of the swmm executable
         db_model_path (path): path of the folder which contains the db model
         """
         self.title = title
@@ -43,7 +44,6 @@ class QgepSwmm:
         self.input_file = inpfile
         self.options_template_file = inptemplate
         self.output_file = outfile
-        self.log_file = logfile
         self.bin_file = binfile
         self.db_model_path = db_model_path
         self.feedbacks = []
@@ -370,7 +370,7 @@ class QgepSwmm:
 
         """
 
-        command = [self.bin_file, self.input_file, self.log_file, self.output_file]
+        command = [self.bin_file, self.input_file, self.output_file] #self.log_file, 
         print('command', command)
         proc = subprocess.run(
             command,

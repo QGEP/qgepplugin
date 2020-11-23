@@ -99,7 +99,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             state = 'current'
         # Connect to QGEP database and perform translation
         qs = QgepSwmm(datetime.datetime.today().isoformat(), database, state,
-                      inp_file, template_inp_file, None, None, None, None)
+                      inp_file, template_inp_file, None, None, None)
         qs.write_input()
 
         if qs.feedbacks is not None:
