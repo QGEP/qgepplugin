@@ -104,7 +104,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
         if re.search('There are errors', prompt):
             feedback.reportError(prompt)
-            feedback.reportError('There were errors, look into logs for details: {output_file}'.format(output_file=output_file))
+            feedback.reportError('There were errors, run the file in SWMM GUI for more details')
 
         feedback.setProgress(100)
 
