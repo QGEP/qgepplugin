@@ -62,15 +62,11 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
         """
-        self.stateOptions=["current", "planned"]
+        self.stateOptions = ["current", "planned"]
         # The parameters
         description = self.tr('Database')
         self.addParameter(QgsProcessingParameterString(
             self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"))
-
-        #description = self.tr('State (current or planned)')
-        #self.addParameter(QgsProcessingParameterString(
-        #    self.STATE, description=description, defaultValue="current"))
 
         description = self.tr('State (current or planned)')
         self.addParameter(QgsProcessingParameterEnum(

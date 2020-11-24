@@ -67,15 +67,17 @@ class QgepSwmm:
         # Connects to service and get data and attributes from tableName
         con = psycopg2.connect(service=self.service)
         cur = con.cursor()
-        if (state == 'planned' and ws == True) or (state is None):
+        if (state == 'planned' and ws is True) or (state is None):
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
-        else: 
-            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'".format(table_name=table_name, state=state)
-        
+        else:
+            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'"\
+                .format(table_name=table_name, state=state)
+
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
+            self.feedbacks.append('Table vw_{table_name} doesnt exists'\
+                .format(table_name=table_name))
             return None, None
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
@@ -224,7 +226,7 @@ class QgepSwmm:
             # ------------------
             f.write(self.swmm_table('CONDUITS', state, ws=True))
             f.write(self.swmm_table('LOSSES', state, ws=True))
-            f.write(self.swmm_table('PUMPS', state, ws=True ))
+            f.write(self.swmm_table('PUMPS', state, ws=True))
             f.write(self.copy_parameters_from_template('ORIFICES'))
             f.write(self.copy_parameters_from_template('WEIRS'))
             f.write(self.copy_parameters_from_template('OUTLETS'))
@@ -370,7 +372,7 @@ class QgepSwmm:
 
         """
 
-        command = [self.bin_file, self.input_file, self.output_file] #self.log_file, 
+        command = [self.bin_file, self.input_file, self.output_file]
         print('command', command)
         proc = subprocess.run(
             command,
