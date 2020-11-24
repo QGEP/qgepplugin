@@ -83,7 +83,6 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         output_file = self.parameterAsFile(parameters, self.OUT_FILE, context)
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
         swmm_cli = os.path.abspath(ProcessingConfig.getSetting('SWMM_PATH'))
-        print ('swmm_cli', swmm_cli)
         if not swmm_cli:
             # raise GeoAlgorithmExecutionException(
             # 'Swmm command line toom is not configured.\n\
@@ -95,7 +94,6 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
         qs = QgepSwmm(None, None, None, inp_file, None, output_file, swmm_cli, None)
         prompt = qs.execute_swmm()
-        print (prompt)
         if qs.feedbacks is not None:
             for i in range(len(qs.feedbacks)):
                 feedback.reportError(qs.feedbacks[i])

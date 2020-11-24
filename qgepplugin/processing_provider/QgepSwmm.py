@@ -70,14 +70,13 @@ class QgepSwmm:
         if (state == 'planned' and ws is True) or (state is None):
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
         else:
-            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'"\
+            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'"
                 .format(table_name=table_name, state=state)
 
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedbacks.append('Table vw_{table_name} doesnt exists'\
-                .format(table_name=table_name))
+            self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
             return None, None
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
