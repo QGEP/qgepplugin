@@ -70,8 +70,10 @@ class QgepSwmm:
         if (state == 'planned' and ws is True) or (state is None):
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
         else:
-            sql = "select * from qgep_swmm.vw_{table_name} where state = '{state}'"
-                .format(table_name=table_name, state=state)
+            sql = """
+            select * from qgep_swmm.vw_{table_name} 
+            where state = '{state}'
+            """.format(table_name=table_name, state=state)
 
         try:
             cur.execute(sql)
