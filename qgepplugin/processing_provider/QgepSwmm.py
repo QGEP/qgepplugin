@@ -213,7 +213,7 @@ class QgepSwmm:
             # Create default junction to avoid errors
             f.write('default_qgep_node\t0\t0\n\n')
             f.write(self.swmm_table('OUTFALLS', state, ws=True))
-            f.write(self.swmm_table('STORAGE', state, ws=True))
+            f.write(self.swmm_table('STORAGES', state, ws=True))
             f.write(self.swmm_table('COORDINATES'))
             f.write(self.swmm_table('DWF', state))
 
