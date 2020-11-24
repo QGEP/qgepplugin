@@ -71,7 +71,7 @@ class QgepSwmm:
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
         else:
             sql = """
-            select * from qgep_swmm.vw_{table_name} 
+            select * from qgep_swmm.vw_{table_name}
             where state = '{state}'
             """.format(table_name=table_name, state=state)
 
