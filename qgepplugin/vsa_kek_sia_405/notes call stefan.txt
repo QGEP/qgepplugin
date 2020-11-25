@@ -1,0 +1,34 @@
+Call with Stefan
+
+- docs : contain some info about interlis
+
+
+he could make it work with some additional flags (see from his scripts)
+--noSmartMapping
+(set the --log flag too)
+
+
+- notes :
+    - first empty model
+    - then data
+    (as errors in the data could influence the scehma)
+
+
+
+- organisations :
+    - interlis has no IDs, we need UI to set ID for organisations
+
+
+
+- infogrips -> check service at the very end [nice to have, but not in the scope]
+
+
+- datmodel : can't be distributed with the plugin (licensed !), user needs to add them manually
+
+- datamodel : there can be multiple version, we want to support two versions (2015, 2020), but we only care about the latest patch release
+
+
+SA 405
+VSA KEK IS AN EXTENSION OF SIA 405
+
+- two separate sets of procedures for SIA405 and VSAKEK
