@@ -54,5 +54,13 @@ Able to create with latest datamodel with older ili2pg (3.12.2 instead of 4.x)
 java -jar qgepplugin\qgepplugin\vsa_kek_sia_405\ili2pg-3.12.2\ili2pg-3.12.2.jar --schemaimport --sqlEnableNull --dbhost 127.0.0.1 --dbport 5432 --defaultSrsCode 2056 --dbdatabase qgep_test_ili --dbschema test5 --dbusr postgres --dbpwd postgres --createBasketCol --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --createMetaInfo --expandMultilingual --importTid --smart1Inheritance --strokeArcs --noSmartMapping qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Abwasser_2015_2_d-20180417.ili
 ```
 
+In french
+```
+# create database qgep_test_ili
+# run CREATE EXTENSION postgis;
+java -jar qgepplugin\qgepplugin\vsa_kek_sia_405\ili2pg-3.12.2\ili2pg-3.12.2.jar --schemaimport --sqlEnableNull --dbhost 127.0.0.1 --dbport 5432 --defaultSrsCode 2056 --dbdatabase qgep_test_ili --dbschema tetfr --dbusr postgres --dbpwd postgres --createBasketCol --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --createMetaInfo --expandMultilingual --importTid --smart1Inheritance --strokeArcs --noSmartMapping qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Eaux_usees_2015_2_f-20180417.ili
+```
+
+
 We'll continue with 3.12.2 for now.
 
