@@ -8,27 +8,30 @@
 
 -- 22.11.2016 modified
 -- INSERT INTO vsa_dss_2015_2_d.erhaltungsereignis_abwasserbauwerk
-INSERT INTO vsa_dss_2015_2_d.erhaltungsereignis_abwasserbauwerkassoc
-(
-t_id, abwasserbauwerkref, erhaltungsereignis_abwasserbauwerkassocref)
-SELECT vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', obj_id), vsa_dss_2015_2_d.tid_lookup('Abwasserbauwerk', fk_wastewater_structure), vsa_dss_2015_2_d.tid_lookup('Erhaltungsereignis', fk_maintenance_event)
-FROM qgep_od.re_maintenance_event_wastewater_structure;
 
-INSERT INTO vsa_dss_2015_2_d.metaattribute
-(
-t_id, t_seq, 
--- datenherr, 
--- datenlieferant, 
--- letzte_aenderung, 
-sia405_baseclass_metaattribute)
-SELECT vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', qgep_od.re_maintenance_event_wastewater_structure.obj_id), '0', 
--- a.identifier as dataowner, 
--- b.identifier as provider, 
--- re_maintenance_event_wastewater_structure.last_modification, 
-vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', qgep_od.re_maintenance_event_wastewater_structure.obj_id)
-FROM qgep_od.re_maintenance_event_wastewater_structure;
---   LEFT JOIN qgep_od.organisation as a ON re_maintenance_event_wastewater_structure.fk_dataowner = a.obj_id
---   LEFT JOIN qgep_od.organisation as b ON re_maintenance_event_wastewater_structure.fk_provider = b.obj_id;
+BEGIN; 
+
+-- INSERT INTO vsa_dss_2015_2_d.erhaltungsereignis_abwasserbauwerkassoc
+-- (
+-- t_id, abwasserbauwerkref, erhaltungsereignis_abwasserbauwerkassocref)
+-- SELECT vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', obj_id), vsa_dss_2015_2_d.tid_lookup('Abwasserbauwerk', fk_wastewater_structure), vsa_dss_2015_2_d.tid_lookup('Erhaltungsereignis', fk_maintenance_event)
+-- FROM qgep_od.re_maintenance_event_wastewater_structure;
+
+-- INSERT INTO vsa_dss_2015_2_d.metaattribute
+-- (
+-- t_id, t_seq, 
+-- -- datenherr, 
+-- -- datenlieferant, 
+-- -- letzte_aenderung, 
+-- sia405_baseclass_metaattribute)
+-- SELECT vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', qgep_od.re_maintenance_event_wastewater_structure.obj_id), '0', 
+-- -- a.identifier as dataowner, 
+-- -- b.identifier as provider, 
+-- -- re_maintenance_event_wastewater_structure.last_modification, 
+-- vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerkassoc', qgep_od.re_maintenance_event_wastewater_structure.obj_id)
+-- FROM qgep_od.re_maintenance_event_wastewater_structure;
+-- --   LEFT JOIN qgep_od.organisation as a ON re_maintenance_event_wastewater_structure.fk_dataowner = a.obj_id
+-- --   LEFT JOIN qgep_od.organisation as b ON re_maintenance_event_wastewater_structure.fk_provider = b.obj_id;
 
 /*
 INSERT INTO vsa_dss_2015_2_d.symbol
