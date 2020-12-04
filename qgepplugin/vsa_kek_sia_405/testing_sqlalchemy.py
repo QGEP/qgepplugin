@@ -1,81 +1,68 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from datetime import datetime, timedelta
-from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, MetaData
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
 import collections
+from datetime import datetime, timedelta
+
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, MetaData
+from sqlalchemy.orm import Session, relationship, backref
+from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 
-
-# # EXAMPLE 1 : simple model
-
-# engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/qgep_test_ili')
-# Base = declarative_base()
-
-# class ParentTable(Base):
-#     __tablename__ = 'parent'
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String(255), nullable=False)
-
-
-# class ChildTable(ParentTable):
-#     __tablename__ = 'child'
-#     id = Column(ForeignKey(ParentTable.id), primary_key=True)
-#     surname = Column(String(255), nullable=False)
-
-
-# class GrandChildTable(ChildTable):
-#     __tablename__ = 'grandchild'
-#     id = Column(ForeignKey(ChildTable.id), primary_key=True)
-#     lastname = Column(String(255), nullable=False)
-
-
-
-# EXAMPLE 2 : reflecting existing schema
-
-# engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/qgep_test_ili')
-# meta = MetaData()
-# meta.reflect(bind=engine, schema='testfr')
-
-# TableCouvercle = meta.tables['testfr.couvercle']
-# q = TableCouvercle.insert().values(diametre=22)
-# print(q)
-
-# EXAMPLE 3 : autoloading existing schema (QGEP)
-
-
-# qgep_meta = MetaData()
-# qgep_meta.reflect(bind=engine, schema='qgep_od', views=True)
-# qgep_cover = qgep_meta.tables['qgep_od.cover']
-
-# sia_meta = MetaData()
-# sia_meta.reflect(bind=engine, schema='vsa_dss_2015_2_d', views=True)
-# sia_cover = sia_meta.tables['vsa_dss_2015_2_d.deckel']
-
-# q = cover.insert().values(diameter=22)
-# qgep_session = sessionmaker(bind=engine)()
-# qgep_session.execute(q)
-# qgep_session.commit()
-# print(q)
-
-
-# TestBase = automap_base()
-
-# class Animals(TestBase):
-#     __tablename__ = 'animals'
-#     __table_args__ = {'schema' : 'test'}
-
-
-# class Cats(Animals):
-#     __tablename__ = 'cats'
-#     __table_args__ = {'schema' : 'test'}
-
-
+# Mock engine that dumps strings instead of executing
+# def mock_execute(sql, *multiparams, **params):
+#     print(sql.compile(dialect=engine.dialect))
+# engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/qgep_prod', strategy='mock', executor=mock_execute)
 engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/qgep_prod')
+
+
+######################################################################
+# Example 0 : ORM 101
+######################################################################
+
+def example_0():
+
+    Base = declarative_base()
+
+    class Animal(Base):
+        __tablename__ = 'animal'
+        id = Column(Integer, primary_key=True)
+        name = Column(String(255), nullable=False)
+
+    class Cat(Animal):
+        __tablename__ = 'cat'
+        id = Column(ForeignKey(Animal.id), primary_key=True)
+        mice_eaten = Column(Integer, nullable=True)
+
+    class Dog(Animal):
+        __tablename__ = 'dog'
+        id = Column(ForeignKey(Animal.id), primary_key=True)
+        cars_chased = Column(Integer, nullable=True)
+
+    Base.metadata.create_all(engine)
+
+
+######################################################################
+# Example 1 : ORM from database
+######################################################################
+
+def example_1():
+
+    meta = MetaData()
+    meta.reflect(bind=engine, schema='qgep_od')
+
+    TableCouvercle = meta.tables['qgep_od.manhole']
+
+    select_query = TableCouvercle.select()
+    print(select_query)
+
+    insert_query = TableCouvercle.insert().values(dimension1=22)
+    print(insert_query)
+
+
+
+######################################################################
+# Actual application : export from QGEP (datamodel) to Interlis (similar but different datamodel)
+######################################################################
 
 MAPPING = {
     'wastewater_structure': {
@@ -111,7 +98,7 @@ MAPPING = {
 }
 
 ######################################################################
-# Example 1 : Plain autoloading (doesn't load inheritance)
+# Approach A : Plain autoloading (doesn't load inheritance)
 # then insert export each table separately, from base to specific
 # matching Stefan's script logic
 ######################################################################
@@ -225,7 +212,7 @@ def export_a():
 
 
 ######################################################################
-# Example 2 : Plain autoloading (doesn't load inheritance)
+# Approach B : Plain autoloading (doesn't load inheritance)
 # then insert from a joined query, base and specific at once
 ######################################################################
 
@@ -323,57 +310,61 @@ def export_b():
 
 
 ######################################################################
-# Example 3 : Hybrid autoloading (maps inheritance)
+# Approach C : Hybrid autoloading (maps inheritance)
 # then insert using inheritance !
 ######################################################################
 
 def export_c():
 
-    # Autoload QGEP datamodel
+    def custom_name_for_collection_relationship(base, local_cls, referred_cls, constraint):
+        # This customizes the name for backwards relation, avoiding clashes for inherited classes.
+        # See https://stackoverflow.com/a/48288656/13690651
+        if constraint.name:
+            return 'REF_'+constraint.name.lower()
+        # if this didn't work, revert to the default behavior
+        return 'REF_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
+
+    # Define QGEP datamodel
     QGEPBase = automap_base()
 
-    class WasterwaterNetworkelement(QGEPBase):
+    class QGEPWastewaterNetworkelement(QGEPBase):
         __tablename__ = 'wastewater_networkelement'
         __table_args__ = {'schema': 'qgep_od'}
 
-    class WasterwaterStructure(QGEPBase):
+    class QGEPWastewaterStructure(QGEPBase):
         __tablename__ = 'wastewater_structure'
         __table_args__ = {'schema': 'qgep_od'}
 
-    class Manhole(WasterwaterStructure):
+    class QGEPManhole(QGEPWastewaterStructure):
         __tablename__ = 'manhole'
         __table_args__ = {'schema': 'qgep_od'}
 
-    QGEPBase.prepare(engine, reflect=True, schema='qgep_od')
+    QGEPBase.prepare(engine, reflect=True, schema='qgep_od', name_for_collection_relationship=custom_name_for_collection_relationship)
 
-    # Autoload Interlis datamodel
+    # Define Interlis datamodel
     SIABase = automap_base()
 
-    class BaseClass(SIABase):
+    class SIABaseClass(SIABase):
         __tablename__ = 'baseclass'
         __table_args__ = {'schema': 'vsa_dss_2015_2_d'}
 
-    class Sia405BaseClass(BaseClass):
+    class SIASia405BaseClass(SIABaseClass):
         __tablename__ = 'sia405_baseclass'
         __table_args__ = {'schema': 'vsa_dss_2015_2_d'}
 
-    class Abwassernetzelement(Sia405BaseClass):
+    class SIAAbwassernetzelement(SIASia405BaseClass):
         __tablename__ = 'abwassernetzelement'
         __table_args__ = {'schema': 'vsa_dss_2015_2_d'}
 
-    class Abwasserbauwerk(Sia405BaseClass):
+    class SIAAbwasserbauwerk(SIASia405BaseClass):
         __tablename__ = 'abwasserbauwerk'
         __table_args__ = {'schema': 'vsa_dss_2015_2_d'}
 
-    class Normschacht(Abwasserbauwerk):
+    class SIANormschacht(SIAAbwasserbauwerk):
         __tablename__ = 'normschacht'
         __table_args__ = {'schema': 'vsa_dss_2015_2_d'}
 
-    SIABase.prepare(engine, reflect=True, schema='vsa_dss_2015_2_d')
-
-    # Shortcuts
-    QGEP = QGEPBase.classes
-    SIA = SIABase.classes
+    SIABase.prepare(engine, reflect=True, schema='vsa_dss_2015_2_d', name_for_collection_relationship=custom_name_for_collection_relationship)
     
     # Autoincrementing ID
     oid2tid = collections.defaultdict(lambda: len(oid2tid))
@@ -381,72 +372,36 @@ def export_c():
     # Actual insert routing
     session = Session(engine, autocommit=True)  # TODO : remove autocommit
 
-    print("Exporting WasterwaterNetworkelement -> Abwassernetzelement")
-    for row in session.query(QGEP.WasterwaterNetworkelement):
+    print("Exporting wastewaternetworkelement -> abwassernetzelement")
+    for row in session.query(QGEPWastewaterNetworkelement):
+        session.add(
+            SIAAbwassernetzelement(
+                t_id=oid2tid[row.obj_id],
+                t_type='abwassernetzelement',
+                t_ili_tid=row.obj_id,
+                obj_id=row.obj_id,
+                bezeichnung=row.identifier,
+            )
+        )
+        print(".", end="")
+    print("done !")
 
-        import pdb
-        pdb.set_trace()
-
-        # # wastewater_networkelement -> baseclass        
-        # session.add(
-        #     SIA.Abwassernetzelement(
-        #         t_id=oid2tid[row.wastewater_networkelement.obj_id],
-        #         t_type='abwassernetzelement',
-        #         t_ili_tid=row.wastewater_networkelement.obj_id,
-        #     )
-        # )
-
-        # # wastewater_networkelement -> sia405_baseclass
-        # session.add(
-        #     SIA.sia405_baseclass(
-        #         t_id=oid2tid[row.wastewater_networkelement.obj_id],
-        #         obj_id=row.wastewater_networkelement.obj_id,
-        #     )
-        # )
-
-        # # wastewater_networkelement -> abwassernetzelement
-        # session.add(
-        #     SIA.abwassernetzelement(
-        #         t_id=oid2tid[row.wastewater_networkelement.obj_id],
-        #         bezeichnung=row.wastewater_networkelement.identifier,
-        #     )
-        # )
-
-        # # manhole -> baseclass
-        # session.add(
-        #     SIA.baseclass(
-        #         t_id=oid2tid[row.manhole.obj_id],
-        #         t_type='normschacht',
-        #         t_ili_tid=row.manhole.obj_id,
-        #     )
-        # )
-
-        # # manhole -> sia405_baseclass
-        # session.add(
-        #     SIA.sia405_baseclass(
-        #         t_id=oid2tid[row.manhole.obj_id],
-        #         obj_id=row.manhole.obj_id,
-        #     )
-        # )
-
-        # # wastewater_structure -> abwasserbauwerk
-        # session.add(
-        #     SIA.abwasserbauwerk(
-        #         t_id=oid2tid[row.wastewater_structure.obj_id],
-        #         zugaenglichkeit=MAPPING['wastewater_structure']['accessibility'][row.wastewater_structure.accessibility],
-        #     )
-        # )
-
-        # # manhole -> normschacht
-        # session.add(
-        #     SIA.normschacht(
-        #         t_id=oid2tid[row.manhole.obj_id],
-        #         dimension1=row.manhole.dimension1,
-        #         dimension2=row.manhole.dimension2,
-        #         funktion=MAPPING['manhole']['function'][row.manhole.function],
-        #     )
-        # )
-        # print('.', end='')
+    print("Exporting manhole -> normschacht")
+    for row in session.query(QGEPManhole):
+        session.add(
+            SIANormschacht(
+                t_id=oid2tid[row.obj_id],
+                t_type='normschacht',
+                t_ili_tid=row.obj_id,
+                obj_id=row.obj_id,
+                zugaenglichkeit=MAPPING['wastewater_structure']['accessibility'][row.accessibility],
+                dimension1=row.dimension1,
+                dimension2=row.dimension2,
+                funktion=MAPPING['manhole']['function'][row.function],
+            )
+        )
+        print(".", end="")
+    print("done !")
 
     session.commit()
 
