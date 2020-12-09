@@ -44,8 +44,6 @@ connection.commit()
 print("CREATE ILIDB...")
 os.system(f"java -jar {ILI2PG} --createEnumTxtCol --schemaimport --importTid --sqlEnableNull --createEnumTabs --createFk  --noSmartMapping --dbdatabase {PGDATABASE} --dbschema {TEMP_SCHEMA} --dbusr {PGUSER} --dbpwd {PGPASS}  --log createschema_VSA_DSS_2015_2_d.log {ILI_MODEL}")
 
-exit(0)
-
 print("RUNNING SQLS")
 os.environ["PGPASSWORD"] = PGPASS
 os.environ["PATH"] += r';C:\OSGeo4W64\bin'

@@ -1,11 +1,11 @@
 import collections
-from datetime import datetime, timedelta
 
-from sqlalchemy import create_engine
-from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, MetaData
-from sqlalchemy.orm import Session, relationship, backref
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, MetaData
+from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
 from sqlalchemy.ext.declarative import declarative_base
+
+from geoalchemy2 import Geometry, Geography  # imports needed to avoid type unrecognized error
 
 
 # Mock engine that dumps strings instead of executing
@@ -50,14 +50,13 @@ def example_1():
     meta = MetaData()
     meta.reflect(bind=engine, schema='qgep_od')
 
-    TableCouvercle = meta.tables['qgep_od.manhole']
+    TableManhole = meta.tables['qgep_od.manhole']
 
-    select_query = TableCouvercle.select()
+    select_query = TableManhole.select()
     print(select_query)
 
-    insert_query = TableCouvercle.insert().values(dimension1=22)
+    insert_query = TableManhole.insert().values(dimension1=22)
     print(insert_query)
-
 
 
 ######################################################################
@@ -101,6 +100,8 @@ MAPPING = {
 # Approach A : Plain autoloading (doesn't load inheritance)
 # then insert export each table separately, from base to specific
 # matching Stefan's script logic
+# PROS : simple to grasp, probably exportable as plain SQLs
+# CON : verbose, hard to do correct partial exports
 ######################################################################
 
 
@@ -122,7 +123,7 @@ def export_a():
     oid2tid = collections.defaultdict(lambda: len(oid2tid))
 
     # Actual insert routing
-    session = Session(engine, autocommit=True)  # TODO : remove autocommit
+    session = Session(engine)
 
     print("Exporting wastewater_networkelement -> baseclass")
     for row in session.query(QGEP.wastewater_networkelement):
@@ -210,10 +211,14 @@ def export_a():
     session.query(SIA.baseclass).filter(SIA.baseclass.t_id.in_(normschacht_subquery)).update({SIA.baseclass.t_type: "normschacht"}, synchronize_session=False)
     print('done !')
 
+    session.commit()
+
 
 ######################################################################
 # Approach B : Plain autoloading (doesn't load inheritance)
 # then insert from a joined query, base and specific at once
+# PRO : compared to A, easier to do partial export
+# CONS : not as easy to read, not possible to export as plain SQL
 ######################################################################
 
 
@@ -235,7 +240,7 @@ def export_b():
     oid2tid = collections.defaultdict(lambda: len(oid2tid))
 
     # Actual insert routing
-    session = Session(engine, autocommit=True)  # TODO : remove autocommit
+    session = Session(engine)
 
     print("Exporting manhole -> normschacht")
     joined_query = session.query(QGEP.manhole, QGEP.wastewater_structure, QGEP.wastewater_networkelement) \
@@ -312,6 +317,8 @@ def export_b():
 ######################################################################
 # Approach C : Hybrid autoloading (maps inheritance)
 # then insert using inheritance !
+# PROS : conceptually clean, easy to read in python
+# CON : probably not easily possible to export as plain SQL script, means we nede to depend on sqlalchemy
 ######################################################################
 
 def export_c():
@@ -370,7 +377,7 @@ def export_c():
     oid2tid = collections.defaultdict(lambda: len(oid2tid))
 
     # Actual insert routing
-    session = Session(engine, autocommit=True)  # TODO : remove autocommit
+    session = Session(engine)
 
     print("Exporting wastewaternetworkelement -> abwassernetzelement")
     for row in session.query(QGEPWastewaterNetworkelement):
