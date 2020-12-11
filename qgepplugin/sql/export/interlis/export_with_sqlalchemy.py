@@ -95,62 +95,46 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
     # if this didn't work, revert to the default behavior
     return 'REF_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
 
+# Define QGEP datamodel
+QGEPBase = automap_base()
 
-classes = {}
+class QGEPWastewaterStructure(QGEPBase):
+    __tablename__ = 'wastewater_structure'
+    __table_args__ = {'schema': QGEP_SCHEMA}
 
-# Helper that recursively creates hierarchical classes for sqlaclchemy
-def class_factory(name, bases, schema):
-    print(f"Called class factory with args {name} {bases} {schema}")
-    if name in classes:
-        return classes[name]
-    if len(bases) > 0:
-        base = class_factory(bases[0], bases[1:], schema)
-    else:
-        base_name = f"{schema}_automapbase"
-        if base_name not in classes:
-            classes[base_name] = automap_base()
-        base = classes[base_name]
-    class CLASS(base):
-        __tablename__ = name
-        __table_args__ = {'schema': schema}
-    CLASS.__name__ = name.title() 
-    classes[name] = CLASS
-    return CLASS
+class QGEPManhole(QGEPWastewaterStructure):
+    __tablename__ = 'manhole'
+    __table_args__ = {'schema': QGEP_SCHEMA}
 
-
-# QGEP MODELS
-QGEPWastewaterNetworkelement = class_factory("wastewater_networkelement", [], QGEP_SCHEMA)
-QGEPManhole = class_factory("manhole", ["wastewater_structure"], QGEP_SCHEMA)
-
-QGEPBase = classes[f"{QGEP_SCHEMA}_automapbase"]
 QGEPBase.prepare(engine, reflect=True, schema=QGEP_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
 
 # QGEP ILI MODELS
-SIAAbwassernetzelement = class_factory("abwassernetzelement", ["sia405_baseclass", "baseclass"], QGEP_ILI_SCHEMA)
-SIANormschacht = class_factory("normschacht", ["abwasserbauwerk", "sia405_baseclass", "baseclass"], QGEP_ILI_SCHEMA)
 
-SIABase = classes[f"{QGEP_ILI_SCHEMA}_automapbase"]
+SIABase = automap_base()
+
+class SIABaseClass(SIABase):
+    __tablename__ = 'baseclass'
+    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+
+class SIASia405BaseClass(SIABaseClass):
+    __tablename__ = 'sia405_baseclass'
+    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+
+class SIAAbwasserbauwerk(SIASia405BaseClass):
+    __tablename__ = 'abwasserbauwerk'
+    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+
+class SIANormschacht(SIAAbwasserbauwerk):
+    __tablename__ = 'normschacht'
+    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+
 SIABase.prepare(engine, reflect=True, schema=QGEP_ILI_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
 
 # Autoincrementing ID
 oid2tid = collections.defaultdict(lambda: len(oid2tid))
 
 # Actual insert routing
-session = Session(engine)
-
-print("Exporting wastewaternetworkelement -> abwassernetzelement")
-for row in session.query(QGEPWastewaterNetworkelement):
-    session.add(
-        SIAAbwassernetzelement(
-            t_id=oid2tid[row.obj_id],
-            t_type='abwassernetzelement',
-            t_ili_tid=row.obj_id,
-            obj_id=row.obj_id,
-            bezeichnung=row.identifier,
-        )
-    )
-    print(".", end="")
-print("done !")
+session = Session(engine, autocommit=True)
 
 print("Exporting manhole -> normschacht")
 for row in session.query(QGEPManhole):
@@ -170,3 +154,4 @@ for row in session.query(QGEPManhole):
 print("done !")
 
 session.commit()
+
