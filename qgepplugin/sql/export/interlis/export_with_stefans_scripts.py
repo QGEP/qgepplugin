@@ -12,6 +12,8 @@ from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, Met
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 
+from geoalchemy2 import Geometry
+
 
 PGHOST = '127.0.0.1'
 PGDATABASE = 'qgep_prod'

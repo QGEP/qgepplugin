@@ -1,31 +1,38 @@
 import psycopg2
 import os
 import sys
+import collections
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from datetime import datetime, timedelta
 from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, MetaData
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
 
+from geoalchemy2 import Geometry
 
 PGHOST = '127.0.0.1'
 PGDATABASE = 'qgep_prod'
 PGUSER = 'postgres'
 PGPASS = 'postgres'
 PSQL = r'C:\OSGeo4W64\bin\psql'
-ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\ili\SIA405_Abwasser_2015_2_d-20180417.ili'
-ILI2PG = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\ili2pg-3.12.2\ili2pg-3.12.2.jar'
-TEMP_SCHEMA = 'vsa_dss_2015_2_d'
-SCRIPTS = [
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\01_vsa_dss_2015_2_d_tid_generate.sql',
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\02_vsa_dss_2015_2_d_tid_lookup.sql',
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\021_vsa_dss_2015_2_d_create_seq_ili2db.sql',
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\022_vsa_dss_2015_2_d_basket_update.sql',
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\046_vsa_dss_2015_2_d_t_key_object_insert_metadata.sql',
-    r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\051_vsa_dss_2015_2_d_interlisexport2.sql',
-    # r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\sql\export\interlis\052a_vsa_dss_2015_2_d_interlisexport2.sql',
-]
+QGEP_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Abwasser_2015_2_d-20180417.ili'
+QWAT_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Wasser_2015_2_d-20181005.ili'
+ILI2PG = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\ili2pg-4.4.2\ili2pg-4.4.2.jar'
+QGEP_ILI_SCHEMA = 'pg2ili_abwasser'
+QWAT_ILI_SCHEMA = 'pg2ili_wasser'
+QGEP_SCHEMA = 'qgep_od'
+
+"""
+print("SETTING UP QGEP/QWAT DATABASE...")
+os.system('docker run -d --rm -p 5432:5432 --name qgep opengisch/qgep_datamodel')
+os.system('docker exec qgep init_qgep.sh wait')
+os.system('docker exec qgep wget https://github.com/qwat/qwat-data-model/releases/download/1.3.4/qwat_v1.3.4_data_and_structure_sample.backup')
+os.system('docker exec qgep pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qwat_v1.3.4_data_and_structure_sample.backup')
 
 print("CONNECTING TO DATABASE...")
 connection = psycopg2.connect(f"host={PGHOST} dbname={PGDATABASE} user={PGUSER} password={PGPASS}")
@@ -33,13 +40,15 @@ connection.set_session(autocommit=True)
 cursor = connection.cursor()
 
 print("CREATING THE SCHEMA...")
-cursor.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE ;")
-cursor.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
+for schema in [QGEP_ILI_SCHEMA, QWAT_ILI_SCHEMA]:
+    cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
+    cursor.execute(f"CREATE SCHEMA {schema};")
 connection.commit()
 
 print("CREATE ILIDB...")
-os.system(f"java -jar {ILI2PG} --createEnumTxtCol --schemaimport --importTid --sqlEnableNull --createEnumTabs --createFk  --noSmartMapping --dbdatabase {PGDATABASE} --dbschema {TEMP_SCHEMA} --dbusr {PGUSER} --dbpwd {PGPASS}  --log createschema_VSA_DSS_2015_2_d.log {ILI_MODEL}")
-
+for schema, model in [(QGEP_ILI_SCHEMA, QGEP_ILI_MODEL), (QWAT_ILI_SCHEMA, QWAT_ILI_MODEL)]:
+    os.system(f"java -jar {ILI2PG} --schemaimport --dbhost {PGHOST} --dbusr {PGUSER} --dbpwd {PGPASS} --dbdatabase {PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --noSmartMapping --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {model}")
+"""
 
 print("EXPORTING")
 
@@ -86,64 +95,42 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
     # if this didn't work, revert to the default behavior
     return 'REF_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
 
-# Define QGEP datamodel
-QGEPBase = automap_base()
-
-class QGEPWastewaterNetworkelement(QGEPBase):
-    __tablename__ = 'wastewater_networkelement'
-    __table_args__ = {'schema': 'qgep_od'}
-
-class QGEPWastewaterStructure(QGEPBase):
-    __tablename__ = 'wastewater_structure'
-    __table_args__ = {'schema': 'qgep_od'}
-
-class QGEPManhole(QGEPWastewaterStructure):
-    __tablename__ = 'manhole'
-    __table_args__ = {'schema': 'qgep_od'}
-
-QGEPBase.prepare(engine, reflect=True, schema='qgep_od', name_for_collection_relationship=custom_name_for_collection_relationship)
-
-# Define Interlis datamodel
-SIABase = automap_base()
 
 classes = {}
 
-def class_factory(name, bases):
+# Helper that recursively creates hierarchical classes for sqlaclchemy
+def class_factory(name, bases, schema):
+    print(f"Called class factory with args {name} {bases} {schema}")
     if name in classes:
-        return name    
+        return classes[name]
     if len(bases) > 0:
-        base = class_factory(bases[0], bases[1:])
+        base = class_factory(bases[0], bases[1:], schema)
+    else:
+        base_name = f"{schema}_automapbase"
+        if base_name not in classes:
+            classes[base_name] = automap_base()
+        base = classes[base_name]
     class CLASS(base):
         __tablename__ = name
-        __table_args__ = {'schema': TEMP_SCHEMA}
+        __table_args__ = {'schema': schema}
+    CLASS.__name__ = name.title() 
     classes[name] = CLASS
     return CLASS
 
 
-SIAAbwassernetzelement = class_factory("abwassernetzelement", ["sia405_baseclass", "baseclass"])
-SIANormschacht = class_factory("normschacht", ["abwasserbauwerk", "sia405_baseclass", "baseclass"])
+# QGEP MODELS
+QGEPWastewaterNetworkelement = class_factory("wastewater_networkelement", [], QGEP_SCHEMA)
+QGEPManhole = class_factory("manhole", ["wastewater_structure"], QGEP_SCHEMA)
 
-class SIABaseClass(SIABase):
-    __tablename__ = 'baseclass'
-    __table_args__ = {'schema': TEMP_SCHEMA}
+QGEPBase = classes[f"{QGEP_SCHEMA}_automapbase"]
+QGEPBase.prepare(engine, reflect=True, schema=QGEP_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
 
-class SIASia405BaseClass(SIABaseClass):
-    __tablename__ = 'sia405_baseclass'
-    __table_args__ = {'schema': TEMP_SCHEMA}
+# QGEP ILI MODELS
+SIAAbwassernetzelement = class_factory("abwassernetzelement", ["sia405_baseclass", "baseclass"], QGEP_ILI_SCHEMA)
+SIANormschacht = class_factory("normschacht", ["abwasserbauwerk", "sia405_baseclass", "baseclass"], QGEP_ILI_SCHEMA)
 
-class SIAAbwassernetzelement(SIASia405BaseClass):
-    __tablename__ = 'abwassernetzelement'
-    __table_args__ = {'schema': TEMP_SCHEMA}
-
-class SIAAbwasserbauwerk(SIASia405BaseClass):
-    __tablename__ = 'abwasserbauwerk'
-    __table_args__ = {'schema': TEMP_SCHEMA}
-
-class SIANormschacht(SIAAbwasserbauwerk):
-    __tablename__ = 'normschacht'
-    __table_args__ = {'schema': TEMP_SCHEMA}
-
-SIABase.prepare(engine, reflect=True, schema=TEMP_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
+SIABase = classes[f"{QGEP_ILI_SCHEMA}_automapbase"]
+SIABase.prepare(engine, reflect=True, schema=QGEP_ILI_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
 
 # Autoincrementing ID
 oid2tid = collections.defaultdict(lambda: len(oid2tid))
@@ -183,4 +170,3 @@ for row in session.query(QGEPManhole):
 print("done !")
 
 session.commit()
-
