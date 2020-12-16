@@ -2,7 +2,7 @@ import psycopg2
 import os
 
 import sqlalchemy
-from sqlalchemy.ext.automap import name_for_collection_relationship
+from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
 
 # from . import config
 import config
@@ -38,7 +38,8 @@ def create_ili_schema(schema, model):
     connection.commit()
 
     print("CREATE ILIDB...")
-    os.system(f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --smart2Inheritance --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {model}")
+    os.system(
+        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --smart2Inheritance --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {model}")
 
 
 def export_ili_schema(schema, model_name):
@@ -59,3 +60,30 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
         return 'REF_'+constraint.name.lower()
     # if this didn't work, revert to the default behavior
     return 'REF_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
+
+
+classes = {}
+
+# Helper that recursively creates hierarchical classes for sqlalchemy
+def class_factory(name, bases, schema):
+    print(f"Called class factory with args {name} {bases} {schema}")
+    if name in classes:
+        return classes[name]
+    if len(bases) > 0:
+        base = class_factory(bases[0], bases[1:], schema)
+    else:
+        base_name = f"{schema}_automapbase"
+        if base_name not in classes:
+            classes[base_name] = automap_base()
+        base = classes[base_name]
+    class CLASS(base):
+        __tablename__ = name
+        __table_args__ = {'schema': schema}
+    CLASS.__name__ = name.title() 
+    classes[name] = CLASS
+    return CLASS
+
+def prepare(schema, engine):
+    Base = classes[f"{schema}_automapbase"]
+    Base.prepare(engine, reflect=True, schema=schema, name_for_collection_relationship=custom_name_for_collection_relationship)
+    return Base
