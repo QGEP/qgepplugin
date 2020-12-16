@@ -32,16 +32,16 @@ engine = utils.create_engine()
 # QWAT datamodel
 ###############################################
 
-QWATPipe = utils.class_factory("pipe", [], config.QWAT_SCHEMA)
-QWATHydrant = utils.class_factory("hydrant", [], config.QWAT_SCHEMA)
-QWATTank = utils.class_factory("tank", [], config.QWAT_SCHEMA)
+QWATpipe = utils.class_factory("pipe", [], config.QWAT_SCHEMA)
+QWAThydrant = utils.class_factory("hydrant", [], config.QWAT_SCHEMA)
+QWATtank = utils.class_factory("tank", [], config.QWAT_SCHEMA)
 QWAT = utils.prepare(config.QWAT_SCHEMA, engine)
 
 ###############################################
 # INTERLIS datamodel
 ###############################################
 
-SIALeitung = utils.class_factory("leitung", [], config.QWAT_ILI_SCHEMA)
-SIAHydrant = utils.class_factory("hydrant", [], config.QWAT_ILI_SCHEMA)
-SIAWasserbehaelter = utils.class_factory("wasserbehaelter", [], config.QWAT_ILI_SCHEMA)
+SIAleitung = utils.class_factory("leitung", [], config.QWAT_ILI_SCHEMA)
+SIAhydrant = utils.class_factory("hydrant", [], config.QWAT_ILI_SCHEMA)
+SIAwasserbehaelter = utils.class_factory("wasserbehaelter", [], config.QWAT_ILI_SCHEMA)
 SIA = utils.prepare(config.QWAT_ILI_SCHEMA, engine)

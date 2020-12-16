@@ -42,7 +42,6 @@ for row in session.query(QWATPipe):
             # obj_id=None,
         )
     )
-
     print(".", end="")
 print("done")
 
@@ -66,7 +65,6 @@ for row in session.query(QWATHydrant):
             # observation_source=None,
         )
     )
-
     print(".", end="")
 print("done")
 
@@ -100,7 +98,6 @@ for row in session.query(QWATTank):
             # obj_id=None,
         )
     )
-
     print(".", end="")
 print("done")
 

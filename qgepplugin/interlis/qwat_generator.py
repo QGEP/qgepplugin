@@ -24,38 +24,45 @@ import config
 # from .qwat_datamodel import *
 from qwat_datamodel import *
 
+template_path = os.path.join(os.path.dirname(__file__) , 'qwat.py.tpl')
+template = open(template_path, 'w')
+generator_path = os.path.join(os.path.dirname(__file__) , 'qwat_generator.py.tpl')
+generator = open(generator_path, 'w')
 
 ###############################################
 # Code generation
 ###############################################
 
 TABLE_MAPPING = {
-    QWATPipe: SIALeitung,
-    QWATHydrant: SIAHydrant,
-    QWATTank: SIAWasserbehaelter,
+    QWATpipe: SIAleitung,
+    QWAThydrant: SIAhydrant,
+    QWATtank: SIAwasserbehaelter,
 }
 
-template_path = os.path.join(os.path.dirname(__file__) , 'qwat.tpl.py')
 
-with open(template_path, 'w') as fh:
-    for qwat_class, sia_class in TABLE_MAPPING.items():
-        available_fields = ', '.join(f.name for f in qwat_class.__table__.columns)
-        fh.write(f'print("Exporting {qwat_class.__name__} -> {sia_class.__name__}")\n')
-        fh.write(f'for row in session.query(QWAT{qwat_class.__name__.title()}):\n')
-        fh.write(f'    # AVAILABLE FIELDS : {available_fields}\n')
-        fh.write(f'    session.add(\n')
-        fh.write(f'        SIA{sia_class.__name__.title()}(\n')        
-        for sia_field in sia_class.__table__.columns:
-            fh.write(f'            # {sia_field.name}=None,\n')
-        fh.write(f'        )\n')
-        fh.write(f'    )\n')
-        fh.write(f'    print(".", end="")\n')
-        fh.write(f'print("done")\n\n')
+for qwat_class, sia_class in TABLE_MAPPING.items():
+    available_fields = ', '.join(f.name for f in qwat_class.__table__.columns)
+    template.write(f'print("Exporting {qwat_class.__name__} -> {sia_class.__name__}")\n')
+    template.write(f'for row in session.query(QWAT{qwat_class.__name__}):\n')
+    template.write(f'    # AVAILABLE FIELDS : {available_fields}\n')
+    template.write(f'    session.add(\n')
+    template.write(f'        SIA{sia_class.__name__}(\n')
+    for sia_field in sia_class.__table__.columns:
+        template.write(f'            # {sia_field.name}=None,\n')
+    template.write(f'        )\n')
+    template.write(f'    )\n')
+    template.write(f'    print(".", end="")\n')
+    template.write(f'print("done")\n\n')
 
+
+print("\n"*5)
+available_tables = ', '.join([f"SIA{c.__name__}" for c in SIA.classes if c not in TABLE_MAPPING.values()])
+generator.write('TABLE_MAPPING = {\n')
+for qwat_class, sia_class in TABLE_MAPPING.items():
+    generator.write(f"    QWAT{qwat_class.__name__.lower()}: SIA{sia_class.__name__.lower()},\n")
+generator.write(f'    # NOT MAPPED YET\n')
+generator.write(f'    # AVAILABLE CLASSES : {available_tables}\n')
 for qwat_class in QWAT.classes:
     if qwat_class not in TABLE_MAPPING.keys():
-        print(f"⚠️ QWAT table '{qwat_class.__name__}' is not mapped.")
-
-for sia_class in SIA.classes:
-    if sia_class not in TABLE_MAPPING.values():
-        print(f"⚠️ SIA table '{sia_class.__name__}' is not mapped.")
+        generator.write(f"    # QWAT{qwat_class.__name__}: REPLACE_ME,\n")
+generator.write('}\n\n')

@@ -31,10 +31,10 @@ from qwat_datamodel import *
 session = Session(engine)
 
 print("Exporting Pipe -> Leitung")
-for row in session.query(QWATPipe):
+for row in session.query(QWATpipe):
     # AVAILABLE FIELDS : id, fk_parent, fk_function, fk_installmethod, fk_material, fk_distributor, fk_precision, fk_bedding, fk_protection, fk_status, fk_watertype, fk_locationtype, fk_folder, year, year_rehabilitation, year_end, tunnel_or_bridge, pressure_nominal, remark, _valve_count, _valve_closed, label_1_visible, label_1_text, label_2_visible, label_2_text, fk_node_a, fk_node_b, fk_district, fk_pressurezone, fk_printmap, _length2d, _length3d, _diff_elevation, _printmaps, _geometry_alt1_used, _geometry_alt2_used, update_geometry_alt1, update_geometry_alt2, geometry, geometry_alt1, geometry_alt2, schema_force_visible, _schema_visible
     session.add(
-        SIALeitung(
+        SIAleitung(
             geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
             material=row.pipe_material.value_fr,
             baujahr=max(1800, row.year or 0),
@@ -78,10 +78,10 @@ for row in session.query(QWATPipe):
 print("done")
 
 print("Exporting Hydrant -> Hydrant")
-for row in session.query(QWATHydrant):
+for row in session.query(QWAThydrant):
     # AVAILABLE FIELDS : id, fk_provider, fk_model_sup, fk_model_inf, fk_material, fk_output, underground, marked, pressure_static, pressure_dynamic, flow, observation_date, observation_source
     session.add(
-        SIAHydrant(
+        SIAhydrant(
             # t_id
             # t_ili_tid
             # name_nummer
@@ -111,10 +111,10 @@ for row in session.query(QWATHydrant):
 print("done")
 
 print("Exporting Tank -> Wasserbehaelter")
-for row in session.query(QWATTank):
+for row in session.query(QWATtank):
     # AVAILABLE FIELDS : id, fk_overflow, fk_tank_firestorage, storage_total, storage_supply, storage_fire, altitude_overflow, altitude_apron, height_max, fire_valve, fire_remote, _litrepercm, cistern1_fk_type, cistern1_dimension_1, cistern1_dimension_2, cistern1_storage, _cistern1_litrepercm, cistern2_fk_type, cistern2_dimension_1, cistern2_dimension_2, cistern2_storage, _cistern2_litrepercm
     session.add(
-        SIAWasserbehaelter(
+        SIAwasserbehaelter(
             # t_id=None,
             # t_ili_tid=None,
             # name_nummer=None,
