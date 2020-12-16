@@ -48,7 +48,9 @@ with open(template_path, 'w') as fh:
         for sia_field in sia_class.__table__.columns:
             fh.write(f'            # {sia_field.name}=None,\n')
         fh.write(f'        )\n')
-        fh.write(f'    )\n\n')
+        fh.write(f'    )\n')
+        fh.write(f'    print(".", end="")\n')
+        fh.write(f'print("done")\n\n')
 
 for qwat_class in QWAT.classes:
     if qwat_class not in TABLE_MAPPING.keys():

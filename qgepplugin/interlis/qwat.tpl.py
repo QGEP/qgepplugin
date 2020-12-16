@@ -43,6 +43,9 @@ for row in session.query(QWATPipe):
         )
     )
 
+    print(".", end="")
+print("done")
+
 print("Exporting Hydrant -> Hydrant")
 for row in session.query(QWATHydrant):
     # AVAILABLE FIELDS : id, fk_provider, fk_model_sup, fk_model_inf, fk_material, fk_output, underground, marked, pressure_static, pressure_dynamic, flow, observation_date, observation_source
@@ -63,6 +66,9 @@ for row in session.query(QWATHydrant):
             # observation_source=None,
         )
     )
+
+    print(".", end="")
+print("done")
 
 print("Exporting Tank -> Wasserbehaelter")
 for row in session.query(QWATTank):
@@ -94,4 +100,7 @@ for row in session.query(QWATTank):
             # obj_id=None,
         )
     )
+
+    print(".", end="")
+print("done")
 

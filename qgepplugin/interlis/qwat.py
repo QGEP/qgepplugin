@@ -74,27 +74,41 @@ for row in session.query(QWATPipe):
             # obj_id=None,
         )
     )
+    print(".", end="")
+print("done")
 
 print("Exporting Hydrant -> Hydrant")
 for row in session.query(QWATHydrant):
     # AVAILABLE FIELDS : id, fk_provider, fk_model_sup, fk_model_inf, fk_material, fk_output, underground, marked, pressure_static, pressure_dynamic, flow, observation_date, observation_source
     session.add(
         SIAHydrant(
-            # id=None,
-            # fk_provider=None,
-            # fk_model_sup=None,
-            # fk_model_inf=None,
-            # fk_material=None,
-            # fk_output=None,
-            # underground=None,
-            # marked=None,
-            # pressure_static=None,
-            # pressure_dynamic=None,
-            # flow=None,
-            # observation_date=None,
-            # observation_source=None,
+            # t_id
+            # t_ili_tid
+            # name_nummer
+            # art
+            # material
+            # dimension
+            # hersteller
+            # versorgungsdruck
+            # fliessdruck
+            # entnahme
+            # typ
+            # zustand
+            # geometrie
+            # symbolori
+            # lagebestimmung
+            # hoehe
+            # hoehenbestimmung
+            # einbaujahr
+            # druckzone
+            # eigentuemer
+            # bemerkung
+            # knotenref
+            # obj_id
         )
     )
+    print(".", end="")
+print("done")
 
 print("Exporting Tank -> Wasserbehaelter")
 for row in session.query(QWATTank):
@@ -126,6 +140,8 @@ for row in session.query(QWATTank):
             # obj_id=None,
         )
     )
+    print(".", end="")
+print("done")
 
 
 
