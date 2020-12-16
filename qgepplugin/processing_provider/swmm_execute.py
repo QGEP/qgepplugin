@@ -51,7 +51,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
     INP_FILE = 'INP_FILE'
     OUT_FILE = 'OUT_FILE'
-    LOG_FILE = 'LOG_FILE'
+    # LOG_FILE = 'LOG_FILE'
 
     def name(self):
         return 'swmm_execute'
@@ -72,15 +72,14 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         self.addParameter(QgsProcessingParameterFileDestination(
             self.OUT_FILE, description=description, fileFilter="out (*.out)"))
 
-        description = self.tr('LOG File')
-        self.addParameter(QgsProcessingParameterFileDestination(
-            self.LOG_FILE, description=description, fileFilter="log (*.log)"))
+        # description = self.tr('LOG File')
+        # self.addParameter(QgsProcessingParameterFileDestination(
+        #     self.LOG_FILE, description=description, fileFilter="log (*.log)"))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
 
         # init params
-        log_file = self.parameterAsFile(parameters, self.LOG_FILE, context)
         output_file = self.parameterAsFile(parameters, self.OUT_FILE, context)
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
         swmm_cli = os.path.abspath(ProcessingConfig.getSetting('SWMM_PATH'))
@@ -93,7 +92,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                     Please configure it before running Swmm algorithms.')
             )
 
-        qs = QgepSwmm(None, None, inp_file, None, output_file, log_file, swmm_cli, None)
+        qs = QgepSwmm(None, None, None, inp_file, None, output_file, swmm_cli, None)
         prompt = qs.execute_swmm()
         if qs.feedbacks is not None:
             for i in range(len(qs.feedbacks)):
@@ -103,7 +102,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
         if re.search('There are errors', prompt):
             feedback.reportError(prompt)
-            feedback.reportError('There were errors, look into logs for details: {log_file}'.format(log_file=log_file))
+            feedback.reportError('There were errors, run the file in SWMM GUI for more details')
 
         feedback.setProgress(100)
 
