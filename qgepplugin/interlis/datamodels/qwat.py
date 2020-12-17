@@ -22,21 +22,24 @@ from .. import config
 
 ###############################################
 # QWAT datamodel
+# All tables will be loaded from the QWAT schema as a SqlAlchemy ORM class.
+# Only table specific relationships (e.g. inheritance) need to be manually
+# defined here. Other attributes will be loaded automatically.
 ###############################################
 
 Base = automap_base()
 
 SCHEMA = config.QWAT_SCHEMA
 
-# class Pipe(Base):
-#     __tablename__ = "pipe"
-#     __table_args__ = {'schema': SCHEMA}
+class network_element(Base):
+    __tablename__ = "network_element"
+    __table_args__ = {'schema': SCHEMA}
 
-# class Hydrant(Base):
-#     __tablename__ = "hydrant"
-#     __table_args__ = {'schema': SCHEMA}
+class hydrant(network_element):
+    __tablename__ = "hydrant"
+    __table_args__ = {'schema': SCHEMA}
 
-class installation(Base):
+class installation(network_element):
     __tablename__ = "installation"
     __table_args__ = {'schema': SCHEMA}
 
@@ -44,7 +47,12 @@ class tank(installation):
     __tablename__ = "tank"
     __table_args__ = {'schema': SCHEMA}
 
-Base.prepare(utils.create_engine(), reflect=True, schema=SCHEMA, name_for_collection_relationship=utils.custom_name_for_collection_relationship)
+Base.prepare(
+    utils.create_engine(),
+    reflect=True,
+    schema=SCHEMA,
+    name_for_collection_relationship=utils.custom_name_for_collection_relationship
+)
 
 Classes = Base.classes
 

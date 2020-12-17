@@ -1,8 +1,12 @@
 print("Exporting QWAT.pipe -> WASSER.conduite")
 for row in session.query(QWAT.pipe):
-    # AVAILABLE ROW FIELDS : REF_crossing_pipe2, REF_pump_fk_pipe_in, _decl_class_registry, _diff_elevation, _geometry_alt1_used, _geometry_alt2_used, _length2d, _length3d, _printmaps, _sa_class_manager, _sa_decl_prepare, _sa_raise_deferred_config, _schema_visible, _valve_closed, _valve_count, bedding, classes, distributor, district, fk_bedding, fk_distributor, fk_district, fk_folder, fk_function, fk_installmethod, fk_locationtype, fk_material, fk_node_a, fk_node_b, fk_parent, fk_precision, fk_pressurezone, fk_printmap, fk_protection, fk_status, fk_watertype, folder, geometry, geometry_alt1, geometry_alt2, id, label_1_text, label_1_visible, label_2_text, label_2_visible, metadata, node, pipe, pipe_function, pipe_installmethod, pipe_material, pipe_protection, precision, prepare, pressure_nominal, pressurezone, remark, schema_force_visible, status, tunnel_or_bridge, update_geometry_alt1, update_geometry_alt2, visible, watertype, year, year_end, year_rehabilitation
+    # AVAILABLE ROW FIELDS (from relationships : REF_crossing_pipe1, REF_pump_fk_pipe_out, bedding, distributor, district, folder, node, pipe, pipe_function, pipe_installmethod, pipe_material, pipe_protection, precision, pressurezone, status, visible, watertype)
+    # AVAILABLE ROW FIELDS (from pipe : _diff_elevation, _geometry_alt1_used, _geometry_alt2_used, _length2d, _length3d, _printmaps, _schema_visible, _valve_closed, _valve_count, fk_bedding, fk_distributor, fk_district, fk_folder, fk_function, fk_installmethod, fk_locationtype, fk_material, fk_node_a, fk_node_b, fk_parent, fk_precision, fk_pressurezone, fk_printmap, fk_protection, fk_status, fk_watertype, geometry, geometry_alt1, geometry_alt2, id, label_1_text, label_1_visible, label_2_text, label_2_visible, pressure_nominal, remark, schema_force_visible, tunnel_or_bridge, update_geometry_alt1, update_geometry_alt2, year, year_end, year_rehabilitation)
     session.add(
         WASSER.conduite(
+            # REF_conduite_texte_conduiteref_fkey=row.REPLACE_ME,
+            # REF_lieu_de_fuite_conduiteref_fkey=row.REPLACE_ME,
+            # REF_metaattributs_conduite_metaattributs_fkey=row.REPLACE_ME,
             # _decl_class_registry=row.REPLACE_ME,
             # _sa_class_manager=row.REPLACE_ME,
             # _sa_decl_prepare=row.REPLACE_ME,
@@ -55,9 +59,14 @@ print("done")
 
 print("Exporting QWAT.hydrant -> WASSER.hydrant")
 for row in session.query(QWAT.hydrant):
-    # AVAILABLE ROW FIELDS : _decl_class_registry, _sa_class_manager, _sa_decl_prepare, _sa_raise_deferred_config, classes, fk_material, fk_model_inf, fk_model_sup, fk_output, fk_provider, flow, hydrant_material, hydrant_model_inf, hydrant_model_sup, hydrant_output, hydrant_provider, id, marked, metadata, network_element, observation_date, observation_source, prepare, pressure_dynamic, pressure_static, underground
+    # AVAILABLE ROW FIELDS (from relationships : REF_meter_id_fkey, REF_part_id_fkey, REF_samplingpoint_id_fkey, REF_subscriber_id_fkey, distributor, folder, hydrant_material, hydrant_model_inf, hydrant_model_sup, hydrant_output, hydrant_provider, node, object_reference, precision, precisionalti, status, visible)
+    # AVAILABLE ROW FIELDS (from hydrant : fk_material, fk_model_inf, fk_model_sup, fk_output, fk_provider, flow, id, marked, observation_date, observation_source, pressure_dynamic, pressure_static, underground)
+    # AVAILABLE ROW FIELDS (from network_element : altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end)
     session.add(
         WASSER.hydrant(
+            # REF_metaattributs_hydrant_metaattributs_fkey=row.REPLACE_ME,
+            # REF_noeud_de_conduite_texte_noeud_de_conduitrf_hydrant_fkey=row.REPLACE_ME,
+            # REF_position_plan_d_ensemble_objet_hydrant_fkey=row.REPLACE_ME,
             # _decl_class_registry=row.REPLACE_ME,
             # _sa_class_manager=row.REPLACE_ME,
             # _sa_decl_prepare=row.REPLACE_ME,
@@ -96,9 +105,15 @@ print("done")
 
 print("Exporting QWAT.tank -> WASSER.reservoir_d_eau")
 for row in session.query(QWAT.tank):
-    # AVAILABLE ROW FIELDS : REF_pressurecontrol_id_fkey, _cistern1_litrepercm, _cistern2_litrepercm, _decl_class_registry, _litrepercm, _sa_class_manager, _sa_decl_prepare, _sa_raise_deferred_config, altitude_apron, altitude_overflow, cistern, cistern1_dimension_1, cistern1_dimension_2, cistern1_fk_type, cistern1_storage, cistern2_dimension_1, cistern2_dimension_2, cistern2_fk_type, cistern2_storage, classes, eca, fire_remote, fire_valve, fk_overflow, fk_parent, fk_remote, fk_tank_firestorage, fk_watertype, geometry_polygon, height_max, id, installation, metadata, name, network_element, open_water_surface, overflow, parcel, prepare, remote_type, storage_fire, storage_supply, storage_total, tank_firestorage, watertype
+    # AVAILABLE ROW FIELDS (from relationships : REF_chamber_id_fkey, REF_cover_fk_installation, REF_installation_fk_parent, REF_meter_id_fkey, REF_part_id_fkey, REF_pressurecontrol_id_fkey, REF_pump_id_fkey, REF_samplingpoint_id_fkey, REF_source_id_fkey, REF_subscriber_id_fkey, REF_treatment_id_fkey, cistern, distributor, folder, installation, node, object_reference, overflow, precision, precisionalti, remote_type, status, tank_firestorage, visible, watertype)
+    # AVAILABLE ROW FIELDS (from tank : _cistern1_litrepercm, _cistern2_litrepercm, _litrepercm, altitude_apron, altitude_overflow, cistern1_dimension_1, cistern1_dimension_2, cistern1_fk_type, cistern1_storage, cistern2_dimension_1, cistern2_dimension_2, cistern2_fk_type, cistern2_storage, fire_remote, fire_valve, fk_overflow, fk_tank_firestorage, height_max, id, storage_fire, storage_supply, storage_total)
+    # AVAILABLE ROW FIELDS (from network_element : altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end)
+    # AVAILABLE ROW FIELDS (from installation : eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel)
     session.add(
         WASSER.reservoir_d_eau(
+            # REF_metaattributs_reservoir_d_eau_metttrbuts_fkey=row.REPLACE_ME,
+            # REF_noeud_de_conduite_texte_noeud_d_cndtrf_rsrvr_d_eau_fkey=row.REPLACE_ME,
+            # REF_position_plan_d_ensemble_objet_reservoir_d_eau_fkey=row.REPLACE_ME,
             # _decl_class_registry=row.REPLACE_ME,
             # _sa_class_manager=row.REPLACE_ME,
             # _sa_decl_prepare=row.REPLACE_ME,

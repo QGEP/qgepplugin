@@ -11,6 +11,8 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy import create_engine
 
 from geoalchemy2 import Geometry
@@ -104,13 +106,25 @@ def generate():
         # QWAT.source_type: WASSER.REPLACE_ME,
     }
 
-
-
     for qwat_class, sia_class in TABLE_MAPPING.items():
-        available_fields = ', '.join(sorted(f for f in dir(qwat_class) if not f.startswith('__')))
+
+        available_fields = collections.defaultdict(list)
+        for attr_name, attr in list(qwat_class.__dict__.items()):
+            # if attr_name.startswith('__'):
+            #     continue
+            if not isinstance(attr, InstrumentedAttribute):
+                continue
+            if hasattr(attr.property, "columns"):
+                key = attr.property.columns[0].table.name
+            else:
+                key = "relationships"
+            available_fields[key].append(attr_name)
+
         template.write(f'print("Exporting QWAT.{qwat_class.__name__} -> WASSER.{sia_class.__name__}")\n')
         template.write(f'for row in session.query(QWAT.{qwat_class.__name__}):\n')
-        template.write(f'    # AVAILABLE ROW FIELDS : {available_fields}\n')
+        for src_table, fields in available_fields.items():
+            fields.sort()
+            template.write(f'    # AVAILABLE ROW FIELDS (from {src_table} : {", ".join(fields)})\n')
         template.write(f'    session.add(\n')
         template.write(f'        WASSER.{sia_class.__name__}(\n')
         for sia_field in sorted(dir(sia_class)):
