@@ -31,7 +31,11 @@ Base = automap_base()
 
 SCHEMA = config.QWAT_SCHEMA
 
-class network_element(Base):
+class node(Base):
+    __tablename__ = "node"
+    __table_args__ = {'schema': SCHEMA}
+
+class network_element(node):
     __tablename__ = "network_element"
     __table_args__ = {'schema': SCHEMA}
 
