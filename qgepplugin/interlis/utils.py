@@ -4,8 +4,7 @@ import os
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
 
-# from . import config
-import config
+from . import config
 
 
 def setup_test_db():
@@ -38,8 +37,10 @@ def create_ili_schema(schema, model):
     connection.commit()
 
     print("CREATE ILIDB...")
+    # TODO : remove --nameLang fr and retranslate everything to DE
     os.system(
-        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --smart2Inheritance --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {model}")
+        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --smart2Inheritance --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt --nameLang fr {model}"
+    )
 
 
 def export_ili_schema(schema, model_name):
@@ -74,16 +75,22 @@ def class_factory(name, bases, schema):
     else:
         base_name = f"{schema}_automapbase"
         if base_name not in classes:
+            print(f"Created automap_base {base_name} for schema {schema}")
             classes[base_name] = automap_base()
         base = classes[base_name]
     class CLASS(base):
-        __tablename__ = name
+        __tablename__ = f"{schema}.{name}"
         __table_args__ = {'schema': schema}
-    CLASS.__name__ = name.title() 
-    classes[name] = CLASS
+    CLASS.__name__ = name
+    # CLASS.__qualname__ = f"{schema}.{name}"
+    print(f"Creating class {CLASS.__name__} / {CLASS.__qualname__} / {CLASS.__module__}")
+    # classes[name] = CLASS
     return CLASS
 
 def prepare(schema, engine):
     Base = classes[f"{schema}_automapbase"]
     Base.prepare(engine, reflect=True, schema=schema, name_for_collection_relationship=custom_name_for_collection_relationship)
     return Base
+
+def capfirst(s):
+    return s[0].upper()+s[1:]
