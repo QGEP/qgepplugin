@@ -20,7 +20,7 @@ from .. import utils
 from .. import config
 
 
-SCHEMA = config.QWAT_ILI_SCHEMA
+SCHEMA = config.WASSER_SCHEMA
 
 Base = automap_base()
 # class conduite(Base):

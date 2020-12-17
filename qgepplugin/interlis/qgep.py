@@ -23,7 +23,7 @@ import config
 utils.setup_test_db()
 
 # CREATE TEMPORARY SCHEMA
-utils.create_ili_schema(config.QGEP_ILI_SCHEMA, config.QGEP_ILI_MODEL)
+utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL)
 
 
 engine = utils.create_engine()
@@ -40,8 +40,8 @@ utils.prepare(config.QGEP_SCHEMA, engine)
 # INTERLIS datamodel
 ###############################################
 
-SIANormschacht = utils.class_factory("normschacht", [], config.QGEP_ILI_SCHEMA)
-utils.prepare(config.QGEP_ILI_SCHEMA, engine)
+SIANormschacht = utils.class_factory("normschacht", [], config.ABWASSER_SCHEMA)
+utils.prepare(config.ABWASSER_SCHEMA, engine)
 
 
 ###############################################
@@ -102,7 +102,7 @@ print("done !")
 session.commit()
 
 # EXPORT TEMPORARY SCHEMA
-utils.export_ili_schema(config.QGEP_ILI_SCHEMA, config.QGEP_ILI_MODEL_NAME)
+utils.export_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME)
 
 
 ## TODO

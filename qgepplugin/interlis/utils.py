@@ -31,6 +31,13 @@ def create_ili_schema(schema, model, smart=True):
     connection.set_session(autocommit=True)
     cursor = connection.cursor()
 
+    cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
+
+    if cursor.rowcount > 0:
+        print("Already created")
+        # TODO : truncate all
+        return
+
     print("CREATING THE SCHEMA...")
     cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
     cursor.execute(f"CREATE SCHEMA {schema};")

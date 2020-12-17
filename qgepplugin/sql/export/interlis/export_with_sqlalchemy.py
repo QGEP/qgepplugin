@@ -20,11 +20,11 @@ PGDATABASE = 'qgep_prod'
 PGUSER = 'postgres'
 PGPASS = 'postgres'
 PSQL = r'C:\OSGeo4W64\bin\psql'
-QGEP_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Abwasser_2015_2_d-20180417.ili'
-QWAT_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Wasser_2015_2_d-20181005.ili'
+ABWASSER_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Abwasser_2015_2_d-20180417.ili'
+WASSER_ILI_MODEL = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\sia405_interlis_files\SIA405_Wasser_2015_2_d-20181005.ili'
 ILI2PG = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\vsa_kek_sia_405\ili2pg-4.4.2\ili2pg-4.4.2.jar'
-QGEP_ILI_SCHEMA = 'pg2ili_abwasser'
-QWAT_ILI_SCHEMA = 'pg2ili_wasser'
+ABWASSER_SCHEMA = 'pg2ili_abwasser'
+WASSER_SCHEMA = 'pg2ili_wasser'
 QGEP_SCHEMA = 'qgep_od'
 
 """
@@ -40,13 +40,13 @@ connection.set_session(autocommit=True)
 cursor = connection.cursor()
 
 print("CREATING THE SCHEMA...")
-for schema in [QGEP_ILI_SCHEMA, QWAT_ILI_SCHEMA]:
+for schema in [ABWASSER_SCHEMA, WASSER_SCHEMA]:
     cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
     cursor.execute(f"CREATE SCHEMA {schema};")
 connection.commit()
 
 print("CREATE ILIDB...")
-for schema, model in [(QGEP_ILI_SCHEMA, QGEP_ILI_MODEL), (QWAT_ILI_SCHEMA, QWAT_ILI_MODEL)]:
+for schema, model in [(ABWASSER_SCHEMA, ABWASSER_ILI_MODEL), (WASSER_SCHEMA, WASSER_ILI_MODEL)]:
     os.system(f"java -jar {ILI2PG} --schemaimport --dbhost {PGHOST} --dbusr {PGUSER} --dbpwd {PGPASS} --dbdatabase {PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid --noSmartMapping --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {model}")
 """
 
@@ -114,21 +114,21 @@ SIABase = automap_base()
 
 class SIABaseClass(SIABase):
     __tablename__ = 'baseclass'
-    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+    __table_args__ = {'schema': ABWASSER_SCHEMA}
 
 class SIASia405BaseClass(SIABaseClass):
     __tablename__ = 'sia405_baseclass'
-    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+    __table_args__ = {'schema': ABWASSER_SCHEMA}
 
 class SIAAbwasserbauwerk(SIASia405BaseClass):
     __tablename__ = 'abwasserbauwerk'
-    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+    __table_args__ = {'schema': ABWASSER_SCHEMA}
 
 class SIANormschacht(SIAAbwasserbauwerk):
     __tablename__ = 'normschacht'
-    __table_args__ = {'schema': QGEP_ILI_SCHEMA}
+    __table_args__ = {'schema': ABWASSER_SCHEMA}
 
-SIABase.prepare(engine, reflect=True, schema=QGEP_ILI_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
+SIABase.prepare(engine, reflect=True, schema=ABWASSER_SCHEMA, name_for_collection_relationship=custom_name_for_collection_relationship)
 
 # Autoincrementing ID
 oid2tid = collections.defaultdict(lambda: len(oid2tid))
