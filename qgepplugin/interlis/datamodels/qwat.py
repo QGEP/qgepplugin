@@ -36,10 +36,23 @@ SCHEMA = config.QWAT_SCHEMA
 #     __tablename__ = "hydrant"
 #     __table_args__ = {'schema': SCHEMA}
 
-# class Tank(Base):
-#     __tablename__ = "tank"
-#     __table_args__ = {'schema': SCHEMA}
+class installation(Base):
+    __tablename__ = "installation"
+    __table_args__ = {'schema': SCHEMA}
+
+class tank(installation):
+    __tablename__ = "tank"
+    __table_args__ = {'schema': SCHEMA}
 
 Base.prepare(utils.create_engine(), reflect=True, schema=SCHEMA, name_for_collection_relationship=utils.custom_name_for_collection_relationship)
 
 Classes = Base.classes
+
+# For some reason, automap_base doesn't add manually defined classes to Base.classes,
+# so we do it manually here
+def add_subclasses(Parent):
+    for subclass in Parent.__subclasses__():
+        if subclass.__name__ not in Classes:
+            Classes[subclass.__name__] = subclass
+        add_subclasses(subclass)
+add_subclasses(Base)

@@ -107,21 +107,22 @@ def generate():
 
 
     for qwat_class, sia_class in TABLE_MAPPING.items():
-        available_fields = ', '.join(f.name for f in qwat_class.__table__.columns)
+        available_fields = ', '.join(sorted(f for f in dir(qwat_class) if not f.startswith('__')))
         template.write(f'print("Exporting QWAT.{qwat_class.__name__} -> WASSER.{sia_class.__name__}")\n')
         template.write(f'for row in session.query(QWAT.{qwat_class.__name__}):\n')
         template.write(f'    # AVAILABLE ROW FIELDS : {available_fields}\n')
         template.write(f'    session.add(\n')
         template.write(f'        WASSER.{sia_class.__name__}(\n')
-        for sia_field in sia_class.__table__.columns:
-            template.write(f'            # {sia_field.name}=row.REPLACE_ME,\n')
+        for sia_field in sorted(dir(sia_class)):
+            if not sia_field.startswith('__'):
+                template.write(f'            # {sia_field}=row.REPLACE_ME,\n')
         template.write(f'        )\n')
         template.write(f'    )\n')
         template.write(f'    print(".", end="")\n')
         template.write(f'print("done")\n\n')
 
     print("\n"*5)
-    available_tables = ', '.join([c.__name__ for c in WASSER if c not in TABLE_MAPPING.values()])
+    available_tables = ', '.join(sorted(c.__name__ for c in WASSER if c not in TABLE_MAPPING.values()))
     generator.write('TABLE_MAPPING = {\n')
     for qwat_class, sia_class in TABLE_MAPPING.items():
         generator.write(f"    QWAT.{qwat_class.__name__}: WASSER.{sia_class.__name__},\n")
