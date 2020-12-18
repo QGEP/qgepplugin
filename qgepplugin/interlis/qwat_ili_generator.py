@@ -1,3 +1,9 @@
+"""
+This script is a STUB code generator, helping to implement QWAT/QGEP -> ILI migrations scripts.
+
+The script will generate stub classes in  code in `qwat_ili_generator/output`.
+"""
+
 import sys
 import re
 import os
@@ -40,7 +46,7 @@ def generate(interlis_path, interlis_path_translated=None):
         abstract = "# ABSTRACT !\n" if is_abstract else ""
 
         if current_model not in output_handles:
-            output_path = os.path.join(os.path.dirname(__file__), 'ili_generator_outputs', f'{current_model}.py')
+            output_path = os.path.join(os.path.dirname(__file__), 'qwat_ili_generator_output', f'{current_model}.py')
             output_handles[current_model] = open(output_path, 'w', newline='\n')
         output_handles[current_model].write(
             f"{abstract}"
