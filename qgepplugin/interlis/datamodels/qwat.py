@@ -63,6 +63,10 @@ class tank(installation):
     __tablename__ = "tank"
     __table_args__ = {'schema': SCHEMA}
 
+class pump(installation):
+    __tablename__ = "pump"
+    __table_args__ = {'schema': SCHEMA}
+
 class pipe(Base):
     __tablename__ = "pipe"
     __table_args__ = {'schema': SCHEMA}

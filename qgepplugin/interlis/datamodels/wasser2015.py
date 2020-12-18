@@ -48,6 +48,10 @@ class reservoir_d_eau(noeud_de_conduite):
     __tablename__ = "reservoir_d_eau"
     __table_args__ = {'schema': SCHEMA}
 
+class station_de_pompage(noeud_de_conduite):
+    __tablename__ = "station_de_pompage"
+    __table_args__ = {'schema': SCHEMA}
+
 class troncon_hydraulique(sia405_baseclass):
     __tablename__ = "troncon_hydraulique"
     __table_args__ = {'schema': SCHEMA}

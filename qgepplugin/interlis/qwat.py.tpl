@@ -184,6 +184,78 @@
         print(".", end="")
     print("done")
 
+    print("Exporting QWAT.pump -> WASSER.noeud_hydraulique, WASSER.station_de_pompage")
+    for row in session.query(QWAT.pump):
+        # AVAILABLE FIELDS IN QWAT.pump
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- installation ---
+        # eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel
+
+        # --- pump ---
+        # fk_pipe_in, fk_pipe_out, fk_pump_operating, fk_pump_type, id, manometric_height, no_pumps, rejected_flow
+
+        # --- _relations_ ---
+        # REF_chamber_id_fkey, REF_cover_fk_installation, REF_installation_fk_parent, REF_meter_id_fkey, REF_part_id_fkey, REF_pipe_fk_node_b, REF_pressurecontrol_id_fkey, REF_samplingpoint_id_fkey, REF_source_id_fkey, REF_subscriber_id_fkey, REF_treatment_id_fkey, distributor, district, folder, installation, object_reference, pipe, precision, precisionalti, pressurezone, pump_operating, pump_type, remote_type, status, visible, watertype
+
+        noeud_hydraulique = WASSER.noeud_hydraulique(
+            # FIELDS TO MAP TO WASSER.noeud_hydraulique
+
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- noeud_hydraulique ---
+            # consommation=row.REPLACE_ME,
+            # geometrie=row.REPLACE_ME,
+            # nom_numero=row.REPLACE_ME,
+            # pression=row.REPLACE_ME,
+            # remarque=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # type_de_noeud=row.REPLACE_ME,
+        )
+        session.add(noeud_hydraulique)
+        station_de_pompage = WASSER.station_de_pompage(
+            # FIELDS TO MAP TO WASSER.station_de_pompage
+
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- noeud_de_conduite ---
+            # altitude=row.REPLACE_ME,
+            # annee_de_construction=row.REPLACE_ME,
+            # determination_altimetrique=row.REPLACE_ME,
+            # determination_planimetrique=row.REPLACE_ME,
+            # geometrie=row.REPLACE_ME,
+            # noeudref=row.REPLACE_ME,
+            # proprietaire=row.REPLACE_ME,
+            # remarque=row.REPLACE_ME,
+            # symboleori=row.REPLACE_ME,
+            # zone_de_pression=row.REPLACE_ME,
+
+            # --- station_de_pompage ---
+            # acondition=row.REPLACE_ME,
+            # genre=row.REPLACE_ME,
+            # nom_numero=row.REPLACE_ME,
+            # puissance=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+        )
+        session.add(station_de_pompage)
+        print(".", end="")
+    print("done")
+
     print("Exporting QWAT.pipe -> WASSER.troncon_hydraulique, WASSER.conduite")
     for row in session.query(QWAT.pipe):
         # AVAILABLE FIELDS IN QWAT.pipe

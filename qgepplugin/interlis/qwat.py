@@ -23,6 +23,7 @@ def export():
     network_elements_ids = set()
     network_elements_ids.update(o[0] for o in session.query(QWAT.hydrant.id).all())
     network_elements_ids.update(o[0] for o in session.query(QWAT.tank.id).all())
+    network_elements_ids.update(o[0] for o in session.query(QWAT.pump.id).all())
     # SELECT * FROM "qwat_od"."node" WHERE id=8102;
     # SELECT * FROM "qwat_od"."network_element" WHERE id=8102;
     # SELECT * FROM "qwat_od"."hydrant" WHERE id=8102;
@@ -67,7 +68,7 @@ def export():
         session.add(noeud_hydraulique)
         print(".", end="")
     print("done")
-    
+
     print("Exporting QWAT.hydrant -> WASSER.noeud_hydraulique, WASSER.hydrant")
     for row in session.query(QWAT.hydrant):
         # AVAILABLE FIELDS IN QWAT.hydrant
@@ -219,6 +220,78 @@ def export():
             t_id=QWAT.tank.make_tid(row.id+10000000),  # TODO : not too clean...
         )
         session.add(reservoir_d_eau)
+        print(".", end="")
+    print("done")
+
+    print("Exporting QWAT.pump -> WASSER.noeud_hydraulique, WASSER.station_de_pompage")
+    for row in session.query(QWAT.pump):
+        # AVAILABLE FIELDS IN QWAT.pump
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- installation ---
+        # eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel
+
+        # --- pump ---
+        # fk_pipe_in, fk_pipe_out, fk_pump_operating, fk_pump_type, id, manometric_height, no_pumps, rejected_flow
+
+        # --- _relations_ ---
+        # REF_chamber_id_fkey, REF_cover_fk_installation, REF_installation_fk_parent, REF_meter_id_fkey, REF_part_id_fkey, REF_pipe_fk_node_b, REF_pressurecontrol_id_fkey, REF_samplingpoint_id_fkey, REF_source_id_fkey, REF_subscriber_id_fkey, REF_treatment_id_fkey, distributor, district, folder, installation, object_reference, pipe, precision, precisionalti, pressurezone, pump_operating, pump_type, remote_type, status, visible, watertype
+
+        noeud_hydraulique = WASSER.noeud_hydraulique(
+            # FIELDS TO MAP TO WASSER.noeud_hydraulique
+
+            # --- baseclass ---
+            t_ili_tid=row.id,
+            t_type='noeud_hydraulique',
+
+            # --- sia405_baseclass ---
+            obj_id=row.id,
+
+            # --- noeud_hydraulique ---
+            # consommation=row.REPLACE_ME,
+            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            nom_numero='???',
+            # pression=row.REPLACE_ME,
+            # remarque=row.REPLACE_ME,
+            t_id=QWAT.pump.make_tid(row.id),
+            # type_de_noeud=row.REPLACE_ME,
+        )
+        session.add(noeud_hydraulique)
+        station_de_pompage = WASSER.station_de_pompage(
+            # FIELDS TO MAP TO WASSER.station_de_pompage
+
+            # --- baseclass ---
+            t_ili_tid=row.id,
+            t_type='station_de_pompage',
+
+            # --- sia405_baseclass ---
+            obj_id=row.id,
+
+            # --- noeud_de_conduite ---
+            # altitude=row.REPLACE_ME,
+            # annee_de_construction=row.REPLACE_ME,
+            # determination_altimetrique=row.REPLACE_ME,
+            determination_planimetrique='???',
+            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            noeudref=noeud_hydraulique.t_id,
+            # proprietaire=row.REPLACE_ME,
+            # remarque=row.REPLACE_ME,
+            symboleori=0,  # ???
+            # zone_de_pression=row.REPLACE_ME,
+
+            # --- station_de_pompage ---
+            # acondition=row.REPLACE_ME,
+            # genre=row.REPLACE_ME,
+            # nom_numero=row.REPLACE_ME,
+            puissance=0,  # ???
+            t_id=QWAT.pump.make_tid(row.id+10000000),  # TODO : not too clean...
+        )
+        session.add(station_de_pompage)
         print(".", end="")
     print("done")
 
