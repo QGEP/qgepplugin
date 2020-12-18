@@ -87,6 +87,13 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
 classes = {}
 
 # Helper that recursively creates hierarchical classes for sqlalchemy
+# (not sure this works well enough to be used, and may be a bit too cryptic)
+#
+# usage : 
+# class_factory("dog", ["animal", "thing"], "test_schema")
+# class_factory("cat", ["animal", "thing"], "test_schema")
+# class_factory("stone", ["thing"], "test_schema")
+
 def class_factory(name, bases, schema):
     print(f"Called class factory with args {name} {bases} {schema}")
     if name in classes:

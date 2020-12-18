@@ -20,6 +20,8 @@ Mais sans smartinheritance, on dirait qu'il manque des tables (p. ex. hydrant ou
 
 Il y a [conduite]1->N[troncon_hydraulique], comment il peut y avoir plusieurs conduite par troncon ?!
 
+Quelle est la relation `noeud_de_conduite` / `noeud_hydraulique` ?
+
 Il y a deux modèle par fichier ilis, p. ex. `SIA405_EAUX_2015_LV95` et `SIA405_EAUX_2015`, quel est le lien entre les 2 ?
 
 #### Documentation
