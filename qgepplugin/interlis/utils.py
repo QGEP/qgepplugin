@@ -25,7 +25,7 @@ def setup_test_db():
     os.system(f'docker exec qgepqwat pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qwat_v1.3.4_data_and_structure_sample.backup')
 
 
-def create_ili_schema(schema, model, smart=0):
+def create_ili_schema(schema, model, smart=0, lang=''):
     print("CONNECTING TO DATABASE...")
     connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
     connection.set_session(autocommit=True)
@@ -34,8 +34,10 @@ def create_ili_schema(schema, model, smart=0):
     cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
 
     if cursor.rowcount > 0:
-        print("Already created")
-        # TODO : truncate all
+        print("Already created, we truncate instead")
+        cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
+        for row in cursor.fetchall():
+            cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
         return
 
     print("CREATING THE SCHEMA...")
@@ -51,9 +53,11 @@ def create_ili_schema(schema, model, smart=0):
     elif smart == 2:
         smart_inheritance = '--smart2Inheritance'
 
-    # TODO : remove --nameLang fr and retranslate everything to DE
+    if lang:
+        lang = f'--nameLang {lang}'
+
     os.system(
-        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid {smart_inheritance} --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt --nameLang fr {model}"
+        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid {smart_inheritance} --strokeArcs --defaultSrsCode 2056 --trace --log C:/Users/Olivier/Desktop/debug.txt {lang} {model}"
     )
 
 

@@ -1,3 +1,15 @@
+"""
+This script is a code generator, helping to implement QWAT/QGEP -> ILI migrations scripts.
+
+Setup is made in TABLE_MAPPING, where one QWAT/QGEP class can be matched to one or more ILI classes.
+
+The script will generate corresponding code in `qwat.py.tpl`, which can then
+be diffed/merged into the original `qwat.py` (recommending `Diff & Merge` extension in VSCode).
+
+It will also generate `qwat_generator.py.tpl`, which can be diffed/merged into this file, 
+to update the list of classes that have not been mapped yet.
+"""
+
 import psycopg2
 import os
 import sys
@@ -36,6 +48,7 @@ def generate():
     ###############################################
 
     TABLE_MAPPING = {
+        QWAT.network_element: [WASSER.noeud_hydraulique],
         QWAT.hydrant: [WASSER.hydrant],
         QWAT.tank: [WASSER.reservoir_d_eau],
         QWAT.pipe: [WASSER.troncon_hydraulique, WASSER.conduite],
@@ -162,7 +175,7 @@ def generate():
         generator.write(f"    QWAT.{qwat_class.__name__}: [{sia_classes_str}],\n")
     generator.write(f'    # NOT MAPPED YET\n')
     generator.write(f'    # AVAILABLE WASSER CLASSES : {available_tables}\n')
-    for qwat_class in QWAT:
+    for qwat_class in sorted(list(QWAT), key=lambda q: q.__name__):
         if qwat_class not in TABLE_MAPPING.keys():
             generator.write(f"    # QWAT.{qwat_class.__name__}: WASSER.REPLACE_ME,\n")
     generator.write('}\n\n')

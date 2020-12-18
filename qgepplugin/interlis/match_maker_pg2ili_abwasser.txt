@@ -1,0 +1,849 @@
+--- TABLE pg2ili_abwasser.banquette ---
+t_id (* bigint)
+genre (character varying)
+
+--- TABLE pg2ili_abwasser.banquette_genre ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.baseclass ---
+t_id (* bigint)
+t_type (* character varying)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation ---
+t_id (* bigint)
+lit_de_pose (character varying)
+fonction_hierarchique (character varying)
+fonction_hydraulique (character varying)
+genre_utilisation_prevu (character varying)
+genre_utilisation_actuel (character varying)
+l_tuyau (numeric)
+intervalle_curage (numeric)
+raccordement (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_fonction_hierarchique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_fonction_hydraulique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_genre_utilisation_actuel ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_genre_utilisation_prevu ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_lit_de_pose ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.canalisation_raccordement ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.chambre_standard ---
+t_id (* bigint)
+dimension1 (integer)
+dimension2 (integer)
+fonction (character varying)
+materiau (character varying)
+arrivee_eaux_sup (character varying)
+
+--- TABLE pg2ili_abwasser.chambre_standard_arrivee_eaux_sup ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.chambre_standard_fonction ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.chambre_standard_materiau ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle ---
+t_id (* bigint)
+forme_couvercle (character varying)
+diametre (integer)
+aeration (character varying)
+fabricant (character varying)
+cote (numeric)
+situation (USER-DEFINED)
+determination_planimetrique (character varying)
+materiau (character varying)
+ramasse_boues (character varying)
+fermeture (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_aeration ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_determination_planimetrique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_fermeture ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_forme_couvercle ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_materiau ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.couvercle_ramasse_boues ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.cunette_debit_temps_sec ---
+t_id (* bigint)
+materiau (character varying)
+
+--- TABLE pg2ili_abwasser.cunette_debit_temps_sec_materiau ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.dispositif_d_acces ---
+t_id (* bigint)
+genre (character varying)
+
+--- TABLE pg2ili_abwasser.dispositif_d_acces_genre ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.element_ouvrage ---
+t_id (* bigint)
+remarque (character varying)
+designation (* character varying)
+remise_en_etat (character varying)
+ouvrage_reseau_asref (* bigint)
+
+--- TABLE pg2ili_abwasser.element_ouvrage_remise_en_etat ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.element_reseau_evacuation ---
+t_id (* bigint)
+remarque (character varying)
+designation (* character varying)
+ouvrage_reseau_asref (bigint)
+
+--- TABLE pg2ili_abwasser.element_reseau_evacuation_ouvrage_reseau_as_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.etat ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.etatvaleurs ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.exutoire ---
+t_id (* bigint)
+cote_crue (numeric)
+signifiance (character varying)
+cote_terrain (numeric)
+niveau_eau_hydraulique (numeric)
+
+--- TABLE pg2ili_abwasser.exutoire_signifiance ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.halignment ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration ---
+t_id (* bigint)
+genre (character varying)
+signalisation (character varying)
+dimension1 (integer)
+dimension2 (integer)
+distance_aquifere (numeric)
+lacunes (character varying)
+trop_plein_de_secours (character varying)
+vehicule_d_aspiration (character varying)
+capacite_absorption_sol (numeric)
+eau_infiltration (character varying)
+etancheite (character varying)
+surface_utile (numeric)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_eau_infiltration ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_etancheite ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_genre ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_lacunes ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_signalisation ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_trop_plein_de_secours ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.installation_infiltration_vehicule_d_aspiration ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.metaattributs ---
+t_id (* bigint)
+t_seq (bigint)
+maitre_des_donnees (* character varying)
+fournisseur_des_donnees (* character varying)
+derniere_modification (* date)
+sia405_baseclass_metaattributs (bigint)
+
+--- TABLE pg2ili_abwasser.noeud_reseau ---
+t_id (* bigint)
+situation (USER-DEFINED)
+cote_refoulement (numeric)
+cote_radier (numeric)
+
+--- TABLE pg2ili_abwasser.organisation ---
+t_id (* bigint)
+remarque (character varying)
+designation (* character varying)
+auid (character varying)
+
+--- TABLE pg2ili_abwasser.organisation_element_deassoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+element_deref (* bigint)
+organisation_element_deassocref (* bigint)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as ---
+t_id (* bigint)
+dossier (character varying)
+annee_de_construction (integer)
+etat_constructif (character varying)
+lot_construction (character varying)
+remarque (character varying)
+designation (* character varying)
+couts_bruts (numeric)
+geometrie_detaillee (USER-DEFINED)
+annee_de_remplacement (integer)
+financement (character varying)
+intervalle_inspection (numeric)
+necessite_assainir (character varying)
+lieu_dit (character varying)
+etat (character varying)
+subventions (numeric)
+vr_annee_reference (integer)
+vr_type_construction (character varying)
+valeur_remplacement (numeric)
+acces (character varying)
+exploitantref (bigint)
+proprietaireref (bigint)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_acces ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_etat_constructif ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_exploitant_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_financement ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_necessite_assainir ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_proprietaire_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_symbole ---
+t_id (* bigint)
+ouvrage_reseau_asref (* bigint)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_texte ---
+t_id (* bigint)
+ouvrage_reseau_asref (* bigint)
+
+--- TABLE pg2ili_abwasser.ouvrage_reseau_as_vr_type_construction ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_special ---
+t_id (* bigint)
+bypass (character varying)
+fonction (character varying)
+trop_plein_de_secours (character varying)
+bep_disposition (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_special_bep_disposition ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_special_bypass ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_special_fonction ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.ouvrage_special_trop_plein_de_secours ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.point_troncon ---
+t_id (* bigint)
+forme_sortie (character varying)
+remarque (character varying)
+designation (* character varying)
+precision_altimetrique (character varying)
+cote (numeric)
+situation (USER-DEFINED)
+situation_point_raccord (integer)
+element_reseau_asref (bigint)
+
+--- TABLE pg2ili_abwasser.point_troncon_element_reseau_as_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.point_troncon_forme_sortie ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.point_troncon_precision_altimetrique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.profil_tuyau ---
+t_id (* bigint)
+remarque (character varying)
+designation (* character varying)
+rapport_hauteur_largeur (numeric)
+type_profil (character varying)
+
+--- TABLE pg2ili_abwasser.profil_tuyau_type_profil ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_canalisation_fonction_hierrchque ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_chambre_standard_fonction ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_couvercle_determinatin_plnmtrque ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_ouvrage_special_fonction ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_profil_tuyau_type_profil ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia4055_lv95sia405_eax_sees_troncon_determination_planmtrque ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_canalisation ---
+t_id (* bigint)
+t_ili_tid (character varying)
+fonction_hierarchique (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_chambre_standard ---
+t_id (* bigint)
+t_ili_tid (character varying)
+fonction (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_couvercle ---
+t_id (* bigint)
+t_ili_tid (character varying)
+situation (USER-DEFINED)
+determination_planimetrique (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_element_reseau_evacuation ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_exutoire ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_installation_infiltration ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_noeud_reseau ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_ouvrage_reseau_as ---
+t_id (* bigint)
+t_ili_tid (character varying)
+geometrie_detaillee (USER-DEFINED)
+etat (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_ouvrage_reseau_as_texte ---
+t_id (* bigint)
+t_ili_tid (character varying)
+textepos (* USER-DEFINED)
+texteori (* numeric)
+textehali (* character varying)
+textevali (* character varying)
+type_de_plan (* character varying)
+texte (* text)
+remarque (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_ouvrage_reseau_as_texteassoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_ouvrage_special ---
+t_id (* bigint)
+t_ili_tid (character varying)
+fonction (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_point_troncon ---
+t_id (* bigint)
+t_ili_tid (character varying)
+situation (USER-DEFINED)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_profil_tuyau ---
+t_id (* bigint)
+t_ili_tid (character varying)
+rapport_hauteur_largeur (numeric)
+type_profil (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_troncon ---
+t_id (* bigint)
+t_ili_tid (character varying)
+determination_planimetrique (character varying)
+trace (USER-DEFINED)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_troncon_texte ---
+t_id (* bigint)
+t_ili_tid (character varying)
+textepos (* USER-DEFINED)
+texteori (* numeric)
+textehali (* character varying)
+textevali (* character varying)
+type_de_plan (* character varying)
+texte (* text)
+remarque (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_15_lv95sia405_eaux_ss_cs_troncon_texteassoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_baseclass ---
+t_id (* bigint)
+obj_id (character varying)
+
+--- TABLE pg2ili_abwasser.sia405_symbolepos ---
+t_id (* bigint)
+type_de_plan (* character varying)
+mise_a_l_echelle_en_longueur (numeric)
+mise_a_l_echelle_en_hauteur (numeric)
+
+--- TABLE pg2ili_abwasser.sia405_textepos ---
+t_id (* bigint)
+type_de_plan (* character varying)
+texte (* text)
+remarque (character varying)
+
+--- TABLE pg2ili_abwasser.symbolepos ---
+t_id (* bigint)
+symbolepos (* USER-DEFINED)
+symboleori (* numeric)
+
+--- TABLE pg2ili_abwasser.t_ili2db_attrname ---
+iliname (* character varying)
+sqlname (* character varying)
+colowner (* character varying)
+target (character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_basket ---
+t_id (* bigint)
+dataset (bigint)
+topic (* character varying)
+t_ili_tid (character varying)
+attachmentkey (* character varying)
+domains (character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_classname ---
+iliname (* character varying)
+sqlname (* character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_column_prop ---
+tablename (* character varying)
+subtype (character varying)
+columnname (* character varying)
+tag (* character varying)
+setting (* character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_dataset ---
+t_id (* bigint)
+datasetname (character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_inheritance ---
+thisclass (* character varying)
+baseclass (character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_model ---
+filename (* character varying)
+iliversion (* character varying)
+modelname (* text)
+content (* text)
+importdate (* timestamp without time zone)
+
+--- TABLE pg2ili_abwasser.t_ili2db_settings ---
+tag (* character varying)
+setting (character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_table_prop ---
+tablename (* character varying)
+tag (* character varying)
+setting (* character varying)
+
+--- TABLE pg2ili_abwasser.t_ili2db_trafo ---
+iliname (* character varying)
+tag (* character varying)
+setting (* character varying)
+
+--- TABLE pg2ili_abwasser.textepos ---
+t_id (* bigint)
+textepos (* USER-DEFINED)
+texteori (* numeric)
+textehali (* character varying)
+textevali (* character varying)
+
+--- TABLE pg2ili_abwasser.troncon ---
+t_id (* bigint)
+protection_interieure (character varying)
+l_effective (numeric)
+determination_planimetrique (character varying)
+hauteur_max_profil (integer)
+materiau (character varying)
+pente_plan (integer)
+k_strickler (integer)
+relining_genre (character varying)
+relining_technique (character varying)
+relining_materiaux (character varying)
+reliner_diametre_nominale (integer)
+rigidite_annulaire (integer)
+trace (USER-DEFINED)
+k_colebrook (numeric)
+genre_profilref (bigint)
+point_troncon_versref (* bigint)
+point_troncon_deref (* bigint)
+
+--- TABLE pg2ili_abwasser.troncon_determination_planimetrique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_genre_profil_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_materiau ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_point_troncon_de_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_point_troncon_vers_assoc ---
+t_id (* bigint)
+t_ili_tid (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_protection_interieure ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_relining_genre ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_relining_materiaux ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_relining_technique ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.troncon_texte ---
+t_id (* bigint)
+tronconref (* bigint)
+
+--- TABLE pg2ili_abwasser.troncon_trace_alternative ---
+t_id (* bigint)
+trace_alternative (USER-DEFINED)
+type_de_plan (character varying)
+tronconref (* bigint)
+
+--- TABLE pg2ili_abwasser.tuyau_chute ---
+t_id (* bigint)
+diametre (integer)
+
+--- TABLE pg2ili_abwasser.type_de_plan ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+
+--- TABLE pg2ili_abwasser.valignment ---
+itfcode (* integer)
+ilicode (* character varying)
+seq (integer)
+inactive (* boolean)
+dispname (* character varying)
+description (character varying)
+

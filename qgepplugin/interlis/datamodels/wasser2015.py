@@ -32,6 +32,10 @@ class sia405_baseclass(baseclass):
     __tablename__ = "sia405_baseclass"
     __table_args__ = {'schema': SCHEMA}
 
+class noeud_hydraulique(sia405_baseclass):
+    __tablename__ = "noeud_hydraulique"
+    __table_args__ = {'schema': SCHEMA}
+
 class noeud_de_conduite(sia405_baseclass):
     __tablename__ = "noeud_de_conduite"
     __table_args__ = {'schema': SCHEMA}
@@ -40,16 +44,16 @@ class hydrant(noeud_de_conduite):
     __tablename__ = "hydrant"
     __table_args__ = {'schema': SCHEMA}
 
-class noeud_hydraulique(sia405_baseclass):
-    __tablename__ = "noeud_hydraulique"
-    __table_args__ = {'schema': SCHEMA}
-
 class reservoir_d_eau(noeud_de_conduite):
     __tablename__ = "reservoir_d_eau"
     __table_args__ = {'schema': SCHEMA}
 
 class troncon_hydraulique(sia405_baseclass):
     __tablename__ = "troncon_hydraulique"
+    __table_args__ = {'schema': SCHEMA}
+
+class conduite(sia405_baseclass):
+    __tablename__ = "conduite"
     __table_args__ = {'schema': SCHEMA}
 
 Base.prepare(utils.create_engine(), reflect=True, schema=SCHEMA, name_for_collection_relationship=utils.custom_name_for_collection_relationship)

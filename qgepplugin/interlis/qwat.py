@@ -30,6 +30,44 @@ def export():
 
     session = Session(utils.create_engine())
 
+    print("Exporting QWAT.network_element -> WASSER.noeud_hydraulique")
+    for row in session.query(QWAT.network_element):
+        # AVAILABLE FIELDS
+
+        # --- _relations_ ---
+        # REF_pipe_fk_node_b, distributor, district, folder, object_reference, precision, precisionalti, pressurezone, status, visible
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, id, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        noeud_hydraulique = WASSER.noeud_hydraulique(
+            # FIELDS TO MAP
+
+            # --- noeud_hydraulique ---
+            # consommation=row.REPLACE_ME,
+            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            nom_numero="???",
+            # pression=row.REPLACE_ME,
+            # remarque=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # type_de_noeud=row.REPLACE_ME,
+
+            # --- baseclass ---
+            t_ili_tid=row.id,
+            t_type='noeud_hydraulique',
+
+            # --- sia405_baseclass ---
+            obj_id=row.id,
+            t_id=QWAT.network_element.make_tid(row.id),
+        )
+        session.add(noeud_hydraulique)
+        # session.commit()
+        print(".", end="")
+    print("done")
+
     print("Exporting QWAT.hydrant -> WASSER.hydrant")
     for row in session.query(QWAT.hydrant):
         # AVAILABLE FIELDS
@@ -56,18 +94,18 @@ def export():
             # fabricant=row.REPLACE_ME,
             # genre=row.REPLACE_ME,
             # materiau=row.REPLACE_ME,
-            # nom_numero=row.REPLACE_ME,
+            nom_numero="???",
             # pression_de_distribution=row.REPLACE_ME,
             # pression_ecoulement=row.REPLACE_ME,
             # soutirage=row.REPLACE_ME,
-            # t_id=row.REPLACE_ME,
+            t_id=QWAT.hydrant.make_tid(row.id),
 
             # --- baseclass ---
-            # t_ili_tid=row.REPLACE_ME,
+            t_ili_tid=row.id,
             t_type='hydrant',
 
             # --- sia405_baseclass ---
-            # obj_id=row.REPLACE_ME,
+            obj_id=row.id,
 
             # --- noeud_de_conduite ---
             # altitude=row.REPLACE_ME,
@@ -81,7 +119,10 @@ def export():
             symboleori=0,  # ???
             # zone_de_pression=row.REPLACE_ME,
         )
-        session.add(hydrant)
+        print(hydrant)
+        sys.exit(0)
+        session.merge(hydrant)
+        # session.commit()
         print(".", end="")
     print("done")
 
@@ -113,19 +154,19 @@ def export():
             # genre=row.REPLACE_ME,
             hauteur_de_refoulement=row.altitude_overflow or 0,
             # materiau=row.REPLACE_ME,
-            # nom_numero=row.REPLACE_ME,
+            nom_numero="???",
             # puissance=row.REPLACE_ME,
             reserve_eau_alimentation=row.storage_supply or 0,
             reserve_eau_incendie=row.storage_fire or 0,
             # revetement=row.REPLACE_ME,
-            # t_id=row.REPLACE_ME,
+            t_id=QWAT.tank.make_tid(row.id),
 
             # --- baseclass ---
-            # t_ili_tid=row.REPLACE_ME,
+            # t_ili_tid=QWAT.tank.make_tid(row.id),
             t_type='reservoir_d_eau',
 
             # --- sia405_baseclass ---
-            # obj_id=row.REPLACE_ME,
+            obj_id=row.id,
 
             # --- noeud_de_conduite ---
             # altitude=row.REPLACE_ME,
@@ -139,7 +180,8 @@ def export():
             symboleori=0,  # ???
             # zone_de_pression=row.REPLACE_ME,
         )
-        session.add(reservoir_d_eau)
+        session.merge(reservoir_d_eau)
+        # session.commit()
         print(".", end="")
     print("done")
 
@@ -158,26 +200,27 @@ def export():
 
             # --- troncon_hydraulique ---
             # acondition=row.REPLACE_ME,
-            aunoeudref=row.fk_node_b,
+            aunoeudref=QWAT.node.make_tid(row.fk_node_b),
             # consommation=row.REPLACE_ME,
             # debit=row.REPLACE_ME,
-            dunoeudref=row.fk_node_a,
+            dunoeudref=QWAT.node.make_tid(row.fk_node_a),
             nom_numero="???",
             reference_diametre=0,  # ???,
             reference_longueur=0,  # ???
             reference_rugosite=0,  # ???,
             # remarque=row.REPLACE_ME,
-            t_id=row.id,
+            t_id=QWAT.pipe.make_tid(row.id),
             # vitesse_ecoulement=row.REPLACE_ME,
 
             # --- baseclass ---
-            # t_ili_tid=row.REPLACE_ME,
+            t_ili_tid=row.id,
             t_type='troncon_hydraulique',
 
             # --- sia405_baseclass ---
-            # obj_id=row.REPLACE_ME,
+            obj_id=row.id,
         )
-        session.add(troncon_hydraulique)
+        session.merge(troncon_hydraulique)
+        # session.commit()
         conduite = WASSER.conduite(
             # FIELDS TO MAP
 
@@ -214,11 +257,19 @@ def export():
             # remarque=row.REPLACE_ME,
             # responsable_entretien=row.REPLACE_ME,
             # rugosite_hydraulique=row.REPLACE_ME,
-            t_id=row.id,
+            t_id=QWAT.pipe.make_tid(row.id+10000000),  # TODO : not too clean...
             tronconref=troncon_hydraulique.t_id,
             zone_de_pression=row.pressurezone.name,
+
+            # --- baseclass ---
+            t_ili_tid=row.id,
+            t_type='conduite',
+
+            # --- sia405_baseclass ---
+            obj_id=row.id,
         )
-        session.add(conduite)
+        session.merge(conduite)
+        # session.commit()
         print(".", end="")
     print("done")
 

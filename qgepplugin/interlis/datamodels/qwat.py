@@ -31,9 +31,21 @@ Base = automap_base()
 
 SCHEMA = config.QWAT_SCHEMA
 
+# Helper to convert IDs to ili-compatible tids (autoincrementing)
+_autoincrementer = collections.defaultdict(lambda: len(_autoincrementer))
+def make_tid(cls, id):
+    result = _autoincrementer[(cls, id)]
+    print(f"autoinc for {cls.__name__}/{id} is {result}")
+    return result
+    # return _autoincrementer[(cls, id)]
+
 class node(Base):
     __tablename__ = "node"
     __table_args__ = {'schema': SCHEMA}
+
+    @staticmethod
+    def make_tid(id):
+        return make_tid(node, id)
 
 class network_element(node):
     __tablename__ = "network_element"
@@ -50,6 +62,14 @@ class installation(network_element):
 class tank(installation):
     __tablename__ = "tank"
     __table_args__ = {'schema': SCHEMA}
+
+class pipe(Base):
+    __tablename__ = "pipe"
+    __table_args__ = {'schema': SCHEMA}
+
+    @staticmethod
+    def make_tid(id):
+        return make_tid(pipe, id)
 
 Base.prepare(
     utils.create_engine(),
