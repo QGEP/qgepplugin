@@ -6,6 +6,9 @@ from . import qwat_ili_generator
 # qwat_ili_generator.generate(config.BASE_ILI_MODEL, config.BASE_ILI_MODEL_FR)
 # qwat_ili_generator.generate(config.BASE_SIA_ILI_MODEL, config.BASE_SIA_ILI_MODEL_FR)
 # qwat_ili_generator.generate(config.WASSER_ILI_MODEL, config.WASSER_ILI_MODEL_FR)
+qwat_ili_generator.generate(config.BASE_ILI_MODEL_FR, config.BASE_ILI_MODEL)
+qwat_ili_generator.generate(config.BASE_SIA_ILI_MODEL_FR, config.BASE_SIA_ILI_MODEL)
+qwat_ili_generator.generate(config.WASSER_ILI_MODEL_FR, config.WASSER_ILI_MODEL)
 # exit(0)
 
 # Create the database and import the ILI model
