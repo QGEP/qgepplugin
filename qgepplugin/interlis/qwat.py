@@ -361,7 +361,7 @@ def export():
             # largeur_nominale=row.REPLACE_ME,
             # lit_de_pose=row.REPLACE_ME,
             longueur=row._length2d,
-            materiau=row.pipe_material.value_fr,
+            materiau=row.pipe_material.sia_fr,
             # mode_de_pose=row.REPLACE_ME,
             nom_numero="???",
             # pression_de_fonctionnement_admissible=row.REPLACE_ME,

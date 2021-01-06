@@ -34,10 +34,12 @@ SCHEMA = config.QWAT_SCHEMA
 # Helper to convert IDs to ili-compatible tids (autoincrementing)
 _autoincrementer = collections.defaultdict(lambda: len(_autoincrementer))
 def make_tid(cls, id):
-    star = '*' if (cls, id) not in _autoincrementer else ''
-    result = _autoincrementer[(cls, id)]
-    print(f"{star}{cls.__name__}/{id}=>{result}   ", end="")
-    return result
+    # if verbose:
+    #     star = '*' if (cls, id) not in _autoincrementer else ''
+    #     result = _autoincrementer[(cls, id)]
+    #     print(f"{star}{cls.__name__}/{id}=>{result}   ", end="")
+    #     return result
+    return _autoincrementer[(cls, id)]
 
 class node(Base):
     __tablename__ = "node"
