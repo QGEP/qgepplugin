@@ -381,6 +381,3 @@ def export():
         print(".", end="")
     print("done")
     session.commit()
-
-    # EXPORT TEMPORARY SCHEMA
-    utils.export_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME)

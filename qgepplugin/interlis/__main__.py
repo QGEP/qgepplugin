@@ -1,14 +1,11 @@
 from . import utils
 from . import config
-from . import qwat_ili_generator
 
-# Generate stub models from ILI file
+# Generate stub models from ILI file - ABANDONNED : doesn't make sense to generate classes directly from the ILI file if we use ILI2DB, as there are some specific ILI2DB fields that will be missing (t_ili fields).
+# from . import qwat_ili_generator
 # qwat_ili_generator.generate(config.BASE_ILI_MODEL, config.BASE_ILI_MODEL_FR)
 # qwat_ili_generator.generate(config.BASE_SIA_ILI_MODEL, config.BASE_SIA_ILI_MODEL_FR)
 # qwat_ili_generator.generate(config.WASSER_ILI_MODEL, config.WASSER_ILI_MODEL_FR)
-qwat_ili_generator.generate(config.BASE_ILI_MODEL_FR, config.BASE_ILI_MODEL)
-qwat_ili_generator.generate(config.BASE_SIA_ILI_MODEL_FR, config.BASE_SIA_ILI_MODEL)
-qwat_ili_generator.generate(config.WASSER_ILI_MODEL_FR, config.WASSER_ILI_MODEL)
 # exit(0)
 
 # Create the database and import the ILI model
@@ -27,3 +24,5 @@ from . import qwat_generator
 
 qwat_generator.generate()
 qwat.export()
+
+utils.export_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME_FR, smart=0, lang='fr')
