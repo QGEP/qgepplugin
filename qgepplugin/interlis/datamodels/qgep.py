@@ -77,7 +77,9 @@ Base.prepare(
     utils.create_engine(),
     reflect=True,
     schema=SCHEMA,
-    name_for_collection_relationship=utils.custom_name_for_collection_relationship
+    name_for_collection_relationship=utils.custom_name_for_collection_relationship,
+    name_for_scalar_relationship=utils.custom_name_for_scalar_relationship,
+    # generate_relationship=utils.custom_generate_relationship,
 )
 
 Classes = Base.classes

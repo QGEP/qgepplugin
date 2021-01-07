@@ -81,8 +81,8 @@ def export():
 
         meta_root = ET.SubElement(e, "Metaattribute")
         meta = ET.SubElement(meta_root, "SIA405_Base_LV95.Metaattribute")
-        # ET.SubElement(meta, "Datenherr").text = row.REF_rel_od_organisation_fk_dataowner.identifier
-        # ET.SubElement(meta, "Datenlieferant").text = row.rel_od_organisation_fk_dataprovider
+        ET.SubElement(meta, "Datenherr").text = row.REF_rel_od_organisation_fk_dataowner.identifier
+        ET.SubElement(meta, "Datenlieferant").text = row.rel_od_organisation_fk_dataprovider
         ET.SubElement(meta, "Letzte_Aenderung").text = str(row.last_modification)
 
         print(".", end="")

@@ -3,7 +3,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship
+from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship, name_for_scalar_relationship
 
 from . import config
 
@@ -101,46 +101,27 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
     # This customizes the name for backwards relation, avoiding clashes for inherited classes.
     # See https://stackoverflow.com/a/48288656/13690651
     if constraint.name:
-        return 'REF_'+constraint.name.lower()
+        return 'BWREL_'+constraint.name.lower()
     # if this didn't work, revert to the default behavior
-    return 'REF_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
+    return 'BWREL_'+name_for_collection_relationship(base, local_cls, referred_cls, constraint)
 
+def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constraint):
+    # This customizes the name for backwards relation, avoiding clashes for inherited classes.
+    # See https://stackoverflow.com/a/48288656/13690651
+    if constraint.name:
+        return 'REL_'+constraint.name.lower()
+    # if this didn't work, revert to the default behavior
+    return 'REL_'+name_for_scalar_relationship(base, local_cls, referred_cls, constraint)
 
-classes = {}
-
-# Helper that recursively creates hierarchical classes for sqlalchemy
-# (not sure this works well enough to be used, and may be a bit too cryptic)
-#
-# usage : 
-# class_factory("dog", ["animal", "thing"], "test_schema")
-# class_factory("cat", ["animal", "thing"], "test_schema")
-# class_factory("stone", ["thing"], "test_schema")
-
-def class_factory(name, bases, schema):
-    print(f"Called class factory with args {name} {bases} {schema}")
-    if name in classes:
-        return classes[name]
-    if len(bases) > 0:
-        base = class_factory(bases[0], bases[1:], schema)
-    else:
-        base_name = f"{schema}_automapbase"
-        if base_name not in classes:
-            print(f"Created automap_base {base_name} for schema {schema}")
-            classes[base_name] = automap_base()
-        base = classes[base_name]
-    class CLASS(base):
-        __tablename__ = f"{schema}.{name}"
-        __table_args__ = {'schema': schema}
-    CLASS.__name__ = name
-    # CLASS.__qualname__ = f"{schema}.{name}"
-    print(f"Creating class {CLASS.__name__} / {CLASS.__qualname__} / {CLASS.__module__}")
-    # classes[name] = CLASS
-    return CLASS
-
-def prepare(schema, engine):
-    Base = classes[f"{schema}_automapbase"]
-    Base.prepare(engine, reflect=True, schema=schema, name_for_collection_relationship=custom_name_for_collection_relationship)
-    return Base
+# def custom_generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw):
+#     if return_fn is sqlalchemy.orm.backref:
+#         return return_fn(attrname, **kw)
+#     elif return_fn is sqlalchemy.orm.relationship:
+#         import pdb;
+#         pdb.set_trace()
+#         return return_fn(referred_cls, **kw)
+#     else:
+#         raise TypeError("Unknown relationship function: %s" % return_fn)
 
 def capfirst(s):
     return s[0].upper()+s[1:]
