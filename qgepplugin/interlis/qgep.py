@@ -56,6 +56,38 @@ def export():
 
     session = Session(utils.create_engine())
 
+    print("Exporting QGEP.organisation -> SIA405_EAUX_USEES_2015.ORGANISATION")
+    for row in session.query(QGEP.organisation):
+        # AVAILABLE FIELDS FROM organisation
+        # fk_dataowner, fk_provider, identifier, last_modification, obj_id, remark, uid
+        # AVAILABLE FIELDS FROM _relations_
+        # REF_rel_connection_object_operator, REF_rel_hazard_source_owner, REF_rel_maintenance_event_operating_company, REF_rel_measuring_point_operator, REF_rel_od_accident_fk_dataowner, REF_rel_od_aquifier_fk_dataowner, REF_rel_od_bathing_area_fk_dataprovider, REF_rel_od_catchment_area_fk_dataowner, REF_rel_od_connection_object_fk_dataowner, REF_rel_od_connection_object_fk_dataprovider, REF_rel_od_control_center_fk_dataprovider, REF_rel_od_damage_fk_dataowner, REF_rel_od_data_media_fk_dataowner, REF_rel_od_file_fk_dataowner, REF_rel_od_fish_pass_fk_dataprovider, REF_rel_od_hazard_source_fk_dataprovider, REF_rel_od_hq_relation_fk_dataprovider, REF_rel_od_hydr_geom_relation_fk_dataprovider, REF_rel_od_hydr_geometry_fk_dataprovider, REF_rel_od_hydraulic_char_data_fk_dataowner, REF_rel_od_maintenance_event_fk_dataprovider, REF_rel_od_measurement_result_fk_dataprovider, REF_rel_od_measurement_series_fk_dataowner, REF_rel_od_measuring_device_fk_dataowner, REF_rel_od_measuring_point_fk_dataprovider, REF_rel_od_mechanical_pretreatment_fk_dataprovider, REF_rel_od_mutation_fk_dataprovider, REF_rel_od_organisation_fk_dataowner, REF_rel_od_overflow_char_fk_dataprovider, REF_rel_od_overflow_fk_dataprovider, REF_rel_od_pipe_profile_fk_dataowner, REF_rel_od_profile_geometry_fk_dataowner, REF_rel_od_reach_point_fk_dataprovider, REF_rel_od_retention_body_fk_dataprovider, REF_rel_od_river_bank_fk_dataprovider, REF_rel_od_river_bed_fk_dataowner, REF_rel_od_sector_water_body_fk_dataowner, REF_rel_od_sludge_treatment_fk_dataprovider, REF_rel_od_structure_part_fk_dataprovider, REF_rel_od_substance_fk_dataowner, REF_rel_od_surface_runoff_parameters_fk_dataowner, REF_rel_od_surface_water_bodies_fk_dataowner, REF_rel_od_throttle_shut_off_unit_fk_dataprovider, REF_rel_od_waste_water_treatment_fk_dataprovider, REF_rel_od_wastewater_networkelement_fk_dataowner, REF_rel_od_wastewater_structure_fk_dataowner, REF_rel_od_wastewater_structure_fk_dataprovider, REF_rel_od_wastewater_structure_symbol_fk_dataowner, REF_rel_od_water_catchment_fk_dataprovider, REF_rel_od_water_control_structure_fk_dataprovider, REF_rel_od_water_course_segment_fk_dataprovider, REF_rel_od_wwtp_energy_use_fk_dataprovider, REF_rel_od_zone_fk_dataowner, REF_rel_txt_symbol_fk_dataowner, REF_rel_wastewater_structure_owner, organisation
+
+        e = ET.SubElement(
+            datasection,
+            "SIA405_EAUX_USEES_2015.ORGANISATION",
+            {"TID": row.obj_id},
+        )
+        # FIELDS TO MAP TO SIA405_EAUX_USEES_2015.ORGANISATION
+
+        # --- SIA405_EAUX_USEES_2015.ORGANISATION ---
+        ET.SubElement(e, "REMARQUE").text = row.remark
+        ET.SubElement(e, "DESIGNATION").text = row.identifier
+        ET.SubElement(e, "UID").text = row.obj_id
+
+        # --- SIA405_Base_f.SIA405_BaseClass ---
+        ET.SubElement(e, "OBJ_ID").text = row.obj_id
+        # ET.SubElement(e, "METAATTRIBUTS").text = row.REPLACE_ME
+
+        meta_root = ET.SubElement(e, "Metaattribute")
+        meta = ET.SubElement(meta_root, "SIA405_Base_LV95.Metaattribute")
+        # ET.SubElement(meta, "Datenherr").text = row.REF_rel_od_organisation_fk_dataowner.identifier
+        # ET.SubElement(meta, "Datenlieferant").text = row.rel_od_organisation_fk_dataprovider
+        ET.SubElement(meta, "Letzte_Aenderung").text = str(row.last_modification)
+
+        print(".", end="")
+    print("done")
+
 
     print("Exporting QGEP.cover -> SIA405_EAUX_USEES_2015.COUVERCLE")
     for row in session.query(QGEP.cover):

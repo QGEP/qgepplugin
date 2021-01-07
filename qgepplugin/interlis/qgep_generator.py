@@ -51,6 +51,7 @@ def generate():
 
 
     TABLE_MAPPING = {
+        QGEP.organisation: ["SIA405_EAUX_USEES_2015.ORGANISATION"],
         QGEP.cover: ["SIA405_EAUX_USEES_2015.COUVERCLE"],
         QGEP.manhole: ["SIA405_EAUX_USEES_2015.CHAMBRE_STANDARD"],
         # NOT MAPPED YET
@@ -105,7 +106,6 @@ def generate():
         # QGEP.mechanical_pretreatment: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.municipality: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.mutation: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
-        # QGEP.organisation: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.overflow: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.overflow_char: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.param_ca_general: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
