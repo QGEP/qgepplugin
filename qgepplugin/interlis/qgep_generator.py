@@ -52,10 +52,26 @@ def generate():
 
     TABLE_MAPPING = {
         QGEP.organisation: ["SIA405_EAUX_USEES_2015.ORGANISATION"],
-        QGEP.cover: ["SIA405_EAUX_USEES_2015.COUVERCLE"],
+        QGEP.wastewater_structure: ["SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS"],
+        QGEP.channel: ["SIA405_EAUX_USEES_2015.CANALISATION"],
         QGEP.manhole: ["SIA405_EAUX_USEES_2015.CHAMBRE_STANDARD"],
+        QGEP.discharge_point: ["SIA405_EAUX_USEES_2015.EXUTOIRE"],
+        QGEP.special_structure: ["SIA405_EAUX_USEES_2015.OUVRAGE_SPECIAL"],
+        QGEP.infiltration_installation: ["SIA405_EAUX_USEES_2015.INSTALLATION_INFILTRATION"],
+        QGEP.pipe_profile: ["SIA405_EAUX_USEES_2015.PROFIL_TUYAU"],
+        QGEP.wastewater_networkelement: ["SIA405_EAUX_USEES_2015.ELEMENT_RESEAU_EVACUATION"],
+        QGEP.reach_point: ["SIA405_EAUX_USEES_2015.POINT_TRONCON"],
+        QGEP.wastewater_node: ["SIA405_EAUX_USEES_2015.NOEUD_RESEAU"],
+        QGEP.reach: ["SIA405_EAUX_USEES_2015.TRONCON"],
+        QGEP.structure_part: ["SIA405_EAUX_USEES_2015.ELEMENT_OUVRAGE"],
+        QGEP.dryweather_downspout: ["SIA405_EAUX_USEES_2015.TUYAU_CHUTE"],
+        # QGEP.access_aid: ["SIA405_EAUX_USEES_2015.DISPOSITIF_D_ACCES"],  # why is access_aid missing from QGEP ?
+        # QGEP.dryweather_flume: ["SIA405_EAUX_USEES_2015.CUNETTE_DEBIT_TEMPS_SEC"],  # why is dryweather_flume missing from QGEP ?
+        QGEP.cover: ["SIA405_EAUX_USEES_2015.COUVERCLE"],
+        # QGEP.benching: ["SIA405_EAUX_USEES_2015.BANQUETTE"],  # why is benching missing from QGEP ?
+
         # NOT MAPPED YET
-        # AVAILABLE WASSER CLASSES : Base_f.BaseClass, Base_f.SymbolePos, Base_f.TextePos, Base_f_LV95.BaseClass, Base_f_LV95.SymbolePos, Base_f_LV95.TextePos, SIA405_Base_f.SIA405_BaseClass, SIA405_Base_f.SIA405_SymbolePos, SIA405_Base_f.SIA405_TextePos, SIA405_Base_f_LV95.SIA405_BaseClass, SIA405_Base_f_LV95.SIA405_SymbolePos, SIA405_Base_f_LV95.SIA405_TextePos, SIA405_EAUX_USEES_2015.BANQUETTE, SIA405_EAUX_USEES_2015.CANALISATION, SIA405_EAUX_USEES_2015.CHAMBRE_STANDARD, SIA405_EAUX_USEES_2015.COUVERCLE, SIA405_EAUX_USEES_2015.CUNETTE_DEBIT_TEMPS_SEC, SIA405_EAUX_USEES_2015.DISPOSITIF_D_ACCES, SIA405_EAUX_USEES_2015.ELEMENT_OUVRAGE, SIA405_EAUX_USEES_2015.ELEMENT_RESEAU_EVACUATION, SIA405_EAUX_USEES_2015.EXUTOIRE, SIA405_EAUX_USEES_2015.INSTALLATION_INFILTRATION, SIA405_EAUX_USEES_2015.NOEUD_RESEAU, SIA405_EAUX_USEES_2015.ORGANISATION, SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS, SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS_Symbole, SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS_Texte, SIA405_EAUX_USEES_2015.OUVRAGE_SPECIAL, SIA405_EAUX_USEES_2015.POINT_TRONCON, SIA405_EAUX_USEES_2015.PROFIL_TUYAU, SIA405_EAUX_USEES_2015.TRONCON, SIA405_EAUX_USEES_2015.TRONCON_TRACE_ALTERNATIVE, SIA405_EAUX_USEES_2015.TRONCON_Texte, SIA405_EAUX_USEES_2015.TUYAU_CHUTE
+        # AVAILABLE WASSER CLASSES : Base_f.BaseClass, Base_f.SymbolePos, Base_f.TextePos, Base_f_LV95.BaseClass, Base_f_LV95.SymbolePos, Base_f_LV95.TextePos, SIA405_Base_f.SIA405_BaseClass, SIA405_Base_f.SIA405_SymbolePos, SIA405_Base_f.SIA405_TextePos, SIA405_Base_f_LV95.SIA405_BaseClass, SIA405_Base_f_LV95.SIA405_SymbolePos, SIA405_Base_f_LV95.SIA405_TextePos, SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015.CHAMBRE_STANDARD, SIA405_EAUX_USEES_2015.COUVERCLE, SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015.ELEMENT_OUVRAGE, SIA405_EAUX_USEES_2015.ELEMENT_RESEAU_EVACUATION, SIA405_EAUX_USEES_2015.INSTALLATION_INFILTRATION, SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015.ORGANISATION, SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS_Symbole, SIA405_EAUX_USEES_2015.OUVRAGE_RESEAU_AS_Texte, SIA405_EAUX_USEES_2015.OUVRAGE_SPECIAL, SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015.PROFIL_TUYAU, SIA405_EAUX_USEES_2015., SIA405_EAUX_USEES_2015.TRONCON_TRACE_ALTERNATIVE, SIA405_EAUX_USEES_2015.TRONCON_Texte, SIA405_EAUX_USEES_2015.
         # QGEP.accident: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.administrative_office: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
         # QGEP.aquifier: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
@@ -155,8 +171,6 @@ def generate():
         # QGEP.zone: ["SIA405_EAUX_USEES_2015.REPLACE_ME"],
     }
 
-
-
     for qgep_class, sia_classes in TABLE_MAPPING.items():
 
         available_fields = collections.defaultdict(list)
@@ -188,12 +202,10 @@ def generate():
             template.write(f'        e = ET.SubElement(\n')
             template.write(f'            datasection,\n')
             template.write(f'            "{sia_class}",\n')
-            template.write(f'            {{"TID": QGEP.{qgep_class.__name__}.make_tid(row.obj_id)}},\n')
+            template.write(f'            {{"TID": row.obj_id}},\n')
             template.write(f'        )\n')      
 
             class_ = ili.classes[sia_class]
-
-            template.write(f'        # FIELDS TO MAP TO {class_.qual_name}\n')
             prev_dst_table = None
             for dst_table, field in class_.all_attributes:
                 if prev_dst_table != dst_table:                    

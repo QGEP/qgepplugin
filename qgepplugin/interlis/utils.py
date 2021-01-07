@@ -108,6 +108,8 @@ def custom_name_for_collection_relationship(base, local_cls, referred_cls, const
 def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constraint):
     # This customizes the name for backwards relation, avoiding clashes for inherited classes.
     # See https://stackoverflow.com/a/48288656/13690651
+    if len(constraint.columns) == 1:
+        return constraint.columns.keys()[0] + "_REL"
     if constraint.name:
         return 'REL_'+constraint.name.lower()
     # if this didn't work, revert to the default behavior
