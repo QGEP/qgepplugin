@@ -13,10 +13,17 @@ utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_FR, sm
 # from . import match_maker
 # match_maker.make_file()
 
-from . import qwat
-from . import qwat_generator
+# from . import qwat
+# from . import qwat_generator
 
-qwat_generator.generate()
-qwat.export()
+# qwat_generator.generate()
+# qwat.export()
 
-utils.export_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME_FR, smart=0, lang='fr')
+# utils.export_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME_FR, smart=0, lang='fr')
+
+
+from . import qgep
+from . import qgep_generator
+
+qgep_generator.generate()
+qgep.export()
