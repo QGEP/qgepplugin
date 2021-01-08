@@ -73,6 +73,81 @@ class channel(wastewater_structure):
     __tablename__ = "channel"
     __table_args__ = {'schema': SCHEMA}
 
+
+
+class organisation(Base):
+    __tablename__ = "organisation"
+    __table_args__ = {'schema': SCHEMA}
+
+class wastewater_structure(Base):
+    __tablename__ = "wastewater_structure"
+    __table_args__ = {'schema': SCHEMA}
+
+class channel(wastewater_structure):
+    __tablename__ = "channel"
+    __table_args__ = {'schema': SCHEMA}
+
+class manhole(wastewater_structure):
+    __tablename__ = "manhole"
+    __table_args__ = {'schema': SCHEMA}
+
+class discharge_point(wastewater_structure):
+    __tablename__ = "discharge_point"
+    __table_args__ = {'schema': SCHEMA}
+
+class special_structure(wastewater_structure):
+    __tablename__ = "special_structure"
+    __table_args__ = {'schema': SCHEMA}
+
+class infiltration_installation(wastewater_structure):
+    __tablename__ = "infiltration_installation"
+    __table_args__ = {'schema': SCHEMA}
+
+class pipe_profile(Base):
+    __tablename__ = "pipe_profile"
+    __table_args__ = {'schema': SCHEMA}
+
+class wastewater_networkelement(Base):
+    __tablename__ = "wastewater_networkelement"
+    __table_args__ = {'schema': SCHEMA}
+
+class reach_point(Base):
+    __tablename__ = "reach_point"
+    __table_args__ = {'schema': SCHEMA}
+
+class wastewater_node(wastewater_networkelement):
+    __tablename__ = "wastewater_node"
+    __table_args__ = {'schema': SCHEMA}
+
+class reach(wastewater_networkelement):
+    __tablename__ = "reach"
+    __table_args__ = {'schema': SCHEMA}
+
+class structure_part(Base):
+    __tablename__ = "structure_part"
+    __table_args__ = {'schema': SCHEMA}
+
+class dryweather_downspout(Base):
+    __tablename__ = "dryweather_downspout"
+    __table_args__ = {'schema': SCHEMA}
+
+class access_aid(Base):
+    __tablename__ = "access_aid"
+    __table_args__ = {'schema': SCHEMA}
+
+class dryweather_flume(Base):
+    __tablename__ = "dryweather_flume"
+    __table_args__ = {'schema': SCHEMA}
+
+class cover(Base):
+    __tablename__ = "cover"
+    __table_args__ = {'schema': SCHEMA}
+
+class benching(Base):
+    __tablename__ = "benching"
+    __table_args__ = {'schema': SCHEMA}
+
+
 Base.prepare(
     utils.create_engine(),
     reflect=True,
