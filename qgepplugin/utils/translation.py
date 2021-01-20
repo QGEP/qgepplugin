@@ -1,6 +1,7 @@
 """
 This module is used for translation of the QGEP project
 """
+import os
 from builtins import str
 from qgis.PyQt.QtWidgets import QApplication
 from qgis.PyQt.QtCore import QSettings, QLocale, QTranslator, QCoreApplication, pyqtSlot, QObject
@@ -44,8 +45,9 @@ def setup_i18n(the_preferred_locale=None):
     translator = QTranslator(QCoreApplication.instance())
 
     my_translator_file = 'qgepplugin_' + my_locale_name
+    my_translator_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'i18n', my_translator_file)
 
-    my_result = translator.load(my_translator_file, 'i18n')
+    my_result = translator.load(my_translator_path)
 
     if my_result:
         QCoreApplication.instance().installTranslator(translator)
