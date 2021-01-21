@@ -1,9 +1,10 @@
 import psycopg2
 import os
 import subprocess
+import collections
 
 import sqlalchemy
-from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship, name_for_scalar_relationship, generate_relationship
+from sqlalchemy.ext.automap import AutomapBase, automap_base, name_for_collection_relationship, name_for_scalar_relationship, generate_relationship
 
 from . import config
 
@@ -42,20 +43,21 @@ def setup_test_db():
     exec_(f'docker exec qgepqwat psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
 
 
-def create_ili_schema(schema, model):
+def create_ili_schema(schema, model, force_recreate=False):
     print("CONNECTING TO DATABASE...")
     connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
     connection.set_session(autocommit=True)
     cursor = connection.cursor()
 
-    # cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
-
-    # if cursor.rowcount > 0:
-    #     print("Already created, we truncate instead")
-    #     cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
-    #     for row in cursor.fetchall():
-    #         cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
-    #     return
+    if not force_recreate:
+        # If the schema already exists, we just truncate all tables
+        cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
+        if cursor.rowcount > 0:
+            print("Already created, we truncate instead")
+            cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
+            for row in cursor.fetchall():
+                cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
+            return
 
     print("CREATING THE SCHEMA...")
     cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
@@ -120,3 +122,21 @@ def custom_generate_relationship(base, direction, return_fn, attrname, local_cls
 
 def capfirst(s):
     return s[0].upper()+s[1:]
+
+class TidMaker:
+    """
+    Helper class that creates globally unique integer primary key forili2pg class (t_id)
+    from a a QGEP/QWAT id (obj_id or id).
+    """
+
+    def __init__(self, id_attribute='id'):
+        self._id_attr = id_attribute
+        self._autoincrementer = collections.defaultdict(lambda: len(self._autoincrementer))
+
+    def tid_for_row(self, row, for_class=None):
+        # tid are globally unique, while ids are only guaranteed unique per table,
+        # so include the base table in the key
+        # this finds the base class (the first parent class before sqlalchemy.ext.automap.Base)
+        class_for_id = row.__class__.__mro__[row.__class__.__mro__.index(AutomapBase) - 2]
+        key = (class_for_id, getattr(row, self._id_attr), for_class)
+        return self._autoincrementer[key]

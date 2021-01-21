@@ -32,12 +32,80 @@ class sia405_baseclass(baseclass):
     __tablename__ = "sia405_baseclass"
     __table_args__ = {'schema': SCHEMA}
 
-class abwasserbauwerk(Base):
+class organisation(Base):
+    __tablename__ = "organisation"
+    __table_args__ = {'schema': SCHEMA}
+
+class abwasserbauwerk(sia405_baseclass):
     __tablename__ = "abwasserbauwerk"
+    __table_args__ = {'schema': SCHEMA}
+
+class kanal(abwasserbauwerk):
+    __tablename__ = "kanal"
     __table_args__ = {'schema': SCHEMA}
 
 class normschacht(abwasserbauwerk):
     __tablename__ = "normschacht"
+    __table_args__ = {'schema': SCHEMA}
+
+class einleitstelle(abwasserbauwerk):
+    __tablename__ = "einleitstelle"
+    __table_args__ = {'schema': SCHEMA}
+
+class spezialbauwerk(abwasserbauwerk):
+    __tablename__ = "spezialbauwerk"
+    __table_args__ = {'schema': SCHEMA}
+
+class versickerungsanlage(abwasserbauwerk):
+    __tablename__ = "versickerungsanlage"
+    __table_args__ = {'schema': SCHEMA}
+
+class rohrprofil(sia405_baseclass):
+    __tablename__ = "rohrprofil"
+    __table_args__ = {'schema': SCHEMA}
+
+class abwassernetzelement(sia405_baseclass):
+    __tablename__ = "abwassernetzelement"
+    __table_args__ = {'schema': SCHEMA}
+
+class haltungspunkt(sia405_baseclass):
+    __tablename__ = "haltungspunkt"
+    __table_args__ = {'schema': SCHEMA}
+
+class abwasserknoten(abwassernetzelement):
+    __tablename__ = "abwasserknoten"
+    __table_args__ = {'schema': SCHEMA}
+
+class haltung(abwassernetzelement):
+    __tablename__ = "haltung"
+    __table_args__ = {'schema': SCHEMA}
+
+class bauwerksteil(sia405_baseclass):
+    __tablename__ = "bauwerksteil"
+    __table_args__ = {'schema': SCHEMA}
+
+class trockenwetterfallrohr(bauwerksteil):
+    __tablename__ = "trockenwetterfallrohr"
+    __table_args__ = {'schema': SCHEMA}
+
+class einstiegshilfe(bauwerksteil):
+    __tablename__ = "einstiegshilfe"
+    __table_args__ = {'schema': SCHEMA}
+
+class trockenwetterrinne(bauwerksteil):
+    __tablename__ = "trockenwetterrinne"
+    __table_args__ = {'schema': SCHEMA}
+
+class deckel(bauwerksteil):
+    __tablename__ = "deckel"
+    __table_args__ = {'schema': SCHEMA}
+
+class bankett(bauwerksteil):
+    __tablename__ = "bankett"
+    __table_args__ = {'schema': SCHEMA}
+
+class metaattribute(sia405_baseclass):
+    __tablename__ = "metaattribute"
     __table_args__ = {'schema': SCHEMA}
 
 Base.prepare(

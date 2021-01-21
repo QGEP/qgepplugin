@@ -41,22 +41,6 @@ def make_tid(cls, id):
     #     return result
     return str(_autoincrementer[(cls, id)])
 
-class wastewater_networkelement(Base):
-    __tablename__ = "wastewater_networkelement"
-    __table_args__ = {'schema': SCHEMA}
-
-    @staticmethod
-    def make_tid(id):
-        return make_tid(wastewater_networkelement, id)
-
-class wastewater_node(wastewater_networkelement):
-    __tablename__ = "wastewater_node"
-    __table_args__ = {'schema': SCHEMA}
-
-class reach(wastewater_networkelement):
-    __tablename__ = "reach"
-    __table_args__ = {'schema': SCHEMA}
-
 class wastewater_structure(Base):
     __tablename__ = "wastewater_structure"
     __table_args__ = {'schema': SCHEMA}
@@ -64,16 +48,6 @@ class wastewater_structure(Base):
     @staticmethod
     def make_tid(id):
         return make_tid(wastewater_structure, id)
-
-class manhole(wastewater_structure):
-    __tablename__ = "manhole"
-    __table_args__ = {'schema': SCHEMA}
-
-class channel(wastewater_structure):
-    __tablename__ = "channel"
-    __table_args__ = {'schema': SCHEMA}
-
-
 
 class organisation(Base):
     __tablename__ = "organisation"
@@ -127,23 +101,23 @@ class structure_part(Base):
     __tablename__ = "structure_part"
     __table_args__ = {'schema': SCHEMA}
 
-class dryweather_downspout(Base):
+class dryweather_downspout(structure_part):
     __tablename__ = "dryweather_downspout"
     __table_args__ = {'schema': SCHEMA}
 
-class access_aid(Base):
+class access_aid(structure_part):
     __tablename__ = "access_aid"
     __table_args__ = {'schema': SCHEMA}
 
-class dryweather_flume(Base):
+class dryweather_flume(structure_part):
     __tablename__ = "dryweather_flume"
     __table_args__ = {'schema': SCHEMA}
 
-class cover(Base):
+class cover(structure_part):
     __tablename__ = "cover"
     __table_args__ = {'schema': SCHEMA}
 
-class benching(Base):
+class benching(structure_part):
     __tablename__ = "benching"
     __table_args__ = {'schema': SCHEMA}
 
