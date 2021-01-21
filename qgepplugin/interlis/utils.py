@@ -3,7 +3,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship, name_for_scalar_relationship
+from sqlalchemy.ext.automap import automap_base, name_for_collection_relationship, name_for_scalar_relationship, generate_relationship
 
 from . import config
 
@@ -111,6 +111,12 @@ def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constrain
         return 'REL_'+constraint.name.lower()
     # if this didn't work, revert to the default behavior
     return 'REL_'+name_for_scalar_relationship(base, local_cls, referred_cls, constraint)
+
+def custom_generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw):
+    # This skips backrefs
+    if return_fn is sqlalchemy.orm.backref:
+        return None
+    return generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw)
 
 def capfirst(s):
     return s[0].upper()+s[1:]

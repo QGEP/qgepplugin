@@ -45,7 +45,7 @@
         # fk_material, fk_model_inf, fk_model_sup, fk_output, fk_provider, flow, id, marked, observation_date, observation_source, pressure_dynamic, pressure_static, underground
 
         # --- _relations_ ---
-        # BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_a, BWREL_pipe_fk_node_b, BWREL_samplingpoint_id_fkey, BWREL_subscriber_id_fkey, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_material_REL, fk_model_inf_REL, fk_model_sup_REL, fk_object_reference_REL, fk_output_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_provider_REL, fk_status_REL, label_1_visible_REL, label_2_visible_REL
+        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_material_REL, fk_model_inf_REL, fk_model_sup_REL, fk_object_reference_REL, fk_output_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_provider_REL, fk_status_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
@@ -123,7 +123,7 @@
         # _cistern1_litrepercm, _cistern2_litrepercm, _litrepercm, altitude_apron, altitude_overflow, cistern1_dimension_1, cistern1_dimension_2, cistern1_fk_type, cistern1_storage, cistern2_dimension_1, cistern2_dimension_2, cistern2_fk_type, cistern2_storage, fire_remote, fire_valve, fk_overflow, fk_tank_firestorage, height_max, id, storage_fire, storage_supply, storage_total
 
         # --- _relations_ ---
-        # BWREL_chamber_id_fkey, BWREL_cover_fk_installation, BWREL_installation_fk_parent, BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_a, BWREL_pipe_fk_node_b, BWREL_pressurecontrol_id_fkey, BWREL_samplingpoint_id_fkey, BWREL_source_id_fkey, BWREL_subscriber_id_fkey, BWREL_treatment_id_fkey, cistern1_fk_type_REL, cistern2_fk_type_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_overflow_REL, fk_parent_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_remote_REL, fk_status_REL, fk_tank_firestorage_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
+        # cistern1_fk_type_REL, cistern2_fk_type_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_overflow_REL, fk_parent_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_remote_REL, fk_status_REL, fk_tank_firestorage_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
@@ -201,7 +201,7 @@
         # fk_pipe_in, fk_pipe_out, fk_pump_operating, fk_pump_type, id, manometric_height, no_pumps, rejected_flow
 
         # --- _relations_ ---
-        # BWREL_chamber_id_fkey, BWREL_cover_fk_installation, BWREL_installation_fk_parent, BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_a, BWREL_pipe_fk_node_b, BWREL_pressurecontrol_id_fkey, BWREL_samplingpoint_id_fkey, BWREL_source_id_fkey, BWREL_subscriber_id_fkey, BWREL_treatment_id_fkey, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_parent_REL, fk_pipe_in_REL, fk_pipe_out_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_pump_operating_REL, fk_pump_type_REL, fk_remote_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
+        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_parent_REL, fk_pipe_in_REL, fk_pipe_out_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_pump_operating_REL, fk_pump_type_REL, fk_remote_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
@@ -264,7 +264,7 @@
         # _diff_elevation, _geometry_alt1_used, _geometry_alt2_used, _length2d, _length3d, _printmaps, _schema_visible, _valve_closed, _valve_count, fk_bedding, fk_distributor, fk_district, fk_folder, fk_function, fk_installmethod, fk_locationtype, fk_material, fk_node_a, fk_node_b, fk_parent, fk_precision, fk_pressurezone, fk_printmap, fk_protection, fk_status, fk_watertype, geometry, geometry_alt1, geometry_alt2, id, label_1_text, label_1_visible, label_2_text, label_2_visible, pressure_nominal, remark, schema_force_visible, tunnel_or_bridge, update_geometry_alt1, update_geometry_alt2, year, year_end, year_rehabilitation
 
         # --- _relations_ ---
-        # BWREL_crossing_pipe1, BWREL_crossing_pipe2, BWREL_leak_fk_pipe, BWREL_meter_fk_pipe, BWREL_part_fk_pipe, BWREL_pipe_fk_parent, BWREL_pump_fk_pipe_in, BWREL_pump_fk_pipe_out, BWREL_subscriber_fk_pipe, BWREL_valve_fk_pipe, fk_bedding_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_function_REL, fk_installmethod_REL, fk_material_REL, fk_node_a_REL, fk_node_b_REL, fk_parent_REL, fk_precision_REL, fk_pressurezone_REL, fk_protection_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL, schema_force_visible_REL
+        # fk_bedding_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_function_REL, fk_installmethod_REL, fk_material_REL, fk_node_a_REL, fk_node_b_REL, fk_parent_REL, fk_precision_REL, fk_pressurezone_REL, fk_protection_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL, schema_force_visible_REL
 
         hydraulischer_strang = WASSER.hydraulischer_strang(
             # FIELDS TO MAP TO WASSER.hydraulischer_strang
