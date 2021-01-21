@@ -70,7 +70,7 @@ def create_ili_schema(schema, model):
     lang = f'de'
 
     exec_(
-        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log debug-create.txt --nameLang {lang} {model}"
+        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log debug-create.txt --nameLang {lang} {model}"
     )
 
 
@@ -111,16 +111,6 @@ def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constrain
         return 'REL_'+constraint.name.lower()
     # if this didn't work, revert to the default behavior
     return 'REL_'+name_for_scalar_relationship(base, local_cls, referred_cls, constraint)
-
-# def custom_generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw):
-#     if return_fn is sqlalchemy.orm.backref:
-#         return return_fn(attrname, **kw)
-#     elif return_fn is sqlalchemy.orm.relationship:
-#         import pdb;
-#         pdb.set_trace()
-#         return return_fn(referred_cls, **kw)
-#     else:
-#         raise TypeError("Unknown relationship function: %s" % return_fn)
 
 def capfirst(s):
     return s[0].upper()+s[1:]

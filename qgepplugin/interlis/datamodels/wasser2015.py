@@ -32,35 +32,42 @@ class sia405_baseclass(baseclass):
     __tablename__ = "sia405_baseclass"
     __table_args__ = {'schema': SCHEMA}
 
-class noeud_hydraulique(sia405_baseclass):
-    __tablename__ = "noeud_hydraulique"
+class hydraulischer_knoten(sia405_baseclass):  # noeud_hydraulique
+    __tablename__ = "hydraulischer_knoten"
     __table_args__ = {'schema': SCHEMA}
 
-class noeud_de_conduite(sia405_baseclass):
-    __tablename__ = "noeud_de_conduite"
+class leitungsknoten(sia405_baseclass):  # neud_de_conduite
+    __tablename__ = "leitungsknoten"
     __table_args__ = {'schema': SCHEMA}
 
-class hydrant(noeud_de_conduite):
+class hydrant(leitungsknoten):  # hydrant
     __tablename__ = "hydrant"
     __table_args__ = {'schema': SCHEMA}
 
-class reservoir_d_eau(noeud_de_conduite):
-    __tablename__ = "reservoir_d_eau"
+class wasserbehaelter(leitungsknoten):  # reservoir_d_eau
+    __tablename__ = "wasserbehaelter"
     __table_args__ = {'schema': SCHEMA}
 
-class station_de_pompage(noeud_de_conduite):
-    __tablename__ = "station_de_pompage"
+class foerderanlage(leitungsknoten):  # station_de_pompage
+    __tablename__ = "foerderanlage"
     __table_args__ = {'schema': SCHEMA}
 
-class troncon_hydraulique(sia405_baseclass):
-    __tablename__ = "troncon_hydraulique"
+class hydraulischer_strang(sia405_baseclass):  # troncon_hydraulique
+    __tablename__ = "hydraulischer_strang"
     __table_args__ = {'schema': SCHEMA}
 
-class conduite(sia405_baseclass):
-    __tablename__ = "conduite"
+class leitung(sia405_baseclass):  # conduite
+    __tablename__ = "leitung"
     __table_args__ = {'schema': SCHEMA}
 
-Base.prepare(utils.create_engine(), reflect=True, schema=SCHEMA, name_for_collection_relationship=utils.custom_name_for_collection_relationship)
+
+Base.prepare(
+    utils.create_engine(),
+    reflect=True,
+    schema=SCHEMA,
+    name_for_collection_relationship=utils.custom_name_for_collection_relationship,
+    name_for_scalar_relationship=utils.custom_name_for_scalar_relationship,
+)
 
 Classes = Base.classes
 
