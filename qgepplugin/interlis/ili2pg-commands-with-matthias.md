@@ -7,3 +7,6 @@ java -jar 'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili2pg-4.4.
 # IMPORT VSA_KEK DATA (fails with NullPointerException)
 java -jar 'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili2pg-4.4.2\ili2pg-4.4.2.jar' --import --deleteData --dbhost 127.0.0.1 --dbusr postgres --dbpwd postgres --dbdatabase ili2pgtest --dbschema ili2pg_vsakek3 --disableValidation --defaultSrsCode 2056 --createTidCol --trace --modeldir C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili 'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\data\testdata_vsa_kek_2019_channel_damage_8486.xtf'
 
+# IMPORT VSA_KEK DATA (data fixed by Matthias)
+java -jar 'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili2pg-4.4.2\ili2pg-4.4.2.jar' --import --deleteData --dbhost 127.0.0.1 --dbusr postgres --dbpwd postgres --dbdatabase ili2pgtest --dbschema ili2pg_vsakek3 --disableValidation --defaultSrsCode 2056 --createTidCol --trace --modeldir C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili 'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\data\test_without_abwasserbauwerkref.xtf'
+

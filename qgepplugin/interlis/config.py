@@ -7,6 +7,7 @@ PGPASS = 'postgres'
 PSQL = r'C:\OSGeo4W64\bin\psql'
 ILI2PG = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili2pg-4.4.2\ili2pg-4.4.2.jar'
 ILI_FOLDER = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\ili'
+DATA_FOLDER = r'C:\Users\Olivier\Code\QGEP\qgepplugin\qgepplugin\interlis\data'
 
 BASE_ILI_MODEL = os.path.join(ILI_FOLDER, 'Base_d-20181005.ili')
 BASE_ILI_MODEL_FR = os.path.join(ILI_FOLDER, 'Base_f-20181005.ili')
@@ -15,9 +16,9 @@ BASE_SIA_ILI_MODEL_FR = os.path.join(ILI_FOLDER, 'SIA405_Base_f-20181005.ili')
 
 QGEP_SCHEMA = 'qgep_od'
 ABWASSER_SCHEMA = 'pg2ili_abwasser'
-ABWASSER_ILI_MODEL = os.path.join(ILI_FOLDER, 'SIA405_Abwasser_2015_2_d-20180417.ili')
-ABWASSER_ILI_MODEL_FR = os.path.join(ILI_FOLDER, 'SIA405_Eaux_usees_2015_2_f-20180417.ili')
-ABWASSER_ILI_MODEL_NAME = 'SIA405_ABWASSER_2015_LV95'
+ABWASSER_ILI_MODEL = os.path.join(ILI_FOLDER, 'VSA_KEK_2019_2_d_LV95-20210120.ili')
+ABWASSER_ILI_MODEL_FR = os.path.join(ILI_FOLDER, 'VSA_KEK_2019_2_d_LV95-20210120.ili')  # TODO : french version doesn't exist yet
+ABWASSER_ILI_MODEL_NAME = 'VSA_KEK_2019_LV95'
 
 QWAT_SCHEMA = 'qwat_od'
 WASSER_SCHEMA = 'pg2ili_wasser'

@@ -42,7 +42,7 @@ def setup_test_db():
     exec_(f'docker exec qgepqwat psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
 
 
-def create_ili_schema(schema, model, smart=0):
+def create_ili_schema(schema, model):
     print("CONNECTING TO DATABASE...")
     connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
     connection.set_session(autocommit=True)
@@ -63,33 +63,30 @@ def create_ili_schema(schema, model, smart=0):
     connection.commit()
 
     print("CREATE ILIDB...")
-    if smart == 0:
-        smart_inheritance = '--noSmartMapping'
-    elif smart == 1:
-        smart_inheritance = '--smart1Inheritance'
-    elif smart == 2:
-        smart_inheritance = '--smart2Inheritance'
+    # if "_f-" in model:
+    #     lang = f'fr'
+    # else:
+    #     lang = f'de'
+    lang = f'de'
 
-    if "_f-" in model:
-        lang = f'fr'
-    else:
-        lang = f'de'
-
-    # TODO : many of these args are probably canceled out with noSmartMapping
     exec_(
-        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --coalesceCatalogueRef --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid {smart_inheritance} --strokeArcs --defaultSrsCode 2056 --log debug-create.txt --nameLang {lang} {model}"
+        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log debug-create.txt --nameLang {lang} {model}"
     )
 
 
-def export_ili_schema(schema, model_name, smart=0, lang='de'):
+def import_xtf_data(schema, xtf_file):
+    print("IMPORTING XTF DATA...")
+    exec_(
+        f"java -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log debug-import.txt {xtf_file}"
+    )
+
+
+def export_xtf_data(schema, model_name):
 
     print("EXPORT ILIDB...")
-    
-    smart_inheritance = '--noSmartMapping'
 
-    # os.chdir(config.ILI_FOLDER)
     exec_(
-        f"java -jar {config.ILI2PG} --export --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --coalesceCatalogueRef --createEnumTabs --createNumChecks --coalesceMultiSurface --coalesceMultiLine --coalesceMultiPoint --coalesceArray --beautifyEnumDispName --createUnique --createGeomIdx --createFk --createFkIdx --expandMultilingual --createTypeConstraint --createTidCol --importTid {smart_inheritance} --strokeArcs --defaultSrsCode 2056 --log debug-export.txt --nameLang {lang} --modeldir {config.ILI_FOLDER} --models {model_name} export_{model_name}.xtf"
+        f"java -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log debug-export.txt export_{model_name}.xtf"
     )
 
 
