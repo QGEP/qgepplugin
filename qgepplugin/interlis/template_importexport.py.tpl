@@ -11,6 +11,9 @@ from .datamodels.{{ilimodel_name}} import Classes as {{ilimodel_name|upper}}
 
 def export():
 
+    session = Session(utils.create_engine())
+    tid_maker = utils.TidMaker(id_attribute='obj_id')
+
 {% for class_from, classes_to in mapping.items() %}
     print("Exporting {{model_name|upper}}.{{class_from.__name__}} -> {{classes_to|classesnames}}")
     for row in session.query({{model_name|upper}}.{{class_from.__name__}}):

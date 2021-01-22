@@ -1,7 +1,7 @@
 from .qwat import Classes as QWAT
 from .qgep import Classes as QGEP
-from .wasser2015 import Classes as WASSER
-from .abwasser2015 import Classes as ABWASSER
+from .wasser import Classes as WASSER
+from .abwasser import Classes as ABWASSER
 
 QWAT_TO_WASSER = {
     QWAT.node: [WASSER.hydraulischer_knoten],

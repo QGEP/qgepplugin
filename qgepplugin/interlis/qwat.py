@@ -1,16 +1,11 @@
 from sqlalchemy.orm import Session
 from geoalchemy2.functions import ST_Transform, ST_Force2D
 
-from xml.dom.minidom import getDOMImplementation
-
-from . import utils
-from . import config
-
 from .datamodels.qwat import Classes as QWAT
-from .datamodels.wasser2015 import Classes as WASSER
+from .datamodels.wasser import Classes as WASSER
 
 ###############################################
-# Actual export (see qwat_generator to pregenerate some of this code)
+# Export                                      #
 ###############################################
 
 def export():
@@ -45,11 +40,10 @@ def export():
         # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, id, update_geometry_alt1, update_geometry_alt2
 
         # --- _relations_ ---
-        # BWREL_pipe_fk_node_b, district, pressurezone
+        # fk_district_REL, fk_pressurezone_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='hydraulischer_knoten',
@@ -66,10 +60,12 @@ def export():
             name_nummer="???",
             # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.hydrant -> WASSER.hydraulischer_knoten, WASSER.hydrant")
     for row in session.query(QWAT.hydrant):
@@ -85,11 +81,10 @@ def export():
         # fk_material, fk_model_inf, fk_model_sup, fk_output, fk_provider, flow, id, marked, observation_date, observation_source, pressure_dynamic, pressure_static, underground
 
         # --- _relations_ ---
-        # BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_b, BWREL_samplingpoint_id_fkey, BWREL_subscriber_id_fkey, distributor, district, folder, hydrant_material, hydrant_model_inf, hydrant_model_sup, hydrant_output, hydrant_provider, object_reference, precision, precisionalti, pressurezone, status, visible
+        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_material_REL, fk_model_inf_REL, fk_model_sup_REL, fk_object_reference_REL, fk_output_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_provider_REL, fk_status_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='hydraulischer_knoten',
@@ -105,11 +100,11 @@ def export():
             name_nummer='???',
             t_id=QWAT.hydrant.make_tid(row.id),
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         hydrant = WASSER.hydrant(
             # FIELDS TO MAP TO WASSER.hydrant
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='hydrant',
@@ -146,6 +141,7 @@ def export():
         session.add(hydrant)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.tank -> WASSER.hydraulischer_knoten, WASSER.wasserbehaelter")
     for row in session.query(QWAT.tank):
@@ -164,11 +160,10 @@ def export():
         # _cistern1_litrepercm, _cistern2_litrepercm, _litrepercm, altitude_apron, altitude_overflow, cistern1_dimension_1, cistern1_dimension_2, cistern1_fk_type, cistern1_storage, cistern2_dimension_1, cistern2_dimension_2, cistern2_fk_type, cistern2_storage, fire_remote, fire_valve, fk_overflow, fk_tank_firestorage, height_max, id, storage_fire, storage_supply, storage_total
 
         # --- _relations_ ---
-        # BWREL_chamber_id_fkey, BWREL_cover_fk_installation, BWREL_installation_fk_parent, BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_b, BWREL_pressurecontrol_id_fkey, BWREL_samplingpoint_id_fkey, BWREL_source_id_fkey, BWREL_subscriber_id_fkey, BWREL_treatment_id_fkey, cistern, distributor, district, folder, installation, object_reference, overflow, precision, precisionalti, pressurezone, remote_type, status, tank_firestorage, visible, watertype
+        # cistern1_fk_type_REL, cistern2_fk_type_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_overflow_REL, fk_parent_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_remote_REL, fk_status_REL, fk_tank_firestorage_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='hydraulischer_knoten',
@@ -184,11 +179,11 @@ def export():
             name_nummer='???',
             t_id=QWAT.tank.make_tid(row.id),
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         wasserbehaelter = WASSER.wasserbehaelter(
             # FIELDS TO MAP TO WASSER.wasserbehaelter
-
             # --- baseclass ---
             # t_ili_tid=QWAT.tank.make_tid(row.id),
             t_type='wasserbehaelter',
@@ -196,7 +191,7 @@ def export():
             # --- sia405_baseclass ---
             obj_id=row.id,
 
-            # --- noeud_de_leitung ---
+            # --- leitungsknoten ---
             # bemerkung=row.REPLACE_ME,
             # druckzone=row.REPLACE_ME,
             # eigentuemer=row.REPLACE_ME,
@@ -220,10 +215,12 @@ def export():
             t_id=QWAT.tank.make_tid(row.id+10000000),  # TODO : not too clean...
             ueberlaufhoehe=row.altitude_overflow or 0,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(wasserbehaelter)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.pump -> WASSER.hydraulischer_knoten, WASSER.foerderanlage")
     for row in session.query(QWAT.pump):
@@ -242,11 +239,10 @@ def export():
         # fk_pipe_in, fk_pipe_out, fk_pump_operating, fk_pump_type, id, manometric_height, no_pumps, rejected_flow
 
         # --- _relations_ ---
-        # BWREL_chamber_id_fkey, BWREL_cover_fk_installation, BWREL_installation_fk_parent, BWREL_meter_id_fkey, BWREL_part_id_fkey, BWREL_pipe_fk_node_b, BWREL_pressurecontrol_id_fkey, BWREL_samplingpoint_id_fkey, BWREL_source_id_fkey, BWREL_subscriber_id_fkey, BWREL_treatment_id_fkey, distributor, district, folder, installation, object_reference, pipe, precision, precisionalti, pressurezone, pump_operating, pump_type, remote_type, status, visible, watertype
+        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_parent_REL, fk_pipe_in_REL, fk_pipe_out_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_pump_operating_REL, fk_pump_type_REL, fk_remote_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='hydraulischer_knoten',
@@ -262,11 +258,11 @@ def export():
             name_nummer='???',
             t_id=QWAT.pump.make_tid(row.id),
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         foerderanlage = WASSER.foerderanlage(
             # FIELDS TO MAP TO WASSER.foerderanlage
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='foerderanlage',
@@ -292,10 +288,12 @@ def export():
             # name_nummer=row.REPLACE_ME,
             t_id=QWAT.pump.make_tid(row.id+10000000),  # TODO : not too clean...
             # zustand=row.REPLACE_ME,
+
         )
         session.add(foerderanlage)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
     for row in session.query(QWAT.pipe):
@@ -305,11 +303,10 @@ def export():
         # _diff_elevation, _geometry_alt1_used, _geometry_alt2_used, _length2d, _length3d, _printmaps, _schema_visible, _valve_closed, _valve_count, fk_bedding, fk_distributor, fk_district, fk_folder, fk_function, fk_installmethod, fk_locationtype, fk_material, fk_node_a, fk_node_b, fk_parent, fk_precision, fk_pressurezone, fk_printmap, fk_protection, fk_status, fk_watertype, geometry, geometry_alt1, geometry_alt2, id, label_1_text, label_1_visible, label_2_text, label_2_visible, pressure_nominal, remark, schema_force_visible, tunnel_or_bridge, update_geometry_alt1, update_geometry_alt2, year, year_end, year_rehabilitation
 
         # --- _relations_ ---
-        # BWREL_crossing_pipe1, BWREL_leak_fk_pipe, BWREL_meter_fk_pipe, BWREL_part_fk_pipe, BWREL_pipe_fk_parent, BWREL_pump_fk_pipe_in, BWREL_subscriber_fk_pipe, BWREL_valve_fk_pipe, bedding, distributor, district, folder, node, pipe, pipe_function, pipe_installmethod, pipe_material, pipe_protection, precision, pressurezone, status, visible, watertype
+        # fk_bedding_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_function_REL, fk_installmethod_REL, fk_material_REL, fk_node_a_REL, fk_node_b_REL, fk_parent_REL, fk_precision_REL, fk_pressurezone_REL, fk_protection_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL, schema_force_visible_REL
 
         hydraulischer_strang = WASSER.hydraulischer_strang(
             # FIELDS TO MAP TO WASSER.hydraulischer_strang
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='troncon_hydraulique',
@@ -330,11 +327,11 @@ def export():
             # verbrauch=row.REPLACE_ME,
             vonknotenref=QWAT.node.make_tid(row.fk_node_a),
             # zustand=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_strang)
         leitung = WASSER.leitung(
             # FIELDS TO MAP TO WASSER.leitung
-
             # --- baseclass ---
             t_ili_tid=row.id,
             t_type='leitung',
@@ -382,3 +379,12 @@ def export():
         print(".", end="")
     print("done")
     session.commit()
+
+
+
+###############################################
+# Import
+###############################################
+
+def import_():
+    pass

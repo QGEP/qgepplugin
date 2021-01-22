@@ -11,6 +11,9 @@ from .datamodels.wasser import Classes as WASSER
 
 def export():
 
+    session = Session(utils.create_engine())
+    tid_maker = utils.TidMaker(id_attribute='obj_id')
+
     print("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
     for row in session.query(QWAT.node):
         # AVAILABLE FIELDS IN QWAT.node

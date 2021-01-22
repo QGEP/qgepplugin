@@ -7,12 +7,12 @@ from . import config
 
 def main(args):
     parser = argparse.ArgumentParser(description='ili2QWAT / ili2QGEP prototype entrypoint')
-    parser.add_argument('model', choices=['qgep', 'qwat'])
+    parser.add_argument('model', choices=['qgep', 'qwat'], help='datamodel')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--import_xtf')
-    group.add_argument('--export_xtf')
-    group.add_argument('--gen_tpl', action='store_true')
-    parser.add_argument('--force_recreate', action='store_true', help='Drops and recreate the ili2pg schemas if already existing')
+    group.add_argument('--import_xtf', help='input file')
+    group.add_argument('--export_xtf', help='output file')
+    group.add_argument('--gen_tpl', action='store_true', help='generate code templates')
+    parser.add_argument('--force_recreate', action='store_true', help='drops schema and reruns ili2pg importschema')
     args = parser.parse_args(args)
 
     # Create the database and import the ILI model
@@ -30,7 +30,7 @@ def main(args):
         elif args.gen_tpl:
             from .datamodels.mapping import QGEP_TO_ABWASSER
             from .datamodels.qgep import Classes as QGEP
-            from .datamodels.abwasser2015 import Classes as ABWASSER
+            from .datamodels.abwasser import Classes as ABWASSER
             utils.generate_template("qgep", "abwasser", QGEP, ABWASSER, QGEP_TO_ABWASSER)
 
     elif args.model == 'qwat':
@@ -45,5 +45,5 @@ def main(args):
         elif args.gen_tpl:
             from .datamodels.mapping import QWAT_TO_WASSER
             from .datamodels.qwat import Classes as QWAT
-            from .datamodels.wasser2015 import Classes as WASSER
+            from .datamodels.wasser import Classes as WASSER
             utils.generate_template("qwat", "wasser", QWAT, WASSER, QWAT_TO_WASSER)
