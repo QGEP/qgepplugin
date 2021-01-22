@@ -170,7 +170,8 @@ def generate():
             template.write(f'        )\n')
             template.write(f'        session.add({sia_class.__name__})\n')
         template.write(f'        print(".", end="")\n')
-        template.write(f'    print("done")\n\n')
+        template.write(f'    print("done")\n')
+        template.write(f'    session.flush()\n\n')
 
     print("\n"*5)
     available_tables = ', '.join(sorted(c.__name__ for c in WASSER if c not in TABLE_MAPPING.values()))

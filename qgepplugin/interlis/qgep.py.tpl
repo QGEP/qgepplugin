@@ -515,7 +515,7 @@
         # diameter, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
 
         trockenwetterfallrohr = ABWASSER.trockenwetterfallrohr(
             # FIELDS TO MAP TO ABWASSER.trockenwetterfallrohr
@@ -553,7 +553,7 @@
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         einstiegshilfe = ABWASSER.einstiegshilfe(
             # FIELDS TO MAP TO ABWASSER.einstiegshilfe
@@ -591,7 +591,7 @@
         # material, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
 
         trockenwetterrinne = ABWASSER.trockenwetterrinne(
             # FIELDS TO MAP TO ABWASSER.trockenwetterrinne
@@ -629,7 +629,7 @@
         # brand, cover_shape, diameter, fastening, level, material, obj_id, positional_accuracy, situation_geometry, sludge_bucket, venting
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
 
         deckel = ABWASSER.deckel(
             # FIELDS TO MAP TO ABWASSER.deckel
@@ -676,7 +676,7 @@
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         bankett = ABWASSER.bankett(
             # FIELDS TO MAP TO ABWASSER.bankett

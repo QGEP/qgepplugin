@@ -31,24 +31,6 @@ Base = automap_base()
 
 SCHEMA = config.QGEP_SCHEMA
 
-# Helper to convert IDs to ili-compatible tids (autoincrementing)
-_autoincrementer = collections.defaultdict(lambda: len(_autoincrementer))
-def make_tid(cls, id):
-    # if verbose:
-    #     star = '*' if (cls, id) not in _autoincrementer else ''
-    #     result = _autoincrementer[(cls, id)]
-    #     print(f"{star}{cls.__name__}/{id}=>{result}   ", end="")
-    #     return result
-    return str(_autoincrementer[(cls, id)])
-
-class wastewater_structure(Base):
-    __tablename__ = "wastewater_structure"
-    __table_args__ = {'schema': SCHEMA}
-
-    @staticmethod
-    def make_tid(id):
-        return make_tid(wastewater_structure, id)
-
 class organisation(Base):
     __tablename__ = "organisation"
     __table_args__ = {'schema': SCHEMA}
