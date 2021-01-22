@@ -71,12 +71,6 @@ def export():
         session.add(organisation)
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
-            # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type='organisation',
-
-            # --- sia405_baseclass ---
-            obj_id=row.obj_id,
 
             # --- metaattribute ---
             datenherr=row.fk_dataowner_REL.identifier if row.fk_dataowner_REL else '???',

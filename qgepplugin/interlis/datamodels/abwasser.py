@@ -104,7 +104,7 @@ class bankett(bauwerksteil):
     __tablename__ = "bankett"
     __table_args__ = {'schema': SCHEMA}
 
-class metaattribute(sia405_baseclass):
+class metaattribute(Base):
     __tablename__ = "metaattribute"
     __table_args__ = {'schema': SCHEMA}
 
