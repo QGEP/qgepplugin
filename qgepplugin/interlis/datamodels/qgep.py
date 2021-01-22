@@ -103,6 +103,35 @@ class benching(structure_part):
     __tablename__ = "benching"
     __table_args__ = {'schema': SCHEMA}
 
+# VSA_KEK
+
+class maintenance_event(Base):
+    __tablename__ = "maintenance_event"
+    __table_args__ = {'schema': SCHEMA}
+
+class examination(maintenance_event):
+    __tablename__ = "examination"
+    __table_args__ = {'schema': SCHEMA}
+
+class damage(Base):
+    __tablename__ = "damage"
+    __table_args__ = {'schema': SCHEMA}
+
+class damage_manhole(damage):
+    __tablename__ = "damage_manhole"
+    __table_args__ = {'schema': SCHEMA}
+
+class damage_channel(damage):
+    __tablename__ = "damage_channel"
+    __table_args__ = {'schema': SCHEMA}
+
+class data_media(Base):
+    __tablename__ = "data_media"
+    __table_args__ = {'schema': SCHEMA}
+
+class file(Base):
+    __tablename__ = "file"
+    __table_args__ = {'schema': SCHEMA}
 
 Base.prepare(
     utils.create_engine(),

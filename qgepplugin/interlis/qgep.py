@@ -11,6 +11,11 @@ from .datamodels.abwasser import Classes as ABWASSER
 # Export                                      #
 ###############################################
 
+# TODO : in QGEP's value lists, the codes are called VSACODE, aren't they somehow part of the ili file ? (didn't find them)
+# Sounds a bit crazy to hard-code all this here again !? It seems german names in the values list
+# don't exactly match the ones defined in ili (e.g. digitales_Video vs digitalesVideo). Should we
+# add a INTERLIS_DE column in the values lists ?
+
 MAPPING = {
     'wastewater_structure': {
         'accessibility': {
@@ -42,6 +47,16 @@ MAPPING = {
             5345: 'unbekannt',
         },
     },
+    'file': {
+        'kind': {
+            3770: 'andere',
+            3772: 'Foto',
+            3773: 'Panoramofilm',
+            3774: 'Textdatei',
+            3775: 'Video',
+            3771: 'digitales_Video',
+        }
+    }
 }
 
 def export():
@@ -745,6 +760,223 @@ def export():
 
         )
         session.add(bankett)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Exporting QGEP.examination -> ABWASSER.untersuchung")
+    for row in session.query(QGEP.examination):
+        # AVAILABLE FIELDS IN QGEP.examination
+
+        # --- maintenance_event ---
+        # active_zone, base_data, cost, data_details, duration, fk_dataowner, fk_operating_company, fk_provider, identifier, kind, last_modification, operator, reason, remark, result, status, time_point
+
+        # --- examination ---
+        # equipment, fk_reach_point, from_point_identifier, inspected_length, obj_id, recording_type, to_point_identifier, vehicle, videonumber, weather
+
+        # --- _relations_ ---
+        # fk_dataowner_REL, fk_operating_company_REL, fk_provider_REL, fk_reach_point_REL, kind_REL, recording_type_REL, status_REL, weather_REL
+
+        untersuchung = ABWASSER.untersuchung(
+            # FIELDS TO MAP TO ABWASSER.untersuchung
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- erhaltungsereignis ---
+            # abwasserbauwerkref=row.REPLACE_ME,
+            # art=row.REPLACE_ME,
+            # astatus=row.REPLACE_ME,
+            # ausfuehrende_firmaref=row.REPLACE_ME,
+            # ausfuehrender=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            # bezeichnung=row.REPLACE_ME,
+            # datengrundlage=row.REPLACE_ME,
+            # dauer=row.REPLACE_ME,
+            # detaildaten=row.REPLACE_ME,
+            # ergebnis=row.REPLACE_ME,
+            # grund=row.REPLACE_ME,
+            # kosten=row.REPLACE_ME,
+            # zeitpunkt=row.REPLACE_ME,
+
+            # --- untersuchung ---
+            # bispunktbezeichnung=row.REPLACE_ME,
+            # erfassungsart=row.REPLACE_ME,
+            # fahrzeug=row.REPLACE_ME,
+            # geraet=row.REPLACE_ME,
+            # haltungspunktref=row.REPLACE_ME,
+            # inspizierte_laenge=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # videonummer=row.REPLACE_ME,
+            # vonpunktbezeichnung=row.REPLACE_ME,
+            # witterung=row.REPLACE_ME,
+
+        )
+        session.add(untersuchung)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden")
+    for row in session.query(QGEP.damage_manhole):
+        # AVAILABLE FIELDS IN QGEP.damage_manhole
+
+        # --- damage ---
+        # comments, connection, damage_begin, damage_end, damage_reach, distance, fk_dataowner, fk_examination, fk_provider, last_modification, quantification1, quantification2, single_damage_class, video_counter, view_parameters
+
+        # --- damage_manhole ---
+        # manhole_damage_code, manhole_shaft_area, obj_id
+
+        # --- _relations_ ---
+        # connection_REL, fk_dataowner_REL, fk_examination_REL, fk_provider_REL, manhole_damage_code_REL, manhole_shaft_area_REL, single_damage_class_REL
+
+        normschachtschaden = ABWASSER.normschachtschaden(
+            # FIELDS TO MAP TO ABWASSER.normschachtschaden
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- schaden ---
+            # anmerkung=row.REPLACE_ME,
+            # ansichtsparameter=row.REPLACE_ME,
+            # einzelschadenklasse=row.REPLACE_ME,
+            # streckenschaden=row.REPLACE_ME,
+            # untersuchungref=row.REPLACE_ME,
+            # verbindung=row.REPLACE_ME,
+            # videozaehlerstand=row.REPLACE_ME,
+
+            # --- normschachtschaden ---
+            # distanz=row.REPLACE_ME,
+            # quantifizierung1=row.REPLACE_ME,
+            # quantifizierung2=row.REPLACE_ME,
+            # schachtbereich=row.REPLACE_ME,
+            # schachtschadencode=row.REPLACE_ME,
+            # schadenlageanfang=row.REPLACE_ME,
+            # schadenlageende=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+
+        )
+        session.add(normschachtschaden)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden")
+    for row in session.query(QGEP.damage_channel):
+        # AVAILABLE FIELDS IN QGEP.damage_channel
+
+        # --- damage ---
+        # comments, connection, damage_begin, damage_end, damage_reach, distance, fk_dataowner, fk_examination, fk_provider, last_modification, quantification1, quantification2, single_damage_class, video_counter, view_parameters
+
+        # --- damage_channel ---
+        # channel_damage_code, obj_id
+
+        # --- _relations_ ---
+        # channel_damage_code_REL, connection_REL, fk_dataowner_REL, fk_examination_REL, fk_provider_REL, single_damage_class_REL
+
+        kanalschaden = ABWASSER.kanalschaden(
+            # FIELDS TO MAP TO ABWASSER.kanalschaden
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- schaden ---
+            # anmerkung=row.REPLACE_ME,
+            # ansichtsparameter=row.REPLACE_ME,
+            # einzelschadenklasse=row.REPLACE_ME,
+            # streckenschaden=row.REPLACE_ME,
+            # untersuchungref=row.REPLACE_ME,
+            # verbindung=row.REPLACE_ME,
+            # videozaehlerstand=row.REPLACE_ME,
+
+            # --- kanalschaden ---
+            # distanz=row.REPLACE_ME,
+            # kanalschadencode=row.REPLACE_ME,
+            # quantifizierung1=row.REPLACE_ME,
+            # quantifizierung2=row.REPLACE_ME,
+            # schadenlageanfang=row.REPLACE_ME,
+            # schadenlageende=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+
+        )
+        session.add(kanalschaden)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Exporting QGEP.data_media -> ABWASSER.datentraeger")
+    for row in session.query(QGEP.data_media):
+        # AVAILABLE FIELDS IN QGEP.data_media
+
+        # --- data_media ---
+        # fk_dataowner, fk_provider, identifier, kind, last_modification, location, obj_id, path, remark
+
+        # --- _relations_ ---
+        # fk_dataowner_REL, fk_provider_REL, kind_REL
+
+        datentraeger = ABWASSER.datentraeger(
+            # FIELDS TO MAP TO ABWASSER.datentraeger
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- datentraeger ---
+            # art=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            # bezeichnung=row.REPLACE_ME,
+            # pfad=row.REPLACE_ME,
+            # standort=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+
+        )
+        session.add(datentraeger)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Exporting QGEP.file -> ABWASSER.datei")
+    for row in session.query(QGEP.file):
+        # AVAILABLE FIELDS IN QGEP.file
+
+        # --- file ---
+        # class, fk_data_media, fk_dataowner, fk_provider, identifier, kind, last_modification, obj_id, object, path_relative, remark
+
+        # --- _relations_ ---
+        # class_REL, fk_dataowner_REL, fk_provider_REL, kind_REL
+
+        datei = ABWASSER.datei(
+            # FIELDS TO MAP TO ABWASSER.datei
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- datei ---
+            # art=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            # bezeichnung=row.REPLACE_ME,
+            # datentraegerref=row.REPLACE_ME,
+            # klasse=row.REPLACE_ME,
+            # objekt=row.REPLACE_ME,
+            # relativpfad=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+
+        )
+        session.add(datei)
         print(".", end="")
     print("done")
     session.commit()
@@ -1532,3 +1764,228 @@ def import_():
         print(".", end="")
     print("done")
     session.commit()
+
+    print("Importing ABWASSER.untersuchung -> QGEP.examination")
+    for row in session.query(ABWASSER.untersuchung):
+        # AVAILABLE FIELDS IN ABWASSER.untersuchung
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- erhaltungsereignis ---
+        # abwasserbauwerkref, art, astatus, ausfuehrende_firmaref, ausfuehrender, bemerkung, bezeichnung, datengrundlage, dauer, detaildaten, ergebnis, grund, kosten, zeitpunkt
+
+        # --- untersuchung ---
+        # bispunktbezeichnung, erfassungsart, fahrzeug, geraet, haltungspunktref, inspizierte_laenge, t_id, videonummer, vonpunktbezeichnung, witterung
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL, ausfuehrende_firmaref_REL, haltungspunktref_REL
+
+        examination = QGEP.examination(
+            # FIELDS TO MAP TO QGEP.examination
+            # --- maintenance_event ---
+            # active_zone=row.REPLACE_ME,
+            # base_data=row.REPLACE_ME,
+            # cost=row.REPLACE_ME,
+            # data_details=row.REPLACE_ME,
+            # duration=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_operating_company=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # kind=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # operator=row.REPLACE_ME,
+            # reason=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # result=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # time_point=row.REPLACE_ME,
+
+            # --- examination ---
+            # equipment=row.REPLACE_ME,
+            # fk_reach_point=row.REPLACE_ME,
+            # from_point_identifier=row.REPLACE_ME,
+            # inspected_length=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # recording_type=row.REPLACE_ME,
+            # to_point_identifier=row.REPLACE_ME,
+            # vehicle=row.REPLACE_ME,
+            # videonumber=row.REPLACE_ME,
+            # weather=row.REPLACE_ME,
+
+        )
+        session.add(examination)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.normschachtschaden -> QGEP.damage_manhole")
+    for row in session.query(ABWASSER.normschachtschaden):
+        # AVAILABLE FIELDS IN ABWASSER.normschachtschaden
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- schaden ---
+        # anmerkung, ansichtsparameter, einzelschadenklasse, streckenschaden, untersuchungref, verbindung, videozaehlerstand
+
+        # --- normschachtschaden ---
+        # distanz, quantifizierung1, quantifizierung2, schachtbereich, schachtschadencode, schadenlageanfang, schadenlageende, t_id
+
+        # --- _relations_ ---
+        # untersuchungref_REL
+
+        damage_manhole = QGEP.damage_manhole(
+            # FIELDS TO MAP TO QGEP.damage_manhole
+            # --- damage ---
+            # comments=row.REPLACE_ME,
+            # connection=row.REPLACE_ME,
+            # damage_begin=row.REPLACE_ME,
+            # damage_end=row.REPLACE_ME,
+            # damage_reach=row.REPLACE_ME,
+            # distance=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_examination=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # quantification1=row.REPLACE_ME,
+            # quantification2=row.REPLACE_ME,
+            # single_damage_class=row.REPLACE_ME,
+            # video_counter=row.REPLACE_ME,
+            # view_parameters=row.REPLACE_ME,
+
+            # --- damage_manhole ---
+            # manhole_damage_code=row.REPLACE_ME,
+            # manhole_shaft_area=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(damage_manhole)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.kanalschaden -> QGEP.damage_channel")
+    for row in session.query(ABWASSER.kanalschaden):
+        # AVAILABLE FIELDS IN ABWASSER.kanalschaden
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- schaden ---
+        # anmerkung, ansichtsparameter, einzelschadenklasse, streckenschaden, untersuchungref, verbindung, videozaehlerstand
+
+        # --- kanalschaden ---
+        # distanz, kanalschadencode, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende, t_id
+
+        # --- _relations_ ---
+        # untersuchungref_REL
+
+        damage_channel = QGEP.damage_channel(
+            # FIELDS TO MAP TO QGEP.damage_channel
+            # --- damage ---
+            # comments=row.REPLACE_ME,
+            # connection=row.REPLACE_ME,
+            # damage_begin=row.REPLACE_ME,
+            # damage_end=row.REPLACE_ME,
+            # damage_reach=row.REPLACE_ME,
+            # distance=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_examination=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # quantification1=row.REPLACE_ME,
+            # quantification2=row.REPLACE_ME,
+            # single_damage_class=row.REPLACE_ME,
+            # video_counter=row.REPLACE_ME,
+            # view_parameters=row.REPLACE_ME,
+
+            # --- damage_channel ---
+            # channel_damage_code=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(damage_channel)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.datentraeger -> QGEP.data_media")
+    for row in session.query(ABWASSER.datentraeger):
+        # AVAILABLE FIELDS IN ABWASSER.datentraeger
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- datentraeger ---
+        # art, bemerkung, bezeichnung, pfad, standort, t_id
+
+        data_media = QGEP.data_media(
+            # FIELDS TO MAP TO QGEP.data_media
+            # --- data_media ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            identifier=row.bezeichnung,
+            # kind=row.art,
+            # last_modification=row.REPLACE_ME,
+            location=row.standort,
+            obj_id=row.obj_id,
+            path=row.pfad,
+            remark=row.bemerkung,
+
+        )
+        session.merge(data_media)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.datei -> QGEP.file")
+    for row in session.query(ABWASSER.datei):
+        # AVAILABLE FIELDS IN ABWASSER.datei
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- datei ---
+        # art, bemerkung, bezeichnung, datentraegerref, klasse, objekt, relativpfad, t_id
+
+        # --- _relations_ ---
+        # datentraegerref_REL
+
+        file = QGEP.file(
+            # FIELDS TO MAP TO QGEP.file
+            # --- file ---
+            # **{'class': row.klasse},
+            # fk_data_media=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            identifier=row.bezeichnung,
+            kind=utils.invert_dict(MAPPING['file']['kind'])[row.art],
+            # last_modification=row.REPLACE_ME,
+            obj_id=row.obj_id,
+            object=row.objekt,
+            path_relative=row.relativpfad,
+            remark=row.bemerkung,
+
+        )
+        session.merge(file)
+        print(".", end="")
+    print("done")
+    session.commit()
+

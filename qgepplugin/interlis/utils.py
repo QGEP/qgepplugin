@@ -2,7 +2,7 @@ import psycopg2
 import os
 import subprocess
 import collections
-
+import functools
 import sqlalchemy
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -145,6 +145,9 @@ def custom_generate_relationship(base, direction, return_fn, attrname, local_cls
 
 def capfirst(s):
     return s[0].upper()+s[1:]
+
+def invert_dict(d):
+    return {v: k for k, v in d.items()}
 
 def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
 

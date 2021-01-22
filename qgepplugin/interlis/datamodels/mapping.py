@@ -91,6 +91,13 @@ QGEP_TO_ABWASSER = {
     QGEP.dryweather_flume: [ABWASSER.trockenwetterrinne],
     QGEP.cover: [ABWASSER.deckel],
     QGEP.benching: [ABWASSER.bankett],
+    # VSA_KEK
+    QGEP.examination: [ABWASSER.untersuchung],
+    QGEP.damage_manhole: [ABWASSER.normschachtschaden],
+    QGEP.damage_channel: [ABWASSER.kanalschaden],
+    QGEP.data_media: [ABWASSER.datentraeger],
+    QGEP.file: [ABWASSER.datei],
+
     # NOT MAPPED YET
     # AVAILABLE ABWASSER CLASSES : abwasserbauwerk, abwasserknoten, abwassernetzelement, bankett, baseclass, bauwerksteil, datei, datentraeger, deckel, einleitstelle, einstiegshilfe, erhaltungsereignis, haltung, haltung_alternativverlauf, haltungspunkt, kanal, kanalschaden, metaattribute, normschacht, normschachtschaden, organisation, organisation_teil_vonassoc, rohrprofil, schaden, sia405_baseclass, sia405_symbolpos, sia405_textpos, spezialbauwerk, symbolpos, t_ili2db_attrname, t_ili2db_basket, t_ili2db_classname, t_ili2db_dataset, t_ili2db_inheritance, t_ili2db_model, t_ili2db_settings, textpos, trockenwetterfallrohr, trockenwetterrinne, untersuchung, versickerungsanlage, videozaehlerstand
     # QGEP.access_aid: [ABWASSER.REPLACE_ME],
@@ -144,11 +151,9 @@ QGEP_TO_ABWASSER = {
     # QGEP.damage: [ABWASSER.REPLACE_ME],
     # QGEP.damage_channel_channel_damage_code: [ABWASSER.REPLACE_ME],
     # QGEP.damage_connection: [ABWASSER.REPLACE_ME],
-    # QGEP.damage_manhole: [ABWASSER.REPLACE_ME],
     # QGEP.damage_manhole_manhole_damage_code: [ABWASSER.REPLACE_ME],
     # QGEP.damage_manhole_manhole_shaft_area: [ABWASSER.REPLACE_ME],
     # QGEP.damage_single_damage_class: [ABWASSER.REPLACE_ME],
-    # QGEP.data_media: [ABWASSER.REPLACE_ME],
     # QGEP.data_media_kind: [ABWASSER.REPLACE_ME],
     # QGEP.discharge_point: [ABWASSER.REPLACE_ME],
     # QGEP.discharge_point_relevance: [ABWASSER.REPLACE_ME],
@@ -161,7 +166,6 @@ QGEP_TO_ABWASSER = {
     # QGEP.electric_equipment_kind: [ABWASSER.REPLACE_ME],
     # QGEP.electromechanical_equipment: [ABWASSER.REPLACE_ME],
     # QGEP.electromechanical_equipment_kind: [ABWASSER.REPLACE_ME],
-    # QGEP.examination: [ABWASSER.REPLACE_ME],
     # QGEP.examination_recording_type: [ABWASSER.REPLACE_ME],
     # QGEP.examination_weather: [ABWASSER.REPLACE_ME],
     # QGEP.file: [ABWASSER.REPLACE_ME],
