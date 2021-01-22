@@ -26,7 +26,7 @@ def main(args):
             utils.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
-            # qgep.import_()
+            qgep.import_()
         elif args.gen_tpl:
             from .datamodels.mapping import QGEP_TO_ABWASSER
             from .datamodels.qgep import Classes as QGEP
@@ -41,7 +41,7 @@ def main(args):
             utils.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
-            # qwat.import_()
+            qwat.import_()
         elif args.gen_tpl:
             from .datamodels.mapping import QWAT_TO_WASSER
             from .datamodels.qwat import Classes as QWAT

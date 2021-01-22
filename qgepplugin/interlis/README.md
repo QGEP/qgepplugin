@@ -20,7 +20,7 @@ optional arguments:
 
 ## Dev
 
-Import scripts templates can be generated using `python -m interlis qwat --gen_tpl; python -m interlis qgep`. This uses the mapping defined in `datamodels/mapping.py` to auto-generate import script templates, that can then be manually merged into the existing scripts.
+Import scripts templates can be generated using `python -m interlis qwat --gen_tpl; python -m interlis qgep --gen_tpl`. This uses the mapping defined in `datamodels/mapping.py` to auto-generate import script templates, that can then be manually merged into the existing scripts.
 
 ## Use cases
 

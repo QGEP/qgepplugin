@@ -137,8 +137,9 @@ def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constrain
     return 'REL_'+name_for_scalar_relationship(base, local_cls, referred_cls, constraint)
 
 def custom_generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw):
-    # This skips backrefs
-    if return_fn is sqlalchemy.orm.backref:
+    # We skip backwards relations for now as they seem to be undeterministic
+    # (probably because of multiple backrefs between same models)
+    if attrname.startswith('BWREL'):
         return None
     return generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw)
 

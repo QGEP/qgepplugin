@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from geoalchemy2.functions import ST_Transform, ST_Force2D
 
+from . import utils
+
 from .datamodels.qgep import Classes as QGEP
 from .datamodels.abwasser import Classes as ABWASSER
 
@@ -61,17 +63,16 @@ def export():
 
         organisation = ABWASSER.organisation(
             # FIELDS TO MAP TO ABWASSER.organisation
-
             # --- organisation ---
             auid=row.uid,
             bemerkung=row.remark,
             bezeichnung=row.identifier,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(organisation)
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
-
             # --- metaattribute ---
             datenherr=row.fk_dataowner_REL.identifier if row.fk_dataowner_REL else '???',
             datenlieferant=row.fk_provider_REL.identifier if row.fk_provider_REL else '???',
@@ -79,6 +80,7 @@ def export():
             sia405_baseclass_metaattribute=tid_maker.tid_for_row(row),
             t_id=tid_maker.tid_for_row(row),  # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
             t_seq=0,
+
         )
         session.add(metaattribute)
         print(".", end="")
@@ -96,7 +98,7 @@ def export():
         # bedding_encasement, connection_type, function_hierarchic, function_hydraulic, jetting_interval, obj_id, pipe_length, usage_current, usage_planned
 
         # --- _relations_ ---
-        # accessibility_REL, bedding_encasement_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, connection_type_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_hierarchic_REL, function_hydraulic_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, usage_current_REL, usage_planned_REL
+        # accessibility_REL, bedding_encasement_REL, connection_type_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_hierarchic_REL, function_hydraulic_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, usage_current_REL, usage_planned_REL
 
         kanal = ABWASSER.kanal(
             # FIELDS TO MAP TO ABWASSER.kanal
@@ -158,7 +160,7 @@ def export():
         # _orientation, dimension1, dimension2, function, material, obj_id, surface_inflow
 
         # --- _relations_ ---
-        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, material_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, surface_inflow_REL
+        # accessibility_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, material_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, surface_inflow_REL
 
         normschacht = ABWASSER.normschacht(
             # FIELDS TO MAP TO ABWASSER.normschacht
@@ -199,6 +201,7 @@ def export():
             # material=row.REPLACE_ME,
             # oberflaechenzulauf=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(normschacht)
         print(".", end="")
@@ -216,7 +219,7 @@ def export():
         # fk_sector_water_body, highwater_level, obj_id, relevance, terrain_level, upper_elevation, waterlevel_hydraulic
 
         # --- _relations_ ---
-        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, fk_sector_water_body_REL, relevance_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL
+        # accessibility_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, fk_sector_water_body_REL, relevance_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL
 
         einleitstelle = ABWASSER.einleitstelle(
             # FIELDS TO MAP TO ABWASSER.einleitstelle
@@ -274,7 +277,7 @@ def export():
         # bypass, emergency_spillway, function, obj_id, stormwater_tank_arrangement, upper_elevation
 
         # --- _relations_ ---
-        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, bypass_REL, emergency_spillway_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, stormwater_tank_arrangement_REL, structure_condition_REL
+        # accessibility_REL, bypass_REL, emergency_spillway_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, stormwater_tank_arrangement_REL, structure_condition_REL
 
         spezialbauwerk = ABWASSER.spezialbauwerk(
             # FIELDS TO MAP TO ABWASSER.spezialbauwerk
@@ -314,6 +317,7 @@ def export():
             # notueberlauf=row.REPLACE_ME,
             # regenbecken_anordnung=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(spezialbauwerk)
         print(".", end="")
@@ -331,7 +335,7 @@ def export():
         # absorption_capacity, defects, dimension1, dimension2, distance_to_aquifer, effective_area, emergency_spillway, fk_aquifier, kind, labeling, obj_id, seepage_utilization, upper_elevation, vehicle_access, watertightness
 
         # --- _relations_ ---
-        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, defects_REL, emergency_spillway_REL, financing_REL, fk_aquifier_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, kind_REL, labeling_REL, renovation_necessity_REL, rv_construction_type_REL, seepage_utilization_REL, status_REL, structure_condition_REL, vehicle_access_REL, watertightness_REL
+        # accessibility_REL, defects_REL, emergency_spillway_REL, financing_REL, fk_aquifier_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, kind_REL, labeling_REL, renovation_necessity_REL, rv_construction_type_REL, seepage_utilization_REL, status_REL, structure_condition_REL, vehicle_access_REL, watertightness_REL
 
         versickerungsanlage = ABWASSER.versickerungsanlage(
             # FIELDS TO MAP TO ABWASSER.versickerungsanlage
@@ -411,6 +415,7 @@ def export():
             # hoehenbreitenverhaeltnis=row.REPLACE_ME,
             # profiltyp=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(rohrprofil)
         print(".", end="")
@@ -446,6 +451,7 @@ def export():
             # lage=row.REPLACE_ME,
             # lage_anschluss=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(haltungspunkt)
         print(".", end="")
@@ -484,6 +490,7 @@ def export():
             # rueckstaukote=row.REPLACE_ME,
             # sohlenkote=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(abwasserknoten)
         print(".", end="")
@@ -554,7 +561,7 @@ def export():
         # diameter, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
+        # fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
 
         trockenwetterfallrohr = ABWASSER.trockenwetterfallrohr(
             # FIELDS TO MAP TO ABWASSER.trockenwetterfallrohr
@@ -574,6 +581,7 @@ def export():
             # --- trockenwetterfallrohr ---
             # durchmesser=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(trockenwetterfallrohr)
         print(".", end="")
@@ -591,7 +599,7 @@ def export():
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         einstiegshilfe = ABWASSER.einstiegshilfe(
             # FIELDS TO MAP TO ABWASSER.einstiegshilfe
@@ -611,6 +619,7 @@ def export():
             # --- einstiegshilfe ---
             # art=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(einstiegshilfe)
         print(".", end="")
@@ -628,7 +637,7 @@ def export():
         # material, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
+        # fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
 
         trockenwetterrinne = ABWASSER.trockenwetterrinne(
             # FIELDS TO MAP TO ABWASSER.trockenwetterrinne
@@ -648,6 +657,7 @@ def export():
             # --- trockenwetterrinne ---
             # material=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(trockenwetterrinne)
         print(".", end="")
@@ -665,7 +675,7 @@ def export():
         # brand, cover_shape, diameter, fastening, level, material, obj_id, positional_accuracy, situation_geometry, sludge_bucket, venting
 
         # --- _relations_ ---
-        # BWREL_oorel_od_dryweather_flume_structure_part, cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
+        # cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
 
         deckel = ABWASSER.deckel(
             # FIELDS TO MAP TO ABWASSER.deckel
@@ -712,7 +722,7 @@ def export():
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         bankett = ABWASSER.bankett(
             # FIELDS TO MAP TO ABWASSER.bankett
@@ -732,6 +742,7 @@ def export():
             # --- bankett ---
             # art=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
+
         )
         session.add(bankett)
         print(".", end="")
@@ -741,8 +752,783 @@ def export():
 
 
 ###############################################
-# Import
+# Import                                      #
 ###############################################
 
 def import_():
-    pass
+
+    session = Session(utils.create_engine())
+    tid_maker = utils.TidMaker(id_attribute='obj_id')
+
+    print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
+    for row in session.query(ABWASSER.organisation):
+    # TODO : somehow join ABWASSER.metaattribute
+        # AVAILABLE FIELDS IN ABWASSER.organisation
+
+        # --- organisation ---
+        # auid, bemerkung, bezeichnung, t_id
+
+        # --- _relations_ ---
+        # t_id_REL
+
+        organisation = QGEP.organisation(
+            # FIELDS TO MAP TO QGEP.organisation
+            # --- organisation ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # uid=row.REPLACE_ME,
+
+        )
+        session.add(organisation)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.kanal -> QGEP.channel")
+    for row in session.query(ABWASSER.kanal):
+        # AVAILABLE FIELDS IN ABWASSER.kanal
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwasserbauwerk ---
+        # akten, astatus, baujahr, baulicherzustand, baulos, bemerkung, betreiberref, bezeichnung, bruttokosten, detailgeometrie, eigentuemerref, ersatzjahr, finanzierung, inspektionsintervall, sanierungsbedarf, standortname, subventionen, wbw_basisjahr, wbw_bauart, wiederbeschaffungswert, zugaenglichkeit
+
+        # --- kanal ---
+        # bettung_umhuellung, funktionhierarchisch, funktionhydraulisch, nutzungsart_geplant, nutzungsart_ist, rohrlaenge, spuelintervall, t_id, verbindungsart
+
+        # --- _relations_ ---
+        # betreiberref_REL, eigentuemerref_REL
+
+        channel = QGEP.channel(
+            # FIELDS TO MAP TO QGEP.channel
+            # --- wastewater_structure ---
+            # _bottom_label=row.REPLACE_ME,
+            # _cover_label=row.REPLACE_ME,
+            # _depth=row.REPLACE_ME,
+            # _function_hierarchic=row.REPLACE_ME,
+            # _input_label=row.REPLACE_ME,
+            # _label=row.REPLACE_ME,
+            # _output_label=row.REPLACE_ME,
+            # _usage_current=row.REPLACE_ME,
+            # accessibility=row.REPLACE_ME,
+            # contract_section=row.REPLACE_ME,
+            # detail_geometry_geometry=row.REPLACE_ME,
+            # financing=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_main_cover=row.REPLACE_ME,
+            # fk_main_wastewater_node=row.REPLACE_ME,
+            # fk_operator=row.REPLACE_ME,
+            # fk_owner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # gross_costs=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # inspection_interval=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # location_name=row.REPLACE_ME,
+            # records=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_necessity=row.REPLACE_ME,
+            # replacement_value=row.REPLACE_ME,
+            # rv_base_year=row.REPLACE_ME,
+            # rv_construction_type=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # structure_condition=row.REPLACE_ME,
+            # subsidies=row.REPLACE_ME,
+            # year_of_construction=row.REPLACE_ME,
+            # year_of_replacement=row.REPLACE_ME,
+
+            # --- channel ---
+            # bedding_encasement=row.REPLACE_ME,
+            # connection_type=row.REPLACE_ME,
+            # function_hierarchic=row.REPLACE_ME,
+            # function_hydraulic=row.REPLACE_ME,
+            # jetting_interval=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # pipe_length=row.REPLACE_ME,
+            # usage_current=row.REPLACE_ME,
+            # usage_planned=row.REPLACE_ME,
+
+        )
+        session.add(channel)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.normschacht -> QGEP.manhole")
+    for row in session.query(ABWASSER.normschacht):
+        # AVAILABLE FIELDS IN ABWASSER.normschacht
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwasserbauwerk ---
+        # akten, astatus, baujahr, baulicherzustand, baulos, bemerkung, betreiberref, bezeichnung, bruttokosten, detailgeometrie, eigentuemerref, ersatzjahr, finanzierung, inspektionsintervall, sanierungsbedarf, standortname, subventionen, wbw_basisjahr, wbw_bauart, wiederbeschaffungswert, zugaenglichkeit
+
+        # --- normschacht ---
+        # dimension1, dimension2, funktion, material, oberflaechenzulauf, t_id
+
+        # --- _relations_ ---
+        # betreiberref_REL, eigentuemerref_REL
+
+        manhole = QGEP.manhole(
+            # FIELDS TO MAP TO QGEP.manhole
+            # --- wastewater_structure ---
+            # _bottom_label=row.REPLACE_ME,
+            # _cover_label=row.REPLACE_ME,
+            # _depth=row.REPLACE_ME,
+            # _function_hierarchic=row.REPLACE_ME,
+            # _input_label=row.REPLACE_ME,
+            # _label=row.REPLACE_ME,
+            # _output_label=row.REPLACE_ME,
+            # _usage_current=row.REPLACE_ME,
+            # accessibility=row.REPLACE_ME,
+            # contract_section=row.REPLACE_ME,
+            # detail_geometry_geometry=row.REPLACE_ME,
+            # financing=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_main_cover=row.REPLACE_ME,
+            # fk_main_wastewater_node=row.REPLACE_ME,
+            # fk_operator=row.REPLACE_ME,
+            # fk_owner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # gross_costs=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # inspection_interval=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # location_name=row.REPLACE_ME,
+            # records=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_necessity=row.REPLACE_ME,
+            # replacement_value=row.REPLACE_ME,
+            # rv_base_year=row.REPLACE_ME,
+            # rv_construction_type=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # structure_condition=row.REPLACE_ME,
+            # subsidies=row.REPLACE_ME,
+            # year_of_construction=row.REPLACE_ME,
+            # year_of_replacement=row.REPLACE_ME,
+
+            # --- manhole ---
+            # _orientation=row.REPLACE_ME,
+            # dimension1=row.REPLACE_ME,
+            # dimension2=row.REPLACE_ME,
+            # function=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # surface_inflow=row.REPLACE_ME,
+
+        )
+        session.add(manhole)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.einleitstelle -> QGEP.discharge_point")
+    for row in session.query(ABWASSER.einleitstelle):
+        # AVAILABLE FIELDS IN ABWASSER.einleitstelle
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwasserbauwerk ---
+        # akten, astatus, baujahr, baulicherzustand, baulos, bemerkung, betreiberref, bezeichnung, bruttokosten, detailgeometrie, eigentuemerref, ersatzjahr, finanzierung, inspektionsintervall, sanierungsbedarf, standortname, subventionen, wbw_basisjahr, wbw_bauart, wiederbeschaffungswert, zugaenglichkeit
+
+        # --- einleitstelle ---
+        # hochwasserkote, relevanz, t_id, terrainkote, wasserspiegel_hydraulik
+
+        # --- _relations_ ---
+        # betreiberref_REL, eigentuemerref_REL
+
+        discharge_point = QGEP.discharge_point(
+            # FIELDS TO MAP TO QGEP.discharge_point
+            # --- wastewater_structure ---
+            # _bottom_label=row.REPLACE_ME,
+            # _cover_label=row.REPLACE_ME,
+            # _depth=row.REPLACE_ME,
+            # _function_hierarchic=row.REPLACE_ME,
+            # _input_label=row.REPLACE_ME,
+            # _label=row.REPLACE_ME,
+            # _output_label=row.REPLACE_ME,
+            # _usage_current=row.REPLACE_ME,
+            # accessibility=row.REPLACE_ME,
+            # contract_section=row.REPLACE_ME,
+            # detail_geometry_geometry=row.REPLACE_ME,
+            # financing=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_main_cover=row.REPLACE_ME,
+            # fk_main_wastewater_node=row.REPLACE_ME,
+            # fk_operator=row.REPLACE_ME,
+            # fk_owner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # gross_costs=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # inspection_interval=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # location_name=row.REPLACE_ME,
+            # records=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_necessity=row.REPLACE_ME,
+            # replacement_value=row.REPLACE_ME,
+            # rv_base_year=row.REPLACE_ME,
+            # rv_construction_type=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # structure_condition=row.REPLACE_ME,
+            # subsidies=row.REPLACE_ME,
+            # year_of_construction=row.REPLACE_ME,
+            # year_of_replacement=row.REPLACE_ME,
+
+            # --- discharge_point ---
+            # fk_sector_water_body=row.REPLACE_ME,
+            # highwater_level=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # relevance=row.REPLACE_ME,
+            # terrain_level=row.REPLACE_ME,
+            # upper_elevation=row.REPLACE_ME,
+            # waterlevel_hydraulic=row.REPLACE_ME,
+
+        )
+        session.add(discharge_point)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.spezialbauwerk -> QGEP.special_structure")
+    for row in session.query(ABWASSER.spezialbauwerk):
+        # AVAILABLE FIELDS IN ABWASSER.spezialbauwerk
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwasserbauwerk ---
+        # akten, astatus, baujahr, baulicherzustand, baulos, bemerkung, betreiberref, bezeichnung, bruttokosten, detailgeometrie, eigentuemerref, ersatzjahr, finanzierung, inspektionsintervall, sanierungsbedarf, standortname, subventionen, wbw_basisjahr, wbw_bauart, wiederbeschaffungswert, zugaenglichkeit
+
+        # --- spezialbauwerk ---
+        # bypass, funktion, notueberlauf, regenbecken_anordnung, t_id
+
+        # --- _relations_ ---
+        # betreiberref_REL, eigentuemerref_REL
+
+        special_structure = QGEP.special_structure(
+            # FIELDS TO MAP TO QGEP.special_structure
+            # --- wastewater_structure ---
+            # _bottom_label=row.REPLACE_ME,
+            # _cover_label=row.REPLACE_ME,
+            # _depth=row.REPLACE_ME,
+            # _function_hierarchic=row.REPLACE_ME,
+            # _input_label=row.REPLACE_ME,
+            # _label=row.REPLACE_ME,
+            # _output_label=row.REPLACE_ME,
+            # _usage_current=row.REPLACE_ME,
+            # accessibility=row.REPLACE_ME,
+            # contract_section=row.REPLACE_ME,
+            # detail_geometry_geometry=row.REPLACE_ME,
+            # financing=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_main_cover=row.REPLACE_ME,
+            # fk_main_wastewater_node=row.REPLACE_ME,
+            # fk_operator=row.REPLACE_ME,
+            # fk_owner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # gross_costs=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # inspection_interval=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # location_name=row.REPLACE_ME,
+            # records=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_necessity=row.REPLACE_ME,
+            # replacement_value=row.REPLACE_ME,
+            # rv_base_year=row.REPLACE_ME,
+            # rv_construction_type=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # structure_condition=row.REPLACE_ME,
+            # subsidies=row.REPLACE_ME,
+            # year_of_construction=row.REPLACE_ME,
+            # year_of_replacement=row.REPLACE_ME,
+
+            # --- special_structure ---
+            # bypass=row.REPLACE_ME,
+            # emergency_spillway=row.REPLACE_ME,
+            # function=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # stormwater_tank_arrangement=row.REPLACE_ME,
+            # upper_elevation=row.REPLACE_ME,
+
+        )
+        session.add(special_structure)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.versickerungsanlage -> QGEP.infiltration_installation")
+    for row in session.query(ABWASSER.versickerungsanlage):
+        # AVAILABLE FIELDS IN ABWASSER.versickerungsanlage
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwasserbauwerk ---
+        # akten, astatus, baujahr, baulicherzustand, baulos, bemerkung, betreiberref, bezeichnung, bruttokosten, detailgeometrie, eigentuemerref, ersatzjahr, finanzierung, inspektionsintervall, sanierungsbedarf, standortname, subventionen, wbw_basisjahr, wbw_bauart, wiederbeschaffungswert, zugaenglichkeit
+
+        # --- versickerungsanlage ---
+        # art, beschriftung, dimension1, dimension2, gwdistanz, maengel, notueberlauf, saugwagen, schluckvermoegen, t_id, versickerungswasser, wasserdichtheit, wirksameflaeche
+
+        # --- _relations_ ---
+        # betreiberref_REL, eigentuemerref_REL
+
+        infiltration_installation = QGEP.infiltration_installation(
+            # FIELDS TO MAP TO QGEP.infiltration_installation
+            # --- wastewater_structure ---
+            # _bottom_label=row.REPLACE_ME,
+            # _cover_label=row.REPLACE_ME,
+            # _depth=row.REPLACE_ME,
+            # _function_hierarchic=row.REPLACE_ME,
+            # _input_label=row.REPLACE_ME,
+            # _label=row.REPLACE_ME,
+            # _output_label=row.REPLACE_ME,
+            # _usage_current=row.REPLACE_ME,
+            # accessibility=row.REPLACE_ME,
+            # contract_section=row.REPLACE_ME,
+            # detail_geometry_geometry=row.REPLACE_ME,
+            # financing=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_main_cover=row.REPLACE_ME,
+            # fk_main_wastewater_node=row.REPLACE_ME,
+            # fk_operator=row.REPLACE_ME,
+            # fk_owner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # gross_costs=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # inspection_interval=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # location_name=row.REPLACE_ME,
+            # records=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_necessity=row.REPLACE_ME,
+            # replacement_value=row.REPLACE_ME,
+            # rv_base_year=row.REPLACE_ME,
+            # rv_construction_type=row.REPLACE_ME,
+            # status=row.REPLACE_ME,
+            # structure_condition=row.REPLACE_ME,
+            # subsidies=row.REPLACE_ME,
+            # year_of_construction=row.REPLACE_ME,
+            # year_of_replacement=row.REPLACE_ME,
+
+            # --- infiltration_installation ---
+            # absorption_capacity=row.REPLACE_ME,
+            # defects=row.REPLACE_ME,
+            # dimension1=row.REPLACE_ME,
+            # dimension2=row.REPLACE_ME,
+            # distance_to_aquifer=row.REPLACE_ME,
+            # effective_area=row.REPLACE_ME,
+            # emergency_spillway=row.REPLACE_ME,
+            # fk_aquifier=row.REPLACE_ME,
+            # kind=row.REPLACE_ME,
+            # labeling=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # seepage_utilization=row.REPLACE_ME,
+            # upper_elevation=row.REPLACE_ME,
+            # vehicle_access=row.REPLACE_ME,
+            # watertightness=row.REPLACE_ME,
+
+        )
+        session.add(infiltration_installation)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.rohrprofil -> QGEP.pipe_profile")
+    for row in session.query(ABWASSER.rohrprofil):
+        # AVAILABLE FIELDS IN ABWASSER.rohrprofil
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- rohrprofil ---
+        # bemerkung, bezeichnung, hoehenbreitenverhaeltnis, profiltyp, t_id
+
+        pipe_profile = QGEP.pipe_profile(
+            # FIELDS TO MAP TO QGEP.pipe_profile
+            # --- pipe_profile ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # height_width_ratio=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # profile_type=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+
+        )
+        session.add(pipe_profile)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.haltungspunkt -> QGEP.reach_point")
+    for row in session.query(ABWASSER.haltungspunkt):
+        # AVAILABLE FIELDS IN ABWASSER.haltungspunkt
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- haltungspunkt ---
+        # abwassernetzelementref, auslaufform, bemerkung, bezeichnung, hoehengenauigkeit, kote, lage, lage_anschluss, t_id
+
+        # --- _relations_ ---
+        # abwassernetzelementref_REL
+
+        reach_point = QGEP.reach_point(
+            # FIELDS TO MAP TO QGEP.reach_point
+            # --- reach_point ---
+            # elevation_accuracy=row.REPLACE_ME,
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_networkelement=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # level=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # outlet_shape=row.REPLACE_ME,
+            # position_of_connection=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # situation_geometry=row.REPLACE_ME,
+
+        )
+        session.add(reach_point)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.abwasserknoten -> QGEP.wastewater_node")
+    for row in session.query(ABWASSER.abwasserknoten):
+        # AVAILABLE FIELDS IN ABWASSER.abwasserknoten
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwassernetzelement ---
+        # abwasserbauwerkref, bemerkung, bezeichnung
+
+        # --- abwasserknoten ---
+        # lage, rueckstaukote, sohlenkote, t_id
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        wastewater_node = QGEP.wastewater_node(
+            # FIELDS TO MAP TO QGEP.wastewater_node
+            # --- wastewater_networkelement ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+
+            # --- wastewater_node ---
+            # backflow_level=row.REPLACE_ME,
+            # bottom_level=row.REPLACE_ME,
+            # fk_hydr_geometry=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # situation_geometry=row.REPLACE_ME,
+
+        )
+        session.add(wastewater_node)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.haltung -> QGEP.reach")
+    for row in session.query(ABWASSER.haltung):
+        # AVAILABLE FIELDS IN ABWASSER.haltung
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- abwassernetzelement ---
+        # abwasserbauwerkref, bemerkung, bezeichnung
+
+        # --- haltung ---
+        # innenschutz, laengeeffektiv, lagebestimmung, lichte_hoehe, material, nachhaltungspunktref, plangefaelle, reibungsbeiwert, reliner_art, reliner_bautechnik, reliner_material, reliner_nennweite, ringsteifigkeit, rohrprofilref, t_id, verlauf, vonhaltungspunktref, wandrauhigkeit
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL, nachhaltungspunktref_REL, rohrprofilref_REL, vonhaltungspunktref_REL
+
+        reach = QGEP.reach(
+            # FIELDS TO MAP TO QGEP.reach
+            # --- wastewater_networkelement ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+
+            # --- reach ---
+            # clear_height=row.REPLACE_ME,
+            # coefficient_of_friction=row.REPLACE_ME,
+            # elevation_determination=row.REPLACE_ME,
+            # fk_pipe_profile=row.REPLACE_ME,
+            # fk_reach_point_from=row.REPLACE_ME,
+            # fk_reach_point_to=row.REPLACE_ME,
+            # horizontal_positioning=row.REPLACE_ME,
+            # inside_coating=row.REPLACE_ME,
+            # length_effective=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # progression_geometry=row.REPLACE_ME,
+            # reliner_material=row.REPLACE_ME,
+            # reliner_nominal_size=row.REPLACE_ME,
+            # relining_construction=row.REPLACE_ME,
+            # relining_kind=row.REPLACE_ME,
+            # ring_stiffness=row.REPLACE_ME,
+            # slope_building_plan=row.REPLACE_ME,
+            # wall_roughness=row.REPLACE_ME,
+
+        )
+        session.add(reach)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.trockenwetterfallrohr -> QGEP.dryweather_downspout")
+    for row in session.query(ABWASSER.trockenwetterfallrohr):
+        # AVAILABLE FIELDS IN ABWASSER.trockenwetterfallrohr
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- bauwerksteil ---
+        # abwasserbauwerkref, bemerkung, bezeichnung, instandstellung
+
+        # --- trockenwetterfallrohr ---
+        # durchmesser, t_id
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        dryweather_downspout = QGEP.dryweather_downspout(
+            # FIELDS TO MAP TO QGEP.dryweather_downspout
+            # --- structure_part ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_demand=row.REPLACE_ME,
+
+            # --- dryweather_downspout ---
+            # diameter=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(dryweather_downspout)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.einstiegshilfe -> QGEP.access_aid")
+    for row in session.query(ABWASSER.einstiegshilfe):
+        # AVAILABLE FIELDS IN ABWASSER.einstiegshilfe
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- bauwerksteil ---
+        # abwasserbauwerkref, bemerkung, bezeichnung, instandstellung
+
+        # --- einstiegshilfe ---
+        # art, t_id
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        access_aid = QGEP.access_aid(
+            # FIELDS TO MAP TO QGEP.access_aid
+            # --- structure_part ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_demand=row.REPLACE_ME,
+
+            # --- access_aid ---
+            # kind=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(access_aid)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.trockenwetterrinne -> QGEP.dryweather_flume")
+    for row in session.query(ABWASSER.trockenwetterrinne):
+        # AVAILABLE FIELDS IN ABWASSER.trockenwetterrinne
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- bauwerksteil ---
+        # abwasserbauwerkref, bemerkung, bezeichnung, instandstellung
+
+        # --- trockenwetterrinne ---
+        # material, t_id
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        dryweather_flume = QGEP.dryweather_flume(
+            # FIELDS TO MAP TO QGEP.dryweather_flume
+            # --- structure_part ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_demand=row.REPLACE_ME,
+
+            # --- dryweather_flume ---
+            # material=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(dryweather_flume)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.deckel -> QGEP.cover")
+    for row in session.query(ABWASSER.deckel):
+        # AVAILABLE FIELDS IN ABWASSER.deckel
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- bauwerksteil ---
+        # abwasserbauwerkref, bemerkung, bezeichnung, instandstellung
+
+        # --- deckel ---
+        # deckelform, durchmesser, entlueftung, fabrikat, kote, lage, lagegenauigkeit, material, schlammeimer, t_id, verschluss
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        cover = QGEP.cover(
+            # FIELDS TO MAP TO QGEP.cover
+            # --- structure_part ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_demand=row.REPLACE_ME,
+
+            # --- cover ---
+            # brand=row.REPLACE_ME,
+            # cover_shape=row.REPLACE_ME,
+            # diameter=row.REPLACE_ME,
+            # fastening=row.REPLACE_ME,
+            # level=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+            # positional_accuracy=row.REPLACE_ME,
+            # situation_geometry=row.REPLACE_ME,
+            # sludge_bucket=row.REPLACE_ME,
+            # venting=row.REPLACE_ME,
+
+        )
+        session.add(cover)
+        print(".", end="")
+    print("done")
+    session.commit()
+
+    print("Importing ABWASSER.bankett -> QGEP.benching")
+    for row in session.query(ABWASSER.bankett):
+        # AVAILABLE FIELDS IN ABWASSER.bankett
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- bauwerksteil ---
+        # abwasserbauwerkref, bemerkung, bezeichnung, instandstellung
+
+        # --- bankett ---
+        # art, t_id
+
+        # --- _relations_ ---
+        # abwasserbauwerkref_REL
+
+        benching = QGEP.benching(
+            # FIELDS TO MAP TO QGEP.benching
+            # --- structure_part ---
+            # fk_dataowner=row.REPLACE_ME,
+            # fk_provider=row.REPLACE_ME,
+            # fk_wastewater_structure=row.REPLACE_ME,
+            # identifier=row.REPLACE_ME,
+            # last_modification=row.REPLACE_ME,
+            # remark=row.REPLACE_ME,
+            # renovation_demand=row.REPLACE_ME,
+
+            # --- benching ---
+            # kind=row.REPLACE_ME,
+            # obj_id=row.REPLACE_ME,
+
+        )
+        session.add(benching)
+        print(".", end="")
+    print("done")
+    session.commit()
