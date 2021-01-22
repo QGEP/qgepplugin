@@ -19,14 +19,13 @@ def exec_(command, check=True):
         return subprocess.call(command)
 
 
-def setup_test_db():
+def setup_test_db(keep_only_subset=False):
 
     print("SETTING UP QGEP/QWAT DATABASE...")
     r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False)
     if r == 0:
         print("Already running")
         return
-
 
     exec_(f'docker run -d --rm -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis')
     exec_('docker exec qgepqwat apt-get update')
@@ -42,24 +41,25 @@ def setup_test_db():
     exec_(r'docker cp C:\Users\Olivier\Code\QWAT\data-model\update\delta\delta_1.3.6_add_vl_for_SIA_export.sql qgepqwat:/delta_1.3.6_add_vl_for_SIA_export.sql')
     exec_(f'docker exec qgepqwat psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
 
-    # delete rows outside of some extent (to make dataset smaller)
-    print("CONNECTING TO DATABASE...")
-    connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
-    connection.set_session(autocommit=True)
-    cursor = connection.cursor()
-    for schema in ['qgep_od', 'qwat_od']:
-        cursor.execute("SELECT qgep_sys.drop_symbology_triggers();")
-        cursor.execute(f"""SELECT c.table_name, c.column_name
-                           FROM information_schema.columns c
-                           JOIN information_schema.tables t ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
-                           JOIN pg_type typ ON c.udt_name = typ.typname
-                           WHERE c.table_schema = '{schema}' AND typname = 'geometry';""")
-        for row in cursor.fetchall():
-            table, column = row
-            print(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
-            print(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
-            # cursor.execute(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
-        cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
+    if keep_only_subset:
+        # delete rows outside of some extent (to make dataset smaller)
+        print("CONNECTING TO DATABASE...")
+        connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
+        connection.set_session(autocommit=True)
+        cursor = connection.cursor()
+        for schema in ['qgep_od', 'qwat_od']:
+            cursor.execute("SELECT qgep_sys.drop_symbology_triggers();")
+            cursor.execute(f"""SELECT c.table_name, c.column_name
+                            FROM information_schema.columns c
+                            JOIN information_schema.tables t ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
+                            JOIN pg_type typ ON c.udt_name = typ.typname
+                            WHERE c.table_schema = '{schema}' AND typname = 'geometry';""")
+            for row in cursor.fetchall():
+                table, column = row
+                print(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
+                print(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
+                # cursor.execute(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
+            cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
 
 
 def create_ili_schema(schema, model, force_recreate=False):
