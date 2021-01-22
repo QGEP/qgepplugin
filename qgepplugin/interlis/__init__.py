@@ -8,8 +8,10 @@ from . import config
 def main(args):
     parser = argparse.ArgumentParser(description='ili2QWAT / ili2QGEP prototype entrypoint')
     parser.add_argument('model', choices=['qgep', 'qwat'])
-    parser.add_argument('direction', choices=['export', 'import'])
-    parser.add_argument('xtf_file')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--import_xtf')
+    group.add_argument('--export_xtf')
+    group.add_argument('--gen_tpl', action='store_true')
     parser.add_argument('--force_recreate', action='store_true', help='Drops and recreate the ili2pg schemas if already existing')
     args = parser.parse_args(args)
 
@@ -19,23 +21,29 @@ def main(args):
     if args.model == 'qgep':
         utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, force_recreate=args.force_recreate)
         from . import qgep
-        from . import qgep_generator
-        qgep_generator.generate()
-        if args.direction == 'export':
+        if args.export_xtf:
             qgep.export()
-            utils.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.xtf_file)
-        elif args.direction == 'import':
-            utils.import_xtf_data(config.ABWASSER_SCHEMA, args.xtf_file)
+            utils.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.export_xtf)
+        elif args.import_xtf:
+            utils.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
             # qgep.import_()
+        elif args.gen_tpl:
+            from .datamodels.mapping import QGEP_TO_ABWASSER
+            from .datamodels.qgep import Classes as QGEP
+            from .datamodels.abwasser2015 import Classes as ABWASSER
+            utils.generate_template("qgep", "abwasser", QGEP, ABWASSER, QGEP_TO_ABWASSER)
 
     elif args.model == 'qwat':
         utils.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, force_recreate=args.force_recreate)
         from . import qwat
-        from . import qwat_generator
-        qwat_generator.generate()
-        if args.direction == 'export':
+        if args.export_xtf:
             qwat.export()
-            utils.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.xtf_file)
-        elif args.direction == 'import':
-            utils.import_xtf_data(config.WASSER_SCHEMA, args.xtf_file)
+            utils.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.export_xtf)
+        elif args.import_xtf:
+            utils.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
             # qwat.import_()
+        elif args.gen_tpl:
+            from .datamodels.mapping import QWAT_TO_WASSER
+            from .datamodels.qwat import Classes as QWAT
+            from .datamodels.wasser2015 import Classes as WASSER
+            utils.generate_template("qwat", "wasser", QWAT, WASSER, QWAT_TO_WASSER)

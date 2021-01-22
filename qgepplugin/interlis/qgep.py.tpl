@@ -1,3 +1,16 @@
+from sqlalchemy.orm import Session
+from geoalchemy2.functions import ST_Transform, ST_Force2D
+
+from .datamodels.qgep import Classes as QGEP
+from .datamodels.abwasser import Classes as ABWASSER
+
+
+###############################################
+# Export                                      #
+###############################################
+
+def export():
+
     print("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in session.query(QGEP.organisation):
         # AVAILABLE FIELDS IN QGEP.organisation
@@ -10,17 +23,16 @@
 
         organisation = ABWASSER.organisation(
             # FIELDS TO MAP TO ABWASSER.organisation
-
             # --- organisation ---
             # auid=row.REPLACE_ME,
             # bemerkung=row.REPLACE_ME,
             # bezeichnung=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(organisation)
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -35,6 +47,7 @@
             # sia405_baseclass_metaattribute=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # t_seq=row.REPLACE_ME,
+
         )
         session.add(metaattribute)
         print(".", end="")
@@ -52,11 +65,10 @@
         # bedding_encasement, connection_type, function_hierarchic, function_hydraulic, jetting_interval, obj_id, pipe_length, usage_current, usage_planned
 
         # --- _relations_ ---
-        # accessibility_REL, bedding_encasement_REL, connection_type_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_hierarchic_REL, function_hydraulic_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, usage_current_REL, usage_planned_REL
+        # accessibility_REL, bedding_encasement_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, connection_type_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_hierarchic_REL, function_hydraulic_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, usage_current_REL, usage_planned_REL
 
         kanal = ABWASSER.kanal(
             # FIELDS TO MAP TO ABWASSER.kanal
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -97,6 +109,7 @@
             # spuelintervall=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbindungsart=row.REPLACE_ME,
+
         )
         session.add(kanal)
         print(".", end="")
@@ -114,11 +127,10 @@
         # _orientation, dimension1, dimension2, function, material, obj_id, surface_inflow
 
         # --- _relations_ ---
-        # accessibility_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, material_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, surface_inflow_REL
+        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, material_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL, surface_inflow_REL
 
         normschacht = ABWASSER.normschacht(
             # FIELDS TO MAP TO ABWASSER.normschacht
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -156,6 +168,7 @@
             # material=row.REPLACE_ME,
             # oberflaechenzulauf=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(normschacht)
         print(".", end="")
@@ -173,11 +186,10 @@
         # fk_sector_water_body, highwater_level, obj_id, relevance, terrain_level, upper_elevation, waterlevel_hydraulic
 
         # --- _relations_ ---
-        # accessibility_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, fk_sector_water_body_REL, relevance_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL
+        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, fk_sector_water_body_REL, relevance_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, structure_condition_REL
 
         einleitstelle = ABWASSER.einleitstelle(
             # FIELDS TO MAP TO ABWASSER.einleitstelle
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -214,6 +226,7 @@
             # t_id=row.REPLACE_ME,
             # terrainkote=row.REPLACE_ME,
             # wasserspiegel_hydraulik=row.REPLACE_ME,
+
         )
         session.add(einleitstelle)
         print(".", end="")
@@ -231,11 +244,10 @@
         # bypass, emergency_spillway, function, obj_id, stormwater_tank_arrangement, upper_elevation
 
         # --- _relations_ ---
-        # accessibility_REL, bypass_REL, emergency_spillway_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, stormwater_tank_arrangement_REL, structure_condition_REL
+        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, bypass_REL, emergency_spillway_REL, financing_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, function_REL, renovation_necessity_REL, rv_construction_type_REL, status_REL, stormwater_tank_arrangement_REL, structure_condition_REL
 
         spezialbauwerk = ABWASSER.spezialbauwerk(
             # FIELDS TO MAP TO ABWASSER.spezialbauwerk
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -272,6 +284,7 @@
             # notueberlauf=row.REPLACE_ME,
             # regenbecken_anordnung=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(spezialbauwerk)
         print(".", end="")
@@ -289,11 +302,10 @@
         # absorption_capacity, defects, dimension1, dimension2, distance_to_aquifer, effective_area, emergency_spillway, fk_aquifier, kind, labeling, obj_id, seepage_utilization, upper_elevation, vehicle_access, watertightness
 
         # --- _relations_ ---
-        # accessibility_REL, defects_REL, emergency_spillway_REL, financing_REL, fk_aquifier_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, kind_REL, labeling_REL, renovation_necessity_REL, rv_construction_type_REL, seepage_utilization_REL, status_REL, structure_condition_REL, vehicle_access_REL, watertightness_REL
+        # accessibility_REL, BWREL_oorel_od_wwtp_structure_wastewater_structure, defects_REL, emergency_spillway_REL, financing_REL, fk_aquifier_REL, fk_dataowner_REL, fk_main_cover_REL, fk_main_wastewater_node_REL, fk_operator_REL, fk_owner_REL, fk_provider_REL, kind_REL, labeling_REL, renovation_necessity_REL, rv_construction_type_REL, seepage_utilization_REL, status_REL, structure_condition_REL, vehicle_access_REL, watertightness_REL
 
         versickerungsanlage = ABWASSER.versickerungsanlage(
             # FIELDS TO MAP TO ABWASSER.versickerungsanlage
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -338,6 +350,7 @@
             # versickerungswasser=row.REPLACE_ME,
             # wasserdichtheit=row.REPLACE_ME,
             # wirksameflaeche=row.REPLACE_ME,
+
         )
         session.add(versickerungsanlage)
         print(".", end="")
@@ -356,7 +369,6 @@
 
         rohrprofil = ABWASSER.rohrprofil(
             # FIELDS TO MAP TO ABWASSER.rohrprofil
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -370,6 +382,7 @@
             # hoehenbreitenverhaeltnis=row.REPLACE_ME,
             # profiltyp=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(rohrprofil)
         print(".", end="")
@@ -388,7 +401,6 @@
 
         haltungspunkt = ABWASSER.haltungspunkt(
             # FIELDS TO MAP TO ABWASSER.haltungspunkt
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -406,6 +418,7 @@
             # lage=row.REPLACE_ME,
             # lage_anschluss=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(haltungspunkt)
         print(".", end="")
@@ -427,7 +440,6 @@
 
         abwasserknoten = ABWASSER.abwasserknoten(
             # FIELDS TO MAP TO ABWASSER.abwasserknoten
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -445,6 +457,7 @@
             # rueckstaukote=row.REPLACE_ME,
             # sohlenkote=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(abwasserknoten)
         print(".", end="")
@@ -466,7 +479,6 @@
 
         haltung = ABWASSER.haltung(
             # FIELDS TO MAP TO ABWASSER.haltung
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -498,6 +510,7 @@
             # verlauf=row.REPLACE_ME,
             # vonhaltungspunktref=row.REPLACE_ME,
             # wandrauhigkeit=row.REPLACE_ME,
+
         )
         session.add(haltung)
         print(".", end="")
@@ -515,11 +528,10 @@
         # diameter, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, renovation_demand_REL
 
         trockenwetterfallrohr = ABWASSER.trockenwetterfallrohr(
             # FIELDS TO MAP TO ABWASSER.trockenwetterfallrohr
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -536,6 +548,7 @@
             # --- trockenwetterfallrohr ---
             # durchmesser=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(trockenwetterfallrohr)
         print(".", end="")
@@ -553,11 +566,10 @@
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         einstiegshilfe = ABWASSER.einstiegshilfe(
             # FIELDS TO MAP TO ABWASSER.einstiegshilfe
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -574,6 +586,7 @@
             # --- einstiegshilfe ---
             # art=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(einstiegshilfe)
         print(".", end="")
@@ -591,11 +604,10 @@
         # material, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, renovation_demand_REL
 
         trockenwetterrinne = ABWASSER.trockenwetterrinne(
             # FIELDS TO MAP TO ABWASSER.trockenwetterrinne
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -612,6 +624,7 @@
             # --- trockenwetterrinne ---
             # material=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(trockenwetterrinne)
         print(".", end="")
@@ -629,11 +642,10 @@
         # brand, cover_shape, diameter, fastening, level, material, obj_id, positional_accuracy, situation_geometry, sludge_bucket, venting
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, cover_shape_REL, fastening_REL, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, material_REL, positional_accuracy_REL, renovation_demand_REL, sludge_bucket_REL, venting_REL
 
         deckel = ABWASSER.deckel(
             # FIELDS TO MAP TO ABWASSER.deckel
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -659,6 +671,7 @@
             # schlammeimer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verschluss=row.REPLACE_ME,
+
         )
         session.add(deckel)
         print(".", end="")
@@ -676,11 +689,10 @@
         # kind, obj_id
 
         # --- _relations_ ---
-        # BWREL_oorel_od_access_aid_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
+        # BWREL_oorel_od_dryweather_flume_structure_part, fk_dataowner_REL, fk_provider_REL, fk_wastewater_structure_REL, kind_REL, renovation_demand_REL
 
         bankett = ABWASSER.bankett(
             # FIELDS TO MAP TO ABWASSER.bankett
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -697,9 +709,18 @@
             # --- bankett ---
             # art=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
+
         )
         session.add(bankett)
         print(".", end="")
     print("done")
     session.commit()
 
+
+
+###############################################
+# Import
+###############################################
+
+def import_():
+    pass

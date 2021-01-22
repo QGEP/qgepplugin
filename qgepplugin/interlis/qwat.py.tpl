@@ -1,3 +1,16 @@
+from sqlalchemy.orm import Session
+from geoalchemy2.functions import ST_Transform, ST_Force2D
+
+from .datamodels.qwat import Classes as QWAT
+from .datamodels.wasser import Classes as WASSER
+
+
+###############################################
+# Export                                      #
+###############################################
+
+def export():
+
     print("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
     for row in session.query(QWAT.node):
         # AVAILABLE FIELDS IN QWAT.node
@@ -10,7 +23,6 @@
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -26,10 +38,12 @@
             # name_nummer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.hydrant -> WASSER.hydraulischer_knoten, WASSER.hydrant")
     for row in session.query(QWAT.hydrant):
@@ -49,7 +63,6 @@
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -65,11 +78,11 @@
             # name_nummer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         hydrant = WASSER.hydrant(
             # FIELDS TO MAP TO WASSER.hydrant
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -101,10 +114,12 @@
             # typ=row.REPLACE_ME,
             # versorgungsdruck=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(hydrant)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.tank -> WASSER.hydraulischer_knoten, WASSER.wasserbehaelter")
     for row in session.query(QWAT.tank):
@@ -127,7 +142,6 @@
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -143,11 +157,11 @@
             # name_nummer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         wasserbehaelter = WASSER.wasserbehaelter(
             # FIELDS TO MAP TO WASSER.wasserbehaelter
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -179,10 +193,12 @@
             # t_id=row.REPLACE_ME,
             # ueberlaufhoehe=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(wasserbehaelter)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.pump -> WASSER.hydraulischer_knoten, WASSER.foerderanlage")
     for row in session.query(QWAT.pump):
@@ -205,7 +221,6 @@
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -221,11 +236,11 @@
             # name_nummer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_knoten)
         foerderanlage = WASSER.foerderanlage(
             # FIELDS TO MAP TO WASSER.foerderanlage
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -251,10 +266,12 @@
             # name_nummer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(foerderanlage)
         print(".", end="")
     print("done")
+    session.commit()
 
     print("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
     for row in session.query(QWAT.pipe):
@@ -268,7 +285,6 @@
 
         hydraulischer_strang = WASSER.hydraulischer_strang(
             # FIELDS TO MAP TO WASSER.hydraulischer_strang
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -289,11 +305,11 @@
             # verbrauch=row.REPLACE_ME,
             # vonknotenref=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(hydraulischer_strang)
         leitung = WASSER.leitung(
             # FIELDS TO MAP TO WASSER.leitung
-
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -337,8 +353,18 @@
             # wasserqualitaet=row.REPLACE_ME,
             # zulaessiger_bauteil_betriebsdruck=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
+
         )
         session.add(leitung)
         print(".", end="")
     print("done")
+    session.commit()
 
+
+
+###############################################
+# Import
+###############################################
+
+def import_():
+    pass

@@ -4,6 +4,9 @@ import subprocess
 import collections
 
 import sqlalchemy
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.ext.automap import AutomapBase, automap_base, name_for_collection_relationship, name_for_scalar_relationship, generate_relationship
 
 from . import config
@@ -72,18 +75,18 @@ def create_ili_schema(schema, model, force_recreate=False):
         # If the schema already exists, we just truncate all tables
         cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
         if cursor.rowcount > 0:
-            print("Already created, we truncate instead")
+            print(f"Schema {schema} already exists, we truncate instead")
             cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
             for row in cursor.fetchall():
                 cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
             return
 
-    print("CREATING THE SCHEMA...")
+    print(f"CREATING THE SCHEMA {schema}...")
     cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
     cursor.execute(f"CREATE SCHEMA {schema};")
     connection.commit()
 
-    print("CREATE ILIDB...")
+    print(f"ILIDB SCHEMAIMPORT INTO {schema}...")
     # if "_f-" in model:
     #     lang = f'fr'
     # else:
@@ -141,6 +144,56 @@ def custom_generate_relationship(base, direction, return_fn, attrname, local_cls
 
 def capfirst(s):
     return s[0].upper()+s[1:]
+
+def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
+
+
+    def filter_classfields(cls):
+        available_fields = collections.defaultdict(list)
+        for attr_name, attr in list(cls.__dict__.items()):
+            # if attr_name.startswith('__'):
+            #     continue
+            if not isinstance(attr, InstrumentedAttribute):
+                continue
+            if not hasattr(attr.property, "columns"):
+                key = "_relations_"
+            else:
+                key = attr.property.columns[0].table.name
+            available_fields[key].append(attr_name)
+        ordered_tables = ["_relations_"]+list(c.__table__.name for c in cls.__mro__ if hasattr(c, '__table__'))
+        return sorted(available_fields.items(), key=lambda i: ordered_tables.index(i[0]), reverse=True)
+
+    def filter_classesnames(classes):
+        return ', '.join(f"{ilimodel_name.upper()}.{c.__name__}" for c in classes)
+
+    env = Environment(
+        loader=FileSystemLoader(os.path.dirname(__file__)),
+        lstrip_blocks=True,
+        trim_blocks=True,
+    )
+
+    env.filters['classfields'] = filter_classfields
+    env.filters['classesnames'] = filter_classesnames
+
+    # Generate code stub for the import script
+    template = env.get_template('template_importexport.py.tpl')
+    result = template.render({
+        'mapping': mapping,
+        'model_name': model_name,
+        'ilimodel_name': ilimodel_name,
+    })
+    open(os.path.join(os.path.dirname(__file__), f'{model_name}.py.tpl'), 'w', newline='\n').write(result)
+
+    # Generate code stub for the mapping
+    template = env.get_template('template_mapping.py.tpl')
+    result = template.render({
+        'mapping': mapping,
+        'MODEL': MODEL,
+        'ILIMODEL': ILIMODEL,
+        'model_name': model_name,
+        'ilimodel_name': ilimodel_name,
+    })
+    open(os.path.join(os.path.dirname(__file__), 'datamodels', f'mapping.{model_name}.py.tpl'), 'w', newline='\n').write(result)
 
 class TidMaker:
     """
