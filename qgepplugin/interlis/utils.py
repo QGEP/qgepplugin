@@ -160,7 +160,7 @@ def validate_xtf_data(xtf_file):
 def import_xtf_data(schema, xtf_file):
     print("IMPORTING XTF DATA...")
     exec_(
-        f"java -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log debug-import.txt {xtf_file}"
+        f"java -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log debug-import.txt {xtf_file}"
     )
 
 
