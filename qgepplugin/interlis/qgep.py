@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from geoalchemy2.functions import ST_Transform, ST_Force2D
+import warnings
 
 from . import utils
 
@@ -11,63 +12,10 @@ from .datamodels.abwasser import Classes as ABWASSER
 # Export                                      #
 ###############################################
 
-# TODO : in QGEP's value lists, the codes are called VSACODE, aren't they somehow part of the ili file ? (didn't find them)
-# Sounds a bit crazy to hard-code all this here again !? It seems german names in the values list
-# don't exactly match the ones defined in ili (e.g. digitales_Video vs digitalesVideo). Should we
-# add a INTERLIS_DE column in the values lists ?
-
-
-
-MAPPING = {
-    'wastewater_structure': {
-        'accessibility': {
-            None: None,
-            3444: 'ueberdeckt',
-            3447: 'unbekannt',
-            3446: 'unzugaenglich',
-            3445: 'zugaenglich',
-        }
-    },
-    'manhole': {
-        'function': {
-            None: None,
-            4532: 'Absturzbauwerk',
-            5344: 'andere',
-            4533: 'Be_Entlueftung',
-            3267: 'Dachwasserschacht',
-            3266: 'Einlaufschacht',
-            3472: 'Entwaesserungsrinne',
-            228: 'Geleiseschacht',
-            204: 'Kontrollschacht',
-            1008: 'Oelabscheider',
-            4536: 'Pumpwerk',
-            5346: 'Regenueberlauf',
-            2742: 'Schlammsammler',
-            5347: 'Schwimmstoffabscheider',
-            4537: 'Spuelschacht',
-            4798: 'Trennbauwerk',
-            5345: 'unbekannt',
-        },
-    },
-    'file': {
-        'kind': {
-            3770: 'andere',
-            3772: 'Foto',
-            3773: 'Panoramofilm',
-            3774: 'Textdatei',
-            3775: 'Video',
-            3771: 'digitales_Video',
-        }
-    }
-}
-
 def export():
 
     session = Session(utils.create_engine())
     tid_maker = utils.TidMaker(id_attribute='obj_id')
-
-    # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
-
     def create_metaattributes(row, session):
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
@@ -81,6 +29,7 @@ def export():
         )
         session.add(metaattribute)
 
+    # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
 
     print("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in session.query(QGEP.organisation):
@@ -112,7 +61,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
     print("Exporting QGEP.channel -> ABWASSER.kanal")
     for row in session.query(QGEP.channel):
         # AVAILABLE FIELDS IN QGEP.channel
@@ -156,25 +105,24 @@ def export():
             # wbw_basisjahr=row.REPLACE_ME,
             # wbw_bauart=row.REPLACE_ME,
             # wiederbeschaffungswert=row.REPLACE_ME,
-            zugaenglichkeit=MAPPING['wastewater_structure']['accessibility'][row.accessibility],
+            zugaenglichkeit=row.accessibility_REL.value_de,
 
             # --- kanal ---
-            # bettung_umhuellung=row.REPLACE_ME,
+            bettung_umhuellung=row.bedding_encasement_REL.value_de,
             # funktionhierarchisch=row.REPLACE_ME,
             # funktionhydraulisch=row.REPLACE_ME,
-            # nutzungsart_geplant=row.REPLACE_ME,
-            # nutzungsart_ist=row.REPLACE_ME,
+            nutzungsart_geplant=row.usage_planned_REL.value_de,
+            nutzungsart_ist=row.usage_current_REL.value_de,
             # rohrlaenge=row.REPLACE_ME,
             # spuelintervall=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
             # verbindungsart=row.REPLACE_ME,
-
         )
         session.add(kanal)
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.manhole -> ABWASSER.normschacht")
     for row in session.query(QGEP.manhole):
@@ -234,7 +182,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle")
     for row in session.query(QGEP.discharge_point):
@@ -293,7 +241,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.special_structure -> ABWASSER.spezialbauwerk")
     for row in session.query(QGEP.special_structure):
@@ -352,7 +300,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.infiltration_installation -> ABWASSER.versickerungsanlage")
     for row in session.query(QGEP.infiltration_installation):
@@ -419,7 +367,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.pipe_profile -> ABWASSER.rohrprofil")
     for row in session.query(QGEP.pipe_profile):
@@ -452,7 +400,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.reach_point -> ABWASSER.haltungspunkt")
     for row in session.query(QGEP.reach_point):
@@ -489,7 +437,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.wastewater_node -> ABWASSER.abwasserknoten")
     for row in session.query(QGEP.wastewater_node):
@@ -529,7 +477,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.reach -> ABWASSER.haltung")
     for row in session.query(QGEP.reach):
@@ -583,7 +531,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.dryweather_downspout -> ABWASSER.trockenwetterfallrohr")
     for row in session.query(QGEP.dryweather_downspout):
@@ -622,7 +570,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.access_aid -> ABWASSER.einstiegshilfe")
     for row in session.query(QGEP.access_aid):
@@ -661,7 +609,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.dryweather_flume -> ABWASSER.trockenwetterrinne")
     for row in session.query(QGEP.dryweather_flume):
@@ -700,7 +648,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.cover -> ABWASSER.deckel")
     for row in session.query(QGEP.cover):
@@ -748,7 +696,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.benching -> ABWASSER.bankett")
     for row in session.query(QGEP.benching):
@@ -787,7 +735,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.examination -> ABWASSER.untersuchung")
     for row in session.query(QGEP.examination):
@@ -844,7 +792,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden")
     for row in session.query(QGEP.damage_manhole):
@@ -892,7 +840,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden")
     for row in session.query(QGEP.damage_channel):
@@ -939,7 +887,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.data_media -> ABWASSER.datentraeger")
     for row in session.query(QGEP.data_media):
@@ -973,7 +921,7 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Exporting QGEP.file -> ABWASSER.datei")
     for row in session.query(QGEP.file):
@@ -1009,6 +957,8 @@ def export():
         create_metaattributes(row, session)
         print(".", end="")
     print("done")
+    session.flush()
+
     session.commit()
 
 
@@ -1020,7 +970,33 @@ def export():
 def import_():
 
     session = Session(utils.create_engine(), autocommit=False, autoflush=False)
-    tid_maker = utils.TidMaker(id_attribute='obj_id')
+
+    # TODO : memoize (and get the whole table at once)
+    # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
+    def get_vl_code(vl_table, value):
+        """
+        Gets a value list code from the value_de name. Returns None and a warning if not found.
+        """
+        q = session.query(vl_table).filter(vl_table.value_de == value)
+        try:
+            return q[0].code
+        except IndexError:
+            warnings.warn(f'Unknown value `{value}` in value list "{vl_table.__name__}".')
+        return None
+
+    # TODO : memoize (and get the whole table at once)
+    def get_or_create_organisation(name):
+        """
+        Gets an organisation ID from it's name (and creates an entry if not existing)
+        """
+        instance = session.query(QGEP.organisation).filter(QGEP.organisation.identifier == name).first()
+        if instance:
+            return instance.obj_id
+        else:
+            instance = QGEP.organisation(identifier=name)
+            session.add(instance)
+            session.flush()
+            return instance.obj_id
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
     for row in session.query(ABWASSER.organisation):
@@ -1051,7 +1027,9 @@ def import_():
         session.add(organisation)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
+
+    """
 
     print("Importing ABWASSER.kanal -> QGEP.channel")
     for row in session.query(ABWASSER.kanal):
@@ -1125,7 +1103,7 @@ def import_():
         session.add(channel)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.normschacht -> QGEP.manhole")
     for row in session.query(ABWASSER.normschacht):
@@ -1197,7 +1175,7 @@ def import_():
         session.add(manhole)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.einleitstelle -> QGEP.discharge_point")
     for row in session.query(ABWASSER.einleitstelle):
@@ -1269,7 +1247,7 @@ def import_():
         session.add(discharge_point)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.spezialbauwerk -> QGEP.special_structure")
     for row in session.query(ABWASSER.spezialbauwerk):
@@ -1340,7 +1318,7 @@ def import_():
         session.add(special_structure)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.versickerungsanlage -> QGEP.infiltration_installation")
     for row in session.query(ABWASSER.versickerungsanlage):
@@ -1420,7 +1398,7 @@ def import_():
         session.add(infiltration_installation)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.rohrprofil -> QGEP.pipe_profile")
     for row in session.query(ABWASSER.rohrprofil):
@@ -1451,7 +1429,7 @@ def import_():
         session.add(pipe_profile)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.haltungspunkt -> QGEP.reach_point")
     for row in session.query(ABWASSER.haltungspunkt):
@@ -1489,7 +1467,7 @@ def import_():
         session.add(reach_point)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.abwasserknoten -> QGEP.wastewater_node")
     for row in session.query(ABWASSER.abwasserknoten):
@@ -1531,7 +1509,7 @@ def import_():
         session.add(wastewater_node)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.haltung -> QGEP.reach")
     for row in session.query(ABWASSER.haltung):
@@ -1587,7 +1565,7 @@ def import_():
         session.add(reach)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.trockenwetterfallrohr -> QGEP.dryweather_downspout")
     for row in session.query(ABWASSER.trockenwetterfallrohr):
@@ -1627,7 +1605,7 @@ def import_():
         session.add(dryweather_downspout)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.einstiegshilfe -> QGEP.access_aid")
     for row in session.query(ABWASSER.einstiegshilfe):
@@ -1667,7 +1645,7 @@ def import_():
         session.add(access_aid)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.trockenwetterrinne -> QGEP.dryweather_flume")
     for row in session.query(ABWASSER.trockenwetterrinne):
@@ -1707,7 +1685,7 @@ def import_():
         session.add(dryweather_flume)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.deckel -> QGEP.cover")
     for row in session.query(ABWASSER.deckel):
@@ -1756,7 +1734,7 @@ def import_():
         session.add(cover)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.bankett -> QGEP.benching")
     for row in session.query(ABWASSER.bankett):
@@ -1796,10 +1774,11 @@ def import_():
         session.add(benching)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
+    """
 
     print("Importing ABWASSER.untersuchung -> QGEP.examination")
-    for row in session.query(ABWASSER.untersuchung):
+    for row, meta in session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # AVAILABLE FIELDS IN ABWASSER.untersuchung
 
         # --- baseclass ---
@@ -1854,10 +1833,10 @@ def import_():
         session.add(examination)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.normschachtschaden -> QGEP.damage_manhole")
-    for row in session.query(ABWASSER.normschachtschaden):
+    for row, meta in session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # AVAILABLE FIELDS IN ABWASSER.normschachtschaden
 
         # --- baseclass ---
@@ -1903,10 +1882,10 @@ def import_():
         session.add(damage_manhole)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.kanalschaden -> QGEP.damage_channel")
-    for row in session.query(ABWASSER.kanalschaden):
+    for row, meta in session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # AVAILABLE FIELDS IN ABWASSER.kanalschaden
 
         # --- baseclass ---
@@ -1951,10 +1930,10 @@ def import_():
         session.add(damage_channel)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.datentraeger -> QGEP.data_media")
-    for row in session.query(ABWASSER.datentraeger):
+    for row, meta in session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # AVAILABLE FIELDS IN ABWASSER.datentraeger
 
         # --- baseclass ---
@@ -1983,10 +1962,10 @@ def import_():
         session.merge(data_media)
         print(".", end="")
     print("done")
-    session.commit()
+    session.flush()
 
     print("Importing ABWASSER.datei -> QGEP.file")
-    for row in session.query(ABWASSER.datei):
+    for row, meta in session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # AVAILABLE FIELDS IN ABWASSER.datei
 
         # --- baseclass ---
@@ -2006,11 +1985,11 @@ def import_():
             # --- file ---
             # **{'class': row.klasse},
             # fk_data_media=row.REPLACE_ME,
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
+            fk_dataowner=get_or_create_organisation(meta.datenherr),
+            fk_provider=get_or_create_organisation(meta.datenlieferant),
             identifier=row.bezeichnung,
-            kind=utils.invert_dict(MAPPING['file']['kind'])[row.art],
-            # last_modification=row.REPLACE_ME,
+            kind=get_vl_code(QGEP.file_kind, row.art),
+            last_modification=meta.letzte_aenderung,
             obj_id=row.obj_id,
             object=row.objekt,
             path_relative=row.relativpfad,
@@ -2020,5 +1999,8 @@ def import_():
         session.merge(file)
         print(".", end="")
     print("done")
+    session.flush()
+
     session.commit()
+
 
