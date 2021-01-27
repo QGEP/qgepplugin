@@ -1,6 +1,7 @@
 import psycopg2
 import os
 import subprocess
+import time
 import collections
 import functools
 import sqlalchemy
@@ -22,47 +23,98 @@ def exec_(command, check=True):
         return subprocess.call(command)
 
 
-def setup_test_db(keep_only_subset=False):
+def setup_test_db(with_data=True, keep_only_subset=False):
+    """
+    As initializing demo data can be a bit slow (esp. if we want only a subset),
+    we do these steps in a Docker container then commit it to an image, so we can
+    start a clean database relatively quickly.
+
+    This requires putting the pg data inside the image, hence the PGDATA env var.
+    """
+
+    if not with_data and keep_only_subset:
+        raise Exception("Keep only subset of an empty database makes no sense")
+
+    imgname = 'qgepqwat'
+    if with_data:
+        imgname += '_data'
+    if keep_only_subset:
+        imgname += '_subset'
 
     print("SETTING UP QGEP/QWAT DATABASE...")
-    r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False)
-    if r == 0:
-        print("Already running")
-        return
 
-    exec_(f'docker run -d --rm -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis')
-    exec_('docker exec qgepqwat apt-get update')
-    exec_('docker exec qgepqwat apt-get install -y wget')
+    print("STOPPING EXISTING CONTAINER...")
+    exec_('docker kill qgepqwat', check=False)
 
-    exec_('docker exec qgepqwat wget https://github.com/QGEP/datamodel/releases/download/1.5.3/qgep_1.5.3_structure_and_demo_data.backup')
-    exec_(f'docker exec qgepqwat pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qgep_1.5.3_structure_and_demo_data.backup')
+    # If the docker image doesn't exist, we build it
+    r = exec_(f"docker inspect --type=image {imgname}", check=False)
+    if r != 0:
+        print("BUILDING IMAGE...")
+        exec_('docker kill qgepqwatbuilder', check=False)
+        time.sleep(1)
+        exec_(f'docker run -d --rm -e PGDATA=/included_data -p 5432:5432 --name qgepqwatbuilder -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis')
+        exec_('docker exec qgepqwatbuilder apt-get update')
+        exec_('docker exec qgepqwatbuilder apt-get install -y wget')
 
-    exec_('docker exec qgepqwat wget https://github.com/qwat/qwat-data-model/releases/download/1.3.5/qwat_v1.3.5_data_and_structure_sample.backup')
-    exec_(f'docker exec qgepqwat pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup')
+        if with_data:
+            # We initialise demo data
+            exec_('docker exec qgepqwatbuilder wget https://github.com/QGEP/datamodel/releases/download/1.5.3/qgep_1.5.3_structure_and_demo_data.backup')
+            exec_(f'docker exec qgepqwatbuilder pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qgep_1.5.3_structure_and_demo_data.backup')
 
-    # add our QWAT migrations
-    exec_(r'docker cp C:\Users\Olivier\Code\QWAT\data-model\update\delta\delta_1.3.6_add_vl_for_SIA_export.sql qgepqwat:/delta_1.3.6_add_vl_for_SIA_export.sql')
-    exec_(f'docker exec qgepqwat psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
+            exec_('docker exec qgepqwatbuilder wget https://github.com/qwat/qwat-data-model/releases/download/1.3.5/qwat_v1.3.5_data_and_structure_sample.backup')
+            exec_(f'docker exec qgepqwatbuilder pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup')
 
-    if keep_only_subset:
-        # delete rows outside of some extent (to make dataset smaller)
-        print("CONNECTING TO DATABASE...")
-        connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
-        connection.set_session(autocommit=True)
-        cursor = connection.cursor()
-        for schema in ['qgep_od', 'qwat_od']:
-            cursor.execute("SELECT qgep_sys.drop_symbology_triggers();")
-            cursor.execute(f"""SELECT c.table_name, c.column_name
-                            FROM information_schema.columns c
-                            JOIN information_schema.tables t ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
-                            JOIN pg_type typ ON c.udt_name = typ.typname
-                            WHERE c.table_schema = '{schema}' AND typname = 'geometry';""")
-            for row in cursor.fetchall():
-                table, column = row
-                print(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
-                print(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
-                # cursor.execute(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
-            cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
+        else:
+            # We initialise empty structure and value list
+            exec_('docker exec qgepqwatbuilder wget https://github.com/QGEP/datamodel/releases/download/1.5.4/qgep_1.5.4_structure_with_value_lists.sql')
+            exec_(f'docker exec qgepqwatbuilder psql -f qgep_1.5.4_structure_with_value_lists.sql {config.PGDATABASE} {config.PGUSER}' )
+
+            exec_('docker exec qgepqwatbuilder wget https://github.com/qwat/qwat-data-model/releases/download/1.3.5/qwat_v1.3.5_structure_only.sql')
+            exec_('docker exec qgepqwatbuilder wget https://github.com/qwat/qwat-data-model/releases/download/1.3.5/qwat_v1.3.5_value_list_data_only.sql')
+            exec_(f'docker exec qgepqwatbuilder psql -f qwat_v1.3.5_structure_only.sql {config.PGDATABASE} {config.PGUSER}' )
+            exec_(f'docker exec qgepqwatbuilder psql -f qwat_v1.3.5_value_list_data_only.sql {config.PGDATABASE} {config.PGUSER}' )
+
+        # add our QWAT migrations
+        exec_(r'docker cp C:\Users\Olivier\Code\QWAT\data-model\update\delta\delta_1.3.6_add_vl_for_SIA_export.sql qgepqwatbuilder:/delta_1.3.6_add_vl_for_SIA_export.sql')
+        exec_(f'docker exec qgepqwatbuilder psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
+
+        if keep_only_subset:
+            # delete rows outside of some extent (to make dataset smaller)
+            print("CONNECTING TO DATABASE...")
+            connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
+            connection.set_session(autocommit=True)
+            cursor = connection.cursor()
+            for schema in ['qgep_od', 'qwat_od']:
+                cursor.execute("SELECT qgep_sys.drop_symbology_triggers();")
+                cursor.execute(f"""SELECT c.table_name, c.column_name
+                                FROM information_schema.columns c
+                                JOIN information_schema.tables t ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
+                                JOIN pg_type typ ON c.udt_name = typ.typname
+                                WHERE c.table_schema = '{schema}' AND typname = 'geometry';""")
+                for row in cursor.fetchall():
+                    table, column = row
+                    print(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
+                    print(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
+                    try:
+                        cursor.execute(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
+                    except psycopg2.errors.ForeignKeyViolation as e:
+                        print(f"Exception {e} !! we still continue...")
+                        pass
+                cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
+
+        exec_(f'docker commit qgepqwatbuilder {imgname}')
+        exec_(f'docker kill qgepqwatbuilder')
+
+    print("STARTING QGEP/QWAT DATABASE...")
+    exec_(f'docker run -d --rm -e PGDATA=/included_data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} {imgname}')
+
+    # Wait for PG
+    while True:
+        r = exec_(f"docker exec qgepqwat pg_isready", check=False)
+        if r == 0:
+            break
+        print("Postgres not ready... we wait...")
+        time.sleep(1)
 
 
 def create_ili_schema(schema, model, force_recreate=False):

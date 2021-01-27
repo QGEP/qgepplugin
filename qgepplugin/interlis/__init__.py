@@ -15,9 +15,6 @@ def main(args):
     parser.add_argument('--force_recreate', action='store_true', help='drops schema and reruns ili2pg importschema')
     args = parser.parse_args(args)
 
-    # Create the database and import the ILI model
-    utils.setup_test_db(keep_only_subset=True)
-
     if args.model == 'qgep':
         utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, force_recreate=args.force_recreate)
         from . import qgep
