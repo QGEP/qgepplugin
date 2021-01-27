@@ -19,7 +19,6 @@ def exec_(command, check=True, silent=False):
     print(f"EXECUTING: {command}")
     out = {"stdout":subprocess.DEVNULL, "stderr":subprocess.DEVNULL} if silent else {}
     if check:
-
         return subprocess.check_call(command, shell=True, **out)
     else:
         return subprocess.call(command, shell=True, **out)
@@ -213,6 +212,9 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
         return sorted(available_fields.items(), key=lambda i: ordered_tables.index(i[0]), reverse=True)
 
     def filter_classesnames(classes):
+        return ', '.join(c.__name__ for c in classes)
+
+    def filter_qualclassesnames(classes):
         return ', '.join(f"{ilimodel_name.upper()}.{c.__name__}" for c in classes)
 
     env = Environment(
@@ -223,6 +225,7 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
 
     env.filters['classfields'] = filter_classfields
     env.filters['classesnames'] = filter_classesnames
+    env.filters['qualclassesnames'] = filter_qualclassesnames
 
     # Generate code stub for the import script
     template = env.get_template('template_importexport.py.tpl')
