@@ -149,6 +149,11 @@ def create_ili_schema(schema, model, force_recreate=False):
         f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log debug-create.txt --nameLang {lang} {model}"
     )
 
+def validate_xtf_data(xtf_file):
+    print("VALIDATING XTF DATA...")
+    exec_(
+        f"java -jar {config.ILI2PG} --modeldir {config.ILI_FOLDER} {xtf_file}"
+    )
 
 def import_xtf_data(schema, xtf_file):
     print("IMPORTING XTF DATA...")
