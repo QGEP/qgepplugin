@@ -48,7 +48,7 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(data.identifier, '8486_0001.jpg')
         self.assertEqual(data.path_relative, 'inspectiondata20210120/fotos')
 
-    @unittest.expectedFailure
+    @unittest.skip("seems fixed since 4.4.6 snapshot")
     def test_ili2pg_crash(self):
         """
         ili2pg crashes with --noSmartMapping with our files (see https://github.com/claeis/ili2db/issues/381)
