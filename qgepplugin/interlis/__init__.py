@@ -17,12 +17,13 @@ def main(args):
 
     if args.model == 'qgep':
         utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, force_recreate=args.force_recreate)
-        from . import qgep
         if args.export_xtf:
+            from . import qgep
             qgep.export()
             utils.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
+            from . import qgep
             qgep.import_()
         elif args.gen_tpl:
             from .datamodels.mapping_qgep import MAPPING
@@ -32,12 +33,13 @@ def main(args):
 
     elif args.model == 'qwat':
         utils.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, force_recreate=args.force_recreate)
-        from . import qwat
         if args.export_xtf:
+            from . import qwat
             qwat.export()
             utils.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
+            from . import qwat
             qwat.import_()
         elif args.gen_tpl:
             from .datamodels.mapping_qwat import MAPPING
