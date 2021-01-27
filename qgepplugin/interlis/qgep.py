@@ -16,6 +16,8 @@ from .datamodels.abwasser import Classes as ABWASSER
 # don't exactly match the ones defined in ili (e.g. digitales_Video vs digitalesVideo). Should we
 # add a INTERLIS_DE column in the values lists ?
 
+
+
 MAPPING = {
     'wastewater_structure': {
         'accessibility': {
@@ -66,6 +68,20 @@ def export():
 
     # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
 
+    def create_metaattributes(row, session):
+        metaattribute = ABWASSER.metaattribute(
+            # FIELDS TO MAP TO ABWASSER.metaattribute
+            # --- metaattribute ---
+            datenherr=row.fk_dataowner_REL.identifier if row.fk_dataowner_REL else '???',
+            datenlieferant=row.fk_provider_REL.identifier if row.fk_provider_REL else '???',
+            letzte_aenderung=row.last_modification,
+            sia405_baseclass_metaattribute=tid_maker.tid_for_row(row),
+            t_id=tid_maker.tid_for_row(row),  # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
+            t_seq=0,
+        )
+        session.add(metaattribute)
+
+
     print("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in session.query(QGEP.organisation):
         # AVAILABLE FIELDS IN QGEP.organisation
@@ -93,22 +109,10 @@ def export():
 
         )
         session.add(organisation)
-        metaattribute = ABWASSER.metaattribute(
-            # FIELDS TO MAP TO ABWASSER.metaattribute
-            # --- metaattribute ---
-            datenherr=row.fk_dataowner_REL.identifier if row.fk_dataowner_REL else '???',
-            datenlieferant=row.fk_provider_REL.identifier if row.fk_provider_REL else '???',
-            letzte_aenderung=row.last_modification,
-            sia405_baseclass_metaattribute=tid_maker.tid_for_row(row),
-            t_id=tid_maker.tid_for_row(row),  # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
-            t_seq=0,
-
-        )
-        session.add(metaattribute)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
-
     print("Exporting QGEP.channel -> ABWASSER.kanal")
     for row in session.query(QGEP.channel):
         # AVAILABLE FIELDS IN QGEP.channel
@@ -167,6 +171,7 @@ def export():
 
         )
         session.add(kanal)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -226,6 +231,7 @@ def export():
 
         )
         session.add(normschacht)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -284,6 +290,7 @@ def export():
 
         )
         session.add(einleitstelle)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -342,6 +349,7 @@ def export():
 
         )
         session.add(spezialbauwerk)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -408,6 +416,7 @@ def export():
 
         )
         session.add(versickerungsanlage)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -440,6 +449,7 @@ def export():
 
         )
         session.add(rohrprofil)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -476,6 +486,7 @@ def export():
 
         )
         session.add(haltungspunkt)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -515,6 +526,7 @@ def export():
 
         )
         session.add(abwasserknoten)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -568,6 +580,7 @@ def export():
 
         )
         session.add(haltung)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -606,6 +619,7 @@ def export():
 
         )
         session.add(trockenwetterfallrohr)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -644,6 +658,7 @@ def export():
 
         )
         session.add(einstiegshilfe)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -682,6 +697,7 @@ def export():
 
         )
         session.add(trockenwetterrinne)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -729,6 +745,7 @@ def export():
 
         )
         session.add(deckel)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -767,6 +784,7 @@ def export():
 
         )
         session.add(bankett)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -823,6 +841,7 @@ def export():
 
         )
         session.add(untersuchung)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -870,6 +889,7 @@ def export():
 
         )
         session.add(normschachtschaden)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -916,6 +936,7 @@ def export():
 
         )
         session.add(kanalschaden)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -949,6 +970,7 @@ def export():
 
         )
         session.add(datentraeger)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
@@ -984,6 +1006,7 @@ def export():
 
         )
         session.add(datei)
+        create_metaattributes(row, session)
         print(".", end="")
     print("done")
     session.commit()
