@@ -13,14 +13,16 @@ from sqlalchemy.ext.automap import AutomapBase, automap_base, name_for_collectio
 from . import config
 
 
-def exec_(command, check=True):
+def exec_(command, check=True, silent=False):
     print("")
     print("!"*80)
     print(f"EXECUTING: {command}")
+    out = {"stdout":subprocess.DEVNULL, "stderr":subprocess.DEVNULL} if silent else {}
     if check:
-        return subprocess.check_call(command)
+
+        return subprocess.check_call(command, **out)
     else:
-        return subprocess.call(command)
+        return subprocess.call(command, **out)
 
 
 def setup_test_db(with_data=True, keep_only_subset=False):
@@ -47,7 +49,7 @@ def setup_test_db(with_data=True, keep_only_subset=False):
     exec_('docker kill qgepqwat', check=False)
 
     # If the docker image doesn't exist, we build it
-    r = exec_(f"docker inspect --type=image {imgname}", check=False)
+    r = exec_(f"docker inspect --type=image {imgname}", check=False, silent=True)
     if r != 0:
         print("BUILDING IMAGE...")
         exec_('docker kill qgepqwatbuilder', check=False)
@@ -110,7 +112,7 @@ def setup_test_db(with_data=True, keep_only_subset=False):
 
     # Wait for PG
     while True:
-        r = exec_(f"docker exec qgepqwat pg_isready", check=False)
+        r = exec_(f"docker exec qgepqwat pg_isready", check=False, silent=True)
         if r == 0:
             break
         print("Postgres not ready... we wait...")
