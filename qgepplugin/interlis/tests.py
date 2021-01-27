@@ -3,6 +3,7 @@ python -m unittest interlis.tests
 """
 
 import unittest
+import decimal
 
 from sqlalchemy.orm import Session
 
@@ -38,5 +39,13 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.data_media).count(), 1)
         self.assertEqual(session.query(QGEP.file).count(), 3)
 
-        # TODO : also check some properties
+        # checking some properties
+        manhole = session.query(QGEP.damage_manhole).get('fk11abk6SS000002')
+        self.assertEqual(manhole.distance, decimal.Decimal('2.55'))
+        self.assertEqual(manhole.comments, 'wurde auch schon vor 3 Jahren festgestellt')
+
+        data = session.query(QGEP.file).get('fk11abk6DA000002')
+        self.assertEqual(data.identifier, '8486_0001.jpg')
+        self.assertEqual(data.path_relative, 'inspectiondata20210120/fotos')
+
 

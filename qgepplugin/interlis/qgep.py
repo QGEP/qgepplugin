@@ -1845,12 +1845,12 @@ def import_():
         damage_manhole = QGEP.damage_manhole(
             # FIELDS TO MAP TO QGEP.damage_manhole
             # --- damage ---
-            # comments=row.REPLACE_ME,
+            comments=row.anmerkung,
             # connection=row.REPLACE_ME,
             # damage_begin=row.REPLACE_ME,
             # damage_end=row.REPLACE_ME,
             # damage_reach=row.REPLACE_ME,
-            # distance=row.REPLACE_ME,
+            distance=row.distanz,
             # fk_dataowner=row.REPLACE_ME,
             # fk_examination=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -1864,7 +1864,7 @@ def import_():
             # --- damage_manhole ---
             # manhole_damage_code=row.REPLACE_ME,
             # manhole_shaft_area=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            obj_id=row.obj_id,
 
         )
         session.add(damage_manhole)
@@ -1886,7 +1886,7 @@ def import_():
         # anmerkung, ansichtsparameter, einzelschadenklasse, streckenschaden, untersuchungref, verbindung, videozaehlerstand
 
         # --- kanalschaden ---
-        # distanz, kanalschadencode, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende, t_id
+        # , kanalschadencode, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende, t_id
 
         # --- _relations_ ---
         # untersuchungref_REL
@@ -1894,12 +1894,12 @@ def import_():
         damage_channel = QGEP.damage_channel(
             # FIELDS TO MAP TO QGEP.damage_channel
             # --- damage ---
-            # comments=row.REPLACE_ME,
+            comments=row.anmerkung,
             # connection=row.REPLACE_ME,
             # damage_begin=row.REPLACE_ME,
             # damage_end=row.REPLACE_ME,
             # damage_reach=row.REPLACE_ME,
-            # distance=row.REPLACE_ME,
+            distance=row.distanz,
             # fk_dataowner=row.REPLACE_ME,
             # fk_examination=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -1912,7 +1912,7 @@ def import_():
 
             # --- damage_channel ---
             # channel_damage_code=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            obj_id=row.obj_id,
 
         )
         session.add(damage_channel)
