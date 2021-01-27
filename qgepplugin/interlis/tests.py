@@ -59,6 +59,8 @@ class TestQGEPUseCases(unittest.TestCase):
         print(f"Saved to {path}")
         self.assertTrue(os.path.exists(path))
 
+        utils.validate_xtf_data(path)
+
     @unittest.skip("seems fixed since 4.4.6 snapshot")
     def test_ili2pg_crash(self):
         """

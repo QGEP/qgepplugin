@@ -140,7 +140,7 @@ def create_ili_schema(schema, model, force_recreate=False):
 def validate_xtf_data(xtf_file):
     print("VALIDATING XTF DATA...")
     exec_(
-        f"java -jar {config.ILI2PG} --modeldir {config.ILI_FOLDER} {xtf_file}"
+        f"java -jar {config.ILIVALIDATOR} --modeldir {config.ILI_FOLDER} {xtf_file}"
     )
 
 def import_xtf_data(schema, xtf_file):
