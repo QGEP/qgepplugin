@@ -28,6 +28,13 @@ def export():
 
         organisation = ABWASSER.organisation(
             # FIELDS TO MAP TO ABWASSER.organisation
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
             # --- organisation ---
             # auid=row.REPLACE_ME,
             # bemerkung=row.REPLACE_ME,
@@ -947,11 +954,14 @@ def import_():
     # TODO : somehow join ABWASSER.metaattribute
         # AVAILABLE FIELDS IN ABWASSER.organisation
 
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
         # --- organisation ---
         # auid, bemerkung, bezeichnung, t_id
-
-        # --- _relations_ ---
-        # t_id_REL
 
         organisation = QGEP.organisation(
             # FIELDS TO MAP TO QGEP.organisation

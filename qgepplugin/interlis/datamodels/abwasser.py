@@ -32,7 +32,7 @@ class sia405_baseclass(baseclass):
     __tablename__ = "sia405_baseclass"
     __table_args__ = {'schema': SCHEMA}
 
-class organisation(Base):
+class organisation(sia405_baseclass):
     __tablename__ = "organisation"
     __table_args__ = {'schema': SCHEMA}
 

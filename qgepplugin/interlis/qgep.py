@@ -78,6 +78,13 @@ def export():
 
         organisation = ABWASSER.organisation(
             # FIELDS TO MAP TO ABWASSER.organisation
+            # --- baseclass ---
+            t_ili_tid=row.obj_id,
+            t_type='organisation',
+
+            # --- sia405_baseclass ---
+            obj_id=row.obj_id,
+
             # --- organisation ---
             auid=row.uid,
             bemerkung=row.remark,
@@ -989,7 +996,7 @@ def export():
 
 def import_():
 
-    session = Session(utils.create_engine())
+    session = Session(utils.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.TidMaker(id_attribute='obj_id')
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
@@ -997,11 +1004,14 @@ def import_():
     # TODO : somehow join ABWASSER.metaattribute
         # AVAILABLE FIELDS IN ABWASSER.organisation
 
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
         # --- organisation ---
         # auid, bemerkung, bezeichnung, t_id
-
-        # --- _relations_ ---
-        # t_id_REL
 
         organisation = QGEP.organisation(
             # FIELDS TO MAP TO QGEP.organisation
