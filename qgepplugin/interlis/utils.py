@@ -197,7 +197,7 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
         'model_name': model_name,
         'ilimodel_name': ilimodel_name,
     })
-    open(os.path.join(os.path.dirname(__file__), 'datamodels', f'mapping.{model_name}.py.tpl'), 'w', newline='\n').write(result)
+    open(os.path.join(os.path.dirname(__file__), 'datamodels', f'mapping_{model_name}.py.tpl'), 'w', newline='\n').write(result)
 
 class TidMaker:
     """

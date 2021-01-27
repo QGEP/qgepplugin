@@ -28,10 +28,10 @@ def main(args):
             utils.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
             qgep.import_()
         elif args.gen_tpl:
-            from .datamodels.mapping import QGEP_TO_ABWASSER
+            from .datamodels.mapping_qgep import MAPPING
             from .datamodels.qgep import Classes as QGEP
             from .datamodels.abwasser import Classes as ABWASSER
-            utils.generate_template("qgep", "abwasser", QGEP, ABWASSER, QGEP_TO_ABWASSER)
+            utils.generate_template("qgep", "abwasser", QGEP, ABWASSER, MAPPING)
 
     elif args.model == 'qwat':
         utils.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, force_recreate=args.force_recreate)
@@ -43,7 +43,7 @@ def main(args):
             utils.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
             qwat.import_()
         elif args.gen_tpl:
-            from .datamodels.mapping import QWAT_TO_WASSER
+            from .datamodels.mapping_qwat import MAPPING
             from .datamodels.qwat import Classes as QWAT
             from .datamodels.wasser import Classes as WASSER
-            utils.generate_template("qwat", "wasser", QWAT, WASSER, QWAT_TO_WASSER)
+            utils.generate_template("qwat", "wasser", QWAT, WASSER, MAPPING)
