@@ -48,4 +48,14 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(data.identifier, '8486_0001.jpg')
         self.assertEqual(data.path_relative, 'inspectiondata20210120/fotos')
 
+    # @unittest.expectedFailure
+    # def test_ili2pg_crash(self):
+    #     """
+    #     ili2pg crashes with --noSmartMapping with our files (see https://github.com/claeis/ili2db/issues/381)
+
+    #     there's a fix incomming it seems
+    #     """
+
+    #     from .datamodels.qgep import Classes as QGEP
+    #     main(['--force_recreate', '--import_xtf', r'interlis\data\2021-01-19_inspectiondata\testdata_vsa_kek_2019_manhole_damage_8486.xtf', 'qgep'])
 
