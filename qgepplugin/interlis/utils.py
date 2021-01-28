@@ -157,7 +157,7 @@ def export_xtf_data(schema, model_name, xtf_file):
     print("EXPORT ILIDB...")
 
     exec_(
-        f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
+        f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
     )
 
 
