@@ -70,24 +70,5 @@ class leitung(sia405_baseclass):  # conduite
     __table_args__ = {"schema": SCHEMA}
 
 
-Base.prepare(
-    utils.create_engine(),
-    reflect=True,
-    schema=SCHEMA,
-    name_for_collection_relationship=utils.custom_name_for_collection_relationship,
-    name_for_scalar_relationship=utils.custom_name_for_scalar_relationship,
-    generate_relationship=utils.custom_generate_relationship,
-)
-
-Classes = Base.classes
-
-# For some reason, automap_base doesn't add manually defined classes to Base.classes,
-# so we do it manually here
-def add_subclasses(Parent):
-    for subclass in Parent.__subclasses__():
-        if subclass.__name__ not in Classes:
-            Classes[subclass.__name__] = subclass
-        add_subclasses(subclass)
-
-
-add_subclasses(Base)
+utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
+WASSER = Base.classes

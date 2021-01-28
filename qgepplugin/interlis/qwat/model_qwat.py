@@ -31,26 +31,10 @@ Base = automap_base()
 
 SCHEMA = config.QWAT_SCHEMA
 
-# Helper to convert IDs to ili-compatible tids (autoincrementing)
-_autoincrementer = collections.defaultdict(lambda: len(_autoincrementer))
-
-
-def make_tid(cls, id):
-    # if verbose:
-    #     star = '*' if (cls, id) not in _autoincrementer else ''
-    #     result = _autoincrementer[(cls, id)]
-    #     print(f"{star}{cls.__name__}/{id}=>{result}   ", end="")
-    #     return result
-    return _autoincrementer[(cls, id)]
-
-
 class node(Base):
     __tablename__ = "node"
     __table_args__ = {"schema": SCHEMA}
 
-    @staticmethod
-    def make_tid(id):
-        return make_tid(node, id)
 
 
 class network_element(node):
@@ -82,29 +66,6 @@ class pipe(Base):
     __tablename__ = "pipe"
     __table_args__ = {"schema": SCHEMA}
 
-    @staticmethod
-    def make_tid(id):
-        return make_tid(pipe, id)
 
-
-Base.prepare(
-    utils.create_engine(),
-    reflect=True,
-    schema=SCHEMA,
-    name_for_collection_relationship=utils.custom_name_for_collection_relationship,
-    name_for_scalar_relationship=utils.custom_name_for_scalar_relationship,
-    generate_relationship=utils.custom_generate_relationship,
-)
-
-Classes = Base.classes
-
-# For some reason, automap_base doesn't add manually defined classes to Base.classes,
-# so we do it manually here
-def add_subclasses(Parent):
-    for subclass in Parent.__subclasses__():
-        if subclass.__name__ not in Classes:
-            Classes[subclass.__name__] = subclass
-        add_subclasses(subclass)
-
-
-add_subclasses(Base)
+utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
+QWAT = Base.classes

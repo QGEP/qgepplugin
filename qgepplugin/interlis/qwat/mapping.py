@@ -1,5 +1,6 @@
-from .qwat import Classes as QWAT
-from .wasser import Classes as WASSER
+
+from .model_qwat import QWAT
+from .model_wasser import WASSER
 
 MAPPING = {
     QWAT.node: [WASSER.hydraulischer_knoten],

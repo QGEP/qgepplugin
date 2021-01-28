@@ -1,5 +1,6 @@
-from .qgep import Classes as QGEP
-from .abwasser import Classes as ABWASSER
+
+from .model_qgep import QGEP
+from .model_abwasser import ABWASSER
 
 MAPPING = {
     QGEP.organisation: [ABWASSER.organisation, ABWASSER.metaattribute],

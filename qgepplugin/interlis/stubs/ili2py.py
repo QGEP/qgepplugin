@@ -6,16 +6,15 @@ import re
 
 
 class Ili2PyClass:
-
     def __init__(self, ili2py, model_name, class_name, parent_class_name, abstract, attributes):
         self.ili2py = ili2py
         self.model_name = model_name
         self.class_name = class_name
         if parent_class_name:
-            if '.' in parent_class_name:
+            if "." in parent_class_name:
                 self.parent_qual_name = parent_class_name
             else:
-                self.parent_qual_name = f'{model_name}.{parent_class_name}'
+                self.parent_qual_name = f"{model_name}.{parent_class_name}"
         else:
             self.parent_qual_name = None
         self.abstract = abstract
@@ -40,7 +39,6 @@ class Ili2PyClass:
 
 
 class Ili2Py:
-
     def __init__(self, interlis_paths):
 
         self.classes = {}
@@ -51,7 +49,7 @@ class Ili2Py:
             for line in open(interlis_path, "r").read().splitlines():
 
                 # We enter in a new model
-                pattern_model = r'(TYPE )?MODEL ([a-zA-Z0-9_]+)'
+                pattern_model = r"(TYPE )?MODEL ([a-zA-Z0-9_]+)"
                 matches = re.match(pattern_model, line.strip())
                 if matches:
                     # current_imports = []
@@ -66,24 +64,31 @@ class Ili2Py:
                 #         current_imports.append(matches.group(1))
 
                 # We found a new class
-                pattern = r'CLASS ([a-zA-Z0-9_]+)( \(ABSTRACT\))?( EXTENDS )?([a-zA-Z0-9_\.]+)?'
+                pattern = r"CLASS ([a-zA-Z0-9_]+)( \(ABSTRACT\))?( EXTENDS )?([a-zA-Z0-9_\.]+)?"
                 matches = re.match(pattern, line.strip())
                 if matches:
                     class_name = matches.group(1)
                     is_abstract = True if matches.group(2) else False
                     parent_class_name = matches.group(4)
-                    current_class = Ili2PyClass(self, current_model, class_name, parent_class_name, is_abstract, [])
+                    current_class = Ili2PyClass(
+                        self,
+                        current_model,
+                        class_name,
+                        parent_class_name,
+                        is_abstract,
+                        [],
+                    )
                     self.classes[current_class.qual_name] = current_class
 
                 if current_class:
                     # We finished the class
-                    pattern = f'END {current_class.class_name};'
+                    pattern = f"END {current_class.class_name};"
                     matches = re.match(pattern, line.strip())
                     if matches:
                         current_class = None
 
                     # We found an attribute
-                    pattern = r'([a-zA-Z0-9_]+):'
+                    pattern = r"([a-zA-Z0-9_]+):"
                     matches = re.match(pattern, line.strip())
                     if matches:
                         current_class.attributes.append(matches.group(1))
