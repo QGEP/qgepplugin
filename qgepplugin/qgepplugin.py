@@ -282,6 +282,8 @@ class QgepPlugin(object):
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
+        self.iface.removePluginMenu("&QGEP", self.datamodelInitToolAction)
+        self.iface.removePluginMenu("&QGEP", self.settingsAction)
 
         QgsApplication.processingRegistry().removeProvider(self.processing_provider)
 
