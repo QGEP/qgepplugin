@@ -19,13 +19,12 @@ BEGIN
   -- 9.3.2016 check whether obj_id_ref NOT IS NULL
   IF obj_id_ref IS NULL THEN
     tid_ref = NULL;
-    -- RAISE NOTICE '[tid_lookup]: obj_id is NULL . tid_ref set NULL also';  -- Print newtid
+    RAISE NOTICE '[tid_lookup]: obj_id is NULL . tid_ref set NULL also';  -- Print newtid
   ELSE
       -- get tid_ref for foreignkey
       -- SELECT t_id INTO tid_ref FROM vsa_dss_2015_2_d.baseclass WHERE t_ili_tid = 'ch13p7mzOG000002';
       SELECT t_id INTO tid_ref FROM vsa_dss_2015_2_d.baseclass WHERE t_ili_tid = obj_id_ref;
      
-     /*
       IF NOT FOUND THEN
       -- 13.2.2016 / 9.3.2016 improved error message
       -- RAISE EXCEPTION 'tid_ref for table % not found', table_name;
@@ -41,7 +40,6 @@ BEGIN
          RAISE NOTICE 'tid_ref is %', tid_ref;
          
       END IF; 
-      */
   END IF;
 
   RETURN tid_ref;

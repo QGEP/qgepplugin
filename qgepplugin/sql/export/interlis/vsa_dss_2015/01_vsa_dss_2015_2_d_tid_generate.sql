@@ -4,6 +4,7 @@
 -- basis ist tid_generate.sql
 -- schema für export heisst vsa_dss_2015_2_304
 
+  
 -- function for generating TIDs
 CREATE OR REPLACE FUNCTION vsa_dss_2015_2_d.tid_generate(table_name text, obj_id_table text)
   -- RETURNS text AS
@@ -24,8 +25,8 @@ BEGIN
   newtid = (nexttid + 1);
   
   -- 12.1.2016
-  --RAISE NOTICE 'newtid is %', newtid;  -- Print newtid
-  --RAISE NOTICE 'nexttid is %', nexttid;  -- Print nexttid
+  RAISE NOTICE 'newtid is %', newtid;  -- Print newtid
+  RAISE NOTICE 'nexttid is %', nexttid;  -- Print nexttid
   
   -- adapt t_lastuniqueid in t_key_object
   UPDATE vsa_dss_2015_2_d.t_key_object
@@ -36,8 +37,8 @@ BEGIN
   
   IF NOT FOUND THEN
     RAISE EXCEPTION 'sequence for table % not found', table_name;
-  --ELSE
-     --RAISE NOTICE 't_key_object updated';
+  ELSE
+     RAISE NOTICE 't_key_object updated';
   END IF;
   -- RETURN myrec_prefix.prefix || myrec_shortcut.shortcut_en || to_char(myrec_seq.seqval,'FM000000');
   -- RETURN myrec_prefix.prefix || to_char(myrec_seq.seqval,'FM000000');

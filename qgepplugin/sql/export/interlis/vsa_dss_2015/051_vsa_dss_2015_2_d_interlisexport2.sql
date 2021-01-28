@@ -2,14 +2,7 @@
 ------ Second version using tid_generate and tid_lookup
 ------ For questions etc. please contact Stefan Burckhardt stefan.burckhardt@sjib.ch
 ------ version 26.11.2016 15:42:44 / update 4.7.2017 od_text -> txt_text dito symbol, t_key_object auskommentiert
-
-
--- OD NOTE : DISABLING TRANSACTION
--- BEGIN;
-
--- OD NOTE : THIS IS EXTREEEEEEEEEEEEEEEEEEEEEEMLY SLOW (23 minutes !!!) PROBABLY DUE TO TID generation stuff
--- OD 03.12.2020 : COMMENTED OUT ALL THESE DELETE FROM STATEMENTS, AS SOME FAILED, AND WE HAVE AN EMPTY SCHEMA ANYWAYS IS THAT OK ?!
-/*
+BEGIN;
 ---DELETE FROM vsa_dss_2015_2_d.erhaltungsereignis_abwasserbauwerk;
 DELETE FROM vsa_dss_2015_2_d.erhaltungsereignis_abwasserbauwerkassoc;
 -- DELETE FROM vsa_dss_2015_2_d.symbol;
@@ -122,7 +115,7 @@ DELETE FROM vsa_dss_2015_2_d.textpos;
 DELETE FROM vsa_dss_2015_2_d.metaattribute;
 DELETE FROM vsa_dss_2015_2_d.sia405_baseclass;
 DELETE FROM vsa_dss_2015_2_d.baseclass;
-*/
+
 -- Sequence: vsa_dss_2015_2_d.t_ili2db_seq
 -- DROP SEQUENCE vsa_dss_2015_2_d.t_ili2db_seq;
 --CREATE SEQUENCE vsa_dss_2015_2_d.t_ili2db_seq
@@ -183,13 +176,13 @@ INSERT INTO vsa_dss_2015_2_d.baseclass
 (
 t_id, t_type, t_ili_tid)
 SELECT vsa_dss_2015_2_d.tid_generate('hydr_kennwerte', obj_id), 'hydr_kennwerte', obj_id
-FROM qgep_od.hydraulic_char_data;
+FROM qgep_od.hydraulic_characteristic_data;
 
 INSERT INTO vsa_dss_2015_2_d.sia405_baseclass
 (
 t_id, obj_id)
 SELECT vsa_dss_2015_2_d.tid_lookup('hydr_kennwerte', obj_id), obj_id
-FROM qgep_od.hydraulic_char_data;
+FROM qgep_od.hydraulic_characteristic_data;
 
 INSERT INTO vsa_dss_2015_2_d.baseclass
 (
@@ -363,13 +356,13 @@ INSERT INTO vsa_dss_2015_2_d.baseclass
 (
 t_id, t_type, t_ili_tid)
 SELECT vsa_dss_2015_2_d.tid_generate('ueberlaufcharakteristik', obj_id), 'ueberlaufcharakteristik', obj_id
-FROM qgep_od.overflow_char;
+FROM qgep_od.overflow_characteristic;
 
 INSERT INTO vsa_dss_2015_2_d.sia405_baseclass
 (
 t_id, obj_id)
 SELECT vsa_dss_2015_2_d.tid_lookup('ueberlaufcharakteristik', obj_id), obj_id
-FROM qgep_od.overflow_char;
+FROM qgep_od.overflow_characteristic;
 
 INSERT INTO vsa_dss_2015_2_d.baseclass
 (
@@ -732,4 +725,4 @@ SELECT vsa_dss_2015_2_d.tid_lookup('erhaltungsereignis_abwasserbauwerk', obj_id)
 FROM qgep_od.re_maintenance_event_wastewater_structure;
 
 
--- COMMIT;
+COMMIT;
