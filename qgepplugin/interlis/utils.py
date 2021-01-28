@@ -4,7 +4,9 @@ import subprocess
 import time
 import collections
 import functools
+import datetime
 import sqlalchemy
+import tempfile
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -17,11 +19,12 @@ def exec_(command, check=True, silent=False):
     print("")
     print("!"*80)
     print(f"EXECUTING: {command}")
-    out = {"stdout":subprocess.DEVNULL, "stderr":subprocess.DEVNULL} if silent else {}
-    if check:
-        return subprocess.check_call(command, shell=True, **out)
-    else:
-        return subprocess.call(command, shell=True, **out)
+    try:
+        output = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        if check:
+            print(e.output)
+            raise Exception(f"Command errored ! See logs for more info.")
 
 
 def setup_test_db(template='full'):
@@ -102,7 +105,9 @@ def setup_test_db(template='full'):
     exec_(f'docker exec qgepqwat dropdb -U {config.PGUSER} {config.PGDATABASE}')
     exec_(f'docker exec qgepqwat createdb -U {config.PGUSER} --template=tpl_{template} {config.PGDATABASE}' )
 
-
+def _log_path(name):
+    now = datetime.datetime.now()
+    return os.path.join(tempfile.gettempdir(), f'ili2qgepqwat-{now:%Y-%m-%d-%H-%M-%S}-{name}.log')
 
 def create_ili_schema(schema, model, force_recreate=False):
     print("CONNECTING TO DATABASE...")
@@ -133,28 +138,27 @@ def create_ili_schema(schema, model, force_recreate=False):
     lang = f'de'
 
     exec_(
-        f"java -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log debug-create.txt --nameLang {lang} {model}"
+        f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log {_log_path("create")} --nameLang {lang} {model}'
     )
 
 def validate_xtf_data(xtf_file):
     print("VALIDATING XTF DATA...")
     exec_(
-        f"java -jar {config.ILIVALIDATOR} --modeldir {config.ILI_FOLDER} {xtf_file}"
+        f'"{config.JAVA}" -jar {config.ILIVALIDATOR} --modeldir {config.ILI_FOLDER} {xtf_file}'
     )
 
 def import_xtf_data(schema, xtf_file):
     print("IMPORTING XTF DATA...")
     exec_(
-        f"java -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log debug-import.txt {xtf_file}"
+        f'"{config.JAVA}" -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("import")} {xtf_file}'
     )
-
 
 def export_xtf_data(schema, model_name, xtf_file):
 
     print("EXPORT ILIDB...")
 
     exec_(
-        f"java -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log debug-export.txt {xtf_file}"
+        f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
     )
 
 
