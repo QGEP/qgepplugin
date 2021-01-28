@@ -30,13 +30,16 @@ from builtins import str
 from builtins import object
 import logging
 import os
+from collections import namedtuple
+from pkg_resources import parse_version
+from types import SimpleNamespace
 
 from qgis.PyQt.QtCore import QSettings, Qt, QLocale
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar, QFileDialog
 from qgis.PyQt.QtGui import QIcon
 
-from qgis.utils import qgsfunction
-from qgis.core import QgsApplication
+from qgis.utils import plugins, qgsfunction
+from qgis.core import QgsApplication, QgsProject, Qgis
 
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
@@ -54,6 +57,7 @@ from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
 from .utils.plugin_utils import plugin_root_path
 from .processing_provider.provider import QgepProcessingProvider
+from . import interlis
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
@@ -214,6 +218,18 @@ class QgepPlugin(object):
             self.tr('Datamodel tool'), self.iface.mainWindow())
         self.datamodelInitToolAction.triggered.connect(self.showDatamodelInitTool)
 
+        self.importAction = QAction(self.tr("Import"), self.iface.mainWindow())
+        self.importAction.setWhatsThis(self.tr("Import from interlis"))
+        self.importAction.setEnabled(False)
+        self.importAction.setCheckable(False)
+        self.importAction.triggered.connect(self.importToolClicked)
+
+        self.exportAction = QAction(self.tr("Export"), self.iface.mainWindow())
+        self.exportAction.setWhatsThis(self.tr("Export from interlis"))
+        self.exportAction.setEnabled(False)
+        self.exportAction.setCheckable(False)
+        self.exportAction.triggered.connect(self.exportToolClicked)
+
         # Add toolbar button and menu item
         self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
         self.toolbar.addAction(self.profileAction)
@@ -222,6 +238,8 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.wizardAction)
         self.toolbar.addAction(self.refreshNetworkTopologyAction)
         self.toolbar.addAction(self.connectNetworkElementsAction)
+        self.toolbar.addAction(self.importAction)
+        self.toolbar.addAction(self.exportAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
@@ -236,6 +254,8 @@ class QgepPlugin(object):
         self.toolbarButtons.append(self.downstreamAction)
         self.toolbarButtons.append(self.wizardAction)
         self.toolbarButtons.append(self.refreshNetworkTopologyAction)
+        self.toolbarButtons.append(self.importAction)
+        self.toolbarButtons.append(self.exportAction)
 
         self.network_layer_notifier.layersAvailable.connect(self.onLayersAvailable)
         self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
@@ -277,6 +297,8 @@ class QgepPlugin(object):
         self.toolbar.removeAction(self.wizardAction)
         self.toolbar.removeAction(self.refreshNetworkTopologyAction)
         self.toolbar.removeAction(self.connectNetworkElementsAction)
+        self.toolbar.removeAction(self.importAction)
+        self.toolbar.removeAction(self.exportAction)
 
         self.toolbar.deleteLater()
 
@@ -325,6 +347,86 @@ class QgepPlugin(object):
         Is executed when the user clicks the refreshNetworkTopologyAction tool
         """
         self.network_analyzer.refresh()
+
+    def _configure_from_modelbaker(self):
+        """
+        Configures JAVA path using modelbaker
+        Returns whether modelbaker is available, and displays instructions if not.
+        """
+        REQUIRED_VERSION = 'v6.2.0'
+        modelbaker = plugins.get('QgisModelBaker')
+        if modelbaker is None:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "This feature requires the ModelBaker plugin. Please install and activate it from the plugin manager.",
+                level=Qgis.Critical
+            )
+            return False
+
+        elif parse_version(modelbaker.__version__) < parse_version(REQUIRED_VERSION):
+            self.iface.messageBar().pushMessage(
+                "Error",
+                f"This feature requires a more recent version of the ModelBaker plugin. Please install and activate version {REQUIRED_VERSION} or newer from the plugin manager.",
+                level=Qgis.Critical
+            )
+            return False
+
+        # We reuse modelbaker's logic to get the java path and ili2pg executables from withing QGIS
+        # Maybe we could reuse even more (IliExecutable...) ?
+        from QgisModelBaker.libili2db import ili2dbutils, ili2dbconfig, globals
+        config = ili2dbconfig.BaseConfiguration()
+
+        stdout = SimpleNamespace()
+        stdout.emit = print
+
+        interlis.config.JAVA = ili2dbutils.get_java_path(config)
+        interlis.config.ILI2PG = ili2dbutils.get_ili2db_bin(globals.DbIliMode.ili2pg, 4, print, print)
+
+        return True
+
+    def importToolClicked(self):
+        """
+        Is executed when the user clicks the importAction tool
+        """
+        if not self._configure_from_modelbaker():
+            return
+
+        file_name, _ = QFileDialog.getOpenFileName(
+            None, self.tr("Import file"), os.path.join(QgsProject.instance().absolutePath()), self.tr("Interlis transfer files (*.xtf)")
+        )
+        if not file_name:
+            # Operation canceled
+            return
+
+        # Prepare the temporary ili2pg model
+        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, force_recreate=True)
+        # Export from ili2pg model to file
+        interlis.utils.import_xtf_data(interlis.config.ABWASSER_SCHEMA, file_name)
+        # Export to the temporary ili2pg model
+        from .interlis import qgep
+        qgep.import_()
+
+    def exportToolClicked(self):
+        """
+        Is executed when the user clicks the exportAction tool
+        """
+        if not self._configure_from_modelbaker():
+            return
+
+        file_name, _ = QFileDialog.getSaveFileName(
+            None, self.tr("Export to file"), os.path.join(QgsProject.instance().absolutePath(), 'qgep-export.xtf'), self.tr("Interlis transfer files (*.xtf)")
+        )
+        if not file_name:
+            # Operation canceled
+            return
+
+        # Prepare the temporary ili2pg model
+        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, force_recreate=True)
+        # Export to the temporary ili2pg model
+        from .interlis import qgep
+        qgep.export()
+        # Export from ili2pg model to file
+        interlis.utils.export_xtf_data(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL_NAME, file_name)
 
     def wizard(self):
         """
