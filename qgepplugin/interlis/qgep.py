@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import inspect
 from geoalchemy2.functions import ST_Transform, ST_Force2D
 import warnings
 
