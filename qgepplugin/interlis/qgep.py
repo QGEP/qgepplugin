@@ -14,7 +14,7 @@ from .datamodels.abwasser import Classes as ABWASSER
 
 def export():
 
-    session = Session(utils.create_engine())
+    session = Session(utils.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.TidMaker(id_attribute='obj_id')
     def create_metaattributes(row, session):
         metaattribute = ABWASSER.metaattribute(
