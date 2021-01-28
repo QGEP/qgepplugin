@@ -106,14 +106,14 @@ def export():
             # wbw_basisjahr=row.REPLACE_ME,
             # wbw_bauart=row.REPLACE_ME,
             # wiederbeschaffungswert=row.REPLACE_ME,
-            zugaenglichkeit=row.accessibility_REL.value_de,
+            zugaenglichkeit=row.accessibility_REL.value_de if row.accessibility_REL else None,
 
             # --- kanal ---
-            bettung_umhuellung=row.bedding_encasement_REL.value_de,
+            bettung_umhuellung=row.bedding_encasement_REL.value_de if row.bedding_encasement_REL else None,
             # funktionhierarchisch=row.REPLACE_ME,
             # funktionhydraulisch=row.REPLACE_ME,
-            nutzungsart_geplant=row.usage_planned_REL.value_de,
-            nutzungsart_ist=row.usage_current_REL.value_de,
+            nutzungsart_geplant=row.usage_planned_REL.value_de if row.usage_planned_REL else None,
+            nutzungsart_ist=row.usage_current_REL.value_de if row.usage_current_REL else None,
             # rohrlaenge=row.REPLACE_ME,
             # spuelintervall=row.REPLACE_ME,
             t_id=tid_maker.tid_for_row(row),
@@ -2202,11 +2202,11 @@ def import_():
             # --- file ---
             # class=row.REPLACE_ME,
             # fk_data_media=row.REPLACE_ME,
-            fk_dataowner=get_or_create_organisation(meta.datenherr),
-            fk_provider=get_or_create_organisation(meta.datenlieferant),
+            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
+            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             identifier=row.bezeichnung,
             kind=get_vl_code(QGEP.file_kind, row.art),
-            last_modification=meta.letzte_aenderung,
+            last_modification=metaattribute.letzte_aenderung,
             obj_id=row.obj_id,
             object=row.objekt,
             path_relative=row.relativpfad,
@@ -2217,5 +2217,7 @@ def import_():
         print(".", end="")
     print("done")
     session.flush()
+
+    hghjgjg
 
     session.commit()

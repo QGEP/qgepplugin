@@ -22,7 +22,7 @@ class TestQGEPUseCases(unittest.TestCase):
 
         We recieve data from a TV inspection company as a Wincan exported .xtf file. We want this data loaded into QGEP.
         """
-        utils.setup_test_db('empty')
+        utils.setup_test_db('full')
         utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL)
 
         main(['--force_recreate', '--import_xtf', r'interlis\data\2021-01-21_inspectiondata\test_without_abwasserbauwerkref.xtf', 'qgep'])
@@ -71,4 +71,3 @@ class TestQGEPUseCases(unittest.TestCase):
 
         from .datamodels.qgep import Classes as QGEP
         main(['--force_recreate', '--import_xtf', r'interlis\data\2021-01-19_inspectiondata\testdata_vsa_kek_2019_manhole_damage_8486.xtf', 'qgep'])
-
