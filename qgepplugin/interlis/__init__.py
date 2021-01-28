@@ -11,11 +11,11 @@ def main(args):
     group.add_argument('--import_xtf', help='input file')
     group.add_argument('--export_xtf', help='output file')
     group.add_argument('--gen_tpl', action='store_true', help='generate code templates')
-    parser.add_argument('--force_recreate', action='store_true', help='drops schema and reruns ili2pg importschema')
+    parser.add_argument('--recreate_schema', action='store_true', help='drops schema and reruns ili2pg importschema')
     args = parser.parse_args(args)
 
     if args.model == 'qgep':
-        utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, force_recreate=args.force_recreate)
+        utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
         if args.export_xtf:
             from . import qgep
             qgep.export()
@@ -31,7 +31,7 @@ def main(args):
             utils.generate_template("qgep", "abwasser", QGEP, ABWASSER, MAPPING)
 
     elif args.model == 'qwat':
-        utils.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, force_recreate=args.force_recreate)
+        utils.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
         if args.export_xtf:
             from . import qwat
             qwat.export()

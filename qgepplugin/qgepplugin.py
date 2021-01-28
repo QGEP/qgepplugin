@@ -399,7 +399,7 @@ class QgepPlugin(object):
             return
 
         # Prepare the temporary ili2pg model
-        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, force_recreate=True)
+        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL)
         # Export from ili2pg model to file
         interlis.utils.import_xtf_data(interlis.config.ABWASSER_SCHEMA, file_name)
         # Export to the temporary ili2pg model
@@ -421,7 +421,7 @@ class QgepPlugin(object):
             return
 
         # Prepare the temporary ili2pg model
-        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, force_recreate=True)
+        interlis.utils.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL)
         # Export to the temporary ili2pg model
         from .interlis import qgep
         qgep.export()

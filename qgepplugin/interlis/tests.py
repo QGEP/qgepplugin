@@ -23,9 +23,8 @@ class TestQGEPUseCases(unittest.TestCase):
         We recieve data from a TV inspection company as a Wincan exported .xtf file. We want this data loaded into QGEP.
         """
         utils.setup_test_db('full')
-        utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL)
 
-        main(['--force_recreate', '--import_xtf', r'interlis\data\2021-01-21_inspectiondata\test_without_abwasserbauwerkref.xtf', 'qgep'])
+        main(['--recreate_schema', '--import_xtf', r'interlis\data\2021-01-21_inspectiondata\test_without_abwasserbauwerkref.xtf', 'qgep'])
 
         from .datamodels.qgep import Classes as QGEP
 
@@ -51,10 +50,9 @@ class TestQGEPUseCases(unittest.TestCase):
         # B. export the whole QGEP model to interlis
         """
         utils.setup_test_db('subset')  # we use a subset for now as full export can take time
-        utils.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL)
 
         path = os.path.join(tempfile.mkdtemp(), 'export.xtf')
-        main(['--force_recreate', '--export_xtf', path, 'qgep'])
+        main(['--recreate_schema', '--export_xtf', path, 'qgep'])
 
         print(f"Saved to {path}")
         self.assertTrue(os.path.exists(path))
@@ -70,4 +68,4 @@ class TestQGEPUseCases(unittest.TestCase):
         """
 
         from .datamodels.qgep import Classes as QGEP
-        main(['--force_recreate', '--import_xtf', r'interlis\data\2021-01-19_inspectiondata\testdata_vsa_kek_2019_manhole_damage_8486.xtf', 'qgep'])
+        main(['--recreate_schema', '--import_xtf', r'interlis\data\2021-01-19_inspectiondata\testdata_vsa_kek_2019_manhole_damage_8486.xtf', 'qgep'])

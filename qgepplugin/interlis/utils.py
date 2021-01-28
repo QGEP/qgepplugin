@@ -16,15 +16,14 @@ from . import config
 
 
 def exec_(command, check=True, silent=False):
-    print("")
-    print("!"*80)
     print(f"EXECUTING: {command}")
     try:
-        output = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         if check:
             print(e.output)
             raise Exception(f"Command errored ! See logs for more info.")
+    return proc.returncode
 
 
 def setup_test_db(template='full'):
@@ -109,13 +108,13 @@ def _log_path(name):
     now = datetime.datetime.now()
     return os.path.join(tempfile.gettempdir(), f'ili2qgepqwat-{now:%Y-%m-%d-%H-%M-%S}-{name}.log')
 
-def create_ili_schema(schema, model, force_recreate=False):
+def create_ili_schema(schema, model, recreate_schema=False):
     print("CONNECTING TO DATABASE...")
     connection = psycopg2.connect(f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}")
     connection.set_session(autocommit=True)
     cursor = connection.cursor()
 
-    if not force_recreate:
+    if not recreate_schema:
         # If the schema already exists, we just truncate all tables
         cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';");
         if cursor.rowcount > 0:

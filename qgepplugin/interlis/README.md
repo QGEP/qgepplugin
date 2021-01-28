@@ -4,7 +4,7 @@
 ```
 python -m interlis [-h]
                    [--import_xtf IMPORT_XTF | --export_xtf EXPORT_XTF | --gen_tpl]
-                   [--force_recreate]
+                   [--recreate_schema]
                    {qgep,qwat}
 
 positional arguments:
@@ -15,7 +15,7 @@ optional arguments:
   --import_xtf IMPORT_XTF   input file
   --export_xtf EXPORT_XTF   output file
   --gen_tpl                 generate code templates
-  --force_recreate          drops schema and reruns ili2pg importschema
+  --recreate_schema          drops schema and reruns ili2pg importschema
 ```
 
 ## Dev
@@ -29,5 +29,5 @@ Import scripts templates can be generated using `python -m interlis qwat --gen_t
 We recieve data from a TV inspection company as a Wincan exported .xtf file. We want this data loaded into QGEP.
 
 ```
-python -m interlis --force_recreate --import_xtf interlis\data\test_without_abwasserbauwerkref.xtf qgep
+python -m interlis --recreate_schema --import_xtf interlis\data\test_without_abwasserbauwerkref.xtf qgep
 ```

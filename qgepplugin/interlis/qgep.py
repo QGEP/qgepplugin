@@ -2218,6 +2218,4 @@ def import_():
     print("done")
     session.flush()
 
-    hghjgjg
-
     session.commit()
