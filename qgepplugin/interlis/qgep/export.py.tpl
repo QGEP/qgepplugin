@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from geoalchemy2.functions import ST_Transform, ST_Force2D
 
-from . import utils
+from .. import utils
 
 from .model_qgep import QGEP
 from .model_abwasser import ABWASSER
@@ -27,6 +27,7 @@ def export():
 
     print("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in session.query(QGEP.organisation):
+
         # AVAILABLE FIELDS IN QGEP.organisation
 
         # --- organisation ---
@@ -37,6 +38,7 @@ def export():
 
         organisation = ABWASSER.organisation(
             # FIELDS TO MAP TO ABWASSER.organisation
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -49,7 +51,6 @@ def export():
             # bemerkung=row.REPLACE_ME,
             # bezeichnung=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(organisation)
         create_metaattributes(row, session)
@@ -58,6 +59,7 @@ def export():
 
     print("Exporting QGEP.channel -> ABWASSER.kanal, ABWASSER.metaattribute")
     for row in session.query(QGEP.channel):
+
         # AVAILABLE FIELDS IN QGEP.channel
 
         # --- wastewater_structure ---
@@ -71,6 +73,7 @@ def export():
 
         kanal = ABWASSER.kanal(
             # FIELDS TO MAP TO ABWASSER.kanal
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -111,7 +114,6 @@ def export():
             # spuelintervall=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verbindungsart=row.REPLACE_ME,
-
         )
         session.add(kanal)
         create_metaattributes(row, session)
@@ -120,6 +122,7 @@ def export():
 
     print("Exporting QGEP.manhole -> ABWASSER.normschacht, ABWASSER.metaattribute")
     for row in session.query(QGEP.manhole):
+
         # AVAILABLE FIELDS IN QGEP.manhole
 
         # --- wastewater_structure ---
@@ -133,6 +136,7 @@ def export():
 
         normschacht = ABWASSER.normschacht(
             # FIELDS TO MAP TO ABWASSER.normschacht
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -170,7 +174,6 @@ def export():
             # material=row.REPLACE_ME,
             # oberflaechenzulauf=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(normschacht)
         create_metaattributes(row, session)
@@ -179,6 +182,7 @@ def export():
 
     print("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
     for row in session.query(QGEP.discharge_point):
+
         # AVAILABLE FIELDS IN QGEP.discharge_point
 
         # --- wastewater_structure ---
@@ -192,6 +196,7 @@ def export():
 
         einleitstelle = ABWASSER.einleitstelle(
             # FIELDS TO MAP TO ABWASSER.einleitstelle
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -228,7 +233,6 @@ def export():
             # t_id=row.REPLACE_ME,
             # terrainkote=row.REPLACE_ME,
             # wasserspiegel_hydraulik=row.REPLACE_ME,
-
         )
         session.add(einleitstelle)
         create_metaattributes(row, session)
@@ -237,6 +241,7 @@ def export():
 
     print("Exporting QGEP.special_structure -> ABWASSER.spezialbauwerk, ABWASSER.metaattribute")
     for row in session.query(QGEP.special_structure):
+
         # AVAILABLE FIELDS IN QGEP.special_structure
 
         # --- wastewater_structure ---
@@ -250,6 +255,7 @@ def export():
 
         spezialbauwerk = ABWASSER.spezialbauwerk(
             # FIELDS TO MAP TO ABWASSER.spezialbauwerk
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -286,7 +292,6 @@ def export():
             # notueberlauf=row.REPLACE_ME,
             # regenbecken_anordnung=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(spezialbauwerk)
         create_metaattributes(row, session)
@@ -295,6 +300,7 @@ def export():
 
     print("Exporting QGEP.infiltration_installation -> ABWASSER.versickerungsanlage, ABWASSER.metaattribute")
     for row in session.query(QGEP.infiltration_installation):
+
         # AVAILABLE FIELDS IN QGEP.infiltration_installation
 
         # --- wastewater_structure ---
@@ -308,6 +314,7 @@ def export():
 
         versickerungsanlage = ABWASSER.versickerungsanlage(
             # FIELDS TO MAP TO ABWASSER.versickerungsanlage
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -352,7 +359,6 @@ def export():
             # versickerungswasser=row.REPLACE_ME,
             # wasserdichtheit=row.REPLACE_ME,
             # wirksameflaeche=row.REPLACE_ME,
-
         )
         session.add(versickerungsanlage)
         create_metaattributes(row, session)
@@ -361,6 +367,7 @@ def export():
 
     print("Exporting QGEP.pipe_profile -> ABWASSER.rohrprofil, ABWASSER.metaattribute")
     for row in session.query(QGEP.pipe_profile):
+
         # AVAILABLE FIELDS IN QGEP.pipe_profile
 
         # --- pipe_profile ---
@@ -371,6 +378,7 @@ def export():
 
         rohrprofil = ABWASSER.rohrprofil(
             # FIELDS TO MAP TO ABWASSER.rohrprofil
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -384,7 +392,6 @@ def export():
             # hoehenbreitenverhaeltnis=row.REPLACE_ME,
             # profiltyp=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(rohrprofil)
         create_metaattributes(row, session)
@@ -393,6 +400,7 @@ def export():
 
     print("Exporting QGEP.reach_point -> ABWASSER.haltungspunkt, ABWASSER.metaattribute")
     for row in session.query(QGEP.reach_point):
+
         # AVAILABLE FIELDS IN QGEP.reach_point
 
         # --- reach_point ---
@@ -403,6 +411,7 @@ def export():
 
         haltungspunkt = ABWASSER.haltungspunkt(
             # FIELDS TO MAP TO ABWASSER.haltungspunkt
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -420,7 +429,6 @@ def export():
             # lage=row.REPLACE_ME,
             # lage_anschluss=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(haltungspunkt)
         create_metaattributes(row, session)
@@ -429,6 +437,7 @@ def export():
 
     print("Exporting QGEP.wastewater_node -> ABWASSER.abwasserknoten, ABWASSER.metaattribute")
     for row in session.query(QGEP.wastewater_node):
+
         # AVAILABLE FIELDS IN QGEP.wastewater_node
 
         # --- wastewater_networkelement ---
@@ -442,6 +451,7 @@ def export():
 
         abwasserknoten = ABWASSER.abwasserknoten(
             # FIELDS TO MAP TO ABWASSER.abwasserknoten
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -459,7 +469,6 @@ def export():
             # rueckstaukote=row.REPLACE_ME,
             # sohlenkote=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(abwasserknoten)
         create_metaattributes(row, session)
@@ -468,6 +477,7 @@ def export():
 
     print("Exporting QGEP.reach -> ABWASSER.haltung, ABWASSER.metaattribute")
     for row in session.query(QGEP.reach):
+
         # AVAILABLE FIELDS IN QGEP.reach
 
         # --- wastewater_networkelement ---
@@ -481,6 +491,7 @@ def export():
 
         haltung = ABWASSER.haltung(
             # FIELDS TO MAP TO ABWASSER.haltung
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -512,7 +523,6 @@ def export():
             # verlauf=row.REPLACE_ME,
             # vonhaltungspunktref=row.REPLACE_ME,
             # wandrauhigkeit=row.REPLACE_ME,
-
         )
         session.add(haltung)
         create_metaattributes(row, session)
@@ -521,6 +531,7 @@ def export():
 
     print("Exporting QGEP.dryweather_downspout -> ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute")
     for row in session.query(QGEP.dryweather_downspout):
+
         # AVAILABLE FIELDS IN QGEP.dryweather_downspout
 
         # --- structure_part ---
@@ -534,6 +545,7 @@ def export():
 
         trockenwetterfallrohr = ABWASSER.trockenwetterfallrohr(
             # FIELDS TO MAP TO ABWASSER.trockenwetterfallrohr
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -550,7 +562,6 @@ def export():
             # --- trockenwetterfallrohr ---
             # durchmesser=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(trockenwetterfallrohr)
         create_metaattributes(row, session)
@@ -559,6 +570,7 @@ def export():
 
     print("Exporting QGEP.access_aid -> ABWASSER.einstiegshilfe, ABWASSER.metaattribute")
     for row in session.query(QGEP.access_aid):
+
         # AVAILABLE FIELDS IN QGEP.access_aid
 
         # --- structure_part ---
@@ -572,6 +584,7 @@ def export():
 
         einstiegshilfe = ABWASSER.einstiegshilfe(
             # FIELDS TO MAP TO ABWASSER.einstiegshilfe
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -588,7 +601,6 @@ def export():
             # --- einstiegshilfe ---
             # art=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(einstiegshilfe)
         create_metaattributes(row, session)
@@ -597,6 +609,7 @@ def export():
 
     print("Exporting QGEP.dryweather_flume -> ABWASSER.trockenwetterrinne, ABWASSER.metaattribute")
     for row in session.query(QGEP.dryweather_flume):
+
         # AVAILABLE FIELDS IN QGEP.dryweather_flume
 
         # --- structure_part ---
@@ -610,6 +623,7 @@ def export():
 
         trockenwetterrinne = ABWASSER.trockenwetterrinne(
             # FIELDS TO MAP TO ABWASSER.trockenwetterrinne
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -626,7 +640,6 @@ def export():
             # --- trockenwetterrinne ---
             # material=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(trockenwetterrinne)
         create_metaattributes(row, session)
@@ -635,6 +648,7 @@ def export():
 
     print("Exporting QGEP.cover -> ABWASSER.deckel, ABWASSER.metaattribute")
     for row in session.query(QGEP.cover):
+
         # AVAILABLE FIELDS IN QGEP.cover
 
         # --- structure_part ---
@@ -648,6 +662,7 @@ def export():
 
         deckel = ABWASSER.deckel(
             # FIELDS TO MAP TO ABWASSER.deckel
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -673,7 +688,6 @@ def export():
             # schlammeimer=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
             # verschluss=row.REPLACE_ME,
-
         )
         session.add(deckel)
         create_metaattributes(row, session)
@@ -682,6 +696,7 @@ def export():
 
     print("Exporting QGEP.benching -> ABWASSER.bankett, ABWASSER.metaattribute")
     for row in session.query(QGEP.benching):
+
         # AVAILABLE FIELDS IN QGEP.benching
 
         # --- structure_part ---
@@ -695,6 +710,7 @@ def export():
 
         bankett = ABWASSER.bankett(
             # FIELDS TO MAP TO ABWASSER.bankett
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -711,7 +727,6 @@ def export():
             # --- bankett ---
             # art=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(bankett)
         create_metaattributes(row, session)
@@ -720,6 +735,7 @@ def export():
 
     print("Exporting QGEP.examination -> ABWASSER.untersuchung, ABWASSER.metaattribute")
     for row in session.query(QGEP.examination):
+
         # AVAILABLE FIELDS IN QGEP.examination
 
         # --- maintenance_event ---
@@ -733,6 +749,7 @@ def export():
 
         untersuchung = ABWASSER.untersuchung(
             # FIELDS TO MAP TO ABWASSER.untersuchung
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -767,7 +784,6 @@ def export():
             # videonummer=row.REPLACE_ME,
             # vonpunktbezeichnung=row.REPLACE_ME,
             # witterung=row.REPLACE_ME,
-
         )
         session.add(untersuchung)
         create_metaattributes(row, session)
@@ -776,6 +792,7 @@ def export():
 
     print("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden, ABWASSER.metaattribute")
     for row in session.query(QGEP.damage_manhole):
+
         # AVAILABLE FIELDS IN QGEP.damage_manhole
 
         # --- damage ---
@@ -789,6 +806,7 @@ def export():
 
         normschachtschaden = ABWASSER.normschachtschaden(
             # FIELDS TO MAP TO ABWASSER.normschachtschaden
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -814,7 +832,6 @@ def export():
             # schadenlageanfang=row.REPLACE_ME,
             # schadenlageende=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(normschachtschaden)
         create_metaattributes(row, session)
@@ -823,6 +840,7 @@ def export():
 
     print("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden, ABWASSER.metaattribute")
     for row in session.query(QGEP.damage_channel):
+
         # AVAILABLE FIELDS IN QGEP.damage_channel
 
         # --- damage ---
@@ -836,6 +854,7 @@ def export():
 
         kanalschaden = ABWASSER.kanalschaden(
             # FIELDS TO MAP TO ABWASSER.kanalschaden
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -860,7 +879,6 @@ def export():
             # schadenlageanfang=row.REPLACE_ME,
             # schadenlageende=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(kanalschaden)
         create_metaattributes(row, session)
@@ -869,6 +887,7 @@ def export():
 
     print("Exporting QGEP.data_media -> ABWASSER.datentraeger, ABWASSER.metaattribute")
     for row in session.query(QGEP.data_media):
+
         # AVAILABLE FIELDS IN QGEP.data_media
 
         # --- data_media ---
@@ -879,6 +898,7 @@ def export():
 
         datentraeger = ABWASSER.datentraeger(
             # FIELDS TO MAP TO ABWASSER.datentraeger
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -893,7 +913,6 @@ def export():
             # pfad=row.REPLACE_ME,
             # standort=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(datentraeger)
         create_metaattributes(row, session)
@@ -902,6 +921,7 @@ def export():
 
     print("Exporting QGEP.file -> ABWASSER.datei, ABWASSER.metaattribute")
     for row in session.query(QGEP.file):
+
         # AVAILABLE FIELDS IN QGEP.file
 
         # --- file ---
@@ -912,6 +932,7 @@ def export():
 
         datei = ABWASSER.datei(
             # FIELDS TO MAP TO ABWASSER.datei
+
             # --- baseclass ---
             # t_ili_tid=row.REPLACE_ME,
             # t_type=row.REPLACE_ME,
@@ -928,7 +949,6 @@ def export():
             # objekt=row.REPLACE_ME,
             # relativpfad=row.REPLACE_ME,
             # t_id=row.REPLACE_ME,
-
         )
         session.add(datei)
         create_metaattributes(row, session)

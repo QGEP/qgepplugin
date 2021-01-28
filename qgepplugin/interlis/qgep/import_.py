@@ -41,9 +41,7 @@ def import_():
             return instance.obj_id
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
-    for row, metaattribute in session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN organisation
 
@@ -66,6 +64,7 @@ def import_():
 
         organisation = QGEP.organisation(
             # FIELDS TO MAP TO QGEP.organisation
+
             # --- organisation ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -78,7 +77,6 @@ def import_():
         session.add(organisation)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.kanal, ABWASSER.metaattribute -> QGEP.channel")
     for row, metaattribute in session.query(ABWASSER.kanal, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -110,6 +108,7 @@ def import_():
 
         channel = QGEP.channel(
             # FIELDS TO MAP TO QGEP.channel
+
             # --- wastewater_structure ---
             # _bottom_label=row.REPLACE_ME,
             # _cover_label=row.REPLACE_ME,
@@ -145,6 +144,7 @@ def import_():
             # subsidies=row.REPLACE_ME,
             # year_of_construction=row.REPLACE_ME,
             # year_of_replacement=row.REPLACE_ME,
+
             # --- channel ---
             # bedding_encasement=row.REPLACE_ME,
             # connection_type=row.REPLACE_ME,
@@ -159,7 +159,6 @@ def import_():
         session.add(channel)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.normschacht, ABWASSER.metaattribute -> QGEP.manhole")
     for row, metaattribute in session.query(ABWASSER.normschacht, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -191,6 +190,7 @@ def import_():
 
         manhole = QGEP.manhole(
             # FIELDS TO MAP TO QGEP.manhole
+
             # --- wastewater_structure ---
             # _bottom_label=row.REPLACE_ME,
             # _cover_label=row.REPLACE_ME,
@@ -226,6 +226,7 @@ def import_():
             # subsidies=row.REPLACE_ME,
             # year_of_construction=row.REPLACE_ME,
             # year_of_replacement=row.REPLACE_ME,
+
             # --- manhole ---
             # _orientation=row.REPLACE_ME,
             # dimension1=row.REPLACE_ME,
@@ -238,12 +239,9 @@ def import_():
         session.add(manhole)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.einleitstelle, ABWASSER.metaattribute -> QGEP.discharge_point")
-    for row, metaattribute in session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einleitstelle
 
@@ -272,6 +270,7 @@ def import_():
 
         discharge_point = QGEP.discharge_point(
             # FIELDS TO MAP TO QGEP.discharge_point
+
             # --- wastewater_structure ---
             # _bottom_label=row.REPLACE_ME,
             # _cover_label=row.REPLACE_ME,
@@ -307,6 +306,7 @@ def import_():
             # subsidies=row.REPLACE_ME,
             # year_of_construction=row.REPLACE_ME,
             # year_of_replacement=row.REPLACE_ME,
+
             # --- discharge_point ---
             # fk_sector_water_body=row.REPLACE_ME,
             # highwater_level=row.REPLACE_ME,
@@ -319,12 +319,9 @@ def import_():
         session.add(discharge_point)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.spezialbauwerk, ABWASSER.metaattribute -> QGEP.special_structure")
-    for row, metaattribute in session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN spezialbauwerk
 
@@ -353,6 +350,7 @@ def import_():
 
         special_structure = QGEP.special_structure(
             # FIELDS TO MAP TO QGEP.special_structure
+
             # --- wastewater_structure ---
             # _bottom_label=row.REPLACE_ME,
             # _cover_label=row.REPLACE_ME,
@@ -388,6 +386,7 @@ def import_():
             # subsidies=row.REPLACE_ME,
             # year_of_construction=row.REPLACE_ME,
             # year_of_replacement=row.REPLACE_ME,
+
             # --- special_structure ---
             # bypass=row.REPLACE_ME,
             # emergency_spillway=row.REPLACE_ME,
@@ -399,12 +398,9 @@ def import_():
         session.add(special_structure)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.versickerungsanlage, ABWASSER.metaattribute -> QGEP.infiltration_installation")
-    for row, metaattribute in session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN versickerungsanlage
 
@@ -433,6 +429,7 @@ def import_():
 
         infiltration_installation = QGEP.infiltration_installation(
             # FIELDS TO MAP TO QGEP.infiltration_installation
+
             # --- wastewater_structure ---
             # _bottom_label=row.REPLACE_ME,
             # _cover_label=row.REPLACE_ME,
@@ -468,6 +465,7 @@ def import_():
             # subsidies=row.REPLACE_ME,
             # year_of_construction=row.REPLACE_ME,
             # year_of_replacement=row.REPLACE_ME,
+
             # --- infiltration_installation ---
             # absorption_capacity=row.REPLACE_ME,
             # defects=row.REPLACE_ME,
@@ -488,7 +486,6 @@ def import_():
         session.add(infiltration_installation)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.rohrprofil, ABWASSER.metaattribute -> QGEP.pipe_profile")
     for row, metaattribute in session.query(ABWASSER.rohrprofil, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -514,6 +511,7 @@ def import_():
 
         pipe_profile = QGEP.pipe_profile(
             # FIELDS TO MAP TO QGEP.pipe_profile
+
             # --- pipe_profile ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -527,12 +525,9 @@ def import_():
         session.add(pipe_profile)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.haltungspunkt, ABWASSER.metaattribute -> QGEP.reach_point")
-    for row, metaattribute in session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN haltungspunkt
 
@@ -558,6 +553,7 @@ def import_():
 
         reach_point = QGEP.reach_point(
             # FIELDS TO MAP TO QGEP.reach_point
+
             # --- reach_point ---
             # elevation_accuracy=row.REPLACE_ME,
             # fk_dataowner=row.REPLACE_ME,
@@ -575,12 +571,9 @@ def import_():
         session.add(reach_point)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.abwasserknoten, ABWASSER.metaattribute -> QGEP.wastewater_node")
-    for row, metaattribute in session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN abwasserknoten
 
@@ -609,6 +602,7 @@ def import_():
 
         wastewater_node = QGEP.wastewater_node(
             # FIELDS TO MAP TO QGEP.wastewater_node
+
             # --- wastewater_networkelement ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -616,6 +610,7 @@ def import_():
             # identifier=row.REPLACE_ME,
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
+
             # --- wastewater_node ---
             # backflow_level=row.REPLACE_ME,
             # bottom_level=row.REPLACE_ME,
@@ -626,7 +621,6 @@ def import_():
         session.add(wastewater_node)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.haltung, ABWASSER.metaattribute -> QGEP.reach")
     for row, metaattribute in session.query(ABWASSER.haltung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -658,6 +652,7 @@ def import_():
 
         reach = QGEP.reach(
             # FIELDS TO MAP TO QGEP.reach
+
             # --- wastewater_networkelement ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -665,6 +660,7 @@ def import_():
             # identifier=row.REPLACE_ME,
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
+
             # --- reach ---
             # clear_height=row.REPLACE_ME,
             # coefficient_of_friction=row.REPLACE_ME,
@@ -689,12 +685,9 @@ def import_():
         session.add(reach)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute -> QGEP.dryweather_downspout")
-    for row, metaattribute in session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterfallrohr
 
@@ -723,6 +716,7 @@ def import_():
 
         dryweather_downspout = QGEP.dryweather_downspout(
             # FIELDS TO MAP TO QGEP.dryweather_downspout
+
             # --- structure_part ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -731,6 +725,7 @@ def import_():
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
             # renovation_demand=row.REPLACE_ME,
+
             # --- dryweather_downspout ---
             # diameter=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
@@ -738,12 +733,9 @@ def import_():
         session.add(dryweather_downspout)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.einstiegshilfe, ABWASSER.metaattribute -> QGEP.access_aid")
-    for row, metaattribute in session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einstiegshilfe
 
@@ -772,6 +764,7 @@ def import_():
 
         access_aid = QGEP.access_aid(
             # FIELDS TO MAP TO QGEP.access_aid
+
             # --- structure_part ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -780,6 +773,7 @@ def import_():
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
             # renovation_demand=row.REPLACE_ME,
+
             # --- access_aid ---
             # kind=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
@@ -787,12 +781,9 @@ def import_():
         session.add(access_aid)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.trockenwetterrinne, ABWASSER.metaattribute -> QGEP.dryweather_flume")
-    for row, metaattribute in session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterrinne
 
@@ -821,6 +812,7 @@ def import_():
 
         dryweather_flume = QGEP.dryweather_flume(
             # FIELDS TO MAP TO QGEP.dryweather_flume
+
             # --- structure_part ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -829,6 +821,7 @@ def import_():
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
             # renovation_demand=row.REPLACE_ME,
+
             # --- dryweather_flume ---
             # material=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
@@ -836,7 +829,6 @@ def import_():
         session.add(dryweather_flume)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.deckel, ABWASSER.metaattribute -> QGEP.cover")
     for row, metaattribute in session.query(ABWASSER.deckel, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -868,6 +860,7 @@ def import_():
 
         cover = QGEP.cover(
             # FIELDS TO MAP TO QGEP.cover
+
             # --- structure_part ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -876,6 +869,7 @@ def import_():
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
             # renovation_demand=row.REPLACE_ME,
+
             # --- cover ---
             # brand=row.REPLACE_ME,
             # cover_shape=row.REPLACE_ME,
@@ -892,7 +886,6 @@ def import_():
         session.add(cover)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.bankett, ABWASSER.metaattribute -> QGEP.benching")
     for row, metaattribute in session.query(ABWASSER.bankett, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -924,6 +917,7 @@ def import_():
 
         benching = QGEP.benching(
             # FIELDS TO MAP TO QGEP.benching
+
             # --- structure_part ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -932,6 +926,7 @@ def import_():
             # last_modification=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
             # renovation_demand=row.REPLACE_ME,
+
             # --- benching ---
             # kind=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
@@ -939,12 +934,9 @@ def import_():
         session.add(benching)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.untersuchung, ABWASSER.metaattribute -> QGEP.examination")
-    for row, metaattribute in session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN untersuchung
 
@@ -973,6 +965,7 @@ def import_():
 
         examination = QGEP.examination(
             # FIELDS TO MAP TO QGEP.examination
+
             # --- maintenance_event ---
             # active_zone=row.REPLACE_ME,
             # base_data=row.REPLACE_ME,
@@ -991,6 +984,7 @@ def import_():
             # result=row.REPLACE_ME,
             # status=row.REPLACE_ME,
             # time_point=row.REPLACE_ME,
+
             # --- examination ---
             # equipment=row.REPLACE_ME,
             # fk_reach_point=row.REPLACE_ME,
@@ -1006,12 +1000,9 @@ def import_():
         session.add(examination)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.normschachtschaden, ABWASSER.metaattribute -> QGEP.damage_manhole")
-    for row, metaattribute in session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN normschachtschaden
 
@@ -1040,6 +1031,7 @@ def import_():
 
         damage_manhole = QGEP.damage_manhole(
             # FIELDS TO MAP TO QGEP.damage_manhole
+
             # --- damage ---
             comments=row.anmerkung,
             # connection=row.REPLACE_ME,
@@ -1056,6 +1048,7 @@ def import_():
             # single_damage_class=row.REPLACE_ME,
             # video_counter=row.REPLACE_ME,
             # view_parameters=row.REPLACE_ME,
+
             # --- damage_manhole ---
             # manhole_damage_code=row.REPLACE_ME,
             # manhole_shaft_area=row.REPLACE_ME,
@@ -1064,12 +1057,9 @@ def import_():
         session.add(damage_manhole)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.kanalschaden, ABWASSER.metaattribute -> QGEP.damage_channel")
-    for row, metaattribute in session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN kanalschaden
 
@@ -1098,6 +1088,7 @@ def import_():
 
         damage_channel = QGEP.damage_channel(
             # FIELDS TO MAP TO QGEP.damage_channel
+
             # --- damage ---
             comments=row.anmerkung,
             # connection=row.REPLACE_ME,
@@ -1114,6 +1105,7 @@ def import_():
             # single_damage_class=row.REPLACE_ME,
             # video_counter=row.REPLACE_ME,
             # view_parameters=row.REPLACE_ME,
+
             # --- damage_channel ---
             # channel_damage_code=row.REPLACE_ME,
             obj_id=row.obj_id,
@@ -1121,12 +1113,9 @@ def import_():
         session.add(damage_channel)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
-    for row, metaattribute in session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(
-        ABWASSER.metaattribute
-    ):
+    for row, metaattribute in session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN datentraeger
 
@@ -1149,6 +1138,7 @@ def import_():
 
         data_media = QGEP.data_media(
             # FIELDS TO MAP TO QGEP.data_media
+
             # --- data_media ---
             # fk_dataowner=row.REPLACE_ME,
             # fk_provider=row.REPLACE_ME,
@@ -1163,7 +1153,6 @@ def import_():
         session.merge(data_media)
         print(".", end="")
     print("done")
-    # session.flush()
 
     print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
     for row, metaattribute in session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -1192,6 +1181,7 @@ def import_():
 
         file = QGEP.file(
             # FIELDS TO MAP TO QGEP.file
+
             # --- file ---
             # class=row.REPLACE_ME,
             # fk_data_media=row.REPLACE_ME,
