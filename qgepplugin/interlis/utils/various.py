@@ -20,6 +20,7 @@ def exec_(command, check=True, silent=False):
         if check:
             print(e.output)
             raise Exception(f"Command errored ! See logs for more info.")
+        return e.returncode
     return proc.returncode
 
 
