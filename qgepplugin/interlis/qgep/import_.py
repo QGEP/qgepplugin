@@ -36,7 +36,6 @@ def import_():
         else:
             instance = QGEP.organisation(identifier=name)
             session.add(instance)
-            # session.flush()
             return instance.obj_id
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
@@ -1197,7 +1196,6 @@ def import_():
         session.add(file)
         print(".", end="")
     print("done")
-    # session.flush()
 
     # TODO : UI to filter objects, like this
     # print("Currently in the session")
