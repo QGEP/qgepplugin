@@ -13,23 +13,23 @@ def import_():
 
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
-    # TODO : memoize (and get the whole table at once)
-    # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
     def get_vl_code(vl_table, value):
         """
         Gets a value list code from the value_de name. Returns None and a warning if not found.
         """
+        # TODO : memoize (and get the whole table at once) to improve N+1 performance issue
+        # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
         row = session.query(vl_table).filter(vl_table.value_de == value).first()
         if row is None:
             warnings.warn(f'⚠️ Could not find value `{value}` in value list "{vl_table.__table__.schema}.{vl_table.__name__}". Setting to None instead.')
             return None
         return row.code
 
-    # TODO : memoize (and get the whole table at once)
     def get_or_create_organisation(name):
         """
         Gets an organisation ID from it's name (and creates an entry if not existing)
         """
+        # TODO : memoize to improve N+1 performance issue
         instance = session.query(QGEP.organisation).filter(QGEP.organisation.identifier == name).first()
         if instance:
             return instance.obj_id
@@ -1053,7 +1053,7 @@ def import_():
     for row, metaattribute in session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         file = QGEP.file(
             # --- file ---
-            **{"class": get_vl_code(QGEP.file_class, row.klasse)}, # equivalent to class=get_vl_code(QGEP.file_class, row.klasse), because class is a python keyword
+            **{"class": get_vl_code(QGEP.file_class, row.klasse)},  # equivalent to class=get_vl_code(QGEP.file_class, row.klasse), because class is a python keyword
             fk_data_media=row.datentraegerref_REL.obj_id,
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
             fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
