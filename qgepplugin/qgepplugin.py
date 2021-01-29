@@ -32,7 +32,7 @@ import logging
 import os
 
 from qgis.PyQt.QtCore import QSettings, Qt, QLocale
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar, QFileDialog, QProgressDialog
 from qgis.PyQt.QtGui import QIcon
 
 from qgis.utils import plugins, qgsfunction
@@ -49,6 +49,7 @@ from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
 from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
 from .gui.qgepwizard import QgepWizard
+from .gui.qgepinterlisimportstep import QgepInterlisImportStepDialog
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
@@ -362,13 +363,28 @@ class QgepPlugin(object):
             return
         QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
 
+        progress_dialog = QProgressDialog("", "", 0, 100, self.iface.mainWindow())
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setModal(True)
+        progress_dialog.show()
+
         # Prepare the temporary ili2pg model
-        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL)
+        progress_dialog.setLabelText("Creating ili schema...")
+        progress_dialog.setValue(0)
+        QApplication.processEvents()
+        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, recreate_schema=True)
         # Export from ili2pg model to file
+        progress_dialog.setLabelText("Importing XTF data...")
+        progress_dialog.setValue(50)
+        QApplication.processEvents()
         interlis.utils.ili2db.import_xtf_data(interlis.config.ABWASSER_SCHEMA, file_name)
         # Export to the temporary ili2pg model
         from .interlis.qgep.import_ import import_
-        import_()
+        import_dialog = QgepInterlisImportStepDialog(self.iface.mainWindow())
+        progress_dialog.setLabelText("Converting to QGEP...")
+        progress_dialog.setValue(100)
+        QApplication.processEvents()
+        import_(precommit_callback=import_dialog.execute_for_session)
 
     def exportToolClicked(self):
         """
@@ -387,7 +403,7 @@ class QgepPlugin(object):
         QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
 
         # Prepare the temporary ili2pg model
-        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL)
+        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, recreate_schema=True)
         # Export to the temporary ili2pg model
         from .interlis.qgep.export import export
         export()

@@ -33,21 +33,15 @@ def create_ili_schema(schema, model, recreate_schema=False):
                 cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
             return
 
-    print(f"CREATING THE SCHEMA {schema}...")
+    print(f"DROPPING THE SCHEMA {schema}...")
     cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
+    print(f"CREATING THE SCHEMA {schema}...")
     cursor.execute(f"CREATE SCHEMA {schema};")
     connection.commit()
+    connection.close()
 
     print(f"ILIDB SCHEMAIMPORT INTO {schema}...")
-    # if "_f-" in model:
-    #     lang = f'fr'
-    # else:
-    #     lang = f'de'
-    lang = f"de"
-
-    exec_(
-        f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log {_log_path("create")} --nameLang {lang} {model}'
-    )
+    exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log {_log_path("create")} --nameLang de {model}')
 
 
 def validate_xtf_data(xtf_file):

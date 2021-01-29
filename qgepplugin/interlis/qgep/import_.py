@@ -11,7 +11,16 @@ from .model_qgep import QGEP
 from .model_abwasser import ABWASSER
 
 
-def import_():
+def import_(precommit_callback=None):
+    """
+    Imports data from the ili2pg model into the QGEP model
+
+    Args:
+        precommit_callback: optional callable that gets invoked with the sqlalchemy's session,
+                            allowing for a GUI to  filter objects before committing. It must
+                            return True if the session should be committed or False if it should
+                            be rolled back
+    """
 
     # We use two different sessions for reading and writing so it's easier to
     # review imports and to keep the door open to getting data from another
@@ -1080,14 +1089,12 @@ def import_():
         print(".", end="")
     print("done")
 
-    print("Objects pending for commit")
-    for obj in qgep_session:
-        status_names = []
-        for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
-            if getattr(inspect(obj), status_name):
-                status_names.append(status_name)
-        print(f"[x] {obj.__class__} - {' '.join(status_names)}")
+    # Calling the precommit callback if provided, allowing to filter before final import
+    proceed = True
+    if precommit_callback:
+        proceed = precommit_callback(qgep_session)
 
-    # TODO : UI callback to filter these objects
-
-    qgep_session.commit()
+    if not proceed:
+        qgep_session.rollback()
+    else:
+        qgep_session.commit()
