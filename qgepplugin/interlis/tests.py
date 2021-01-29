@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 
 from . import main
 from . import utils
-from . import config
 
 
 class TestQGEPUseCases(unittest.TestCase):
