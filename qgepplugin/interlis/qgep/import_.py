@@ -19,12 +19,11 @@ def import_():
         """
         Gets a value list code from the value_de name. Returns None and a warning if not found.
         """
-        q = session.query(vl_table).filter(vl_table.value_de == value)
-        try:
-            return q[0].code
-        except IndexError:
-            warnings.warn(f'Unknown value `{value}` in value list "{vl_table.__name__}".')
-        return None
+        row = session.query(vl_table).filter(vl_table.value_de == value).first()
+        if row is None:
+            warnings.warn(f'⚠️ Could not find value `{value}` in value list "{vl_table.__table__.schema}.{vl_table.__name__}". Setting to None instead.')
+            return None
+        return row.code
 
     # TODO : memoize (and get the whole table at once)
     def get_or_create_organisation(name):
