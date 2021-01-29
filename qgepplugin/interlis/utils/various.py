@@ -118,6 +118,9 @@ def setup_test_db(template="full"):
                 except psycopg2.errors.ForeignKeyViolation as e:
                     print(f"Exception {e} !! we still continue...")
                     pass
+            if schema == 'qgep_od':
+                # We delete orphaned wastewater_structure
+                cursor.execute("DELETE FROM qgep_od.wastewater_structure WHERE fk_main_wastewater_node IS NULL;")
             cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
         exec_(
             f'docker exec qgepqwat psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"'
