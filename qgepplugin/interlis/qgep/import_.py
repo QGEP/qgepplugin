@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
 from geoalchemy2.functions import ST_Transform, ST_Force2D
@@ -29,11 +31,11 @@ def import_():
             return None
         return row.code
 
+    @lru_cache(maxsize=None)
     def get_or_create_organisation(name):
         """
         Gets an organisation ID from it's name (and creates an entry if not existing)
         """
-        # TODO : memoize to improve N+1 performance issue
         instance = qgep_session.query(QGEP.organisation).filter(QGEP.organisation.identifier == name).first()
         if instance:
             return instance.obj_id
@@ -44,6 +46,11 @@ def import_():
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
     for row, metaattribute in abwasser_session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+        # TODO : this may create multiple copies of the same organisation in certain circumstances.
+        # Ideally we don't want to flush so we can review organisation creation like any other
+        # data before commiting.
+        # See corresponding test case : tests.TestRegressions.test_self_referencing_organisation
+
         organisation = QGEP.organisation(
             # --- organisation ---
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
