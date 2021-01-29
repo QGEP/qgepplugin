@@ -9,6 +9,7 @@ from .model_wasser import WASSER
 
 def import_():
 
+    # TODO: use two different sessions for reading and writing as in qgep.import_
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
     print("Importing WASSER.hydraulischer_knoten -> QWAT.node")

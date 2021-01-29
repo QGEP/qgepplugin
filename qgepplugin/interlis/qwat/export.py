@@ -9,6 +9,7 @@ from .model_wasser import WASSER
 
 def export():
 
+    # TODO: use two different sessions for reading and writing as in qgep.import_
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute="id")
 
