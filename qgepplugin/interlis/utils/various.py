@@ -36,7 +36,7 @@ def setup_test_db(template="full"):
     """
 
     def dexec_(cmd):
-        return exec_("docker exec qgepqwat {cmd}")
+        return exec_(f"docker exec qgepqwat {cmd}")
 
     print("SETTING UP QGEP/QWAT DATABASE...")
     r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False, silent=True)
