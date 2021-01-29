@@ -1080,13 +1080,14 @@ def import_():
         print(".", end="")
     print("done")
 
-    # TODO : UI to filter objects, like this
-    # print("Currently in the session")
-    # for obj in session:
-    #     status_names = []
-    #     for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
-    #         if getattr(inspect(obj), status_name):
-    #             status_names.append(status_name)
-    #     print(f"[x] {obj.__class__} - {' '.join(status_names)}")
+    print("Objects pending for commit")
+    for obj in qgep_session:
+        status_names = []
+        for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
+            if getattr(inspect(obj), status_name):
+                status_names.append(status_name)
+        print(f"[x] {obj.__class__} - {' '.join(status_names)}")
 
-    session.commit()
+    # TODO : UI callback to filter these objects
+
+    qgep_session.commit()
