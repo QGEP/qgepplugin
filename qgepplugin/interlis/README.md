@@ -31,3 +31,7 @@ We recieve data from a TV inspection company as a Wincan exported .xtf file. We 
 ```
 python -m interlis --recreate_schema --import_xtf interlis\data\test_without_abwasserbauwerkref.xtf qgep
 ```
+
+## Known issues
+
+- [ ] Second time it is use, "create_ili_schema" hangs, probably because there's a session left open somewhere making the drop schema hang ? Or conflict with QGIS handlers ?

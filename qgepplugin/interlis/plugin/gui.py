@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
 from collections import defaultdict
@@ -5,12 +7,13 @@ from collections import defaultdict
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem
+from qgis.PyQt.uic import loadUiType
 
 
-from ..utils import get_ui_class
+UI_FILE = os.path.join(os.path.dirname(__file__), 'gui.ui')
 
 
-class QgepInterlisImportStepDialog(QDialog, get_ui_class('qgepinterlisimportstep.ui')):
+class Gui(QDialog, loadUiType(UI_FILE)[0]):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -108,7 +111,7 @@ class QgepInterlisImportStepDialog(QDialog, get_ui_class('qgepinterlisimportstep
         Populates the details pane
         """
 
-        self.detailsTextEdit.clear()
+        self.debugTextEdit.clear()
         obj = None
         for obj, item in self.instances_items.items():
             if item == current_item:
@@ -117,6 +120,6 @@ class QgepInterlisImportStepDialog(QDialog, get_ui_class('qgepinterlisimportstep
         if obj:
             for c in inspect(obj).mapper.column_attrs:
                 val = getattr(obj, c.key)
-                self.detailsTextEdit.append(f"{c.key}: {val}")
+                self.debugTextEdit.append(f"{c.key}: {val}")
         else:
-            self.detailsTextEdit.append("Not found")
+            self.debugTextEdit.append("Not found")

@@ -32,11 +32,11 @@ import logging
 import os
 
 from qgis.PyQt.QtCore import QSettings, Qt, QLocale
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar, QFileDialog, QProgressDialog
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
 from qgis.PyQt.QtGui import QIcon
 
-from qgis.utils import plugins, qgsfunction
-from qgis.core import QgsApplication, QgsProject, QgsSettings
+from qgis.utils import qgsfunction
+from qgis.core import QgsApplication
 
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
@@ -49,14 +49,12 @@ from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
 from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
 from .gui.qgepwizard import QgepWizard
-from .gui.qgepinterlisimportstep import QgepInterlisImportStepDialog
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
 from .utils.plugin_utils import plugin_root_path
-from .utils.interlis_import_export import configure_from_modelbaker
 from .processing_provider.provider import QgepProcessingProvider
-from . import interlis
+from .interlis.plugin import action_import, action_export
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
@@ -221,13 +219,13 @@ class QgepPlugin(object):
         self.importAction.setWhatsThis(self.tr("Import from interlis"))
         self.importAction.setEnabled(False)
         self.importAction.setCheckable(False)
-        self.importAction.triggered.connect(self.importToolClicked)
+        self.importAction.triggered.connect(lambda _clicked, plugin=self: action_import(plugin))
 
         self.exportAction = QAction(self.tr("Export"), self.iface.mainWindow())
         self.exportAction.setWhatsThis(self.tr("Export from interlis"))
         self.exportAction.setEnabled(False)
         self.exportAction.setCheckable(False)
-        self.exportAction.triggered.connect(self.exportToolClicked)
+        self.exportAction.triggered.connect(lambda _clicked, plugin=self: action_export(plugin))
 
         # Add toolbar button and menu item
         self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
@@ -346,69 +344,6 @@ class QgepPlugin(object):
         Is executed when the user clicks the refreshNetworkTopologyAction tool
         """
         self.network_analyzer.refresh()
-
-    def importToolClicked(self):
-        """
-        Is executed when the user clicks the importAction tool
-        """
-        if not configure_from_modelbaker(self.iface):
-            return
-
-        default_folder = QgsSettings().value('qgep_pluging/last_interlis_path', QgsProject.instance().absolutePath())
-        file_name, _ = QFileDialog.getOpenFileName(
-            None, self.tr("Import file"), default_folder, self.tr("Interlis transfer files (*.xtf)")
-        )
-        if not file_name:
-            # Operation canceled
-            return
-        QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
-
-        progress_dialog = QProgressDialog("", "", 0, 100, self.iface.mainWindow())
-        progress_dialog.setCancelButton(None)
-        progress_dialog.setModal(True)
-        progress_dialog.show()
-
-        # Prepare the temporary ili2pg model
-        progress_dialog.setLabelText("Creating ili schema...")
-        progress_dialog.setValue(0)
-        QApplication.processEvents()
-        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, recreate_schema=True)
-        # Export from ili2pg model to file
-        progress_dialog.setLabelText("Importing XTF data...")
-        progress_dialog.setValue(50)
-        QApplication.processEvents()
-        interlis.utils.ili2db.import_xtf_data(interlis.config.ABWASSER_SCHEMA, file_name)
-        # Export to the temporary ili2pg model
-        from .interlis.qgep.import_ import import_
-        import_dialog = QgepInterlisImportStepDialog(self.iface.mainWindow())
-        progress_dialog.setLabelText("Converting to QGEP...")
-        progress_dialog.setValue(100)
-        QApplication.processEvents()
-        import_(precommit_callback=import_dialog.execute_for_session)
-
-    def exportToolClicked(self):
-        """
-        Is executed when the user clicks the exportAction tool
-        """
-        if not configure_from_modelbaker(self.iface):
-            return
-
-        default_folder = QgsSettings().value('qgep_pluging/last_interlis_path', QgsProject.instance().absolutePath())
-        file_name, _ = QFileDialog.getSaveFileName(
-            None, self.tr("Export to file"), os.path.join(default_folder, 'qgep-export.xtf'), self.tr("Interlis transfer files (*.xtf)")
-        )
-        if not file_name:
-            # Operation canceled
-            return
-        QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
-
-        # Prepare the temporary ili2pg model
-        interlis.utils.ili2db.create_ili_schema(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL, recreate_schema=True)
-        # Export to the temporary ili2pg model
-        from .interlis.qgep.export import export
-        export()
-        # Export from ili2pg model to file
-        interlis.utils.ili2db.export_xtf_data(interlis.config.ABWASSER_SCHEMA, interlis.config.ABWASSER_ILI_MODEL_NAME, file_name)
 
     def wizard(self):
         """
