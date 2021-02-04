@@ -25,7 +25,7 @@ def create_ili_schema(schema, model, recreate_schema=False):
 
     if not recreate_schema:
         # If the schema already exists, we just truncate all tables
-        cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';")
+        cursor.execute(f"SELECT schema_name FROM information_schema.schema WHERE schema_name = '{schema}';")
         if cursor.rowcount > 0:
             print(f"Schema {schema} already exists, we truncate instead")
             cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
@@ -34,9 +34,9 @@ def create_ili_schema(schema, model, recreate_schema=False):
             return
 
     print(f"DROPPING THE SCHEMA {schema}...")
-    cursor.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE ;")
+    cursor.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE ;')
     print(f"CREATING THE SCHEMA {schema}...")
-    cursor.execute(f"CREATE SCHEMA {schema};")
+    cursor.execute(f'CREATE SCHEMA "{schema}";')
     connection.commit()
     connection.close()
 
