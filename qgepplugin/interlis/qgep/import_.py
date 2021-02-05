@@ -1016,8 +1016,13 @@ def import_(precommit_callback=None):
 
         # In QGEP, relation between maintenance_event and wastewater_structure is done with
         # an association table instead of a foreign key on maintenance_event.
+        # NOTE : this may change in future versions of VSA_KEK
         if row.abwasserbauwerkref:
-            # TODO : for dangling references (partial imports), we may have abwasserbauwerkref without abwasserbauwerkref_REL
+            # TODO : for now, this will not work unless the related wastewaterstructures are part of the import,
+            # as ili2pg imports dangling references as NULL.
+            # The day ili2pg works, we probably need to double-check whether the referenced wastewater structure exists prior
+            # to creating this association.
+            # Soft matching based on from/to_point_identifier will be done in the GUI data checking process.
             exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
                 fk_wastewater_structure=row.abwasserbauwerkref,
                 fk_maintenance_event=row.obj_id,
