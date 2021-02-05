@@ -9,10 +9,11 @@ from .model_abwasser import ABWASSER
 
 def import_():
 
-    session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
-    for row, metaattribute in session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN organisation
 
@@ -30,8 +31,8 @@ def import_():
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         organisation = QGEP.organisation(
             # FIELDS TO MAP TO QGEP.organisation
@@ -45,12 +46,12 @@ def import_():
             # remark=row.REPLACE_ME,
             # uid=row.REPLACE_ME,
         )
-        session.add(organisation)
+        qgep_session.add(organisation)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.kanal, ABWASSER.metaattribute -> QGEP.channel")
-    for row, metaattribute in session.query(ABWASSER.kanal, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.kanal, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN kanal
 
@@ -66,16 +67,19 @@ def import_():
         # --- kanal ---
         # bettung_umhuellung, funktionhierarchisch, funktionhydraulisch, nutzungsart_geplant, nutzungsart_ist, rohrlaenge, spuelintervall, t_id, verbindungsart
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         channel = QGEP.channel(
             # FIELDS TO MAP TO QGEP.channel
@@ -127,12 +131,12 @@ def import_():
             # usage_current=row.REPLACE_ME,
             # usage_planned=row.REPLACE_ME,
         )
-        session.add(channel)
+        qgep_session.add(channel)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.normschacht, ABWASSER.metaattribute -> QGEP.manhole")
-    for row, metaattribute in session.query(ABWASSER.normschacht, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.normschacht, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN normschacht
 
@@ -148,16 +152,19 @@ def import_():
         # --- normschacht ---
         # dimension1, dimension2, funktion, material, oberflaechenzulauf, t_id
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         manhole = QGEP.manhole(
             # FIELDS TO MAP TO QGEP.manhole
@@ -207,12 +214,12 @@ def import_():
             # obj_id=row.REPLACE_ME,
             # surface_inflow=row.REPLACE_ME,
         )
-        session.add(manhole)
+        qgep_session.add(manhole)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.einleitstelle, ABWASSER.metaattribute -> QGEP.discharge_point")
-    for row, metaattribute in session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einleitstelle
 
@@ -228,16 +235,19 @@ def import_():
         # --- einleitstelle ---
         # hochwasserkote, relevanz, t_id, terrainkote, wasserspiegel_hydraulik
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         discharge_point = QGEP.discharge_point(
             # FIELDS TO MAP TO QGEP.discharge_point
@@ -287,12 +297,12 @@ def import_():
             # upper_elevation=row.REPLACE_ME,
             # waterlevel_hydraulic=row.REPLACE_ME,
         )
-        session.add(discharge_point)
+        qgep_session.add(discharge_point)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.spezialbauwerk, ABWASSER.metaattribute -> QGEP.special_structure")
-    for row, metaattribute in session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN spezialbauwerk
 
@@ -308,16 +318,19 @@ def import_():
         # --- spezialbauwerk ---
         # bypass, funktion, notueberlauf, regenbecken_anordnung, t_id
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         special_structure = QGEP.special_structure(
             # FIELDS TO MAP TO QGEP.special_structure
@@ -366,12 +379,12 @@ def import_():
             # stormwater_tank_arrangement=row.REPLACE_ME,
             # upper_elevation=row.REPLACE_ME,
         )
-        session.add(special_structure)
+        qgep_session.add(special_structure)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.versickerungsanlage, ABWASSER.metaattribute -> QGEP.infiltration_installation")
-    for row, metaattribute in session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN versickerungsanlage
 
@@ -387,16 +400,19 @@ def import_():
         # --- versickerungsanlage ---
         # art, beschriftung, dimension1, dimension2, gwdistanz, maengel, notueberlauf, saugwagen, schluckvermoegen, t_id, versickerungswasser, wasserdichtheit, wirksameflaeche
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         infiltration_installation = QGEP.infiltration_installation(
             # FIELDS TO MAP TO QGEP.infiltration_installation
@@ -454,12 +470,12 @@ def import_():
             # vehicle_access=row.REPLACE_ME,
             # watertightness=row.REPLACE_ME,
         )
-        session.add(infiltration_installation)
+        qgep_session.add(infiltration_installation)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.rohrprofil, ABWASSER.metaattribute -> QGEP.pipe_profile")
-    for row, metaattribute in session.query(ABWASSER.rohrprofil, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.rohrprofil, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN rohrprofil
 
@@ -472,13 +488,16 @@ def import_():
         # --- rohrprofil ---
         # bemerkung, bezeichnung, hoehenbreitenverhaeltnis, profiltyp, t_id
 
+        # --- _bwrel_ ---
+        # haltung__BWREL_rohrprofilref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         pipe_profile = QGEP.pipe_profile(
             # FIELDS TO MAP TO QGEP.pipe_profile
@@ -493,12 +512,12 @@ def import_():
             # profile_type=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
         )
-        session.add(pipe_profile)
+        qgep_session.add(pipe_profile)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.haltungspunkt, ABWASSER.metaattribute -> QGEP.reach_point")
-    for row, metaattribute in session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN haltungspunkt
 
@@ -511,16 +530,19 @@ def import_():
         # --- haltungspunkt ---
         # abwassernetzelementref, auslaufform, bemerkung, bezeichnung, hoehengenauigkeit, kote, lage, lage_anschluss, t_id
 
-        # --- _relations_ ---
-        # abwassernetzelementref_REL
+        # --- _bwrel_ ---
+        # haltung__BWREL_nachhaltungspunktref, haltung__BWREL_vonhaltungspunktref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id, untersuchung__BWREL_haltungspunktref
+
+        # --- _rel_ ---
+        # abwassernetzelementref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         reach_point = QGEP.reach_point(
             # FIELDS TO MAP TO QGEP.reach_point
@@ -539,12 +561,12 @@ def import_():
             # remark=row.REPLACE_ME,
             # situation_geometry=row.REPLACE_ME,
         )
-        session.add(reach_point)
+        qgep_session.add(reach_point)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.abwasserknoten, ABWASSER.metaattribute -> QGEP.wastewater_node")
-    for row, metaattribute in session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN abwasserknoten
 
@@ -560,16 +582,19 @@ def import_():
         # --- abwasserknoten ---
         # lage, rueckstaukote, sohlenkote, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, haltungspunkt__BWREL_abwassernetzelementref, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         wastewater_node = QGEP.wastewater_node(
             # FIELDS TO MAP TO QGEP.wastewater_node
@@ -589,12 +614,12 @@ def import_():
             # obj_id=row.REPLACE_ME,
             # situation_geometry=row.REPLACE_ME,
         )
-        session.add(wastewater_node)
+        qgep_session.add(wastewater_node)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.haltung, ABWASSER.metaattribute -> QGEP.reach")
-    for row, metaattribute in session.query(ABWASSER.haltung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.haltung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN haltung
 
@@ -610,16 +635,19 @@ def import_():
         # --- haltung ---
         # innenschutz, laengeeffektiv, lagebestimmung, lichte_hoehe, material, nachhaltungspunktref, plangefaelle, reibungsbeiwert, reliner_art, reliner_bautechnik, reliner_material, reliner_nennweite, ringsteifigkeit, rohrprofilref, t_id, verlauf, vonhaltungspunktref, wandrauhigkeit
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL, nachhaltungspunktref_REL, rohrprofilref_REL, vonhaltungspunktref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_haltungref, haltung_alternativverlauf__BWREL_t_id, haltungspunkt__BWREL_abwassernetzelementref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_haltungref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL, nachhaltungspunktref__REL, rohrprofilref__REL, vonhaltungspunktref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         reach = QGEP.reach(
             # FIELDS TO MAP TO QGEP.reach
@@ -653,12 +681,12 @@ def import_():
             # slope_building_plan=row.REPLACE_ME,
             # wall_roughness=row.REPLACE_ME,
         )
-        session.add(reach)
+        qgep_session.add(reach)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute -> QGEP.dryweather_downspout")
-    for row, metaattribute in session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterfallrohr
 
@@ -674,16 +702,19 @@ def import_():
         # --- trockenwetterfallrohr ---
         # durchmesser, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         dryweather_downspout = QGEP.dryweather_downspout(
             # FIELDS TO MAP TO QGEP.dryweather_downspout
@@ -701,12 +732,12 @@ def import_():
             # diameter=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(dryweather_downspout)
+        qgep_session.add(dryweather_downspout)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.einstiegshilfe, ABWASSER.metaattribute -> QGEP.access_aid")
-    for row, metaattribute in session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einstiegshilfe
 
@@ -722,16 +753,19 @@ def import_():
         # --- einstiegshilfe ---
         # art, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         access_aid = QGEP.access_aid(
             # FIELDS TO MAP TO QGEP.access_aid
@@ -749,12 +783,12 @@ def import_():
             # kind=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(access_aid)
+        qgep_session.add(access_aid)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.trockenwetterrinne, ABWASSER.metaattribute -> QGEP.dryweather_flume")
-    for row, metaattribute in session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterrinne
 
@@ -770,16 +804,19 @@ def import_():
         # --- trockenwetterrinne ---
         # material, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         dryweather_flume = QGEP.dryweather_flume(
             # FIELDS TO MAP TO QGEP.dryweather_flume
@@ -797,12 +834,12 @@ def import_():
             # material=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(dryweather_flume)
+        qgep_session.add(dryweather_flume)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.deckel, ABWASSER.metaattribute -> QGEP.cover")
-    for row, metaattribute in session.query(ABWASSER.deckel, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.deckel, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN deckel
 
@@ -818,16 +855,19 @@ def import_():
         # --- deckel ---
         # deckelform, durchmesser, entlueftung, fabrikat, kote, lage, lagegenauigkeit, material, schlammeimer, t_id, verschluss
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         cover = QGEP.cover(
             # FIELDS TO MAP TO QGEP.cover
@@ -854,12 +894,12 @@ def import_():
             # sludge_bucket=row.REPLACE_ME,
             # venting=row.REPLACE_ME,
         )
-        session.add(cover)
+        qgep_session.add(cover)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.bankett, ABWASSER.metaattribute -> QGEP.benching")
-    for row, metaattribute in session.query(ABWASSER.bankett, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.bankett, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN bankett
 
@@ -875,16 +915,19 @@ def import_():
         # --- bankett ---
         # art, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         benching = QGEP.benching(
             # FIELDS TO MAP TO QGEP.benching
@@ -902,12 +945,12 @@ def import_():
             # kind=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(benching)
+        qgep_session.add(benching)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.untersuchung, ABWASSER.metaattribute -> QGEP.examination")
-    for row, metaattribute in session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN untersuchung
 
@@ -923,16 +966,19 @@ def import_():
         # --- untersuchung ---
         # bispunktbezeichnung, erfassungsart, fahrzeug, geraet, haltungspunktref, inspizierte_laenge, t_id, videonummer, vonpunktbezeichnung, witterung
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL, ausfuehrende_firmaref_REL, haltungspunktref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, schaden__BWREL_untersuchungref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL, ausfuehrende_firmaref__REL, haltungspunktref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         examination = QGEP.examination(
             # FIELDS TO MAP TO QGEP.examination
@@ -968,12 +1014,12 @@ def import_():
             # videonumber=row.REPLACE_ME,
             # weather=row.REPLACE_ME,
         )
-        session.add(examination)
+        qgep_session.add(examination)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.normschachtschaden, ABWASSER.metaattribute -> QGEP.damage_manhole")
-    for row, metaattribute in session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN normschachtschaden
 
@@ -989,16 +1035,19 @@ def import_():
         # --- normschachtschaden ---
         # distanz, quantifizierung1, quantifizierung2, schachtbereich, schachtschadencode, schadenlageanfang, schadenlageende, t_id
 
-        # --- _relations_ ---
-        # untersuchungref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # untersuchungref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         damage_manhole = QGEP.damage_manhole(
             # FIELDS TO MAP TO QGEP.damage_manhole
@@ -1025,12 +1074,12 @@ def import_():
             # manhole_shaft_area=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(damage_manhole)
+        qgep_session.add(damage_manhole)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.kanalschaden, ABWASSER.metaattribute -> QGEP.damage_channel")
-    for row, metaattribute in session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN kanalschaden
 
@@ -1046,16 +1095,19 @@ def import_():
         # --- kanalschaden ---
         # distanz, kanalschadencode, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende, t_id
 
-        # --- _relations_ ---
-        # untersuchungref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # untersuchungref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         damage_channel = QGEP.damage_channel(
             # FIELDS TO MAP TO QGEP.damage_channel
@@ -1081,12 +1133,12 @@ def import_():
             # channel_damage_code=row.REPLACE_ME,
             # obj_id=row.REPLACE_ME,
         )
-        session.add(damage_channel)
+        qgep_session.add(damage_channel)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
-    for row, metaattribute in session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN datentraeger
 
@@ -1099,13 +1151,16 @@ def import_():
         # --- datentraeger ---
         # art, bemerkung, bezeichnung, pfad, standort, t_id
 
+        # --- _bwrel_ ---
+        # datei__BWREL_datentraegerref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         data_media = QGEP.data_media(
             # FIELDS TO MAP TO QGEP.data_media
@@ -1121,12 +1176,12 @@ def import_():
             # path=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
         )
-        session.add(data_media)
+        qgep_session.add(data_media)
         print(".", end="")
     print("done")
 
     print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
-    for row, metaattribute in session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
+    for row, metaattribute in abwasser_session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN datei
 
@@ -1139,16 +1194,19 @@ def import_():
         # --- datei ---
         # art, bemerkung, bezeichnung, datentraegerref, klasse, objekt, relativpfad, t_id
 
-        # --- _relations_ ---
-        # datentraegerref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # datentraegerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         file = QGEP.file(
             # FIELDS TO MAP TO QGEP.file
@@ -1166,8 +1224,11 @@ def import_():
             # path_relative=row.REPLACE_ME,
             # remark=row.REPLACE_ME,
         )
-        session.add(file)
+        qgep_session.add(file)
         print(".", end="")
     print("done")
 
-    session.commit()
+    qgep_session.commit()
+
+    qgep_session.close()
+    abwasser_session.close()

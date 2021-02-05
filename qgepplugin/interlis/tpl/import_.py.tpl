@@ -9,14 +9,15 @@ from .model_{{ilimodel_name}} import {{ilimodel_name|upper}}
 
 def import_():
 
-    session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    {{ilimodel_name}}_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    {{model_name}}_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
 {% for class_to, classes_from in mapping.items() %}
     print("Importing {{classes_from|qualclassesnames}} -> {{model_name|upper}}.{{class_to.__name__}}")
 {% if classes_from|length == 1 %}
-    for row in session.query({{classes_from|qualclassesnames}}):
+    for row in {{ilimodel_name}}_session.query({{classes_from|qualclassesnames}}):
 {% else %}
-    for row, {{classes_from[1:]|classesnames}} in session.query({{classes_from|qualclassesnames}}){% if classes_from|length > 1 %}.join({{classes_from[1:]|qualclassesnames}}){% endif %}:
+    for row, {{classes_from[1:]|classesnames}} in {{ilimodel_name}}_session.query({{classes_from|qualclassesnames}}){% if classes_from|length > 1 %}.join({{classes_from[1:]|qualclassesnames}}){% endif %}:
 {% endif %}
 
 {% for class_from in classes_from %}
@@ -40,10 +41,13 @@ def import_():
 {% endif %}
 {% endfor %}
         )
-        session.add({{class_to.__name__}})
+        {{model_name}}_session.add({{class_to.__name__}})
         print(".", end="")
     print("done")
 
 {% endfor %}
-    session.commit()
+    {{model_name}}_session.commit()
+
+    {{model_name}}_session.close()
+    {{ilimodel_name}}_session.close()
 

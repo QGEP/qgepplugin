@@ -9,7 +9,8 @@ from .model_{{ilimodel_name}} import {{ilimodel_name|upper}}
 
 def export():
 
-    session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    {{model_name}}_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    {{ilimodel_name}}_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
     def create_metaattributes(row, session):
@@ -27,7 +28,7 @@ def export():
 
 {% for class_from, classes_to in mapping.items() %}
     print("Exporting {{model_name|upper}}.{{class_from.__name__}} -> {{classes_to|qualclassesnames}}")
-    for row in session.query({{model_name|upper}}.{{class_from.__name__}}):
+    for row in {{model_name}}_session.query({{model_name|upper}}.{{class_from.__name__}}):
 
         # AVAILABLE FIELDS IN {{model_name|upper}}.{{class_from.__name__}}
 {% for src_table, fields in class_from|classfields %}
@@ -52,11 +53,14 @@ def export():
 {% endif %}
 {% endfor %}
         )
-        session.add({{class_to.__name__}})
+        {{ilimodel_name}}_session.add({{class_to.__name__}})
 {% endif %}
 {% endfor %}
         print(".", end="")
     print("done")
 
 {% endfor %}
-    session.commit()
+    {{ilimodel_name}}_session.commit()
+
+    {{model_name}}_session.close()
+    {{ilimodel_name}}_session.close()
