@@ -1,4 +1,6 @@
 import sqlalchemy
+import pickle
+import os
 
 from sqlalchemy.ext.automap import (
     name_for_collection_relationship,
@@ -32,6 +34,14 @@ def prepare_automap_base(base, schema):
     Prepares the automap base by reflecting all the fields with some specific configuration for relationship and population Base.classes with manually defined classes (which for some reason isn't done by default)
     """
 
+    # DOESN'T WORK, BUT CACHING WOULD BE GOOD
+    # pickle_file = f'{__file__}.pickled'
+    # reflect = True
+    # if os.path.exists(pickle_file):
+    #     with open(pickle_file, 'rb') as f:
+    #         reflect = False
+    #         base.metadata = pickle.load(f)
+
     base.prepare(
         create_engine(),
         reflect=True,
@@ -50,3 +60,6 @@ def prepare_automap_base(base, schema):
 
     add_subclasses(base)
 
+    # DOESN'T WORK, BUT CACHING WOULD BE GOOD
+    # with open(pickle_file, 'wb') as f:
+    #     pickle.dump(base.metadata, f)
