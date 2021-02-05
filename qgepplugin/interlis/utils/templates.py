@@ -3,7 +3,7 @@ import collections
 
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlacodegen.codegen import CodeGenerator
+
 
 from .sqlalchemy import create_engine
 
@@ -73,6 +73,7 @@ def generate_template(model_name, ilimodel_name, model_base, ilimodel_base, mapp
     # Generate code stubs for the models using sqlacodegen
     # Disabled for now but could be useful at some point
     # see https://github.com/agronholm/sqlacodegen/issues/128 for this to be useful
+    # from sqlacodegen.codegen import CodeGenerator
     # path = os.path.join(os.path.dirname(__file__), "..", model_name, f"model_{model_name}.py.tpl")
     # model_base.metadata.bind(create_engine())
     # generator = CodeGenerator(model_base.metadata)

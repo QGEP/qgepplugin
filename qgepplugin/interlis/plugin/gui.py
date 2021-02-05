@@ -174,10 +174,10 @@ class ExaminationEditor(Editor):
 
     def update_widget(self):
         self.widget.plainTextEdit.clear()
-        for aaa in obj.
+        # for aaa in obj.
 
     def assign_random(self):
-        QGEP.
-        self.session.add()
+        # QGEP.
+        # self.session.add()
         self.update_widget()
 
