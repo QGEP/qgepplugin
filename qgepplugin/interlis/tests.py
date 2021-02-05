@@ -37,7 +37,7 @@ class TestQGEPUseCases(unittest.TestCase):
             [
                 "io",
                 "--import_xtf",
-                r"interlis\data\2021-01-21_inspectiondata\test_without_abwasserbauwerkref.xtf",
+                r"interlis\data\test_data\case_a_import_from_wincan.xtf",
                 "qgep",
                 "--recreate_schema",
             ]
@@ -78,7 +78,7 @@ class TestRegressions(unittest.TestCase):
     # FIXME
     # @unittest.skip("...")
     @unittest.expectedFailure
-    def test_self_referencing_organisation(self):
+    def test_regression_001_self_referencing_organisation(self):
         """
         Due to current logic of the import script, organisations may be created multiple times.
         """
@@ -94,7 +94,7 @@ class TestRegressions(unittest.TestCase):
             [
                 "--recreate_schema",
                 "--import_xtf",
-                r"interlis\data\test_data\self_referencing_organisation.xtf",
+                r"interlis\data\test_data\regression_001_self_referencing_organisation.xtf",
                 "qgep",
             ]
         )
