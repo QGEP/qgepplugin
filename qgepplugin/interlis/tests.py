@@ -35,10 +35,11 @@ class TestQGEPUseCases(unittest.TestCase):
 
         main(
             [
-                "--recreate_schema",
+                "io",
                 "--import_xtf",
                 r"interlis\data\2021-01-21_inspectiondata\test_without_abwasserbauwerkref.xtf",
                 "qgep",
+                "--recreate_schema",
             ]
         )
 
@@ -66,7 +67,7 @@ class TestQGEPUseCases(unittest.TestCase):
         utils.various.setup_test_db("subset")  # we use a subset for now as full export can take time
 
         path = os.path.join(tempfile.mkdtemp(), "export.xtf")
-        main(["--recreate_schema", "--export_xtf", path, "qgep"])
+        main(["io", "--export_xtf", path, "qgep","--recreate_schema"])
 
         print(f"Saved to {path}")
         utils.ili2db.validate_xtf_data(path)
