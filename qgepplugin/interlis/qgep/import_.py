@@ -91,16 +91,19 @@ def import_(precommit_callback=None):
         # --- kanal ---
         # bettung_umhuellung, funktionhierarchisch, funktionhydraulisch, nutzungsart_geplant, nutzungsart_ist, rohrlaenge, spuelintervall, t_id, verbindungsart
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         channel = QGEP.channel(
             # FIELDS TO MAP TO QGEP.channel
@@ -173,16 +176,19 @@ def import_(precommit_callback=None):
         # --- normschacht ---
         # dimension1, dimension2, funktion, material, oberflaechenzulauf, t_id
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         manhole = QGEP.manhole(
             # FIELDS TO MAP TO QGEP.manhole
@@ -253,16 +259,19 @@ def import_(precommit_callback=None):
         # --- einleitstelle ---
         # hochwasserkote, relevanz, t_id, terrainkote, wasserspiegel_hydraulik
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         discharge_point = QGEP.discharge_point(
             # FIELDS TO MAP TO QGEP.discharge_point
@@ -333,16 +342,19 @@ def import_(precommit_callback=None):
         # --- spezialbauwerk ---
         # bypass, funktion, notueberlauf, regenbecken_anordnung, t_id
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         special_structure = QGEP.special_structure(
             # FIELDS TO MAP TO QGEP.special_structure
@@ -412,16 +424,19 @@ def import_(precommit_callback=None):
         # --- versickerungsanlage ---
         # art, beschriftung, dimension1, dimension2, gwdistanz, maengel, notueberlauf, saugwagen, schluckvermoegen, t_id, versickerungswasser, wasserdichtheit, wirksameflaeche
 
-        # --- _relations_ ---
-        # betreiberref_REL, eigentuemerref_REL
+        # --- _bwrel_ ---
+        # abwassernetzelement__BWREL_abwasserbauwerkref, bauwerksteil__BWREL_abwasserbauwerkref, erhaltungsereignis__BWREL_abwasserbauwerkref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_symbolpos__BWREL_abwasserbauwerkref, sia405_textpos__BWREL_abwasserbauwerkref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # betreiberref__REL, eigentuemerref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         infiltration_installation = QGEP.infiltration_installation(
             # FIELDS TO MAP TO QGEP.infiltration_installation
@@ -497,13 +512,16 @@ def import_(precommit_callback=None):
         # --- rohrprofil ---
         # bemerkung, bezeichnung, hoehenbreitenverhaeltnis, profiltyp, t_id
 
+        # --- _bwrel_ ---
+        # haltung__BWREL_rohrprofilref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         pipe_profile = QGEP.pipe_profile(
             # FIELDS TO MAP TO QGEP.pipe_profile
@@ -536,16 +554,19 @@ def import_(precommit_callback=None):
         # --- haltungspunkt ---
         # abwassernetzelementref, auslaufform, bemerkung, bezeichnung, hoehengenauigkeit, kote, lage, lage_anschluss, t_id
 
-        # --- _relations_ ---
-        # abwassernetzelementref_REL
+        # --- _bwrel_ ---
+        # haltung__BWREL_nachhaltungspunktref, haltung__BWREL_vonhaltungspunktref, haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id, untersuchung__BWREL_haltungspunktref
+
+        # --- _rel_ ---
+        # abwassernetzelementref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         reach_point = QGEP.reach_point(
             # FIELDS TO MAP TO QGEP.reach_point
@@ -585,16 +606,19 @@ def import_(precommit_callback=None):
         # --- abwasserknoten ---
         # lage, rueckstaukote, sohlenkote, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, haltungspunkt__BWREL_abwassernetzelementref, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         wastewater_node = QGEP.wastewater_node(
             # FIELDS TO MAP TO QGEP.wastewater_node
@@ -635,16 +659,19 @@ def import_(precommit_callback=None):
         # --- haltung ---
         # innenschutz, laengeeffektiv, lagebestimmung, lichte_hoehe, material, nachhaltungspunktref, plangefaelle, reibungsbeiwert, reliner_art, reliner_bautechnik, reliner_material, reliner_nennweite, ringsteifigkeit, rohrprofilref, t_id, verlauf, vonhaltungspunktref, wandrauhigkeit
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL, nachhaltungspunktref_REL, rohrprofilref_REL, vonhaltungspunktref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_haltungref, haltung_alternativverlauf__BWREL_t_id, haltungspunkt__BWREL_abwassernetzelementref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_haltungref, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL, nachhaltungspunktref__REL, rohrprofilref__REL, vonhaltungspunktref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         reach = QGEP.reach(
             # FIELDS TO MAP TO QGEP.reach
@@ -699,16 +726,19 @@ def import_(precommit_callback=None):
         # --- trockenwetterfallrohr ---
         # durchmesser, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         dryweather_downspout = QGEP.dryweather_downspout(
             # FIELDS TO MAP TO QGEP.dryweather_downspout
@@ -747,16 +777,19 @@ def import_(precommit_callback=None):
         # --- einstiegshilfe ---
         # art, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         access_aid = QGEP.access_aid(
             # FIELDS TO MAP TO QGEP.access_aid
@@ -795,16 +828,19 @@ def import_(precommit_callback=None):
         # --- trockenwetterrinne ---
         # material, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         dryweather_flume = QGEP.dryweather_flume(
             # FIELDS TO MAP TO QGEP.dryweather_flume
@@ -843,16 +879,19 @@ def import_(precommit_callback=None):
         # --- deckel ---
         # deckelform, durchmesser, entlueftung, fabrikat, kote, lage, lagegenauigkeit, material, schlammeimer, t_id, verschluss
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         cover = QGEP.cover(
             # FIELDS TO MAP TO QGEP.cover
@@ -900,16 +939,19 @@ def import_(precommit_callback=None):
         # --- bankett ---
         # art, t_id
 
-        # --- _relations_ ---
-        # abwasserbauwerkref_REL
+        # --- _bwrel_ ---
+        # haltung_alternativverlauf__BWREL_t_id, metaattribute__BWREL_sia405_baseclass_metaattribute, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # abwasserbauwerkref__REL
 
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
         # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
 
-        # --- _relations_ ---
-        # sia405_baseclass_metaattribute_REL
+        # --- _rel_ ---
+        # sia405_baseclass_metaattribute__REL
 
         benching = QGEP.benching(
             # FIELDS TO MAP TO QGEP.benching
@@ -947,7 +989,7 @@ def import_(precommit_callback=None):
             duration=row.dauer,
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
             fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
-            fk_operating_company=row.ausfuehrende_firmaref_REL.obj_id,
+            fk_operating_company=row.ausfuehrende_firmaref__REL.obj_id,
             identifier=row.bezeichnung,
             kind=get_vl_code(QGEP.maintenance_event_kind, row.art),
             last_modification=metaattribute.letzte_aenderung,
@@ -960,7 +1002,7 @@ def import_(precommit_callback=None):
 
             # --- examination ---
             equipment=row.geraet,
-            fk_reach_point=row.haltungspunktref_REL.obj_id if row.haltungspunktref_REL else None,
+            fk_reach_point=row.haltungspunktref__REL.obj_id if row.haltungspunktref__REL else None,
             from_point_identifier=row.vonpunktbezeichnung,
             inspected_length=row.inspizierte_laenge,
             obj_id=row.obj_id,
@@ -1001,7 +1043,7 @@ def import_(precommit_callback=None):
             damage_reach=row.streckenschaden,
             distance=row.distanz,
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_examination=row.untersuchungref_REL.obj_id if row.untersuchungref_REL else None,
+            fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
             fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             last_modification=metaattribute.letzte_aenderung,
             quantification1=row.quantifizierung1,
@@ -1035,7 +1077,7 @@ def import_(precommit_callback=None):
             damage_reach=row.streckenschaden,
             distance=row.distanz,
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_examination=row.untersuchungref_REL.obj_id if row.untersuchungref_REL else None,
+            fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
             fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             last_modification=metaattribute.letzte_aenderung,
             quantification1=row.quantifizierung1,
@@ -1075,7 +1117,7 @@ def import_(precommit_callback=None):
         file = QGEP.file(
             # --- file ---
             **{"class": get_vl_code(QGEP.file_class, row.klasse)},  # equivalent to class=get_vl_code(QGEP.file_class, row.klasse), because class is a python keyword
-            fk_data_media=row.datentraegerref_REL.obj_id,
+            fk_data_media=row.datentraegerref__REL.obj_id,
             fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
             fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             identifier=row.bezeichnung,
