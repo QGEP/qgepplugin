@@ -43,7 +43,7 @@ def export():
         {{class_to.__name__}} = {{ilimodel_name|upper}}.{{class_to.__name__}}(
             # FIELDS TO MAP TO {{ilimodel_name|upper}}.{{class_to.__name__}}
 {% for dst_table, fields in class_to|classfields %}
-{% if dst_table != '_relations_' %}
+{% if dst_table != '_rel_' and dst_table != '_bwrel_' %}
 
             # --- {{dst_table}} ---
 {% for field in fields|sort %}
