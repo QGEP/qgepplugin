@@ -3,9 +3,12 @@ import collections
 
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlacodegen.codegen import CodeGenerator
+
+from .sqlalchemy import create_engine
 
 
-def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
+def generate_template(model_name, ilimodel_name, model_base, ilimodel_base, mapping):
 
     def filter_classfields(cls):
         """Jinja filter used in the template"""
@@ -16,11 +19,11 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
             if not isinstance(attr, InstrumentedAttribute):
                 continue
             if not hasattr(attr.property, "columns"):
-                key = "_relations_"
+                key = "_rel_" if attr_name.endswith('__REL') else '_bwrel_'
             else:
                 key = attr.property.columns[0].table.name
             available_fields[key].append(attr_name)
-        ordered_tables = ["_relations_"] + list(c.__table__.name for c in cls.__mro__ if hasattr(c, "__table__"))
+        ordered_tables = ["_rel_","_bwrel_"] + list(c.__table__.name for c in cls.__mro__ if hasattr(c, "__table__"))
         return sorted(
             available_fields.items(),
             key=lambda i: ordered_tables.index(i[0]),
@@ -43,8 +46,8 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
 
     variables = {
         "mapping": mapping,
-        "MODEL": MODEL,
-        "ILIMODEL": ILIMODEL,
+        "MODEL": model_base.classes,
+        "ILIMODEL": ilimodel_base.classes,
         "model_name": model_name,
         "ilimodel_name": ilimodel_name,
     }
@@ -66,3 +69,12 @@ def generate_template(model_name, ilimodel_name, MODEL, ILIMODEL, mapping):
     result = template.render(variables)
     path = os.path.join(os.path.dirname(__file__), "..", model_name, "mapping.py.tpl")
     open(path, "w", newline="\n").write(result)
+
+    # Generate code stubs for the models using sqlacodegen
+    # Disabled for now but could be useful at some point
+    # see https://github.com/agronholm/sqlacodegen/issues/128 for this to be useful
+    # path = os.path.join(os.path.dirname(__file__), "..", model_name, f"model_{model_name}.py.tpl")
+    # model_base.metadata.bind(create_engine())
+    # generator = CodeGenerator(model_base.metadata)
+    # generator.render(open(path, 'w+', encoding='utf-8'))
+    print("NOTICE: sqlacodegen template is disabled for now")

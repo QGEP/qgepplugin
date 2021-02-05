@@ -64,17 +64,17 @@ def main(args):
         from .qwat.export import export
         from .qwat.import_ import import_
         from .qwat.mapping import MAPPING as QWATMAPPING
-        from .qwat.model_qwat import QWAT
-        from .qwat.model_wasser import WASSER
+        from .qwat.model_qwat import Base as BaseQwat
+        from .qwat.model_wasser import Base as BaseWasser
 
         from .qgep.export import export
         from .qgep.import_ import import_
         from .qgep.mapping import MAPPING as QGEPMAPPING
-        from .qgep.model_qgep import QGEP
-        from .qgep.model_abwasser import ABWASSER
+        from .qgep.model_qgep import Base as BaseQgep
+        from .qgep.model_abwasser import Base as BaseAbwasser
 
-        utils.templates.generate_template("qgep", "abwasser", QGEP, ABWASSER, QGEPMAPPING)
-        utils.templates.generate_template("qwat", "wasser", QWAT, WASSER, QWATMAPPING)
+        utils.templates.generate_template("qgep", "abwasser", BaseQgep, BaseAbwasser, QGEPMAPPING)
+        utils.templates.generate_template("qwat", "wasser", BaseQwat, BaseWasser, QWATMAPPING)
 
     elif args.parser == 'setupdb':
         utils.various.setup_test_db(args.type)
