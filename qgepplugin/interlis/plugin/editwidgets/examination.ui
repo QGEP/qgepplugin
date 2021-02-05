@@ -17,7 +17,17 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Assigned structures</string>
+      <string>Suggested structures to assign</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>TODO : make this a checkable list, allow to add new ones from the map, create the entries in the association table accordingly according to checks</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

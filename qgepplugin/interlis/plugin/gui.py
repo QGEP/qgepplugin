@@ -3,13 +3,14 @@ import os
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
 from collections import defaultdict
+from sqlalchemy.orm import aliased
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QLineEdit, QWidget, QVBoxLayout, QLabel
 from qgis.PyQt.uic import loadUiType, loadUi
 
-from ..qgep.model_qgep import QGEP
+from ..qgep.model_qgep import QGEP, wastewater_structure
 
 
 def uipath(name):
@@ -121,6 +122,9 @@ class Gui(QDialog):
             self.stackedWidget.removeWidget(current_widget)
             del current_widget
 
+        if not current_item:
+            return
+
         obj = None
         for obj, item in self.instances_items.items():
             if item == current_item:
@@ -158,8 +162,9 @@ class Editor():
         class BaseWidget(QWidget):
             pass
         self.widget = BaseWidget()
-        loadUi(uipath(os.path.join('editwidgets',f'{self.class_name}.ui')), self.widget)
+        loadUi(uipath(os.path.join('editwidgets', f'{self.class_name}.ui')), self.widget)
         self.init_widget()
+        return self.widget
 
     def init_widget(self):
         pass
@@ -174,10 +179,34 @@ class ExaminationEditor(Editor):
 
     def update_widget(self):
         self.widget.plainTextEdit.clear()
-        # for aaa in obj.
+
+        # We look for the corresponding channel given to_point_identifier and from_point_identifier
+
+        # TODO : from and to are reversed (to match test dataset), we probaby want to support inversed too
+        from_id = self.obj.to_point_identifier
+        to_id = self.obj.from_point_identifier
+
+        wastewater_ne_from = aliased(QGEP.wastewater_networkelement)
+        wastewater_ne_to = aliased(QGEP.wastewater_networkelement)
+        rp_from = aliased(QGEP.reach_point)
+        rp_to = aliased(QGEP.reach_point)
+
+        matching_channels = self.session.query(QGEP.wastewater_structure) \
+            .join(QGEP.reach) \
+            .join(rp_from, rp_from.obj_id == QGEP.reach.fk_reach_point_from) \
+            .join(wastewater_ne_from, wastewater_ne_from.obj_id == rp_from.fk_wastewater_networkelement) \
+            .join(rp_to, rp_to.obj_id == QGEP.reach.fk_reach_point_to) \
+            .join(wastewater_ne_to, wastewater_ne_to.obj_id == rp_to.fk_wastewater_networkelement) \
+            .filter(
+                wastewater_ne_from.identifier == from_id,
+                wastewater_ne_to.identifier == to_id,
+            )
+
+        for channel in matching_channels:
+            self.widget.plainTextEdit.appendPlainText("Channel " + channel.identifier)
 
     def assign_random(self):
-        # QGEP.
         # self.session.add()
         self.update_widget()
+        pass
 
