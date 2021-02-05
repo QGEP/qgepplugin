@@ -974,9 +974,10 @@ def import_(precommit_callback=None):
 
         # In QGEP, relation between maintenance_event and wastewater_structure is done with
         # an association table instead of a foreign key on maintenance_event.
-        if row.abwasserbauwerkref_REL is not None:
+        if row.abwasserbauwerkref:
+            # TODO : for dangling references (partial imports), we may have abwasserbauwerkref without abwasserbauwerkref_REL
             exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
-                fk_wastewater_structure=row.abwasserbauwerkref_REL.obj_id,
+                fk_wastewater_structure=row.abwasserbauwerkref,
                 fk_maintenance_event=row.obj_id,
             )
             qgep_session.add(exam_to_wastewater_structure)
@@ -1098,3 +1099,6 @@ def import_(precommit_callback=None):
         qgep_session.rollback()
     else:
         qgep_session.commit()
+
+    qgep_session.close()
+    abwasser_session.close()

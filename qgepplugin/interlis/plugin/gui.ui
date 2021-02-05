@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>584</width>
-    <height>424</height>
+    <width>714</width>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -103,13 +103,9 @@
         <widget class="QTextEdit" name="debugTextEdit"/>
        </item>
        <item>
-        <widget class="QFrame" name="editWidgetFrame">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
+        <widget class="QStackedWidget" name="stackedWidget">
+         <widget class="QWidget" name="page"/>
+         <widget class="QWidget" name="page_2"/>
         </widget>
        </item>
       </layout>
