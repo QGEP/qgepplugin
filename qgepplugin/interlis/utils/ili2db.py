@@ -41,7 +41,7 @@ def create_ili_schema(schema, model, recreate_schema=False):
     connection.close()
 
     print(f"ILIDB SCHEMAIMPORT INTO {schema}...")
-    exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --strokeArcs --log {_log_path("create")} --nameLang de {model}')
+    exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log {_log_path("create")} --nameLang de {model}')
 
 
 def validate_xtf_data(xtf_file):
@@ -81,4 +81,9 @@ class TidMaker:
         # this finds the base class (the first parent class before sqlalchemy.ext.automap.Base)
         class_for_id = row.__class__.__mro__[row.__class__.__mro__.index(AutomapBase) - 2]
         key = (class_for_id, getattr(row, self._id_attr), for_class)
-        return self._autoincrementer[key]
+        # was_created = key not in self._autoincrementer  # just for debugging
+        tid = self._autoincrementer[key]
+        # if was_created:
+        #     # just for debugging
+        #     print(f"created tid {tid} for {key}")
+        return tid

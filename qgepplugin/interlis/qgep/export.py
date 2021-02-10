@@ -16,17 +16,32 @@ def export():
     abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
+    def get_tid(relation):
+        """
+        Makes a tid for a relation
+        """
+        if relation is None:
+            return None
+        return tid_maker.tid_for_row(relation)
+
+    def get_vl(relation):
+        """
+        Gets a literal value from a value list relation
+        """
+        if relation is None:
+            return None
+        return relation.value_de
+
     def create_metaattributes(row):
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
             # --- metaattribute ---
-
-            datenherr=getattr(row.fk_dataowner__REL, "value_de", "???"),
-            datenlieferant=getattr(row.fk_provider__REL, "value_de", "???"),
+            datenherr=getattr(row.fk_dataowner__REL, "name", 'unknown'),  # TODO
+            datenlieferant=getattr(row.fk_provider__REL, "name", 'unknown'),  # TODO
             letzte_aenderung=row.last_modification,
-            sia405_baseclass_metaattribute=tid_maker.tid_for_row(row),
+            sia405_baseclass_metaattribute=get_tid(row),
             # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
             t_seq=0,
         )
         abwasser_session.add(metaattribute)
@@ -39,16 +54,16 @@ def export():
         return {
             # --- abwasserbauwerk ---
             # 'akten': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
-            'astatus': row.status,
+            'astatus': get_vl(row.status__REL),
             'baujahr': row.year_of_construction,
             'baulicherzustand': row.structure_condition,
             # 'baulos': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
             'bemerkung': row.remark,
-            'betreiberref': getattr(row.fk_operator__REL, 'obj_id', None),
+            'betreiberref': get_tid(row.fk_operator__REL),
             'bezeichnung': row.identifier,
             'bruttokosten': row.gross_costs,
-            'detailgeometrie': ST_CurveToLine(ST_Force2D(row.detail_geometry_geometry)),  # TODO : from the .ili file, it looks like curves should be supported ? but without removing arcs, we get `Geometry type (CurvePolygon) does not match column type (Polygon)`
-            'eigentuemerref': getattr(row.fk_owner__REL, 'obj_id', None),
+            'detailgeometrie': ST_Force2D(row.detail_geometry_geometry),
+            'eigentuemerref': get_tid(row.fk_owner__REL),
             'ersatzjahr': row.year_of_replacement,
             'finanzierung': row.financing,
             'inspektionsintervall': row.inspection_interval,
@@ -58,7 +73,7 @@ def export():
             'wbw_basisjahr': row.rv_base_year,
             'wbw_bauart': row.rv_construction_type,
             'wiederbeschaffungswert': row.replacement_value,
-            'zugaenglichkeit': getattr(row.accessibility__REL, "value_de", None),
+            'zugaenglichkeit': get_vl(row.accessibility__REL),
         }
 
     def network_element_common(row):
@@ -67,7 +82,7 @@ def export():
         """
 
         return {
-            'abwasserbauwerkref': tid_maker.tid_for_row(row.fk_wastewater_structure__REL),
+            'abwasserbauwerkref': get_tid(row.fk_wastewater_structure__REL),
             'bemerkung': row.remark,
             'bezeichnung': row.identifier,
         }
@@ -77,7 +92,7 @@ def export():
         Returns common attributes for structure_part
         """
         return {
-            'abwasserbauwerkref': tid_maker.tid_for_row(row.fk_wastewater_structure__REL),
+            'abwasserbauwerkref': get_tid(row.fk_wastewater_structure__REL),
             'bemerkung': row.remark,
             'bezeichnung': row.identifier,
             'instandstellung': row.renovation_demand,
@@ -111,7 +126,7 @@ def export():
             auid=row.uid,
             bemerkung=row.remark,
             bezeichnung=row.identifier,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(organisation)
         create_metaattributes(row)
@@ -147,15 +162,15 @@ def export():
             **wastewater_structure_common(row),
 
             # --- kanal ---
-            bettung_umhuellung=getattr(row.bedding_encasement__REL, "value_de", None),
-            funktionhierarchisch=row.function_hierarchic,
-            funktionhydraulisch=row.function_hydraulic,
-            nutzungsart_geplant=getattr(row.usage_planned__REL, 'value_de', None),
-            nutzungsart_ist=getattr(row.usage_current__REL, 'value_de', None),
+            bettung_umhuellung=get_vl(row.bedding_encasement__REL),
+            funktionhierarchisch=get_vl(row.function_hierarchic__REL),
+            funktionhydraulisch=get_vl(row.function_hydraulic__REL),
+            nutzungsart_geplant=get_vl(row.usage_planned__REL),
+            nutzungsart_ist=get_vl(row.usage_current__REL),
             rohrlaenge=row.pipe_length,
             spuelintervall=row.jetting_interval,
-            t_id=tid_maker.tid_for_row(row),
-            verbindungsart=row.connection_type,
+            t_id=get_tid(row),
+            verbindungsart=get_vl(row.connection_type__REL),
         )
         abwasser_session.add(kanal)
         create_metaattributes(row)
@@ -179,10 +194,10 @@ def export():
             # --- normschacht ---
             dimension1=row.dimension1,
             dimension2=row.dimension2,
-            funktion=getattr(row.function__REL, 'value_de', None),
-            material=getattr(row.material__REL, 'value_de', None),
+            funktion=get_vl(row.function__REL),
+            material=get_vl(row.material__REL),
             oberflaechenzulauf=row.surface_inflow,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(normschacht)
         create_metaattributes(row)
@@ -206,7 +221,7 @@ def export():
             # --- einleitstelle ---
             hochwasserkote=row.highwater_level,
             relevanz=row.relevance,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
             terrainkote=row.terrain_level,
             wasserspiegel_hydraulik=row.waterlevel_hydraulic,
         )
@@ -252,7 +267,7 @@ def export():
             funktion=row.function,
             notueberlauf=row.emergency_spillway,
             regenbecken_anordnung=row.stormwater_tank_arrangement,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(spezialbauwerk)
         create_metaattributes(row)
@@ -301,7 +316,7 @@ def export():
             notueberlauf=row.emergency_spillway,
             # saugwagen=row.REPLACE_ME,
             # schluckvermoegen=row.REPLACE_ME,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
             # versickerungswasser=row.REPLACE_ME,
             wasserdichtheit=row.watertightness,
             wirksameflaeche=row.effective_area,
@@ -341,7 +356,7 @@ def export():
             bezeichnung=row.identifier,
             hoehenbreitenverhaeltnis=row.height_width_ratio,
             profiltyp=row.profile_type,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(rohrprofil)
         create_metaattributes(row)
@@ -374,15 +389,15 @@ def export():
             obj_id=row.obj_id,
 
             # --- haltungspunkt ---
-            abwassernetzelementref=getattr(row.fk_wastewater_networkelement__REL, "obj_id", None),
+            abwassernetzelementref=get_tid(row.fk_wastewater_networkelement__REL),
             auslaufform=row.outlet_shape,
             bemerkung=row.remark,
             bezeichnung=row.identifier,
             hoehengenauigkeit=row.elevation_accuracy,
             kote=row.level,
-            lage=row.situation_geometry,
+            lage=ST_Force2D(row.situation_geometry),
             lage_anschluss=row.position_of_connection,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(haltungspunkt)
         create_metaattributes(row)
@@ -426,7 +441,7 @@ def export():
             lage=ST_Force2D(row.situation_geometry),
             rueckstaukote=row.backflow_level,
             sohlenkote=row.bottom_level,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(abwasserknoten)
         create_metaattributes(row)
@@ -451,7 +466,7 @@ def export():
         # --- _rel_ ---
         # elevation_determination__REL, fk_dataowner__REL, fk_pipe_profile__REL, fk_provider__REL, fk_reach_point_from__REL, fk_reach_point_to__REL, fk_wastewater_structure__REL, horizontal_positioning__REL, inside_coating__REL, material__REL, reliner_material__REL, relining_construction__REL, relining_kind__REL
 
-        warnings.warn(f'QGEP fields reach.elevation_determination, reach.fk_reach_point_from, reach.fk_reach_point_to have no equivalent in the interlis model. They will be ignored.')
+        warnings.warn(f'QGEP field reach.elevation_determination has no equivalent in the interlis model. It will be ignored.')
         haltung = ABWASSER.haltung(
             # FIELDS TO MAP TO ABWASSER.haltung
 
@@ -465,13 +480,13 @@ def export():
             **network_element_common(row),
 
             # --- haltung ---
-            # NOT MAPPED : elevation_determination, fk_reach_point_from, fk_reach_point_to
+            # NOT MAPPED : elevation_determination
             innenschutz=row.inside_coating,
             laengeeffektiv=row.length_effective,
             lagebestimmung=row.horizontal_positioning,
             lichte_hoehe=row.clear_height,
             material=row.material,
-            nachhaltungspunktref=tid_maker.tid_for_row(row.fk_reach_point_to__REL),
+            nachhaltungspunktref=get_tid(row.fk_reach_point_to__REL),
             plangefaelle=row.slope_building_plan,  # TODO : check, does this need conversion ?
             reibungsbeiwert=row.coefficient_of_friction,
             reliner_art=row.relining_kind,
@@ -479,10 +494,10 @@ def export():
             reliner_material=row.reliner_material,
             reliner_nennweite=row.reliner_nominal_size,
             ringsteifigkeit=row.ring_stiffness,
-            rohrprofilref=getattr(row.fk_pipe_profile__REL, "obj_id", None),
-            t_id=tid_maker.tid_for_row(row),
-            verlauf=row.progression_geometry,
-            vonhaltungspunktref=tid_maker.tid_for_row(row.fk_reach_point_from__REL),
+            rohrprofilref=get_tid(row.fk_pipe_profile__REL),
+            t_id=get_tid(row),
+            verlauf=ST_Force2D(row.progression_geometry),
+            vonhaltungspunktref=get_tid(row.fk_reach_point_from__REL),
             wandrauhigkeit=row.wall_roughness,
         )
         abwasser_session.add(haltung)
@@ -523,7 +538,7 @@ def export():
 
             # --- trockenwetterfallrohr ---
             durchmesser=row.diameter,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(trockenwetterfallrohr)
         create_metaattributes(row)
@@ -563,7 +578,7 @@ def export():
 
             # --- einstiegshilfe ---
             art=row.kind,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(einstiegshilfe)
         create_metaattributes(row)
@@ -602,8 +617,8 @@ def export():
             **structure_part_common(row),
 
             # --- trockenwetterrinne ---
-            material=getattr(row.material__REL, 'value_de', None),
-            t_id=tid_maker.tid_for_row(row),
+            material=get_vl(row.material__REL),
+            t_id=get_tid(row),
         )
         abwasser_session.add(trockenwetterrinne)
         create_metaattributes(row)
@@ -651,7 +666,7 @@ def export():
             lagegenauigkeit=row.positional_accuracy,
             material=row.material,
             schlammeimer=row.sludge_bucket,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
             verschluss=row.fastening,
         )
         abwasser_session.add(deckel)
@@ -692,7 +707,7 @@ def export():
 
             # --- bankett ---
             art=row.kind,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(bankett)
         create_metaattributes(row)
@@ -730,7 +745,7 @@ def export():
             # abwasserbauwerkref=row.REPLACE_ME,  # TODO : convert this to M2N relation through re_maintenance_event_wastewater_structure
             art=row.kind,
             astatus=row.status,
-            ausfuehrende_firmaref=row.fk_operating_company,
+            ausfuehrende_firmaref=get_tid(row.fk_operating_company__REL),
             ausfuehrender=row.operator,
             bemerkung=row.remark,
             bezeichnung=row.identifier,
@@ -747,9 +762,9 @@ def export():
             erfassungsart=row.recording_type,
             fahrzeug=row.vehicle,
             geraet=row.equipment,
-            haltungspunktref=tid_maker.tid_for_row(row.fk_reach_point),
+            haltungspunktref=get_tid(row.fk_reach_point__REL),
             inspizierte_laenge=row.inspected_length,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
             videonummer=row.videonumber,
             vonpunktbezeichnung=row.from_point_identifier,
             witterung=row.weather,
@@ -791,7 +806,7 @@ def export():
             ansichtsparameter=row.view_parameters,
             einzelschadenklasse=row.single_damage_class,
             streckenschaden=row.damage_reach,
-            untersuchungref=tid_maker.tid_for_row(row.fk_examination),
+            untersuchungref=get_tid(row.fk_examination__REL),
             verbindung=row.connection,
             videozaehlerstand=row.video_counter,
 
@@ -803,7 +818,7 @@ def export():
             schachtschadencode=row.manhole_damage_code,
             schadenlageanfang=row.damage_begin,
             schadenlageende=row.damage_end,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(normschachtschaden)
         create_metaattributes(row)
@@ -843,7 +858,7 @@ def export():
             ansichtsparameter=row.view_parameters,
             einzelschadenklasse=row.single_damage_class,
             streckenschaden=row.damage_reach,
-            untersuchungref=tid_maker.tid_for_row(row.fk_examination),
+            untersuchungref=get_tid(row.fk_examination__REL),
             verbindung=row.connection,
             videozaehlerstand=row.video_counter,
 
@@ -854,7 +869,7 @@ def export():
             quantifizierung2=row.quantification2,
             schadenlageanfang=row.damage_begin,
             schadenlageende=row.damage_end,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(kanalschaden)
         create_metaattributes(row)
@@ -890,7 +905,7 @@ def export():
             bezeichnung=row.identifier,
             pfad=row.path,
             standort=row.location,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(datentraeger)
         create_metaattributes(row)
@@ -909,6 +924,9 @@ def export():
         # --- _rel_ ---
         # class__REL, fk_dataowner__REL, fk_provider__REL, kind__REL
 
+        # NOTE: QGEP misses a FK to data_media, so we inject it manually here
+        row.data_media__REL = qgep_session.query(QGEP.data_media).get(row.fk_data_media)
+
         datei = ABWASSER.datei(
             # FIELDS TO MAP TO ABWASSER.datei
 
@@ -920,14 +938,14 @@ def export():
             obj_id=row.obj_id,
 
             # --- datei ---
-            art=row.kind,
+            art=get_vl(row.kind__REL) or '???',
             bemerkung=row.remark,
             bezeichnung=row.identifier,
-            datentraegerref=tid_maker.tid_for_row(row.fk_data_media__REL),
+            datentraegerref=get_tid(row.data_media__REL),
             klasse=getattr(row, "class"),  # class is a python keyword, this is equivalent to `klasse=row.class`,
             objekt=row.object,
             relativpfad=row.path_relative,
-            t_id=tid_maker.tid_for_row(row),
+            t_id=get_tid(row),
         )
         abwasser_session.add(datei)
         create_metaattributes(row)

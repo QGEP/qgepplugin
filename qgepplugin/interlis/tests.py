@@ -33,15 +33,8 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.file).count(), 0)
         self.assertEqual(session.query(QGEP.organisation).count(), 15)
 
-        main(
-            [
-                "io",
-                "--import_xtf",
-                r"interlis\data\test_data\case_a_import_from_wincan.xtf",
-                "qgep",
-                "--recreate_schema",
-            ]
-        )
+        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_a_import_from_wincan.xtf')
+        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
 
         # make sure all elements got imported
         self.assertEqual(session.query(QGEP.damage_manhole).count(), 2)
