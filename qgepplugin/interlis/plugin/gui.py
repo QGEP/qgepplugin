@@ -8,6 +8,8 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem
 from qgis.PyQt.uic import loadUi
+from qgis.utils import iface
+from qgis.core import Qgis
 
 from .editors.base import Editor
 
@@ -143,9 +145,14 @@ class Gui(QDialog):
             if self.instances_items[obj].checkState(0) != Qt.Checked:
                 self.session.expunge(obj)
 
+        # TODO : rollback to pre-commit state, allowing user to try to fix issues
+        # probably a matter of creating a savepoint before saving with
+        # session.begin_nested() and one additionnal self.session.commit()
         self.session.commit()
         self.session.close()
+        iface.messageBar().pushMessage("Sucess", "Data successfully imported", level=Qgis.Success)
 
     def rollback_session(self):
         self.session.rollback()
         self.session.close()
+        iface.messageBar().pushMessage("Error", "Import was canceled", level=Qgis.Warning)

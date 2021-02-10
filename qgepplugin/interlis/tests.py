@@ -67,7 +67,7 @@ class TestQGEPUseCases(unittest.TestCase):
         utils.various.setup_test_db("subset")  # we use a subset for now as full export can take time
 
         path = os.path.join(tempfile.mkdtemp(), "export.xtf")
-        main(["io", "--export_xtf", path, "qgep","--recreate_schema"])
+        main(["io", "--export_xtf", path, "qgep", "--recreate_schema"])
 
         print(f"Saved to {path}")
         utils.ili2db.validate_xtf_data(path)
