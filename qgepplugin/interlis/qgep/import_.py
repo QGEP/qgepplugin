@@ -979,6 +979,7 @@ def import_(precommit_callback=None):
     print("Importing ABWASSER.untersuchung, ABWASSER.metaattribute -> QGEP.examination")
     for row, metaattribute in abwasser_session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
+        warnings.warn("QGEP examination.active_zone has no equivalent in the interlis model. This field will be null.")
         examination = QGEP.examination(
             # --- maintenance_event ---
             # active_zone=row.REPLACE_ME,  # TODO : found no matching field for this in interlis, confirm this is ok
