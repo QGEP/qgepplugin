@@ -7,11 +7,13 @@ from sqlalchemy.orm import aliased
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
-from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QLineEdit, QWidget, QVBoxLayout, QLabel
+from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QLineEdit, QWidget, QVBoxLayout, QLabel, QPushButton
 from qgis.PyQt.uic import loadUiType, loadUi
 
-from ..qgep.model_qgep import QGEP, wastewater_structure
+from qgis.utils import iface
+from qgis.core import QgsProject, QgsFeature
 
+from ..qgep.model_qgep import QGEP
 
 def uipath(name):
     return os.path.join(os.path.dirname(__file__), name)
@@ -20,31 +22,42 @@ def uipath(name):
 class Gui(QDialog):
 
     def __init__(self, parent):
+        print(f"__init__ {self}")
         super().__init__(parent)
         loadUi(uipath('gui.ui'), self)
+
+        self.accepted.connect(self.commit_session)
+        self.rejected.connect(self.rollback_session)
+
+    def init_with_session(self, session: Session):
+        """
+        Populates the dialog with data from a session, and executes the dialog allowing to filter the rows to import
+        """
+        print(f"init_with_session {self}")
+        self.session = session
+
+        self.category_items = defaultdict(QTreeWidgetItem)  # keys are instances' classes
+        self.instances_items = defaultdict(QTreeWidgetItem)  # keys are instances
 
         self.treeWidget.itemChanged.connect(self.item_changed)
         self.treeWidget.currentItemChanged.connect(self.current_item_changed)
 
-    def execute_for_session(self, session: Session):
-        """
-        Populates the dialog with data from a session, and executes the dialog allowing to filter the rows to import
-        """
-        self.session = session
-
-        self.category_items = defaultdict(QTreeWidgetItem)
-        self.instances_items = defaultdict(QTreeWidgetItem)
-        bold_font = QFont(QFont().defaultFamily(), weight=QFont.Weight.Bold)
-
-        # Populate the tree widget
         self.treeWidget.clear()
+        self.update_tree()
+
+        # Execute the dialog
+        self.show()
+
+    def update_tree(self):
+        # Populate the tree widget
+        print("Repopulating tree")
         for obj in self.session:
             cls = obj.__class__
 
             if cls not in self.category_items:
                 self.category_items[cls].setText(0, cls.__name__)
                 self.category_items[cls].setCheckState(0, Qt.Checked)
-                self.category_items[cls].setFont(0, bold_font)
+                self.category_items[cls].setFont(0, QFont(QFont().defaultFamily(), weight=QFont.Weight.Bold))
                 self.treeWidget.addTopLevelItem(self.category_items[cls])
 
             status_names = []
@@ -62,22 +75,11 @@ class Gui(QDialog):
         for category_item in self.category_items.values():
             category_item.setText(0, f"{category_item.text(0)} ({category_item.childCount()})")
 
-        # Execute the dialog
-        if self.exec_():
-            # Expunge unchecked objects form the session
-            for obj in self.session:
-                if self.instances_items[obj].checkState(0) != Qt.Checked:
-                    self.session.expunge(obj)
-            # User confirmed, we return True to indicate we want a commit
-            return True
-        else:
-            # User canceled, we return False to indicate we want a rollback
-            return False
-
     def item_changed(self, item, column):
         """
         Propagate checkboxes to parent/children
         """
+        print("item_changed")
 
         checked_state = item.checkState(0)
 
@@ -115,6 +117,7 @@ class Gui(QDialog):
         """
         Populates the details pane
         """
+        print("current_item_changed")
 
         self.debugTextEdit.clear()
         current_widget = self.stackedWidget.currentWidget()
@@ -140,11 +143,25 @@ class Gui(QDialog):
             self.debugTextEdit.append(f"{c.key}: {val}")
 
         # Instantiate the specific widget
-        editor = Editor.registry[obj.__class__.__name__](self.session, obj)
+        editor = Editor.registry[obj.__class__.__name__](self, self.session, obj)
         new_widget = editor.make_widget()
         self.stackedWidget.addWidget(new_widget)
         self.stackedWidget.setCurrentWidget(new_widget)
 
+    def commit_session(self):
+        print("COMMITTING SESSION !!!")
+        # Expunge unchecked objects form the session
+        for obj in self.session:
+            if self.instances_items[obj].checkState(0) != Qt.Checked:
+                self.session.expunge(obj)
+
+        self.session.commit()
+        self.session.close()
+
+    def rollback_session(self):
+        print("ROLLING BACK SESSION !!!")
+        self.session.rollback()
+        self.session.close()
 
 class Editor():
     class_name = 'undefined'
@@ -154,7 +171,8 @@ class Editor():
     def __init_subclass__(cls):
         Editor.registry[cls.class_name] = cls
 
-    def __init__(self, session, obj):
+    def __init__(self, main_dialog, session, obj):
+        self.main_dialog = main_dialog
         self.session = session
         self.obj = obj
 
@@ -174,17 +192,19 @@ class ExaminationEditor(Editor):
     class_name = 'examination'
 
     def init_widget(self):
-        self.widget.pushButton.pressed.connect(self.assign_random)
+        reach_layer = QgsProject.instance().mapLayersByName("vw_qgep_reach")[0]
+        self.widget.selectorWidget.set_layer(reach_layer)
+        self.widget.selectorWidget.set_canvas(iface.mapCanvas())
+        self.widget.assignButton.pressed.connect(lambda: print("ASSIGN CLICKED!"))
+        # self.widget.assignButton.pressed.connect(self.assign_button_clicked)  # doesn't work ?!
+        self.widget.assignButton.pressed.connect(lambda: self.assign_button_clicked())
         self.update_widget()
 
     def update_widget(self):
         self.widget.plainTextEdit.clear()
-
         # We look for the corresponding channel given to_point_identifier and from_point_identifier
-
-        # TODO : from and to are reversed (to match test dataset), we probaby want to support inversed too
-        from_id = self.obj.to_point_identifier
-        to_id = self.obj.from_point_identifier
+        from_id = self.obj.from_point_identifier
+        to_id = self.obj.to_point_identifier
 
         wastewater_ne_from = aliased(QGEP.wastewater_networkelement)
         wastewater_ne_to = aliased(QGEP.wastewater_networkelement)
@@ -197,16 +217,30 @@ class ExaminationEditor(Editor):
             .join(wastewater_ne_from, wastewater_ne_from.obj_id == rp_from.fk_wastewater_networkelement) \
             .join(rp_to, rp_to.obj_id == QGEP.reach.fk_reach_point_to) \
             .join(wastewater_ne_to, wastewater_ne_to.obj_id == rp_to.fk_wastewater_networkelement) \
-            .filter(
-                wastewater_ne_from.identifier == from_id,
-                wastewater_ne_to.identifier == to_id,
-            )
+            .filter(wastewater_ne_from.identifier == from_id, wastewater_ne_to.identifier == to_id)
+
+        matching_channels_inverted = self.session.query(QGEP.wastewater_structure) \
+            .join(QGEP.reach) \
+            .join(rp_from, rp_from.obj_id == QGEP.reach.fk_reach_point_from) \
+            .join(wastewater_ne_from, wastewater_ne_from.obj_id == rp_from.fk_wastewater_networkelement) \
+            .join(rp_to, rp_to.obj_id == QGEP.reach.fk_reach_point_to) \
+            .join(wastewater_ne_to, wastewater_ne_to.obj_id == rp_to.fk_wastewater_networkelement) \
+            .filter(wastewater_ne_from.identifier == to_id, wastewater_ne_to.identifier == from_id)
 
         for channel in matching_channels:
-            self.widget.plainTextEdit.appendPlainText("Channel " + channel.identifier)
+            self.widget.plainTextEdit.appendPlainText(f"Channel {channel.identifier}")
+        for channel in matching_channels_inverted:
+            self.widget.plainTextEdit.appendPlainText(f"Channel {channel.identifier} [inverted]")
 
-    def assign_random(self):
+    def assign_button_clicked(self):
+        print("ASSIGNING !")
         # self.session.add()
-        self.update_widget()
-        pass
+        feature: QgsFeature = self.widget.selectorWidget.feature
+        exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
+            fk_wastewater_structure=feature["obj_id"],
+            fk_maintenance_event=self.obj.obj_id,
+        )
+        print(f"adding {exam_to_wastewater_structure} to session")
+        self.session.add(exam_to_wastewater_structure)
 
+        self.main_dialog.update_tree()

@@ -13,13 +13,12 @@ from .model_abwasser import ABWASSER
 
 def import_(precommit_callback=None):
     """
-    Imports data from the ili2pg model into the QGEP model
+    Imports data from the ili2pg model into the QGEP model.
 
     Args:
         precommit_callback: optional callable that gets invoked with the sqlalchemy's session,
-                            allowing for a GUI to  filter objects before committing. It must
-                            return True if the session should be committed or False if it should
-                            be rolled back
+                            allowing for a GUI to  filter objects before committing. It MUST either
+                            commit or rollback and close the session.
     """
 
     # We use two different sessions for reading and writing so it's easier to
@@ -1138,14 +1137,9 @@ def import_(precommit_callback=None):
     print("done")
 
     # Calling the precommit callback if provided, allowing to filter before final import
-    proceed = True
     if precommit_callback:
-        proceed = precommit_callback(qgep_session)
-
-    if not proceed:
-        qgep_session.rollback()
+        precommit_callback(qgep_session)
     else:
         qgep_session.commit()
-
-    qgep_session.close()
+        qgep_session.close()
     abwasser_session.close()

@@ -15,11 +15,14 @@ from .gui import Gui
 from .. import config
 from ..utils.ili2db import create_ili_schema, import_xtf_data, export_xtf_data
 
+import_dialog = None
 
 def action_import(plugin):
     """
     Is executed when the user clicks the importAction tool
     """
+    global import_dialog  # avoid garbage collection
+
     if not configure_from_modelbaker(plugin.iface):
         return
 
@@ -48,12 +51,12 @@ def action_import(plugin):
     QApplication.processEvents()
     import_xtf_data(config.ABWASSER_SCHEMA, file_name)
     # Export to the temporary ili2pg model
-    from ..qgep.import_ import import_
-    import_dialog = Gui(plugin.iface.mainWindow())
     progress_dialog.setLabelText("Converting to QGEP...")
     progress_dialog.setValue(100)
     QApplication.processEvents()
-    import_(precommit_callback=import_dialog.execute_for_session)
+    import_dialog = Gui(plugin.iface.mainWindow())
+    from ..qgep.import_ import import_
+    import_(precommit_callback=import_dialog.init_with_session)
 
 
 def action_export(plugin):
