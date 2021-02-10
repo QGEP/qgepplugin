@@ -65,6 +65,31 @@ class TestQGEPUseCases(unittest.TestCase):
         print(f"Saved to {path}")
         utils.ili2db.validate_xtf_data(path)
 
+    # @unittest.skip("...")
+    def test_case_c_import_complete_xtf_to_qgep(self):
+        """
+        # C. import a whole interlis transfer file into QGEP
+        """
+
+        utils.various.setup_test_db("empty")
+
+        from .qgep.model_qgep import QGEP
+        session = Session(utils.sqlalchemy.create_engine())
+
+        self.assertEqual(session.query(QGEP.channel).count(), 0)
+        self.assertEqual(session.query(QGEP.manhole).count(), 0)
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_c_import_all.xtf')
+        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
+
+        # make sure all elements got imported
+        self.assertEqual(session.query(QGEP.channel).count(), 102)
+        self.assertEqual(session.query(QGEP.manhole).count(), 49)
+
+        # checking some properties  # TODO : add some more...
+        manhole = session.query(QGEP.manhole).get("ch080qwzNS000113")
+        self.assertEqual(manhole.year_of_construction, 1950)
+
 
 class TestRegressions(unittest.TestCase):
 

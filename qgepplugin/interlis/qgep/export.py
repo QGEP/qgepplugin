@@ -36,8 +36,8 @@ def export():
         metaattribute = ABWASSER.metaattribute(
             # FIELDS TO MAP TO ABWASSER.metaattribute
             # --- metaattribute ---
-            datenherr=getattr(row.fk_dataowner__REL, "name", 'unknown'),  # TODO
-            datenlieferant=getattr(row.fk_provider__REL, "name", 'unknown'),  # TODO
+            datenherr=getattr(row.fk_dataowner__REL, "name", 'unknown'),  # TODO : is unknown ok ?
+            datenlieferant=getattr(row.fk_provider__REL, "name", 'unknown'),  # TODO : is unknown ok ?
             letzte_aenderung=row.last_modification,
             sia405_baseclass_metaattribute=get_tid(row),
             # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
@@ -87,7 +87,7 @@ def export():
             'zugaenglichkeit': get_vl(row.accessibility__REL),
         }
 
-    def network_element_common(row):
+    def wastewater_network_element_common(row):
         """
         Returns common attributes for network_element
         """
@@ -199,7 +199,7 @@ def export():
             dimension2=row.dimension2,
             funktion=get_vl(row.function__REL),
             material=get_vl(row.material__REL),
-            oberflaechenzulauf=row.surface_inflow,
+            oberflaechenzulauf=get_vl(row.surface_inflow__REL),
         )
         abwasser_session.add(normschacht)
         create_metaattributes(row)
@@ -220,7 +220,7 @@ def export():
 
             # --- einleitstelle ---
             hochwasserkote=row.highwater_level,
-            relevanz=row.relevance,
+            relevanz=get_vl(row.relevance__REL),
             terrainkote=row.terrain_level,
             wasserspiegel_hydraulik=row.waterlevel_hydraulic,
         )
@@ -259,10 +259,10 @@ def export():
 
             # --- spezialbauwerk ---
             # TODO : WARNING : upper_elevation is not mapped
-            bypass=row.bypass,
-            funktion=row.function,
-            notueberlauf=row.emergency_spillway,
-            regenbecken_anordnung=row.stormwater_tank_arrangement,
+            bypass=get_vl(row.bypass__REL),
+            funktion=get_vl(row.function__REL),
+            notueberlauf=get_vl(row.emergency_spillway__REL),
+            regenbecken_anordnung=get_vl(row.stormwater_tank_arrangement),
         )
         abwasser_session.add(spezialbauwerk)
         create_metaattributes(row)
@@ -287,7 +287,7 @@ def export():
         # --- _rel_ ---
         # accessibility__REL, defects__REL, emergency_spillway__REL, financing__REL, fk_aquifier__REL, fk_dataowner__REL, fk_main_cover__REL, fk_main_wastewater_node__REL, fk_operator__REL, fk_owner__REL, fk_provider__REL, kind__REL, labeling__REL, renovation_necessity__REL, rv_construction_type__REL, seepage_utilization__REL, status__REL, structure_condition__REL, vehicle_access__REL, watertightness__REL
 
-        warnings.warn(f'Mapping of infiltration_installation->versickerungsanlage is not fully implemented.')
+        warnings.warn(f'QGEP field infiltration_installation.upper_elevation has no equivalent in the interlis model. It will be ignored.')
         versickerungsanlage = ABWASSER.versickerungsanlage(
             # FIELDS TO MAP TO ABWASSER.versickerungsanlage
 
@@ -299,17 +299,18 @@ def export():
             **wastewater_structure_common(row),
 
             # --- versickerungsanlage ---
-            art=row.kind,
-            beschriftung=row.labeling,
+            # TODO : NOT MAPPED : upper_elevation
+            art=get_vl(row.kind__REL),
+            beschriftung=get_vl(row.labeling__REL),
             dimension1=row.dimension1,
             dimension2=row.dimension2,
             gwdistanz=row.distance_to_aquifer,
-            maengel=row.defects,
-            notueberlauf=row.emergency_spillway,
-            # saugwagen=row.REPLACE_ME,
-            # schluckvermoegen=row.REPLACE_ME,
-            # versickerungswasser=row.REPLACE_ME,
-            wasserdichtheit=row.watertightness,
+            maengel=get_vl(row.defects__REL),
+            notueberlauf=get_vl(row.emergency_spillway__REL),
+            saugwagen=get_vl(row.vehicle_access__REL),  # TODO : check mapping
+            schluckvermoegen=row.absorption_capacity,  # TODO : check mapping
+            versickerungswasser=get_vl(row.seepage_utilization__REL),  # TODO : check mapping
+            wasserdichtheit=get_vl(row.watertightness__REL),
             wirksameflaeche=row.effective_area,
         )
         abwasser_session.add(versickerungsanlage)
@@ -343,7 +344,7 @@ def export():
             bemerkung=row.remark,
             bezeichnung=row.identifier,
             hoehenbreitenverhaeltnis=row.height_width_ratio,
-            profiltyp=row.profile_type,
+            profiltyp=get_vl(row.profile_type__REL),
         )
         abwasser_session.add(rohrprofil)
         create_metaattributes(row)
@@ -374,10 +375,10 @@ def export():
 
             # --- haltungspunkt ---
             abwassernetzelementref=get_tid(row.fk_wastewater_networkelement__REL),
-            auslaufform=row.outlet_shape,
+            auslaufform=get_vl(row.outlet_shape),
             bemerkung=row.remark,
             bezeichnung=row.identifier,
-            hoehengenauigkeit=row.elevation_accuracy,
+            hoehengenauigkeit=get_vl(row.elevation_accuracy__REL),
             kote=row.level,
             lage=ST_Force2D(row.situation_geometry),
             lage_anschluss=row.position_of_connection,
@@ -413,11 +414,10 @@ def export():
             **base_common(row, "abwasserknoten"),
 
             # --- abwassernetzelement ---
-            **network_element_common(row),
+            **wastewater_network_element_common(row),
 
             # --- abwasserknoten ---
             # TODO : WARNING : fk_hydr_geometry is not mapped
-            # NOT MAPPED :
             lage=ST_Force2D(row.situation_geometry),
             rueckstaukote=row.backflow_level,
             sohlenkote=row.bottom_level,
@@ -453,7 +453,7 @@ def export():
             # --- sia405_baseclass ---
             **base_common(row, "haltung"),
             # --- abwassernetzelement ---
-            **network_element_common(row),
+            **wastewater_network_element_common(row),
 
             # --- haltung ---
             # NOT MAPPED : elevation_determination
