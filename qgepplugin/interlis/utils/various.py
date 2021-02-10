@@ -2,6 +2,7 @@ import psycopg2
 import subprocess
 import time
 import collections
+import sys
 
 from .. import config
 
@@ -18,7 +19,7 @@ def exec_(command, check=True, silent=False):
         )
     except subprocess.CalledProcessError as e:
         if check:
-            print(e.output)
+            print(e.output.decode(sys.getdefaultencoding()))
             raise Exception(f"Command errored ! See logs for more info.")
         return e.returncode
     return proc.returncode
