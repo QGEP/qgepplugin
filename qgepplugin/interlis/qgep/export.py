@@ -46,6 +46,17 @@ def export():
         )
         abwasser_session.add(metaattribute)
 
+    def base_common(row, type_name):
+        """
+        Returns common attributes for base
+        """
+        return {
+            "t_ili_tid": row.obj_id,
+            "t_type": type_name,
+            "obj_id": row.obj_id,
+            "t_id": get_tid(row),
+        }
+
     def wastewater_structure_common(row):
         """
         Returns common attributes for wastewater_structure
@@ -71,7 +82,7 @@ def export():
             'standortname': row.location_name,
             'subventionen': row.subsidies,
             'wbw_basisjahr': row.rv_base_year,
-            'wbw_bauart': row.rv_construction_type,
+            'wbw_bauart': get_vl(row.rv_construction_type),
             'wiederbeschaffungswert': row.replacement_value,
             'zugaenglichkeit': get_vl(row.accessibility__REL),
         }
@@ -118,15 +129,13 @@ def export():
             # FIELDS TO MAP TO ABWASSER.organisation
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="organisation",
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "organisation"),
+
             # --- organisation ---
             auid=row.uid,
             bemerkung=row.remark,
             bezeichnung=row.identifier,
-            t_id=get_tid(row),
         )
         abwasser_session.add(organisation)
         create_metaattributes(row)
@@ -153,10 +162,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.kanal
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="kanal",
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "kanal"),
 
             # --- abwasserbauwerk ---
             **wastewater_structure_common(row),
@@ -169,7 +176,6 @@ def export():
             nutzungsart_ist=get_vl(row.usage_current__REL),
             rohrlaenge=row.pipe_length,
             spuelintervall=row.jetting_interval,
-            t_id=get_tid(row),
             verbindungsart=get_vl(row.connection_type__REL),
         )
         abwasser_session.add(kanal)
@@ -182,11 +188,8 @@ def export():
     for row in qgep_session.query(QGEP.manhole):
         normschacht = ABWASSER.normschacht(
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="normschacht",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "normschacht"),
 
             # --- abwasserbauwerk ---
             **wastewater_structure_common(row),
@@ -197,7 +200,6 @@ def export():
             funktion=get_vl(row.function__REL),
             material=get_vl(row.material__REL),
             oberflaechenzulauf=row.surface_inflow,
-            t_id=get_tid(row),
         )
         abwasser_session.add(normschacht)
         create_metaattributes(row)
@@ -208,12 +210,10 @@ def export():
     print("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.discharge_point):
         einleitstelle = ABWASSER.einleitstelle(
-            # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="einleitstelle",
 
+            # --- baseclass ---
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "einleitstelle"),
 
             # --- abwasserbauwerk ---
             **wastewater_structure_common(row),
@@ -221,7 +221,6 @@ def export():
             # --- einleitstelle ---
             hochwasserkote=row.highwater_level,
             relevanz=row.relevance,
-            t_id=get_tid(row),
             terrainkote=row.terrain_level,
             wasserspiegel_hydraulik=row.waterlevel_hydraulic,
         )
@@ -252,11 +251,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.spezialbauwerk
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="spezialbauwerk",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "spezialbauwerk"),
 
             # --- abwasserbauwerk ---
             **wastewater_structure_common(row),
@@ -267,7 +263,6 @@ def export():
             funktion=row.function,
             notueberlauf=row.emergency_spillway,
             regenbecken_anordnung=row.stormwater_tank_arrangement,
-            t_id=get_tid(row),
         )
         abwasser_session.add(spezialbauwerk)
         create_metaattributes(row)
@@ -297,11 +292,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.versickerungsanlage
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="versickerungsanlage",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "versickerungsanlage"),
 
             # --- abwasserbauwerk ---
             **wastewater_structure_common(row),
@@ -316,7 +308,6 @@ def export():
             notueberlauf=row.emergency_spillway,
             # saugwagen=row.REPLACE_ME,
             # schluckvermoegen=row.REPLACE_ME,
-            t_id=get_tid(row),
             # versickerungswasser=row.REPLACE_ME,
             wasserdichtheit=row.watertightness,
             wirksameflaeche=row.effective_area,
@@ -345,18 +336,14 @@ def export():
             # FIELDS TO MAP TO ABWASSER.rohrprofil
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="rohrprofil",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "rohrprofil"),
 
             # --- rohrprofil ---
             bemerkung=row.remark,
             bezeichnung=row.identifier,
             hoehenbreitenverhaeltnis=row.height_width_ratio,
             profiltyp=row.profile_type,
-            t_id=get_tid(row),
         )
         abwasser_session.add(rohrprofil)
         create_metaattributes(row)
@@ -382,11 +369,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.haltungspunkt
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="haltungspunkt",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "haltungspunkt"),
 
             # --- haltungspunkt ---
             abwassernetzelementref=get_tid(row.fk_wastewater_networkelement__REL),
@@ -397,7 +381,6 @@ def export():
             kote=row.level,
             lage=ST_Force2D(row.situation_geometry),
             lage_anschluss=row.position_of_connection,
-            t_id=get_tid(row),
         )
         abwasser_session.add(haltungspunkt)
         create_metaattributes(row)
@@ -426,11 +409,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.abwasserknoten
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="abwasserknoten",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "abwasserknoten"),
 
             # --- abwassernetzelement ---
             **network_element_common(row),
@@ -441,7 +421,6 @@ def export():
             lage=ST_Force2D(row.situation_geometry),
             rueckstaukote=row.backflow_level,
             sohlenkote=row.bottom_level,
-            t_id=get_tid(row),
         )
         abwasser_session.add(abwasserknoten)
         create_metaattributes(row)
@@ -471,11 +450,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.haltung
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="haltung",
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
-
+            **base_common(row, "haltung"),
             # --- abwassernetzelement ---
             **network_element_common(row),
 
@@ -495,7 +471,6 @@ def export():
             reliner_nennweite=row.reliner_nominal_size,
             ringsteifigkeit=row.ring_stiffness,
             rohrprofilref=get_tid(row.fk_pipe_profile__REL),
-            t_id=get_tid(row),
             verlauf=ST_Force2D(row.progression_geometry),
             vonhaltungspunktref=get_tid(row.fk_reach_point_from__REL),
             wandrauhigkeit=row.wall_roughness,
@@ -527,18 +502,14 @@ def export():
             # FIELDS TO MAP TO ABWASSER.trockenwetterfallrohr
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="trockenwetterfallrohr",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "trockenwetterfallrohr"),
 
             # --- bauwerksteil ---
             **structure_part_common(row),
 
             # --- trockenwetterfallrohr ---
             durchmesser=row.diameter,
-            t_id=get_tid(row),
         )
         abwasser_session.add(trockenwetterfallrohr)
         create_metaattributes(row)
@@ -567,18 +538,14 @@ def export():
             # FIELDS TO MAP TO ABWASSER.einstiegshilfe
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="einstiegshilfe",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "einstiegshilfe"),
 
             # --- bauwerksteil ---
             **structure_part_common(row),
 
             # --- einstiegshilfe ---
             art=row.kind,
-            t_id=get_tid(row),
         )
         abwasser_session.add(einstiegshilfe)
         create_metaattributes(row)
@@ -607,18 +574,14 @@ def export():
             # FIELDS TO MAP TO ABWASSER.trockenwetterrinne
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="trockenwetterrinne",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "trockenwetterrinne"),
 
             # --- bauwerksteil ---
             **structure_part_common(row),
 
             # --- trockenwetterrinne ---
             material=get_vl(row.material__REL),
-            t_id=get_tid(row),
         )
         abwasser_session.add(trockenwetterrinne)
         create_metaattributes(row)
@@ -647,11 +610,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.deckel
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="deckel",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "deckel"),
 
             # --- bauwerksteil ---
             **structure_part_common(row),
@@ -666,7 +626,6 @@ def export():
             lagegenauigkeit=row.positional_accuracy,
             material=row.material,
             schlammeimer=row.sludge_bucket,
-            t_id=get_tid(row),
             verschluss=row.fastening,
         )
         abwasser_session.add(deckel)
@@ -696,8 +655,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.bankett
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="bankett",
+            # --- sia405_baseclass ---
+            **base_common(row, "bankett"),
 
             # --- sia405_baseclass ---
             obj_id=row.obj_id,
@@ -707,7 +666,6 @@ def export():
 
             # --- bankett ---
             art=row.kind,
-            t_id=get_tid(row),
         )
         abwasser_session.add(bankett)
         create_metaattributes(row)
@@ -735,11 +693,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.untersuchung
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="untersuchung",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "untersuchung"),
 
             # --- erhaltungsereignis ---
             # abwasserbauwerkref=row.REPLACE_ME,  # TODO : convert this to M2N relation through re_maintenance_event_wastewater_structure
@@ -764,7 +719,6 @@ def export():
             geraet=row.equipment,
             haltungspunktref=get_tid(row.fk_reach_point__REL),
             inspizierte_laenge=row.inspected_length,
-            t_id=get_tid(row),
             videonummer=row.videonumber,
             vonpunktbezeichnung=row.from_point_identifier,
             witterung=row.weather,
@@ -795,11 +749,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.normschachtschaden
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="normschachtschaden",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "normschachtschaden"),
 
             # --- schaden ---
             anmerkung=row.comments,
@@ -818,7 +769,6 @@ def export():
             schachtschadencode=row.manhole_damage_code,
             schadenlageanfang=row.damage_begin,
             schadenlageende=row.damage_end,
-            t_id=get_tid(row),
         )
         abwasser_session.add(normschachtschaden)
         create_metaattributes(row)
@@ -847,11 +797,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.kanalschaden
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="kanalschaden",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "kanalschaden"),
 
             # --- schaden ---
             anmerkung=row.comments,
@@ -869,7 +816,6 @@ def export():
             quantifizierung2=row.quantification2,
             schadenlageanfang=row.damage_begin,
             schadenlageende=row.damage_end,
-            t_id=get_tid(row),
         )
         abwasser_session.add(kanalschaden)
         create_metaattributes(row)
@@ -891,13 +837,9 @@ def export():
         datentraeger = ABWASSER.datentraeger(
             # FIELDS TO MAP TO ABWASSER.datentraeger
 
-
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="datentraeger",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "datentraeger"),
 
             # --- datentraeger ---
             art=row.kind,
@@ -905,7 +847,6 @@ def export():
             bezeichnung=row.identifier,
             pfad=row.path,
             standort=row.location,
-            t_id=get_tid(row),
         )
         abwasser_session.add(datentraeger)
         create_metaattributes(row)
@@ -931,11 +872,8 @@ def export():
             # FIELDS TO MAP TO ABWASSER.datei
 
             # --- baseclass ---
-            t_ili_tid=row.obj_id,
-            t_type="datei",
-
             # --- sia405_baseclass ---
-            obj_id=row.obj_id,
+            **base_common(row, "datei"),
 
             # --- datei ---
             art=get_vl(row.kind__REL) or '???',
@@ -945,7 +883,6 @@ def export():
             klasse=getattr(row, "class"),  # class is a python keyword, this is equivalent to `klasse=row.class`,
             objekt=row.object,
             relativpfad=row.path_relative,
-            t_id=get_tid(row),
         )
         abwasser_session.add(datei)
         create_metaattributes(row)
