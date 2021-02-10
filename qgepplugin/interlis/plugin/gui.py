@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont
-from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QLineEdit, QWidget, QVBoxLayout, QLabel, QPushButton
+from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QLineEdit, QWidget, QVBoxLayout, QLabel, QPushButton, QListWidgetItem
 from qgis.PyQt.uic import loadUiType, loadUi
 
 from qgis.utils import iface
@@ -22,7 +22,6 @@ def uipath(name):
 class Gui(QDialog):
 
     def __init__(self, parent):
-        print(f"__init__ {self}")
         super().__init__(parent)
         loadUi(uipath('gui.ui'), self)
 
@@ -31,9 +30,8 @@ class Gui(QDialog):
 
     def init_with_session(self, session: Session):
         """
-        Populates the dialog with data from a session, and executes the dialog allowing to filter the rows to import
+        Shows the dialog with data from a session, and executes the dialog allowing to filter the rows to import
         """
-        print(f"init_with_session {self}")
         self.session = session
 
         self.category_items = defaultdict(QTreeWidgetItem)  # keys are instances' classes
@@ -49,8 +47,10 @@ class Gui(QDialog):
         self.show()
 
     def update_tree(self):
-        # Populate the tree widget
-        print("Repopulating tree")
+        """
+        Populates the tree, creating/updating items
+        """
+
         for obj in self.session:
             cls = obj.__class__
 
@@ -72,14 +72,13 @@ class Gui(QDialog):
             self.category_items[cls].addChild(self.instances_items[obj])
 
         # Show counts
-        for category_item in self.category_items.values():
-            category_item.setText(0, f"{category_item.text(0)} ({category_item.childCount()})")
+        for cls, category_item in self.category_items.items():
+            category_item.setText(0, f"{cls.__name__} ({category_item.childCount()})")
 
     def item_changed(self, item, column):
         """
         Propagate checkboxes to parent/children
         """
-        print("item_changed")
 
         checked_state = item.checkState(0)
 
@@ -117,7 +116,6 @@ class Gui(QDialog):
         """
         Populates the details pane
         """
-        print("current_item_changed")
 
         self.debugTextEdit.clear()
         current_widget = self.stackedWidget.currentWidget()
@@ -149,7 +147,6 @@ class Gui(QDialog):
         self.stackedWidget.setCurrentWidget(new_widget)
 
     def commit_session(self):
-        print("COMMITTING SESSION !!!")
         # Expunge unchecked objects form the session
         for obj in self.session:
             if self.instances_items[obj].checkState(0) != Qt.Checked:
@@ -159,7 +156,6 @@ class Gui(QDialog):
         self.session.close()
 
     def rollback_session(self):
-        print("ROLLING BACK SESSION !!!")
         self.session.rollback()
         self.session.close()
 
@@ -192,16 +188,15 @@ class ExaminationEditor(Editor):
     class_name = 'examination'
 
     def init_widget(self):
-        reach_layer = QgsProject.instance().mapLayersByName("vw_qgep_reach")[0]
-        self.widget.selectorWidget.set_layer(reach_layer)
+        self.reach_layer = QgsProject.instance().mapLayersByName("vw_qgep_reach")[0]
+        self.widget.selectorWidget.set_layer(self.reach_layer)
         self.widget.selectorWidget.set_canvas(iface.mapCanvas())
-        self.widget.assignButton.pressed.connect(lambda: print("ASSIGN CLICKED!"))
         # self.widget.assignButton.pressed.connect(self.assign_button_clicked)  # doesn't work ?!
         self.widget.assignButton.pressed.connect(lambda: self.assign_button_clicked())
+        self.widget.suggestedListWidget.currentItemChanged.connect(self.suggested_reach_changed)
         self.update_widget()
 
     def update_widget(self):
-        self.widget.plainTextEdit.clear()
         # We look for the corresponding channel given to_point_identifier and from_point_identifier
         from_id = self.obj.from_point_identifier
         to_id = self.obj.to_point_identifier
@@ -228,19 +223,30 @@ class ExaminationEditor(Editor):
             .filter(wastewater_ne_from.identifier == to_id, wastewater_ne_to.identifier == from_id)
 
         for channel in matching_channels:
-            self.widget.plainTextEdit.appendPlainText(f"Channel {channel.identifier}")
+            widget_item = QListWidgetItem(f"Channel {channel.obj_id}/{channel.identifier}")
+            widget_item.setData(Qt.UserRole, channel.obj_id)
+            self.widget.suggestedListWidget.addItem(widget_item)
         for channel in matching_channels_inverted:
-            self.widget.plainTextEdit.appendPlainText(f"Channel {channel.identifier} [inverted]")
+            widget_item = QListWidgetItem(f"Channel {channel.obj_id}/{channel.identifier} [inverted]")
+            widget_item.setData(Qt.UserRole, channel.obj_id)
+            self.widget.suggestedListWidget.addItem(widget_item)
+
+    def suggested_reach_changed(self, current_item, _previous_item):
+        obj_id = current_item.data(Qt.UserRole)
+        features = self.reach_layer.getFeatures(f"ws_obj_id = '{obj_id}'")
+        try:
+            feature = next(features)
+        except StopIteration:
+            # Not found
+            return
+        self.widget.selectorWidget.set_feature(feature)
 
     def assign_button_clicked(self):
-        print("ASSIGNING !")
-        # self.session.add()
         feature: QgsFeature = self.widget.selectorWidget.feature
         exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
-            fk_wastewater_structure=feature["obj_id"],
+            fk_wastewater_structure=feature["ws_obj_id"],
             fk_maintenance_event=self.obj.obj_id,
         )
-        print(f"adding {exam_to_wastewater_structure} to session")
         self.session.add(exam_to_wastewater_structure)
 
         self.main_dialog.update_tree()
