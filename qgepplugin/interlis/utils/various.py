@@ -1,4 +1,5 @@
 import psycopg2
+import os
 import subprocess
 import time
 import collections
@@ -19,7 +20,7 @@ def exec_(command, check=True, silent=False):
         )
     except subprocess.CalledProcessError as e:
         if check:
-            print(e.output.decode(sys.getdefaultencoding()))
+            print(e.output.decode('windows-1252' if os.name == 'nt' else 'utf-8'))
             raise Exception(f"Command errored ! See logs for more info.")
         return e.returncode
     return proc.returncode
