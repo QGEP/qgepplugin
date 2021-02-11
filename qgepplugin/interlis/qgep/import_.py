@@ -127,7 +127,7 @@ def import_(precommit_callback=None):
             "fk_wastewater_structure": get_pk(row.abwasserbauwerkref__REL),
             "identifier": row.bezeichnung,
             "remark": row.bemerkung,
-            "renovation_demand": row.instandstellung,
+            "renovation_demand": get_vl_code(QGEP.structure_part_renovation_demand, row.instandstellung),
         }
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
@@ -484,7 +484,7 @@ def import_(precommit_callback=None):
 
             # --- reach_point ---
             elevation_accuracy=get_vl_code(QGEP.reach_point_elevation_accuracy, row.hoehengenauigkeit),
-            fk_wastewater_networkelement=get_pk(row.abwassernetzelementref__REL),  # this fails for now, but probably only because we flush too soon
+            # fk_wastewater_networkelement=get_pk(row.abwassernetzelementref__REL),  # this fails for now, but probably only because we flush too soon
             identifier=row.bezeichnung,
             level=row.kote,
             outlet_shape=get_vl_code(QGEP.reach_point_outlet_shape, row.hoehengenauigkeit),
@@ -538,7 +538,7 @@ def import_(precommit_callback=None):
             # fk_hydr_geometry=row.REPLACE_ME,  # TODO : NOT MAPPED
             backflow_level=row.rueckstaukote,
             bottom_level=row.sohlenkote,
-            situation_geometry=row.lage,
+            situation_geometry=ST_Force3D(row.lage),
         )
         qgep_session.add(wastewater_node)
         print(".", end="")

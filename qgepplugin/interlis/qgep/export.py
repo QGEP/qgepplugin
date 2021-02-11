@@ -106,7 +106,7 @@ def export():
             'abwasserbauwerkref': get_tid(row.fk_wastewater_structure__REL),
             'bemerkung': row.remark,
             'bezeichnung': row.identifier,
-            'instandstellung': row.renovation_demand,
+            'instandstellung': get_vl(row.renovation_demand__REL),
         }
 
     # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
