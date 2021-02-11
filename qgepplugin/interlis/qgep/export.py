@@ -457,9 +457,9 @@ def export():
 
             # --- haltung ---
             # NOT MAPPED : elevation_determination
-            innenschutz=row.inside_coating,
+            innenschutz=get_vl(row.inside_coating__REL),
             laengeeffektiv=row.length_effective,
-            lagebestimmung=row.horizontal_positioning,
+            lagebestimmung=get_vl(row.horizontal_positioning__REL),
             lichte_hoehe=row.clear_height,
             material=row.material,
             nachhaltungspunktref=get_tid(row.fk_reach_point_to__REL),
@@ -467,7 +467,7 @@ def export():
             reibungsbeiwert=row.coefficient_of_friction,
             reliner_art=row.relining_kind,
             reliner_bautechnik=row.relining_construction,
-            reliner_material=row.reliner_material,
+            reliner_material=get_vl(row.reliner_material__REL),
             reliner_nennweite=row.reliner_nominal_size,
             ringsteifigkeit=row.ring_stiffness,
             rohrprofilref=get_tid(row.fk_pipe_profile__REL),
@@ -545,7 +545,7 @@ def export():
             **structure_part_common(row),
 
             # --- einstiegshilfe ---
-            art=row.kind,
+            art=get_vl(row.kind__REL),
         )
         abwasser_session.add(einstiegshilfe)
         create_metaattributes(row)
@@ -617,16 +617,16 @@ def export():
             **structure_part_common(row),
 
             # --- deckel ---
-            deckelform=row.cover_shape,
+            deckelform=get_vl(row.cover_shape__REL),
             durchmesser=row.diameter,
-            entlueftung=row.venting,
+            entlueftung=get_vl(row.venting),
             fabrikat=row.brand,
             kote=row.level,
             lage=ST_Force2D(row.situation_geometry),
-            lagegenauigkeit=row.positional_accuracy,
-            material=row.material,
-            schlammeimer=row.sludge_bucket,
-            verschluss=row.fastening,
+            lagegenauigkeit=get_vl(row.positional_accuracy),
+            material=get_vl(row.material__REL),
+            schlammeimer=get_vl(row.sludge_bucket__REL),
+            verschluss=get_vl(row.fastening__REL),
         )
         abwasser_session.add(deckel)
         create_metaattributes(row)
@@ -665,7 +665,7 @@ def export():
             **structure_part_common(row),
 
             # --- bankett ---
-            art=row.kind,
+            art=get_vl(row.kind__REL),
         )
         abwasser_session.add(bankett)
         create_metaattributes(row)

@@ -35,7 +35,7 @@ def import_(precommit_callback=None):
         # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
         row = qgep_session.query(vl_table).filter(vl_table.value_de == value).first()
         if row is None:
-            warnings.warn(f'⚠️ Could not find value `{value}` in value list "{vl_table.__table__.schema}.{vl_table.__name__}". Setting to None instead.')
+            warnings.warn(f'Could not find value `{value}` in value list "{vl_table.__table__.schema}.{vl_table.__name__}". Setting to None instead.')
             return None
         return row.code
 
@@ -119,6 +119,16 @@ def import_(precommit_callback=None):
             "remark": row.bemerkung,
         }
 
+    def structure_part_common(row):
+        """
+        Returns common attributes for structure_part
+        """
+        return {
+            "fk_wastewater_structure": get_pk(row.abwasserbauwerkref__REL),
+            "identifier": row.bezeichnung,
+            "remark": row.bemerkung,
+            "renovation_demand": row.instandstellung,
+        }
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
     for row, metaattribute in abwasser_session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -140,7 +150,6 @@ def import_(precommit_callback=None):
         qgep_session.add(organisation)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.kanal, ABWASSER.metaattribute -> QGEP.channel")
     for row, metaattribute in abwasser_session.query(ABWASSER.kanal, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -194,7 +203,6 @@ def import_(precommit_callback=None):
         qgep_session.add(channel)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.normschacht, ABWASSER.metaattribute -> QGEP.manhole")
     for row, metaattribute in abwasser_session.query(ABWASSER.normschacht, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -245,7 +253,6 @@ def import_(precommit_callback=None):
         qgep_session.add(manhole)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.einleitstelle, ABWASSER.metaattribute -> QGEP.discharge_point")
     for row, metaattribute in abwasser_session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -296,7 +303,6 @@ def import_(precommit_callback=None):
         qgep_session.add(discharge_point)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.spezialbauwerk, ABWASSER.metaattribute -> QGEP.special_structure")
     for row, metaattribute in abwasser_session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -346,7 +352,6 @@ def import_(precommit_callback=None):
         qgep_session.add(special_structure)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.versickerungsanlage, ABWASSER.metaattribute -> QGEP.infiltration_installation")
     for row, metaattribute in abwasser_session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -405,7 +410,6 @@ def import_(precommit_callback=None):
         qgep_session.add(infiltration_installation)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.rohrprofil, ABWASSER.metaattribute -> QGEP.pipe_profile")
     for row, metaattribute in abwasser_session.query(ABWASSER.rohrprofil, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -445,7 +449,6 @@ def import_(precommit_callback=None):
         qgep_session.add(pipe_profile)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.haltungspunkt, ABWASSER.metaattribute -> QGEP.reach_point")
     for row, metaattribute in abwasser_session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -492,7 +495,6 @@ def import_(precommit_callback=None):
         qgep_session.add(reach_point)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.abwasserknoten, ABWASSER.metaattribute -> QGEP.wastewater_node")
     for row, metaattribute in abwasser_session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -541,7 +543,6 @@ def import_(precommit_callback=None):
         qgep_session.add(wastewater_node)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.haltung, ABWASSER.metaattribute -> QGEP.reach")
     for row, metaattribute in abwasser_session.query(ABWASSER.haltung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -575,41 +576,35 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         reach = QGEP.reach(
-            # FIELDS TO MAP TO QGEP.reach
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- wastewater_networkelement ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
+            **wastewater_network_element_common(row),
 
             # --- reach ---
-            # clear_height=row.REPLACE_ME,
-            # coefficient_of_friction=row.REPLACE_ME,
-            # elevation_determination=row.REPLACE_ME,
-            # fk_pipe_profile=row.REPLACE_ME,
-            # fk_reach_point_from=row.REPLACE_ME,
-            # fk_reach_point_to=row.REPLACE_ME,
-            # horizontal_positioning=row.REPLACE_ME,
-            # inside_coating=row.REPLACE_ME,
-            # length_effective=row.REPLACE_ME,
-            # material=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
-            # progression_geometry=row.REPLACE_ME,
-            # reliner_material=row.REPLACE_ME,
-            # reliner_nominal_size=row.REPLACE_ME,
-            # relining_construction=row.REPLACE_ME,
-            # relining_kind=row.REPLACE_ME,
-            # ring_stiffness=row.REPLACE_ME,
-            # slope_building_plan=row.REPLACE_ME,
-            # wall_roughness=row.REPLACE_ME,
+            clear_height=row.lichte_hoehe,
+            coefficient_of_friction=row.reibungsbeiwert,
+            # elevation_determination=get_vl_code(QGEP.reach_elevation_determination, row.REPLACE_ME),  # TODO : NOT MAPPED
+            fk_pipe_profile=get_pk(row.rohrprofilref__REL),
+            fk_reach_point_from=get_pk(row.vonhaltungspunktref__REL),
+            fk_reach_point_to=get_pk(row.nachhaltungspunktref__REL),
+            horizontal_positioning=get_vl_code(QGEP.reach_horizontal_positioning, row.lagebestimmung),
+            inside_coating=get_vl_code(QGEP.reach_inside_coating, row.innenschutz),
+            length_effective=row.laengeeffektiv,
+            material=get_vl_code(QGEP.reach_material, row.material),
+            progression_geometry=ST_Force3D(row.verlauf),
+            reliner_material=get_vl_code(QGEP.reach_reliner_material, row.reliner_material),
+            reliner_nominal_size=row.reliner_nennweite,
+            relining_construction=get_vl_code(QGEP.reach_relining_construction, row.reliner_bautechnik),
+            relining_kind=get_vl_code(QGEP.reach_relining_kind, row.reliner_art),
+            ring_stiffness=row.ringsteifigkeit,
+            slope_building_plan=row.plangefaelle,  # TODO : check, does this need conversion ?
+            wall_roughness=row.wandrauhigkeit,
         )
         qgep_session.add(reach)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute -> QGEP.dryweather_downspout")
     for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -643,25 +638,18 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         dryweather_downspout = QGEP.dryweather_downspout(
-            # FIELDS TO MAP TO QGEP.dryweather_downspout
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- structure_part ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
-            # renovation_demand=row.REPLACE_ME,
+            **structure_part_common(row),
 
             # --- dryweather_downspout ---
-            # diameter=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            diameter=row.durchmesser,
         )
         qgep_session.add(dryweather_downspout)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.einstiegshilfe, ABWASSER.metaattribute -> QGEP.access_aid")
     for row, metaattribute in abwasser_session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -695,25 +683,18 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         access_aid = QGEP.access_aid(
-            # FIELDS TO MAP TO QGEP.access_aid
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- structure_part ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
-            # renovation_demand=row.REPLACE_ME,
+            **structure_part_common(row),
 
             # --- access_aid ---
-            # kind=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            kind=get_vl_code(QGEP.access_aid_kind, row.art),
         )
         qgep_session.add(access_aid)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.trockenwetterrinne, ABWASSER.metaattribute -> QGEP.dryweather_flume")
     for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -747,25 +728,18 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         dryweather_flume = QGEP.dryweather_flume(
-            # FIELDS TO MAP TO QGEP.dryweather_flume
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- structure_part ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
-            # renovation_demand=row.REPLACE_ME,
+            **structure_part_common(row),
 
             # --- dryweather_flume ---
-            # material=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            material=get_vl_code(QGEP.dryweather_flume_material, row.material),
         )
         qgep_session.add(dryweather_flume)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.deckel, ABWASSER.metaattribute -> QGEP.cover")
     for row, metaattribute in abwasser_session.query(ABWASSER.deckel, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -799,34 +773,27 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         cover = QGEP.cover(
-            # FIELDS TO MAP TO QGEP.cover
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- structure_part ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
-            # renovation_demand=row.REPLACE_ME,
+            **structure_part_common(row),
 
             # --- cover ---
-            # brand=row.REPLACE_ME,
-            # cover_shape=row.REPLACE_ME,
-            # diameter=row.REPLACE_ME,
-            # fastening=row.REPLACE_ME,
-            # level=row.REPLACE_ME,
-            # material=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
-            # positional_accuracy=row.REPLACE_ME,
-            # situation_geometry=row.REPLACE_ME,
-            # sludge_bucket=row.REPLACE_ME,
-            # venting=row.REPLACE_ME,
+            brand=row.fabrikat,
+            cover_shape=get_vl_code(QGEP.cover_cover_shape, row.deckelform),
+            diameter=row.durchmesser,
+            fastening=get_vl_code(QGEP.cover_fastening, row.verschluss),
+            level=row.kote,
+            material=get_vl_code(QGEP.cover_material, row.material),
+            positional_accuracy=get_vl_code(QGEP.cover_positional_accuracy, row.lagegenauigkeit),
+            situation_geometry=ST_Force3D(row.lage),
+            sludge_bucket=get_vl_code(QGEP.cover_sludge_bucket, row.schlammeimer),
+            venting=get_vl_code(QGEP.cover_venting, row.entlueftung),
         )
         qgep_session.add(cover)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.bankett, ABWASSER.metaattribute -> QGEP.benching")
     for row, metaattribute in abwasser_session.query(ABWASSER.bankett, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -860,25 +827,18 @@ def import_(precommit_callback=None):
         # sia405_baseclass_metaattribute__REL
 
         benching = QGEP.benching(
-            # FIELDS TO MAP TO QGEP.benching
+            **base_common(row),
+            **metaattribute_common(metaattribute),
 
             # --- structure_part ---
-            # fk_dataowner=row.REPLACE_ME,
-            # fk_provider=row.REPLACE_ME,
-            # fk_wastewater_structure=row.REPLACE_ME,
-            # identifier=row.REPLACE_ME,
-            # last_modification=row.REPLACE_ME,
-            # remark=row.REPLACE_ME,
-            # renovation_demand=row.REPLACE_ME,
+            **structure_part_common(row),
 
             # --- benching ---
-            # kind=row.REPLACE_ME,
-            # obj_id=row.REPLACE_ME,
+            kind=get_vl_code(QGEP.benching_kind, row.art),
         )
         qgep_session.add(benching)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     ########################################
     # VSA_KEK classes
@@ -939,7 +899,6 @@ def import_(precommit_callback=None):
 
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.normschachtschaden, ABWASSER.metaattribute -> QGEP.damage_manhole")
     for row, metaattribute in abwasser_session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -974,7 +933,6 @@ def import_(precommit_callback=None):
         qgep_session.add(damage_manhole)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.kanalschaden, ABWASSER.metaattribute -> QGEP.damage_channel")
     for row, metaattribute in abwasser_session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -1008,7 +966,6 @@ def import_(precommit_callback=None):
         qgep_session.add(damage_channel)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
     for row, metaattribute in abwasser_session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -1027,7 +984,6 @@ def import_(precommit_callback=None):
         qgep_session.add(data_media)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
     for row, metaattribute in abwasser_session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
@@ -1048,7 +1004,6 @@ def import_(precommit_callback=None):
         qgep_session.add(file)
         print(".", end="")
     print("done")
-    qgep_session.flush()
 
     # Calling the precommit callback if provided, allowing to filter before final import
     if precommit_callback:
