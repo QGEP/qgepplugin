@@ -755,18 +755,18 @@ def export():
             # --- schaden ---
             anmerkung=row.comments,
             ansichtsparameter=row.view_parameters,
-            einzelschadenklasse=row.single_damage_class,
+            einzelschadenklasse=get_vl(row.single_damage_class__REL),
             streckenschaden=row.damage_reach,
             untersuchungref=get_tid(row.fk_examination__REL),
-            verbindung=row.connection,
+            verbindung=get_vl(row.connection__REL),
             videozaehlerstand=row.video_counter,
 
             # --- normschachtschaden ---
             distanz=row.distance,
             quantifizierung1=row.quantification1,
             quantifizierung2=row.quantification2,
-            schachtbereich=row.manhole_shaft_area,
-            schachtschadencode=row.manhole_damage_code,
+            schachtbereich=get_vl(row.manhole_shaft_area__REL),
+            schachtschadencode=get_vl(row.manhole_damage_code__REL),
             schadenlageanfang=row.damage_begin,
             schadenlageende=row.damage_end,
         )
@@ -803,15 +803,15 @@ def export():
             # --- schaden ---
             anmerkung=row.comments,
             ansichtsparameter=row.view_parameters,
-            einzelschadenklasse=row.single_damage_class,
+            einzelschadenklasse=get_vl(row.single_damage_class__REL),
             streckenschaden=row.damage_reach,
             untersuchungref=get_tid(row.fk_examination__REL),
-            verbindung=row.connection,
+            verbindung=get_vl(row.connection__REL),
             videozaehlerstand=row.video_counter,
 
             # --- kanalschaden ---
             distanz=row.distance,
-            kanalschadencode=row.channel_damage_code,
+            kanalschadencode=get_vl(row.channel_damage_code__REL),
             quantifizierung1=row.quantification1,
             quantifizierung2=row.quantification2,
             schadenlageanfang=row.damage_begin,

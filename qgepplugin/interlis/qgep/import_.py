@@ -21,11 +21,25 @@ def import_(precommit_callback=None):
                             commit or rollback and close the session.
     """
 
+    # We need to set some constraint as deferrable, as there are some cyclic dependencies preventing
+    # from inserting everything at once otherwise.
+    # TODO : DO THIS IN THE DATAMODEL
+    hack_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    hack_session.execute('ALTER TABLE qgep_od.reach_point ALTER CONSTRAINT rel_reach_point_wastewater_networkelement DEFERRABLE INITIALLY IMMEDIATE;')
+    hack_session.execute('ALTER TABLE qgep_od.structure_part ALTER CONSTRAINT rel_structure_part_wastewater_structure DEFERRABLE INITIALLY IMMEDIATE;')
+    hack_session.commit()
+    hack_session.close()
+
     # We use two different sessions for reading and writing so it's easier to
     # review imports and to keep the door open to getting data from another
     # connection / database type.
     abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+
+    # Disable the triggers
+    qgep_session.execute('SELECT qgep_sys.drop_symbology_triggers();')
+    # Allow to insert rows with cyclic dependencies at once
+    qgep_session.execute('SET CONSTRAINTS ALL DEFERRED;')
 
     def get_vl_code(vl_table, value):
         """
@@ -484,7 +498,7 @@ def import_(precommit_callback=None):
 
             # --- reach_point ---
             elevation_accuracy=get_vl_code(QGEP.reach_point_elevation_accuracy, row.hoehengenauigkeit),
-            # fk_wastewater_networkelement=get_pk(row.abwassernetzelementref__REL),  # this fails for now, but probably only because we flush too soon
+            fk_wastewater_networkelement=get_pk(row.abwassernetzelementref__REL),  # TODO : this fails for now, but probably only because we flush too soon
             identifier=row.bezeichnung,
             level=row.kote,
             outlet_shape=get_vl_code(QGEP.reach_point_outlet_shape, row.hoehengenauigkeit),
@@ -1005,6 +1019,9 @@ def import_(precommit_callback=None):
         print(".", end="")
     print("done")
 
+    # Recreate the triggers
+    qgep_session.execute('SELECT qgep_sys.create_symbology_triggers();')
+
     # Calling the precommit callback if provided, allowing to filter before final import
     if precommit_callback:
         precommit_callback(qgep_session)
@@ -1012,3 +1029,4 @@ def import_(precommit_callback=None):
         qgep_session.commit()
         qgep_session.close()
     abwasser_session.close()
+
