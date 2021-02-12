@@ -7,6 +7,20 @@ from qgis.PyQt.uic import loadUi
 
 
 class Editor():
+    """
+    Base class to manage import options for QGEP classes.
+
+    Editor subclasses are responsible of:
+    - providing a widget to edit options
+    - change the current session objects according to widget interaction
+    - validate objects according to the current session
+    """
+
+    INVALID = 'INVALID'
+    UNKNOWN = 'UNKNOWN'
+    WARNING = 'WARNING'
+    VALID = 'VALID'
+
     class_name = 'base'
 
     registry = defaultdict(lambda: Editor)
@@ -30,6 +44,8 @@ class Editor():
         self.session = session
         self.obj = obj
 
+        self.validate()
+
     @property
     def widget(self):
         """
@@ -45,6 +61,19 @@ class Editor():
 
     def init_widget(self):
         """
-        Initialize the widget here
+        Initialize the widget here, for things like connecting signals... To be overriden by subclasses.
         """
         pass
+
+    def update_widget(self):
+        """
+        Update the widget here, for things like repopulating from session... To be overriden by subclasses.
+        """
+        pass
+
+    def validate(self):
+        """
+        Updates validity and message. To be overriden by subclasses.
+        """
+        self.validity = Editor.UNKNOWN
+        self.message = "No validity check"

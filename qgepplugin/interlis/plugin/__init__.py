@@ -46,21 +46,21 @@ def action_import(plugin):
 
     # Prepare the temporary ili2pg model
     progress_dialog.setLabelText("Creating ili schema...")
-    progress_dialog.setValue(0)
     QApplication.processEvents()
     create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
+    progress_dialog.setValue(33)
 
     # Export from ili2pg model to file
     progress_dialog.setLabelText("Importing XTF data...")
-    progress_dialog.setValue(50)
     QApplication.processEvents()
     import_xtf_data(config.ABWASSER_SCHEMA, file_name)
+    progress_dialog.setValue(66)
 
     # Export to the temporary ili2pg model
     progress_dialog.setLabelText("Converting to QGEP...")
-    progress_dialog.setValue(100)
     QApplication.processEvents()
     import_dialog = Gui(plugin.iface.mainWindow())
+    progress_dialog.setValue(100)
     qgep_import(precommit_callback=import_dialog.init_with_session)
 
 

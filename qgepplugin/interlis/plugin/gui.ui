@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
+    <width>719</width>
     <height>553</height>
    </rect>
   </property>
@@ -21,8 +21,8 @@
        <property name="headerHidden">
         <bool>false</bool>
        </property>
-       <attribute name="headerMinimumSectionSize">
-        <number>50</number>
+       <attribute name="headerStretchLastSection">
+        <bool>false</bool>
        </attribute>
        <column>
         <property name="text">
@@ -31,19 +31,22 @@
        </column>
        <column>
         <property name="text">
-         <string>status</string>
+         <string>validity</string>
         </property>
        </column>
        <item>
         <property name="text">
          <string>Inspections</string>
         </property>
+        <property name="text">
+         <string/>
+        </property>
         <item>
          <property name="text">
           <string>a</string>
          </property>
          <property name="text">
-          <string>new</string>
+          <string/>
          </property>
         </item>
         <item>
@@ -51,7 +54,7 @@
           <string>b</string>
          </property>
          <property name="text">
-          <string>new</string>
+          <string/>
          </property>
         </item>
         <item>
@@ -59,7 +62,7 @@
           <string>c</string>
          </property>
          <property name="text">
-          <string>update</string>
+          <string/>
          </property>
         </item>
        </item>
@@ -75,7 +78,7 @@
           <string>a</string>
          </property>
          <property name="text">
-          <string>unchanged</string>
+          <string/>
          </property>
         </item>
         <item>
@@ -83,7 +86,7 @@
           <string>b</string>
          </property>
          <property name="text">
-          <string>unchanged</string>
+          <string/>
          </property>
         </item>
         <item>
@@ -91,7 +94,7 @@
           <string>c</string>
          </property>
          <property name="text">
-          <string>unchanged</string>
+          <string/>
          </property>
         </item>
        </item>
@@ -112,6 +115,22 @@
            <widget class="QTextEdit" name="debugTextEdit"/>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="validityLabel">
+         <property name="styleSheet">
+          <string notr="true">b</string>
+         </property>
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="margin">
+          <number>7</number>
+         </property>
         </widget>
        </item>
        <item>
