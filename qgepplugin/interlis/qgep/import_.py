@@ -24,14 +24,17 @@ def qgep_import(precommit_callback=None):
     QGEP = get_qgep_model()
     ABWASSER = get_abwasser_model()
 
+    pre_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     # We need to set some constraint as deferrable, as there are some cyclic dependencies preventing
     # from inserting everything at once otherwise.
     # TODO : DO THIS IN THE DATAMODEL
-    hack_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
-    hack_session.execute('ALTER TABLE qgep_od.reach_point ALTER CONSTRAINT rel_reach_point_wastewater_networkelement DEFERRABLE INITIALLY IMMEDIATE;')
-    hack_session.execute('ALTER TABLE qgep_od.structure_part ALTER CONSTRAINT rel_structure_part_wastewater_structure DEFERRABLE INITIALLY IMMEDIATE;')
-    hack_session.commit()
-    hack_session.close()
+    pre_session.execute('ALTER TABLE qgep_od.reach_point ALTER CONSTRAINT rel_reach_point_wastewater_networkelement DEFERRABLE INITIALLY IMMEDIATE;')
+    pre_session.execute('ALTER TABLE qgep_od.structure_part ALTER CONSTRAINT rel_structure_part_wastewater_structure DEFERRABLE INITIALLY IMMEDIATE;')
+    # We also drop symbology triggers as they badly affect performance. This must be done in a separate session as it
+    # would deadlock other sessions.
+    pre_session.execute('SELECT qgep_sys.drop_symbology_triggers();')
+    pre_session.commit()
+    pre_session.close()
 
     # We use two different sessions for reading and writing so it's easier to
     # review imports and to keep the door open to getting data from another
@@ -39,8 +42,6 @@ def qgep_import(precommit_callback=None):
     abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
-    # Disable the triggers
-    qgep_session.execute('SELECT qgep_sys.drop_symbology_triggers();')
     # Allow to insert rows with cyclic dependencies at once
     qgep_session.execute('SET CONSTRAINTS ALL DEFERRED;')
 
@@ -1023,7 +1024,7 @@ def qgep_import(precommit_callback=None):
     print("done")
 
     # Recreate the triggers
-    qgep_session.execute('SELECT qgep_sys.create_symbology_triggers();')
+    # qgep_session.execute('SELECT qgep_sys.create_symbology_triggers();')
 
     # Calling the precommit callback if provided, allowing to filter before final import
     if precommit_callback:
@@ -1033,3 +1034,9 @@ def qgep_import(precommit_callback=None):
         qgep_session.close()
     abwasser_session.close()
 
+    # TODO : put this in an "finally" block (or context handler) to make sure it's executed
+    # even if there's an exception
+    post_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    post_session.execute('SELECT qgep_sys.create_symbology_triggers();')
+    post_session.commit()
+    post_session.close()
