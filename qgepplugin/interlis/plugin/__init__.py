@@ -10,6 +10,10 @@ from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QProgressDialog
 
 from qgis.core import QgsProject, QgsSettings
 
+from QgisModelBaker.libili2db import ili2dbutils, ili2dbconfig, globals
+
+from ..qgep.import_ import qgep_import
+from ..qgep.export import qgep_export
 from .gui import Gui
 
 from .. import config
@@ -45,18 +49,19 @@ def action_import(plugin):
     progress_dialog.setValue(0)
     QApplication.processEvents()
     create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
+
     # Export from ili2pg model to file
     progress_dialog.setLabelText("Importing XTF data...")
     progress_dialog.setValue(50)
     QApplication.processEvents()
     import_xtf_data(config.ABWASSER_SCHEMA, file_name)
+
     # Export to the temporary ili2pg model
     progress_dialog.setLabelText("Converting to QGEP...")
     progress_dialog.setValue(100)
     QApplication.processEvents()
     import_dialog = Gui(plugin.iface.mainWindow())
-    from ..qgep.import_ import import_
-    import_(precommit_callback=import_dialog.init_with_session)
+    qgep_import(precommit_callback=import_dialog.init_with_session)
 
 
 def action_export(plugin):
@@ -77,9 +82,10 @@ def action_export(plugin):
 
     # Prepare the temporary ili2pg model
     create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
+
     # Export to the temporary ili2pg model
-    from ..qgep.export import export
-    export()
+    qgep_export()
+
     # Export from ili2pg model to file
     export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, file_name)
 
@@ -109,7 +115,6 @@ def configure_from_modelbaker(iface):
 
     # We reuse modelbaker's logic to get the java path and ili2pg executables from withing QGIS
     # Maybe we could reuse even more (IliExecutable...) ?
-    from QgisModelBaker.libili2db import ili2dbutils, ili2dbconfig, globals
 
     stdout = SimpleNamespace()
     stdout.emit = print

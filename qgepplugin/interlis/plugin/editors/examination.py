@@ -6,7 +6,7 @@ from qgis.PyQt.QtWidgets import QListWidgetItem
 from qgis.utils import iface
 from qgis.core import QgsProject, QgsFeature
 
-from ...qgep.model_qgep import QGEP
+from ...qgep.model_qgep import get_qgep_model
 from .base import Editor
 
 
@@ -27,6 +27,8 @@ class ExaminationEditor(Editor):
         # We look for the corresponding channel given to_point_identifier and from_point_identifier
         from_id = self.obj.from_point_identifier
         to_id = self.obj.to_point_identifier
+
+        QGEP = get_qgep_model()
 
         wastewater_ne_from = aliased(QGEP.wastewater_networkelement)
         wastewater_ne_to = aliased(QGEP.wastewater_networkelement)
@@ -69,6 +71,9 @@ class ExaminationEditor(Editor):
         self.widget.selectorWidget.set_feature(feature)
 
     def assign_button_clicked(self):
+
+        QGEP = get_qgep_model()
+
         feature: QgsFeature = self.widget.selectorWidget.feature
         exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
             fk_wastewater_structure=feature["ws_obj_id"],

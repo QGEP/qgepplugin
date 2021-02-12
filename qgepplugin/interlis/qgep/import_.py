@@ -7,11 +7,11 @@ import warnings
 
 from .. import utils
 
-from .model_qgep import QGEP
-from .model_abwasser import ABWASSER
+from .model_qgep import get_qgep_model
+from .model_abwasser import get_abwasser_model
 
 
-def import_(precommit_callback=None):
+def qgep_import(precommit_callback=None):
     """
     Imports data from the ili2pg model into the QGEP model.
 
@@ -20,6 +20,9 @@ def import_(precommit_callback=None):
                             allowing for a GUI to  filter objects before committing. It MUST either
                             commit or rollback and close the session.
     """
+
+    QGEP = get_qgep_model()
+    ABWASSER = get_abwasser_model()
 
     # We need to set some constraint as deferrable, as there are some cyclic dependencies preventing
     # from inserting everything at once otherwise.

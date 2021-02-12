@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from . import main
 from . import utils
 
+from .qgep.model_qgep import get_qgep_model
 
 class TestQGEPUseCases(unittest.TestCase):
 
@@ -23,6 +24,8 @@ class TestQGEPUseCases(unittest.TestCase):
         We recieve data from a TV inspection company as a Wincan exported .xtf file. We want this data loaded into QGEP.
         """
 
+        QGEP = get_qgep_model()
+
         # Validate the incomming XTF
         path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_a_import_from_wincan.xtf')
         utils.ili2db.validate_xtf_data(path)
@@ -30,7 +33,6 @@ class TestQGEPUseCases(unittest.TestCase):
         # Prepare db (we import in a full schema)
         main(["setupdb", "full"])
 
-        from .qgep.model_qgep import QGEP
         session = Session(utils.sqlalchemy.create_engine())
         self.assertEqual(session.query(QGEP.damage_channel).count(), 0)
         self.assertEqual(session.query(QGEP.examination).count(), 0)
@@ -86,7 +88,8 @@ class TestQGEPUseCases(unittest.TestCase):
         # Prepare subset db (we import in an empty schema)
         main(["setupdb", "empty"])
 
-        from .qgep.model_qgep import QGEP
+        QGEP = get_qgep_model()
+
         session = Session(utils.sqlalchemy.create_engine())
 
         self.assertEqual(session.query(QGEP.channel).count(), 0)
@@ -116,7 +119,8 @@ class TestRegressions(unittest.TestCase):
 
         utils.various.setup_test_db("empty")
 
-        from .qgep.model_qgep import QGEP
+        QGEP = get_qgep_model()
+
         session = Session(utils.sqlalchemy.create_engine())
 
         self.assertEqual(session.query(QGEP.organisation).count(), 0)

@@ -5,11 +5,14 @@ import warnings
 
 from .. import utils
 
-from .model_qgep import QGEP
-from .model_abwasser import ABWASSER
+from .model_qgep import get_qgep_model
+from .model_abwasser import get_abwasser_model
 
 
-def export():
+def qgep_export():
+
+    QGEP = get_qgep_model()
+    ABWASSER = get_abwasser_model()
 
     # TODO: use two different sessions for reading and writing as in qgep.import_
     qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)

@@ -3,11 +3,14 @@ from geoalchemy2.functions import ST_Transform, ST_Force2D
 
 from .. import utils
 
-from .model_qwat import QWAT
-from .model_wasser import WASSER
+from .model_qwat import get_qwat_model
+from .model_wasser import get_wasser_model
 
 
-def export():
+def qwat_export():
+
+    QWAT = get_qwat_model()
+    WASSER = get_wasser_model()
 
     # TODO: use two different sessions for reading and writing as in qgep.import_
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)

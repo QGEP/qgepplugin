@@ -3,6 +3,17 @@ import argparse
 from . import utils
 from . import config
 
+from .qgep.export import qgep_export
+from .qgep.import_ import qgep_import
+from .qwat.export import qwat_export
+from .qwat.import_ import qwat_import
+from .qwat.mapping import get_qwat_mapping
+from .qgep.mapping import get_qgep_mapping
+from .qwat.model_qwat import Base as BaseQwat
+from .qwat.model_wasser import Base as BaseWasser
+from .qgep.model_qgep import Base as BaseQgep
+from .qgep.model_abwasser import Base as BaseAbwasser
+
 
 def main(args):
 
@@ -28,50 +39,29 @@ def main(args):
     if args.parser == 'io' and args.model == "qgep":
         utils.ili2db.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
 
-        from .qgep.export import export
-        from .qgep.import_ import import_
-        from .qgep.mapping import MAPPING
-        from .qgep.model_qgep import QGEP
-        from .qgep.model_abwasser import ABWASSER
-
         if args.export_xtf:
-            export()
+            qgep_export()
             utils.ili2db.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.ili2db.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
-            import_()
+            qgep_import()
 
     elif args.parser == 'io' and args.model == "qwat":
         utils.ili2db.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
 
-        from .qwat.export import export
-        from .qwat.import_ import import_
-        from .qwat.mapping import MAPPING
-        from .qwat.model_qwat import QWAT
-        from .qwat.model_wasser import WASSER
-
         if args.export_xtf:
-            export()
+            qwat_export()
             utils.ili2db.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
             utils.ili2db.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
-            import_()
+            qwat_import()
 
     elif args.parser == 'tpl':
         utils.ili2db.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=True)
         utils.ili2db.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
 
-        from .qwat.export import export
-        from .qwat.import_ import import_
-        from .qwat.mapping import MAPPING as QWATMAPPING
-        from .qwat.model_qwat import Base as BaseQwat
-        from .qwat.model_wasser import Base as BaseWasser
-
-        from .qgep.export import export
-        from .qgep.import_ import import_
-        from .qgep.mapping import MAPPING as QGEPMAPPING
-        from .qgep.model_qgep import Base as BaseQgep
-        from .qgep.model_abwasser import Base as BaseAbwasser
+        QWATMAPPING = get_qwat_mapping()
+        QGEPMAPPING = get_qgep_mapping()
 
         utils.templates.generate_template("qgep", "abwasser", BaseQgep, BaseAbwasser, QGEPMAPPING)
         utils.templates.generate_template("qwat", "wasser", BaseQwat, BaseWasser, QWATMAPPING)

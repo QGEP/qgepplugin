@@ -70,5 +70,10 @@ class leitung(sia405_baseclass):  # conduite
     __table_args__ = {"schema": SCHEMA}
 
 
-utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
-WASSER = Base.classes
+_prepared = False
+def get_wasser_model():
+    global _prepared
+    if not _prepared:
+        utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
+        _prepared = True
+    return Base.classes

@@ -160,7 +160,10 @@ class file(Base):
     __table_args__ = {"schema": SCHEMA}
 
 
-# TODO : prepare only on demand, not on import (as it connects to DB)
-utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
-
-QGEP = Base.classes
+_prepared = False
+def get_qgep_model():
+    global _prepared
+    if not _prepared:
+        utils.sqlalchemy.prepare_automap_base(Base, SCHEMA)
+        _prepared = True
+    return Base.classes
