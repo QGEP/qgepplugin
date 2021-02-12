@@ -38,7 +38,6 @@ class Gui(QDialog):
         self.session = session
 
         self.category_items = defaultdict(QTreeWidgetItem)  # keys are instances' classes
-        self.instances_items = defaultdict(QTreeWidgetItem)  # keys are instances
         self.editors = {}
 
         self.treeWidget.itemChanged.connect(self.item_changed)
@@ -68,20 +67,9 @@ class Gui(QDialog):
                 self.category_items[cls].setFont(0, QFont(QFont().defaultFamily(), weight=QFont.Weight.Bold))
                 self.treeWidget.addTopLevelItem(self.category_items[cls])
 
-            self.instances_items[obj].setText(0, obj.obj_id)
-            self.instances_items[obj].setText(1, editor.validity)
-
-            if editor.validity == Editor.INVALID:
-                self.instances_items[obj].setBackground(1, QBrush(QColor("red")))
-            elif editor.validity == Editor.WARNING:
-                self.instances_items[obj].setBackground(1, QBrush(QColor("orange")))
-            elif editor.validity == Editor.VALID:
-                self.instances_items[obj].setBackground(1, QBrush(QColor("lightgreen")))
-            else:
-                self.instances_items[obj].setBackground(1, QBrush(QColor("lightgray")))
-
-            self.instances_items[obj].setCheckState(0, Qt.Checked)
-            self.category_items[cls].addChild(self.instances_items[obj])
+            editor.update_listitem()
+            editor.listitem.setCheckState(0, Qt.Checked)
+            self.category_items[cls].addChild(editor.listitem)
 
         # Show counts
         for cls, category_item in self.category_items.items():
@@ -128,9 +116,9 @@ class Gui(QDialog):
         """
         Calls refresh_widget_for_obj for the currently selected object
         """
-        for obj, item in self.instances_items.items():
-            if item == current_item:
-                self.refresh_widget_for_obj(obj)
+        for editor in self.editors.values():
+            if editor.listitem == current_item:
+                self.refresh_editor(editor)
                 break
         else:
             self.debugTextEdit.clear()
@@ -139,23 +127,23 @@ class Gui(QDialog):
             if current_widget:
                 self.stackedWidget.removeWidget(current_widget)
 
-    def refresh_widget_for_obj(self, obj):
+    def refresh_editor(self, editor):
         """
         Refreshes the widget for the object, including debug and status text
         """
+        self.debugTextEdit.clear()
+        self.validityLabel.clear()
 
         # Show all attributes in the debug text edit
         self.debugTextEdit.append("-- ATTRIBUTES --")
-        for c in inspect(obj).mapper.column_attrs:
-            val = getattr(obj, c.key)
+        for c in inspect(editor.obj).mapper.column_attrs:
+            val = getattr(editor.obj, c.key)
             self.debugTextEdit.append(f"{c.key}: {val}")
         # Show sqlalchemy state in the debug text edit
         self.debugTextEdit.append("-- SQLALCHEMY STATUS --")
         for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
-            if getattr(inspect(obj), status_name):
+            if getattr(inspect(editor.obj), status_name):
                 self.debugTextEdit.append(f"{status_name} ")
-
-        editor = self.editors[obj]
 
         # Show the validity label
         self.validityLabel.setText(editor.message)
@@ -177,9 +165,9 @@ class Gui(QDialog):
 
     def commit_session(self):
         # Expunge unchecked objects form the session
-        for obj in self.session:
-            if self.instances_items[obj].checkState(0) != Qt.Checked:
-                self.session.expunge(obj)
+        for editor in self.editors.values():
+            if editor.listitem.checkState(0) != Qt.Checked:
+                self.session.expunge(editor.obj)
 
         # TODO : rollback to pre-commit state, allowing user to try to fix issues
         # probably a matter of creating a savepoint before saving with

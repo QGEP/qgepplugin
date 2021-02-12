@@ -66,7 +66,7 @@ class ExaminationEditor(Editor):
         self.session.flush()
 
         self.validate()
-        self.main_dialog.refresh_widget_for_obj(self.obj)
+        self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
     def unassign_button_clicked(self):
@@ -80,7 +80,7 @@ class ExaminationEditor(Editor):
         self.session.flush()
 
         self.validate()
-        self.main_dialog.refresh_widget_for_obj(self.obj)
+        self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
     def validate(self):

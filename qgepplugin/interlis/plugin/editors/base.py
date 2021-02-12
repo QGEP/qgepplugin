@@ -2,7 +2,8 @@ import os
 
 from collections import defaultdict
 
-from qgis.PyQt.QtWidgets import QWidget
+from qgis.PyQt.QtGui import QFont, QBrush, QColor
+from qgis.PyQt.QtWidgets import QWidget, QTreeWidgetItem
 from qgis.PyQt.uic import loadUi
 
 
@@ -11,6 +12,7 @@ class Editor():
     Base class to manage import options for QGEP classes.
 
     Editor subclasses are responsible of:
+    - managing a listwidgetitem
     - providing a widget to edit options
     - change the current session objects according to widget interaction
     - validate objects according to the current session
@@ -45,6 +47,30 @@ class Editor():
         self.obj = obj
 
         self.validate()
+
+    @property
+    def listitem(self):
+        """
+        The editor's listitem (created on the fly if needed)
+        """
+        if not hasattr(self, '_listitem'):
+            self._listitem = QTreeWidgetItem()
+            self.update_listitem()
+        return self._listitem
+
+    def update_listitem(self):
+        self.listitem.setText(0, getattr(self.obj, "identifier", self.obj.obj_id))
+        self.listitem.setText(1, self.validity)
+        if self.validity == Editor.INVALID:
+            color = "red"
+        elif self.validity == Editor.WARNING:
+            color = "orange"
+        elif self.validity == Editor.VALID:
+            color = "lightgreen"
+        else:
+            color = "lightgray"
+        self.listitem.setToolTip(0, str(self.obj.obj_id))
+        self.listitem.setBackground(1, QBrush(QColor(color)))
 
     @property
     def widget(self):

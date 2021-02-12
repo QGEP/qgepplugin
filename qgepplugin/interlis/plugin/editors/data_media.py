@@ -30,7 +30,7 @@ class DataMediaEditor(Editor):
         self._path_was_changed = True
 
         self.validate()
-        self.main_dialog.refresh_widget_for_obj(self.obj)
+        self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
     def validate(self):
