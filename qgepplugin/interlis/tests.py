@@ -22,46 +22,54 @@ class TestQGEPUseCases(unittest.TestCase):
 
         We recieve data from a TV inspection company as a Wincan exported .xtf file. We want this data loaded into QGEP.
         """
-        utils.various.setup_test_db("full")
+
+        # Validate the incomming XTF
+        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_a_import_from_wincan.xtf')
+        utils.ili2db.validate_xtf_data(path)
+
+        # Prepare db (we import in a full schema)
+        main(["setupdb", "full"])
 
         from .qgep.model_qgep import QGEP
         session = Session(utils.sqlalchemy.create_engine())
-
-        self.assertEqual(session.query(QGEP.damage_manhole).count(), 0)
+        self.assertEqual(session.query(QGEP.damage_channel).count(), 0)
         self.assertEqual(session.query(QGEP.examination).count(), 0)
         self.assertEqual(session.query(QGEP.data_media).count(), 0)
         self.assertEqual(session.query(QGEP.file).count(), 0)
         self.assertEqual(session.query(QGEP.organisation).count(), 15)
+        session.close()
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_a_import_from_wincan.xtf')
         main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
 
         # make sure all elements got imported
-        self.assertEqual(session.query(QGEP.damage_manhole).count(), 2)
+        session = Session(utils.sqlalchemy.create_engine())
+        self.assertEqual(session.query(QGEP.damage_channel).count(), 8)
         self.assertEqual(session.query(QGEP.examination).count(), 1)
-        self.assertEqual(session.query(QGEP.data_media).count(), 1)
-        self.assertEqual(session.query(QGEP.file).count(), 3)
+        self.assertEqual(session.query(QGEP.data_media).count(), 2)
+        self.assertEqual(session.query(QGEP.file).count(), 4)
         self.assertEqual(session.query(QGEP.organisation).count(), 18)
 
         # checking some properties
-        manhole = session.query(QGEP.damage_manhole).get("fk11abk6SS000002")
-        self.assertEqual(manhole.distance, decimal.Decimal("2.55"))
-        self.assertEqual(manhole.comments, "wurde auch schon vor 3 Jahren festgestellt")
+        damage = session.query(QGEP.damage_channel).get("fk11abk6w70lrfne")
+        self.assertEqual(damage.quantification1, decimal.Decimal("300"))
 
-        data = session.query(QGEP.file).get("fk11abk6DA000002")
-        self.assertEqual(data.identifier, "8486_0001.jpg")
-        self.assertEqual(data.path_relative, "inspectiondata20210120/fotos")
+        data = session.query(QGEP.file).get("fk11abk6w70lrfnc")
+        self.assertEqual(data.identifier, "8486-8486.0010_0001.mpg")
+        self.assertEqual(data.path_relative, "inspectiondata20210120/videos/")
 
     # @unittest.skip("...")
     def test_case_b_export_complete_qgep_to_xtf(self):
         """
         # B. export the whole QGEP model to interlis
         """
-        utils.various.setup_test_db("subset")  # we use a subset for now as full export can take time
+
+        # Prepare subset db (full export is too slow)
+        main(["setupdb", "subset"])
 
         path = os.path.join(tempfile.mkdtemp(), "export.xtf")
         main(["io", "--export_xtf", path, "qgep", "--recreate_schema"])
 
+        # Validate the outgoing XTF
         print(f"Saved to {path}")
         utils.ili2db.validate_xtf_data(path)
 
@@ -71,7 +79,12 @@ class TestQGEPUseCases(unittest.TestCase):
         # C. import a whole interlis transfer file into QGEP
         """
 
-        utils.various.setup_test_db("empty")
+        # Validate the incomming XTF
+        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_c_import_all.xtf')
+        # utils.ili2db.validate_xtf_data(path)  # TODO : REENABLE VALIDITY CHECK ! (input doesn't validate)
+
+        # Prepare subset db (we import in an empty schema)
+        main(["setupdb", "empty"])
 
         from .qgep.model_qgep import QGEP
         session = Session(utils.sqlalchemy.create_engine())
@@ -79,7 +92,6 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.channel).count(), 0)
         self.assertEqual(session.query(QGEP.manhole).count(), 0)
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_c_import_all.xtf')
         main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
 
         # make sure all elements got imported
@@ -87,6 +99,7 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.manhole).count(), 49)
 
         # checking some properties  # TODO : add some more...
+
         manhole = session.query(QGEP.manhole).get("ch080qwzNS000113")
         self.assertEqual(manhole.year_of_construction, 1950)
 
