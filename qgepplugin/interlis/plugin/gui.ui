@@ -103,21 +103,6 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QgsCollapsibleGroupBox" name="mGroupBox">
-         <property name="title">
-          <string>Raw data (debug)</string>
-         </property>
-         <property name="collapsed">
-          <bool>true</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QTextEdit" name="debugTextEdit"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="validityLabel">
          <property name="styleSheet">
           <string notr="true">b</string>
@@ -137,6 +122,21 @@
         <widget class="QStackedWidget" name="stackedWidget">
          <widget class="QWidget" name="page"/>
          <widget class="QWidget" name="page_2"/>
+        </widget>
+       </item>
+       <item>
+        <widget class="QgsCollapsibleGroupBox" name="mGroupBox">
+         <property name="title">
+          <string>Raw data (debug)</string>
+         </property>
+         <property name="collapsed">
+          <bool>true</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QTextEdit" name="debugTextEdit"/>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

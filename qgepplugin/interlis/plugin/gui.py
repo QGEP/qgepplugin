@@ -72,13 +72,13 @@ class Gui(QDialog):
             self.instances_items[obj].setText(1, editor.validity)
 
             if editor.validity == Editor.INVALID:
-                self.instances_items[obj].setBackground(1, QBrush(QColor(255, 0, 0)))
+                self.instances_items[obj].setBackground(1, QBrush(QColor("red")))
             elif editor.validity == Editor.WARNING:
-                self.instances_items[obj].setBackground(1, QBrush(QColor(255, 127, 0)))
+                self.instances_items[obj].setBackground(1, QBrush(QColor("orange")))
             elif editor.validity == Editor.VALID:
-                self.instances_items[obj].setBackground(1, QBrush(QColor(0, 255, 0)))
+                self.instances_items[obj].setBackground(1, QBrush(QColor("lightgreen")))
             else:
-                self.instances_items[obj].setBackground(1, QBrush(QColor(127, 127, 127)))
+                self.instances_items[obj].setBackground(1, QBrush(QColor("lightgray")))
 
             self.instances_items[obj].setCheckState(0, Qt.Checked)
             self.category_items[cls].addChild(self.instances_items[obj])
@@ -160,13 +160,13 @@ class Gui(QDialog):
         # Show the validity label
         self.validityLabel.setText(editor.message)
         if editor.validity == Editor.INVALID:
-            self.validityLabel.setStyleSheet('background-color: red;')
+            self.validityLabel.setStyleSheet('background-color: red; padding: 15px;')
         elif editor.validity == Editor.WARNING:
-            self.validityLabel.setStyleSheet('background-color: orange;')
+            self.validityLabel.setStyleSheet('background-color: orange; padding: 15px;')
         elif editor.validity == Editor.VALID:
-            self.validityLabel.setStyleSheet('background-color: green;')
+            self.validityLabel.setStyleSheet('background-color: lightgreen; padding: 15px;')
         else:
-            self.validityLabel.setStyleSheet('background-color: gray;')
+            self.validityLabel.setStyleSheet('background-color: lightgray; padding: 15px;')
 
         # Update the widget
         editor.update_widget()
