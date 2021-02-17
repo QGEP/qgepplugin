@@ -85,7 +85,7 @@ def qgep_export():
             'standortname': row.location_name,
             'subventionen': row.subsidies,
             'wbw_basisjahr': row.rv_base_year,
-            'wbw_bauart': get_vl(row.rv_construction_type),
+            'wbw_bauart': get_vl(row.rv_construction_type__REL),
             'wiederbeschaffungswert': row.replacement_value,
             'zugaenglichkeit': get_vl(row.accessibility__REL),
         }
@@ -265,7 +265,7 @@ def qgep_export():
             bypass=get_vl(row.bypass__REL),
             funktion=get_vl(row.function__REL),
             notueberlauf=get_vl(row.emergency_spillway__REL),
-            regenbecken_anordnung=get_vl(row.stormwater_tank_arrangement),
+            regenbecken_anordnung=get_vl(row.stormwater_tank_arrangement__REL),
         )
         abwasser_session.add(spezialbauwerk)
         create_metaattributes(row)
@@ -378,7 +378,7 @@ def qgep_export():
 
             # --- haltungspunkt ---
             abwassernetzelementref=get_tid(row.fk_wastewater_networkelement__REL),
-            auslaufform=get_vl(row.outlet_shape),
+            auslaufform=get_vl(row.outlet_shape__REL),
             bemerkung=row.remark,
             bezeichnung=row.identifier,
             hoehengenauigkeit=get_vl(row.elevation_accuracy__REL),
@@ -622,11 +622,11 @@ def qgep_export():
             # --- deckel ---
             deckelform=get_vl(row.cover_shape__REL),
             durchmesser=row.diameter,
-            entlueftung=get_vl(row.venting),
+            entlueftung=get_vl(row.venting__REL),
             fabrikat=row.brand,
             kote=row.level,
             lage=ST_Force2D(row.situation_geometry),
-            lagegenauigkeit=get_vl(row.positional_accuracy),
+            lagegenauigkeit=get_vl(row.positional_accuracy__REL),
             material=get_vl(row.material__REL),
             schlammeimer=get_vl(row.sludge_bucket__REL),
             verschluss=get_vl(row.fastening__REL),
