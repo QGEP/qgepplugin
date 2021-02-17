@@ -75,7 +75,7 @@ class QgepRubberBand3D(QgsRubberBand):
 
     def asGeometry3D(self):
         wkt = 'LineStringZ('\
-              + ', '.join(['{} {} {}'.format(p.x(), p.y(), p.z()) for p in self.points])\
+              + ', '.join(['{} {} {}'.format(p.x(), p.y(), 0 if math.isnan(p.z()) else p.z()) for p in self.points])\
               + ')'
         return QgsGeometry.fromWkt(wkt)
 
