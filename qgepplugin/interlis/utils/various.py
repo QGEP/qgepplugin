@@ -45,7 +45,7 @@ def setup_test_db(template="full"):
     if r != 0:
         print("Test container not running, we create it")
 
-        exec_(f"docker run -d --rm -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis")
+        exec_(f"docker run -d --rm -v qgepqwat_db:/var/lib/postgresql/data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis")
 
         dexec_("apt-get update")
         dexec_("apt-get install -y wget")
