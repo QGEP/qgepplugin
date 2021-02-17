@@ -103,6 +103,8 @@ def action_export(plugin):
     export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, file_name)
     progress_dialog.setValue(100)
 
+    plugin.iface.messageBar().pushMessage("Sucess", f"Data successfully exported to {file_name}", level=Qgis.Success)
+
 
 def configure_from_modelbaker(iface):
     """
