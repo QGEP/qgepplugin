@@ -80,14 +80,28 @@ def action_export(plugin):
         return
     QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
 
+    progress_dialog = QProgressDialog("", "", 0, 100, plugin.iface.mainWindow())
+    progress_dialog.setCancelButton(None)
+    progress_dialog.setModal(True)
+    progress_dialog.show()
+
     # Prepare the temporary ili2pg model
+    progress_dialog.setLabelText("Creating ili schema...")
+    QApplication.processEvents()
     create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
+    progress_dialog.setValue(33)
 
     # Export to the temporary ili2pg model
+    progress_dialog.setLabelText("Converting from QGEP...")
+    QApplication.processEvents()
     qgep_export()
+    progress_dialog.setValue(66)
 
     # Export from ili2pg model to file
+    progress_dialog.setLabelText("Saving XTF file...")
+    QApplication.processEvents()
     export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, file_name)
+    progress_dialog.setValue(100)
 
 
 def configure_from_modelbaker(iface):
