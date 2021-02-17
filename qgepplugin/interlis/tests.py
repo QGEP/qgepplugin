@@ -58,6 +58,18 @@ class TestQGEPUseCases(unittest.TestCase):
         data = session.query(QGEP.file).get("fk11abk6w70lrfnc")
         self.assertEqual(data.identifier, "8486-8486.0010_0001.mpg")
         self.assertEqual(data.path_relative, "inspectiondata20210120/videos/")
+        session.close()
+
+        # assert idempotency
+
+        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
+        session = Session(utils.sqlalchemy.create_engine())
+        self.assertEqual(session.query(QGEP.damage_channel).count(), 8)
+        self.assertEqual(session.query(QGEP.examination).count(), 1)
+        self.assertEqual(session.query(QGEP.data_media).count(), 2)
+        self.assertEqual(session.query(QGEP.file).count(), 4)
+        self.assertEqual(session.query(QGEP.organisation).count(), 18)
+        session.close()
 
     # @unittest.skip("...")
     def test_case_b_export_complete_qgep_to_xtf(self):
