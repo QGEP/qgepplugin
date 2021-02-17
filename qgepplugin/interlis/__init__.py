@@ -68,3 +68,5 @@ def main(args):
 
     elif args.parser == 'setupdb':
         utils.various.setup_test_db(args.type)
+
+    print("Operation completed sucessfully !")
