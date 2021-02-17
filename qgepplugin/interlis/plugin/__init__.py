@@ -105,10 +105,10 @@ def configure_from_modelbaker(iface):
         )
         return False
 
-    elif parse_version(modelbaker.__version__) < parse_version(REQUIRED_VERSION):
+    elif modelbaker.__version__ != 'dev' and parse_version(modelbaker.__version__) < parse_version(REQUIRED_VERSION):
         iface.messageBar().pushMessage(
             "Error",
-            f"This feature requires a more recent version of the ModelBaker plugin. Please install and activate version {REQUIRED_VERSION} or newer from the plugin manager.",
+            f"This feature requires a more recent version of the ModelBaker plugin (currently : {modelbaker.__version__}). Please install and activate version {REQUIRED_VERSION} or newer from the plugin manager.",
             level=Qgis.Critical
         )
         return False
@@ -120,6 +120,6 @@ def configure_from_modelbaker(iface):
     stdout.emit = print
 
     config.JAVA = ili2dbutils.get_java_path(ili2dbconfig.BaseConfiguration())
-    config.ILI2PG = ili2dbutils.get_ili2db_bin(globals.DbIliMode.ili2pg, 4, print, print)
+    config.ILI2PG = ili2dbutils.get_ili2db_bin(globals.DbIliMode.ili2pg, 4, stdout, stdout)
 
     return True
