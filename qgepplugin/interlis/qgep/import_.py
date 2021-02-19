@@ -181,7 +181,7 @@ def qgep_import(precommit_callback=None):
 
         organisation = create_or_update(QGEP.organisation,
             **base_common(row),
-            **metaattribute_common(metaattribute),
+            # **metaattribute_common(metaattribute),  # TODO : currently this fails because organisations are not created yet
 
             # --- organisation ---
             identifier=row.bezeichnung,

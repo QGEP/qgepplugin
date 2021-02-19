@@ -124,10 +124,11 @@ class TestRegressions(unittest.TestCase):
 
     # FIXME
     # @unittest.skip("...")
-    @unittest.expectedFailure
     def test_regression_001_self_referencing_organisation(self):
         """
         Due to current logic of the import script, organisations may be created multiple times.
+
+        Currently passing because metaattribute_common is disabled on organisation
         """
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'regression_001_self_referencing_organisation.xtf')
