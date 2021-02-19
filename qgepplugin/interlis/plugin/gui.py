@@ -59,6 +59,10 @@ class Gui(QDialog):
                 self.editors[obj] = Editor.factory(self, self.session, obj)
             editor = self.editors[obj]
 
+            # Hide unmodified elements for now
+            if editor.status == Editor.EXISTING:
+                continue
+
             cls = obj.__class__
 
             if cls not in self.category_items:

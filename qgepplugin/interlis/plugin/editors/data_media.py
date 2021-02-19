@@ -30,7 +30,7 @@ class DataMediaEditor(Editor):
         self.obj.path = self.widget.lineEdit.text()
         self._path_was_changed = True
 
-        self.validate()
+        self.update_state()
         self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 

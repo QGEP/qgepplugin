@@ -39,6 +39,11 @@
       </column>
       <column>
        <property name="text">
+        <string>state</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>validity</string>
        </property>
       </column>
@@ -49,9 +54,15 @@
        <property name="text">
         <string/>
        </property>
+       <property name="text">
+        <string/>
+       </property>
        <item>
         <property name="text">
          <string>a</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
         <property name="text">
          <string/>
@@ -64,10 +75,16 @@
         <property name="text">
          <string/>
         </property>
+        <property name="text">
+         <string/>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>c</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
         <property name="text">
          <string/>
@@ -81,9 +98,15 @@
        <property name="text">
         <string/>
        </property>
+       <property name="text">
+        <string/>
+       </property>
        <item>
         <property name="text">
          <string>a</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
         <property name="text">
          <string/>
@@ -96,10 +119,16 @@
         <property name="text">
          <string/>
         </property>
+        <property name="text">
+         <string/>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>c</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
         <property name="text">
          <string/>

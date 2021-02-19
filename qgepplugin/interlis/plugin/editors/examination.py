@@ -93,7 +93,7 @@ class ExaminationEditor(Editor):
         )
         self.session.add(exam_to_wastewater_structure)
 
-        self.validate()
+        self.update_state()
         self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
@@ -114,8 +114,10 @@ class ExaminationEditor(Editor):
         QGEP = get_qgep_model()
         check_state = item.checkState(0)
         damage_id = item.data(0, Qt.UserRole)
-        damage = self.session.query(QGEP.damage_channel).get(damage_id)
-        self.main_dialog.editors[damage].listitem.setCheckState(0, check_state)
+        for damage in self.session:
+            if isinstance(damage, QGEP.damage_channel) and damage.obj_id == damage_id:
+                self.main_dialog.editors[damage].listitem.setCheckState(0, check_state)
+                break
 
     def _get_suggested_structures(self, inverted=False):
 

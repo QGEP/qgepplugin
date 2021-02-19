@@ -1,6 +1,7 @@
 import os
 
 from collections import defaultdict
+from sqlalchemy import inspect
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont, QBrush, QColor
@@ -19,10 +20,17 @@ class Editor():
     - validate objects according to the current session
     """
 
+    # Validity
     INVALID = 'INVALID'
     UNKNOWN = 'UNKNOWN'
     WARNING = 'WARNING'
     VALID = 'VALID'
+
+    # State
+    NEW = 'NEW'
+    DELETED = 'DELETED'
+    MODIFIED = 'MODIFIED'
+    EXISTING = 'EXISTING'
 
     class_name = 'base'
     widget_name = 'base.ui'
@@ -48,7 +56,7 @@ class Editor():
         self.session = session
         self.obj = obj
 
-        self.validate()
+        self.update_state()
 
     @property
     def listitem(self):
@@ -64,8 +72,14 @@ class Editor():
     def update_listitem(self):
         disp_id = str(getattr(self.obj, "obj_id", getattr(self.obj, "value_en", "?")))  # some elements may not have obj_id, such as value_lists
         self.listitem.setText(0, getattr(self.obj, "identifier", disp_id))
-        self.listitem.setText(1, self.validity)
-        if self.validity == Editor.INVALID:
+        self.listitem.setToolTip(0, disp_id)
+
+        self.listitem.setText(1, self.status)
+
+        self.listitem.setText(2, self.validity)
+        if self.status == Editor.EXISTING:
+            color = "lightgray"
+        elif self.validity == Editor.INVALID:
             color = "red"
         elif self.validity == Editor.WARNING:
             color = "orange"
@@ -73,8 +87,7 @@ class Editor():
             color = "lightgreen"
         else:
             color = "lightgray"
-        self.listitem.setToolTip(0, disp_id)
-        self.listitem.setBackground(1, QBrush(QColor(color)))
+        self.listitem.setBackground(2, QBrush(QColor(color)))
 
     @property
     def widget(self):
@@ -101,9 +114,26 @@ class Editor():
         """
         pass
 
+    def update_state(self):
+        """
+        Updates status and calls validate. Call this when the underlying object may have changed.
+        """
+        obj_inspect = inspect(self.obj)
+        if obj_inspect.pending:
+            self.status = Editor.NEW
+        elif obj_inspect.deleted:
+            self.status = Editor.DELETED
+        elif obj_inspect.modified:
+            self.status = Editor.MODIFIED
+        elif obj_inspect.persistent:
+            self.status = Editor.EXISTING
+        else:
+            self.status = Editor.UNKNOWN
+        self.validate()
+
     def validate(self):
         """
-        Updates validity and message. To be overriden by subclasses.
+        Updates validity and message. To be overriden by subclasses. You should probably call update_state if you need to revalidate.
         """
         self.validity = Editor.VALID
         self.message = "No validity check"
