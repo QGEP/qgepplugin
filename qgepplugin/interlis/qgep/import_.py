@@ -45,17 +45,6 @@ def qgep_import(precommit_callback=None):
     # Allow to insert rows with cyclic dependencies at once
     qgep_session.execute('SET CONSTRAINTS ALL DEFERRED;')
 
-    def get_vl_code(vl_table, value):
-        """
-        Gets a value list code from the value_de name. Returns None and a warning if not found.
-        """
-        # TODO : memoize (and get the whole table at once) to improve N+1 performance issue
-        # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
-        row = get_vl_instance(vl_table, value)
-        if row is None:
-            return None
-        return row.code
-
     def get_vl_instance(vl_table, value):
         """
         Gets a value list instance from the value_de name. Returns None and a warning if not found.
@@ -113,10 +102,10 @@ def qgep_import(precommit_callback=None):
         Returns common attributes for wastewater_structure
         """
         return {
-            "accessibility": get_vl_code(QGEP.wastewater_structure_accessibility, row.zugaenglichkeit),
+            "accessibility__REL": get_vl_instance(QGEP.wastewater_structure_accessibility, row.zugaenglichkeit),
             # "contract_section": row.REPLACE_ME,  # TODO : not sure, is it akten or baulos ?
             "detail_geometry_geometry": ST_Force3D(row.detailgeometrie),
-            "financing": get_vl_code(QGEP.wastewater_structure_financing, row.finanzierung),
+            "financing__REL": get_vl_instance(QGEP.wastewater_structure_financing, row.finanzierung),
             # "fk_main_cover": row.REPLACE_ME,  # TODO : NOT MAPPED, but I think this is not standard SIA405 ?
             # "fk_main_wastewater_node": row.REPLACE_ME,  # TODO : NOT MAPPED, but I think this is not standard SIA405 ?
             "fk_operator": get_pk(row.betreiberref__REL),
@@ -127,12 +116,12 @@ def qgep_import(precommit_callback=None):
             "location_name": row.standortname,
             # "records": row.REPLACE_ME,  # TODO : not sure, is it akten or baulos ?
             "remark": row.bemerkung,
-            "renovation_necessity": get_vl_code(QGEP.wastewater_structure_renovation_necessity, row.sanierungsbedarf),
+            "renovation_necessity__REL": get_vl_instance(QGEP.wastewater_structure_renovation_necessity, row.sanierungsbedarf),
             "replacement_value": row.wiederbeschaffungswert,
             "rv_base_year": row.wbw_basisjahr,
-            "rv_construction_type": get_vl_code(QGEP.wastewater_structure_rv_construction_type, row.wbw_bauart),
-            "status": get_vl_code(QGEP.wastewater_structure_status, row.astatus),
-            "structure_condition": get_vl_code(QGEP.wastewater_structure_structure_condition, row.baulicherzustand),
+            "rv_construction_type__REL": get_vl_instance(QGEP.wastewater_structure_rv_construction_type, row.wbw_bauart),
+            "status__REL": get_vl_instance(QGEP.wastewater_structure_status, row.astatus),
+            "structure_condition__REL": get_vl_instance(QGEP.wastewater_structure_structure_condition, row.baulicherzustand),
             "subsidies": row.subventionen,
             "year_of_construction": row.baujahr,
             "year_of_replacement": row.ersatzjahr,
@@ -156,7 +145,7 @@ def qgep_import(precommit_callback=None):
             "fk_wastewater_structure": get_pk(row.abwasserbauwerkref__REL),
             "identifier": row.bezeichnung,
             "remark": row.bemerkung,
-            "renovation_demand": get_vl_code(QGEP.structure_part_renovation_demand, row.instandstellung),
+            "renovation_demand__REL": get_vl_instance(QGEP.structure_part_renovation_demand, row.instandstellung),
         }
 
     print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
@@ -1013,7 +1002,7 @@ def qgep_import(precommit_callback=None):
             **metaattribute_common(metaattribute),
 
             # --- file ---
-            class__REL=get_vl_code(QGEP.file_class, row.klasse),
+            class__REL=get_vl_instance(QGEP.file_class, row.klasse),
             fk_data_media=row.datentraegerref__REL.obj_id,
             identifier=row.bezeichnung,
             kind__REL=get_vl_instance(QGEP.file_kind, row.art),
