@@ -1,6 +1,7 @@
 import sqlalchemy
 import pickle
 import os
+from sqlalchemy.orm import interfaces
 
 from sqlalchemy.ext.automap import (
     name_for_collection_relationship,
@@ -29,6 +30,16 @@ def custom_name_for_scalar_relationship(base, local_cls, referred_cls, constrain
     return f"{constraint.columns.keys()[0]}__REL"
 
 
+def custom_generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw):
+    """
+    Skips creating backwards relations to avoid adding instances twice with session.merge
+    """
+    if direction is interfaces.ONETOMANY and local_cls.__table__.schema == 'qgep_vl':
+        # We skip creating backwards relations from value_lists as they can lead to adding instances twice
+        return None
+    return generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw)
+
+
 def prepare_automap_base(base, schema):
     """
     Prepares the automap base by reflecting all the fields with some specific configuration for relationship and population Base.classes with manually defined classes (which for some reason isn't done by default)
@@ -48,6 +59,7 @@ def prepare_automap_base(base, schema):
         schema=schema,
         name_for_collection_relationship=custom_name_for_collection_relationship,
         name_for_scalar_relationship=custom_name_for_scalar_relationship,
+        generate_relationship=custom_generate_relationship,
     )
 
     # For some reason, automap_base doesn't add manually defined classes to Base.classes,

@@ -51,11 +51,22 @@ def qgep_import(precommit_callback=None):
         """
         # TODO : memoize (and get the whole table at once) to improve N+1 performance issue
         # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
+        row = get_vl_instance(vl_table, value)
+        if row is None:
+            return None
+        return row.code
+
+    def get_vl_instance(vl_table, value):
+        """
+        Gets a value list instance from the value_de name. Returns None and a warning if not found.
+        """
+        # TODO : memoize (and get the whole table at once) to improve N+1 performance issue
+        # TODO : return "other" (or other applicable value) rather than None, or even throwing an exception, would probably be better
         row = qgep_session.query(vl_table).filter(vl_table.value_de == value).first()
         if row is None:
             warnings.warn(f'Could not find value `{value}` in value list "{vl_table.__table__.schema}.{vl_table.__name__}". Setting to None instead.')
             return None
-        return row.code
+        return row
 
     def get_pk(relation):
         """
@@ -208,14 +219,14 @@ def qgep_import(precommit_callback=None):
             **wastewater_structure_common(row),
 
             # --- channel ---
-            bedding_encasement=get_vl_code(QGEP.channel_bedding_encasement, row.bettung_umhuellung),
-            connection_type=get_vl_code(QGEP.channel_connection_type, row.verbindungsart),
-            function_hierarchic=get_vl_code(QGEP.channel_function_hierarchic, row.funktionhierarchisch),
-            function_hydraulic=get_vl_code(QGEP.channel_function_hydraulic, row.funktionhydraulisch),
+            bedding_encasement__REL=get_vl_instance(QGEP.channel_bedding_encasement, row.bettung_umhuellung),
+            connection_type__REL=get_vl_instance(QGEP.channel_connection_type, row.verbindungsart),
+            function_hierarchic__REL=get_vl_instance(QGEP.channel_function_hierarchic, row.funktionhierarchisch),
+            function_hydraulic__REL=get_vl_instance(QGEP.channel_function_hydraulic, row.funktionhydraulisch),
             jetting_interval=row.spuelintervall,
             pipe_length=row.rohrlaenge,
-            usage_current=get_vl_code(QGEP.channel_usage_current, row.nutzungsart_ist),
-            usage_planned=get_vl_code(QGEP.channel_usage_planned, row.nutzungsart_geplant),
+            usage_current__REL=get_vl_instance(QGEP.channel_usage_current, row.nutzungsart_ist),
+            usage_planned__REL=get_vl_instance(QGEP.channel_usage_planned, row.nutzungsart_geplant),
         )
         qgep_session.add(channel)
         print(".", end="")
@@ -263,9 +274,9 @@ def qgep_import(precommit_callback=None):
             # _orientation=row.REPLACE_ME,
             dimension1=row.dimension1,
             dimension2=row.dimension2,
-            function=get_vl_code(QGEP.manhole_function, row.funktion),
-            material=get_vl_code(QGEP.manhole_material, row.material),
-            surface_inflow=get_vl_code(QGEP.manhole_surface_inflow, row.oberflaechenzulauf),
+            function__REL=get_vl_instance(QGEP.manhole_function, row.funktion),
+            material__REL=get_vl_instance(QGEP.manhole_material, row.material),
+            surface_inflow__REL=get_vl_instance(QGEP.manhole_surface_inflow, row.oberflaechenzulauf),
         )
         qgep_session.add(manhole)
         print(".", end="")
@@ -312,7 +323,7 @@ def qgep_import(precommit_callback=None):
             # --- discharge_point ---
             # fk_sector_water_body=row.REPLACE_ME, # TODO : NOT MAPPED
             highwater_level=row.hochwasserkote,
-            relevance=get_vl_code(QGEP.discharge_point_relevance, row.relevanz),
+            relevance__REL=get_vl_instance(QGEP.discharge_point_relevance, row.relevanz),
             terrain_level=row.terrainkote,
             # upper_elevation=row.REPLACE_ME, # TODO : NOT MAPPED
             waterlevel_hydraulic=row.wasserspiegel_hydraulik,
@@ -360,10 +371,10 @@ def qgep_import(precommit_callback=None):
             **wastewater_structure_common(row),
 
             # --- special_structure ---
-            bypass=get_vl_code(QGEP.special_structure_bypass, row.bypass),
-            emergency_spillway=get_vl_code(QGEP.special_structure_emergency_spillway, row.notueberlauf),
-            function=get_vl_code(QGEP.special_structure_function, row.funktion),
-            stormwater_tank_arrangement=get_vl_code(QGEP.special_structure_stormwater_tank_arrangement, row.regenbecken_anordnung),
+            bypass__REL=get_vl_instance(QGEP.special_structure_bypass, row.bypass),
+            emergency_spillway__REL=get_vl_instance(QGEP.special_structure_emergency_spillway, row.notueberlauf),
+            function__REL=get_vl_instance(QGEP.special_structure_function, row.funktion),
+            stormwater_tank_arrangement__REL=get_vl_instance(QGEP.special_structure_stormwater_tank_arrangement, row.regenbecken_anordnung),
             # upper_elevation=row.REPLACE_ME,   # TODO : NOT MAPPED
         )
         qgep_session.add(special_structure)
@@ -410,19 +421,19 @@ def qgep_import(precommit_callback=None):
 
             # --- infiltration_installation ---
             absorption_capacity=row.schluckvermoegen,
-            defects=get_vl_code(QGEP.infiltration_installation_defects, row.maengel),
+            defects__REL=get_vl_instance(QGEP.infiltration_installation_defects, row.maengel),
             dimension1=row.dimension1,
             dimension2=row.dimension2,
             distance_to_aquifer=row.gwdistanz,
             effective_area=row.wirksameflaeche,
-            emergency_spillway=get_vl_code(QGEP.infiltration_installation_emergency_spillway, row.notueberlauf),
+            emergency_spillway__REL=get_vl_instance(QGEP.infiltration_installation_emergency_spillway, row.notueberlauf),
             # fk_aquifier=row.REPLACE_ME,  # TODO : NOT MAPPED
-            kind=get_vl_code(QGEP.infiltration_installation_kind, row.art),
-            labeling=get_vl_code(QGEP.infiltration_installation_labeling, row.beschriftung),
-            seepage_utilization=get_vl_code(QGEP.infiltration_installation_seepage_utilization, row.versickerungswasser),
+            kind__REL=get_vl_instance(QGEP.infiltration_installation_kind, row.art),
+            labeling__REL=get_vl_instance(QGEP.infiltration_installation_labeling, row.beschriftung),
+            seepage_utilization__REL=get_vl_instance(QGEP.infiltration_installation_seepage_utilization, row.versickerungswasser),
             # upper_elevation=row.REPLACE_ME,  # TODO : NOT MAPPED
-            vehicle_access=get_vl_code(QGEP.infiltration_installation_vehicle_access, row.saugwagen),
-            watertightness=get_vl_code(QGEP.infiltration_installation_watertightness, row.wasserdichtheit),
+            vehicle_access__REL=get_vl_instance(QGEP.infiltration_installation_vehicle_access, row.saugwagen),
+            watertightness__REL=get_vl_instance(QGEP.infiltration_installation_watertightness, row.wasserdichtheit),
         )
         qgep_session.add(infiltration_installation)
         print(".", end="")
@@ -460,7 +471,7 @@ def qgep_import(precommit_callback=None):
             # --- pipe_profile ---
             height_width_ratio=row.hoehenbreitenverhaeltnis,
             identifier=row.bezeichnung,
-            profile_type=get_vl_code(QGEP.pipe_profile_profile_type, row.profiltyp),
+            profile_type__REL=get_vl_instance(QGEP.pipe_profile_profile_type, row.profiltyp),
             remark=row.bemerkung,
         )
         qgep_session.add(pipe_profile)
@@ -500,11 +511,11 @@ def qgep_import(precommit_callback=None):
             **metaattribute_common(metaattribute),
 
             # --- reach_point ---
-            elevation_accuracy=get_vl_code(QGEP.reach_point_elevation_accuracy, row.hoehengenauigkeit),
+            elevation_accuracy__REL=get_vl_instance(QGEP.reach_point_elevation_accuracy, row.hoehengenauigkeit),
             fk_wastewater_networkelement=get_pk(row.abwassernetzelementref__REL),  # TODO : this fails for now, but probably only because we flush too soon
             identifier=row.bezeichnung,
             level=row.kote,
-            outlet_shape=get_vl_code(QGEP.reach_point_outlet_shape, row.hoehengenauigkeit),
+            outlet_shape__REL=get_vl_instance(QGEP.reach_point_outlet_shape, row.hoehengenauigkeit),
             position_of_connection=row.lage_anschluss,
             remark=row.bemerkung,
             situation_geometry=ST_Force3D(row.lage),
@@ -602,19 +613,19 @@ def qgep_import(precommit_callback=None):
             # --- reach ---
             clear_height=row.lichte_hoehe,
             coefficient_of_friction=row.reibungsbeiwert,
-            # elevation_determination=get_vl_code(QGEP.reach_elevation_determination, row.REPLACE_ME),  # TODO : NOT MAPPED
+            # elevation_determination__REL=get_vl_instance(QGEP.reach_elevation_determination, row.REPLACE_ME),  # TODO : NOT MAPPED
             fk_pipe_profile=get_pk(row.rohrprofilref__REL),
             fk_reach_point_from=get_pk(row.vonhaltungspunktref__REL),
             fk_reach_point_to=get_pk(row.nachhaltungspunktref__REL),
-            horizontal_positioning=get_vl_code(QGEP.reach_horizontal_positioning, row.lagebestimmung),
-            inside_coating=get_vl_code(QGEP.reach_inside_coating, row.innenschutz),
+            horizontal_positioning__REL=get_vl_instance(QGEP.reach_horizontal_positioning, row.lagebestimmung),
+            inside_coating__REL=get_vl_instance(QGEP.reach_inside_coating, row.innenschutz),
             length_effective=row.laengeeffektiv,
-            material=get_vl_code(QGEP.reach_material, row.material),
+            material__REL=get_vl_instance(QGEP.reach_material, row.material),
             progression_geometry=ST_Force3D(row.verlauf),
-            reliner_material=get_vl_code(QGEP.reach_reliner_material, row.reliner_material),
+            reliner_material__REL=get_vl_instance(QGEP.reach_reliner_material, row.reliner_material),
             reliner_nominal_size=row.reliner_nennweite,
-            relining_construction=get_vl_code(QGEP.reach_relining_construction, row.reliner_bautechnik),
-            relining_kind=get_vl_code(QGEP.reach_relining_kind, row.reliner_art),
+            relining_construction__REL=get_vl_instance(QGEP.reach_relining_construction, row.reliner_bautechnik),
+            relining_kind__REL=get_vl_instance(QGEP.reach_relining_kind, row.reliner_art),
             ring_stiffness=row.ringsteifigkeit,
             slope_building_plan=row.plangefaelle,  # TODO : check, does this need conversion ?
             wall_roughness=row.wandrauhigkeit,
@@ -707,7 +718,7 @@ def qgep_import(precommit_callback=None):
             **structure_part_common(row),
 
             # --- access_aid ---
-            kind=get_vl_code(QGEP.access_aid_kind, row.art),
+            kind__REL=get_vl_instance(QGEP.access_aid_kind, row.art),
         )
         qgep_session.add(access_aid)
         print(".", end="")
@@ -752,7 +763,7 @@ def qgep_import(precommit_callback=None):
             **structure_part_common(row),
 
             # --- dryweather_flume ---
-            material=get_vl_code(QGEP.dryweather_flume_material, row.material),
+            material__REL=get_vl_instance(QGEP.dryweather_flume_material, row.material),
         )
         qgep_session.add(dryweather_flume)
         print(".", end="")
@@ -798,15 +809,15 @@ def qgep_import(precommit_callback=None):
 
             # --- cover ---
             brand=row.fabrikat,
-            cover_shape=get_vl_code(QGEP.cover_cover_shape, row.deckelform),
+            cover_shape__REL=get_vl_instance(QGEP.cover_cover_shape, row.deckelform),
             diameter=row.durchmesser,
-            fastening=get_vl_code(QGEP.cover_fastening, row.verschluss),
+            fastening__REL=get_vl_instance(QGEP.cover_fastening, row.verschluss),
             level=row.kote,
-            material=get_vl_code(QGEP.cover_material, row.material),
-            positional_accuracy=get_vl_code(QGEP.cover_positional_accuracy, row.lagegenauigkeit),
+            material__REL=get_vl_instance(QGEP.cover_material, row.material),
+            positional_accuracy__REL=get_vl_instance(QGEP.cover_positional_accuracy, row.lagegenauigkeit),
             situation_geometry=ST_Force3D(row.lage),
-            sludge_bucket=get_vl_code(QGEP.cover_sludge_bucket, row.schlammeimer),
-            venting=get_vl_code(QGEP.cover_venting, row.entlueftung),
+            sludge_bucket__REL=get_vl_instance(QGEP.cover_sludge_bucket, row.schlammeimer),
+            venting__REL=get_vl_instance(QGEP.cover_venting, row.entlueftung),
         )
         qgep_session.add(cover)
         print(".", end="")
@@ -851,7 +862,7 @@ def qgep_import(precommit_callback=None):
             **structure_part_common(row),
 
             # --- benching ---
-            kind=get_vl_code(QGEP.benching_kind, row.art),
+            kind__REL=get_vl_instance(QGEP.benching_kind, row.art),
         )
         qgep_session.add(benching)
         print(".", end="")
@@ -877,12 +888,12 @@ def qgep_import(precommit_callback=None):
             duration=row.dauer,
             fk_operating_company=row.ausfuehrende_firmaref__REL.obj_id,
             identifier=row.bezeichnung,
-            kind=get_vl_code(QGEP.maintenance_event_kind, row.art),
+            kind__REL=get_vl_instance(QGEP.maintenance_event_kind, row.art),
             operator=row.ausfuehrender,
             reason=row.grund,
             remark=row.bemerkung,
             result=row.ergebnis,
-            status=get_vl_code(QGEP.maintenance_event_status, row.astatus),
+            status__REL=get_vl_instance(QGEP.maintenance_event_status, row.astatus),
             time_point=row.zeitpunkt,
 
             # --- examination ---
@@ -890,11 +901,11 @@ def qgep_import(precommit_callback=None):
             fk_reach_point=row.haltungspunktref__REL.obj_id if row.haltungspunktref__REL else None,
             from_point_identifier=row.vonpunktbezeichnung,
             inspected_length=row.inspizierte_laenge,
-            recording_type=get_vl_code(QGEP.examination_recording_type, row.erfassungsart),
+            recording_type__REL=get_vl_instance(QGEP.examination_recording_type, row.erfassungsart),
             to_point_identifier=row.bispunktbezeichnung,
             vehicle=row.fahrzeug,
             videonumber=row.videonummer,
-            weather=get_vl_code(QGEP.examination_weather, row.witterung),
+            weather__REL=get_vl_instance(QGEP.examination_weather, row.witterung),
         )
         qgep_session.add(examination)
 
@@ -929,7 +940,7 @@ def qgep_import(precommit_callback=None):
 
             # --- damage ---
             comments=row.anmerkung,
-            connection=get_vl_code(QGEP.damage_connection, row.verbindung),
+            connection__REL=get_vl_instance(QGEP.damage_connection, row.verbindung),
             damage_begin=row.schadenlageanfang,
             damage_end=row.schadenlageende,
             damage_reach=row.streckenschaden,
@@ -937,13 +948,13 @@ def qgep_import(precommit_callback=None):
             fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
             quantification1=row.quantifizierung1,
             quantification2=row.quantifizierung2,
-            single_damage_class=get_vl_code(QGEP.damage_single_damage_class, row.einzelschadenklasse),
+            single_damage_class__REL=get_vl_instance(QGEP.damage_single_damage_class, row.einzelschadenklasse),
             video_counter=row.videozaehlerstand,
             view_parameters=row.ansichtsparameter,
 
             # --- damage_manhole ---
-            manhole_damage_code=get_vl_code(QGEP.damage_manhole_manhole_damage_code, row.schachtschadencode),
-            manhole_shaft_area=get_vl_code(QGEP.damage_manhole_manhole_shaft_area, row.schachtbereich),
+            manhole_damage_code__REL=get_vl_instance(QGEP.damage_manhole_manhole_damage_code, row.schachtschadencode),
+            manhole_shaft_area__REL=get_vl_instance(QGEP.damage_manhole_manhole_shaft_area, row.schachtbereich),
         )
         qgep_session.add(damage_manhole)
         print(".", end="")
@@ -960,7 +971,7 @@ def qgep_import(precommit_callback=None):
             **metaattribute_common(metaattribute),
             # --- damage ---
             comments=row.anmerkung,
-            connection=get_vl_code(QGEP.damage_connection, row.verbindung),
+            connection__REL=get_vl_instance(QGEP.damage_connection, row.verbindung),
             damage_begin=row.schadenlageanfang,
             damage_end=row.schadenlageende,
             damage_reach=row.streckenschaden,
@@ -968,12 +979,12 @@ def qgep_import(precommit_callback=None):
             fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
             quantification1=row.quantifizierung1,
             quantification2=row.quantifizierung2,
-            single_damage_class=get_vl_code(QGEP.damage_single_damage_class, row.einzelschadenklasse),
+            single_damage_class__REL=get_vl_instance(QGEP.damage_single_damage_class, row.einzelschadenklasse),
             video_counter=row.videozaehlerstand,
             view_parameters=row.ansichtsparameter,
 
             # --- damage_channel ---
-            channel_damage_code=get_vl_code(QGEP.damage_channel_channel_damage_code, row.kanalschadencode),
+            channel_damage_code__REL=get_vl_instance(QGEP.damage_channel_channel_damage_code, row.kanalschadencode),
         )
         qgep_session.add(damage_channel)
         print(".", end="")
@@ -986,7 +997,7 @@ def qgep_import(precommit_callback=None):
             **metaattribute_common(metaattribute),
             # --- data_media ---
             identifier=row.bezeichnung,
-            kind=get_vl_code(QGEP.data_media_kind, row.art),
+            kind__REL=get_vl_instance(QGEP.data_media_kind, row.art),
             location=row.standort,
             path=row.pfad,
             remark=row.bemerkung,
@@ -1002,10 +1013,10 @@ def qgep_import(precommit_callback=None):
             **metaattribute_common(metaattribute),
 
             # --- file ---
-            **{"class": get_vl_code(QGEP.file_class, row.klasse)},  # equivalent to class=get_vl_code(QGEP.file_class, row.klasse), because class is a python keyword
+            class__REL=get_vl_code(QGEP.file_class, row.klasse),
             fk_data_media=row.datentraegerref__REL.obj_id,
             identifier=row.bezeichnung,
-            kind=get_vl_code(QGEP.file_kind, row.art),
+            kind__REL=get_vl_instance(QGEP.file_kind, row.art),
             object=row.objekt,
             path_relative=row.relativpfad,
             remark=row.bemerkung,

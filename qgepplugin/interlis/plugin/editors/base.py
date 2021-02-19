@@ -62,7 +62,8 @@ class Editor():
         return self._listitem
 
     def update_listitem(self):
-        self.listitem.setText(0, getattr(self.obj, "identifier", self.obj.obj_id))
+        disp_id = str(getattr(self.obj, "obj_id", getattr(self.obj, "value_en", "?")))  # some elements may not have obj_id, such as value_lists
+        self.listitem.setText(0, getattr(self.obj, "identifier", disp_id))
         self.listitem.setText(1, self.validity)
         if self.validity == Editor.INVALID:
             color = "red"
@@ -72,7 +73,7 @@ class Editor():
             color = "lightgreen"
         else:
             color = "lightgray"
-        self.listitem.setToolTip(0, str(self.obj.obj_id))
+        self.listitem.setToolTip(0, disp_id)
         self.listitem.setBackground(1, QBrush(QColor(color)))
 
     @property
