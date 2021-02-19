@@ -156,12 +156,11 @@ def qgep_import(precommit_callback=None):
         # See corresponding test case : tests.TestRegressions.test_self_referencing_organisation
 
         organisation = QGEP.organisation(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
+
             # --- organisation ---
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             identifier=row.bezeichnung,
-            last_modification=metaattribute.letzte_aenderung,
-            obj_id=row.obj_id,
             remark=row.bemerkung,
             uid=row.auid,
         )
@@ -867,18 +866,18 @@ def qgep_import(precommit_callback=None):
 
         warnings.warn("QGEP examination.active_zone has no equivalent in the interlis model. This field will be null.")
         examination = QGEP.examination(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
+
             # --- maintenance_event ---
             # active_zone=row.REPLACE_ME,  # TODO : found no matching field for this in interlis, confirm this is ok
             base_data=row.datengrundlage,
             cost=row.kosten,
             data_details=row.detaildaten,
             duration=row.dauer,
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             fk_operating_company=row.ausfuehrende_firmaref__REL.obj_id,
             identifier=row.bezeichnung,
             kind=get_vl_code(QGEP.maintenance_event_kind, row.art),
-            last_modification=metaattribute.letzte_aenderung,
             operator=row.ausfuehrender,
             reason=row.grund,
             remark=row.bemerkung,
@@ -891,7 +890,6 @@ def qgep_import(precommit_callback=None):
             fk_reach_point=row.haltungspunktref__REL.obj_id if row.haltungspunktref__REL else None,
             from_point_identifier=row.vonpunktbezeichnung,
             inspected_length=row.inspizierte_laenge,
-            obj_id=row.obj_id,
             recording_type=get_vl_code(QGEP.examination_recording_type, row.erfassungsart),
             to_point_identifier=row.bispunktbezeichnung,
             vehicle=row.fahrzeug,
@@ -926,6 +924,9 @@ def qgep_import(precommit_callback=None):
         # Concerned attributes : distanz, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende
 
         damage_manhole = QGEP.damage_manhole(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
+
             # --- damage ---
             comments=row.anmerkung,
             connection=get_vl_code(QGEP.damage_connection, row.verbindung),
@@ -933,10 +934,7 @@ def qgep_import(precommit_callback=None):
             damage_end=row.schadenlageende,
             damage_reach=row.streckenschaden,
             distance=row.distanz,
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
             fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
-            last_modification=metaattribute.letzte_aenderung,
             quantification1=row.quantifizierung1,
             quantification2=row.quantifizierung2,
             single_damage_class=get_vl_code(QGEP.damage_single_damage_class, row.einzelschadenklasse),
@@ -946,7 +944,6 @@ def qgep_import(precommit_callback=None):
             # --- damage_manhole ---
             manhole_damage_code=get_vl_code(QGEP.damage_manhole_manhole_damage_code, row.schachtschadencode),
             manhole_shaft_area=get_vl_code(QGEP.damage_manhole_manhole_shaft_area, row.schachtbereich),
-            obj_id=row.obj_id,
         )
         qgep_session.merge(damage_manhole)
         print(".", end="")
@@ -960,6 +957,8 @@ def qgep_import(precommit_callback=None):
         # Concerned attributes : distanz, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende
 
         damage_channel = QGEP.damage_channel(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
             # --- damage ---
             comments=row.anmerkung,
             connection=get_vl_code(QGEP.damage_connection, row.verbindung),
@@ -967,10 +966,7 @@ def qgep_import(precommit_callback=None):
             damage_end=row.schadenlageende,
             damage_reach=row.streckenschaden,
             distance=row.distanz,
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
             fk_examination=row.untersuchungref__REL.obj_id if row.untersuchungref__REL else None,
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
-            last_modification=metaattribute.letzte_aenderung,
             quantification1=row.quantifizierung1,
             quantification2=row.quantifizierung2,
             single_damage_class=get_vl_code(QGEP.damage_single_damage_class, row.einzelschadenklasse),
@@ -979,7 +975,6 @@ def qgep_import(precommit_callback=None):
 
             # --- damage_channel ---
             channel_damage_code=get_vl_code(QGEP.damage_channel_channel_damage_code, row.kanalschadencode),
-            obj_id=row.obj_id,
         )
         qgep_session.merge(damage_channel)
         print(".", end="")
@@ -988,14 +983,12 @@ def qgep_import(precommit_callback=None):
     print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
     for row, metaattribute in abwasser_session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         data_media = QGEP.data_media(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
             # --- data_media ---
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             identifier=row.bezeichnung,
             kind=get_vl_code(QGEP.data_media_kind, row.art),
-            last_modification=metaattribute.letzte_aenderung,
             location=row.standort,
-            obj_id=row.obj_id,
             path=row.pfad,
             remark=row.bemerkung,
         )
@@ -1006,15 +999,14 @@ def qgep_import(precommit_callback=None):
     print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
     for row, metaattribute in abwasser_session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         file = QGEP.file(
+            **base_common(row),
+            **metaattribute_common(metaattribute),
+
             # --- file ---
             **{"class": get_vl_code(QGEP.file_class, row.klasse)},  # equivalent to class=get_vl_code(QGEP.file_class, row.klasse), because class is a python keyword
             fk_data_media=row.datentraegerref__REL.obj_id,
-            fk_dataowner=get_or_create_organisation(metaattribute.datenherr),
-            fk_provider=get_or_create_organisation(metaattribute.datenlieferant),
             identifier=row.bezeichnung,
             kind=get_vl_code(QGEP.file_kind, row.art),
-            last_modification=metaattribute.letzte_aenderung,
-            obj_id=row.obj_id,
             object=row.objekt,
             path_relative=row.relativpfad,
             remark=row.bemerkung,
