@@ -70,11 +70,20 @@ def qgep_import(precommit_callback=None):
         Updates an existing instance (if obj_id is found) or creates an instance of the provided class
         with given kwargs, and returns it.
         """
-        instance = qgep_session.query(cls).get(kwargs.get('obj_id', None))
+        instance = None
+
+        # We try to get the instance from the session/database
+        obj_id = kwargs.get('obj_id', None)
+        if obj_id:
+            instance = qgep_session.query(cls).get(kwargs.get('obj_id', None))
+
         if instance:
+            # We found it -> update
             instance.__dict__.update(kwargs)
         else:
+            # We didn't find it -> create
             instance = cls(**kwargs)
+
         return instance
 
     @lru_cache(maxsize=None)
@@ -86,12 +95,12 @@ def qgep_import(precommit_callback=None):
             return None
 
         instance = qgep_session.query(QGEP.organisation).filter(QGEP.organisation.identifier == name).first()
-        if instance:
-            return instance
-        else:
+
+        if not instance:
             instance = create_or_update(QGEP.organisation, identifier=name)
             qgep_session.add(instance)
-            return instance
+
+        return instance
 
 
     def metaattribute_common(metaattribute):
