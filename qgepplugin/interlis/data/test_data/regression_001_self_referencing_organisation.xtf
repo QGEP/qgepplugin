@@ -13,9 +13,9 @@
         <COMMENT>Testing an organisation referencing itself</COMMENT>
     </HEADERSECTION>
     <DATASECTION>
-        <SIA405_ABWASSER_2015_LV95.SIA405_Abwasser BID="a" KIND="UPDATE">
-            <SIA405_ABWASSER_2015_LV95.SIA405_Abwasser.Organisation TID="a">
-                <OBJ_ID>a</OBJ_ID>
+        <SIA405_ABWASSER_2015_LV95.SIA405_Abwasser BID="xBASKET1" KIND="UPDATE">
+            <SIA405_ABWASSER_2015_LV95.SIA405_Abwasser.Organisation TID="ch080qwzAV000007">
+                <OBJ_ID>ch080qwzAV000007</OBJ_ID>
                 <Metaattribute>
                     <SIA405_Base_LV95.Metaattribute>
                         <Datenherr>organisation_a</Datenherr>

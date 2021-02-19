@@ -130,21 +130,20 @@ class TestRegressions(unittest.TestCase):
         Due to current logic of the import script, organisations may be created multiple times.
         """
 
-        utils.various.setup_test_db("empty")
+        path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'regression_001_self_referencing_organisation.xtf')
+        utils.ili2db.validate_xtf_data(path)
+
+        # Prepare subset db (we import in an empty schema)
+        main(["setupdb", "empty"])
 
         QGEP = get_qgep_model()
 
         session = Session(utils.sqlalchemy.create_engine())
-
         self.assertEqual(session.query(QGEP.organisation).count(), 0)
+        session.close()
 
-        main(
-            [
-                "--recreate_schema",
-                "--import_xtf",
-                r"interlis\data\test_data\regression_001_self_referencing_organisation.xtf",
-                "qgep",
-            ]
-        )
+        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
 
+        session = Session(utils.sqlalchemy.create_engine())
         self.assertEqual(session.query(QGEP.organisation).count(), 1)
+        session.close()
