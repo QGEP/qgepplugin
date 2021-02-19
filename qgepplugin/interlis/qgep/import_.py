@@ -66,17 +66,32 @@ def qgep_import(precommit_callback=None):
         return relation.obj_id
 
     @lru_cache(maxsize=None)
-    def get_or_create_organisation(name):
+    def create_or_update(cls, **kwargs):
+        """
+        Updates an existing instance (if obj_id is found) or creates an instance of the provided class
+        with given kwargs, and returns it.
+        """
+        instance = qgep_session.query(cls).get(kwargs.get('obj_id', None))
+        if instance:
+            instance.__dict__.update(kwargs)
+        else:
+            instance = cls(**kwargs)
+        return instance
+
+    def create_or_update_organisation(name):
         """
         Gets an organisation ID from it's name (and creates an entry if not existing)
         """
+        if not name:
+            return None
+
         instance = qgep_session.query(QGEP.organisation).filter(QGEP.organisation.identifier == name).first()
         if instance:
-            return instance.obj_id
+            return instance
         else:
-            instance = QGEP.organisation(identifier=name)
+            instance = create_or_update(QGEP.organisation, identifier=name)
             qgep_session.add(instance)
-            return instance.obj_id
+            return instance
 
 
     def metaattribute_common(metaattribute):
@@ -84,8 +99,8 @@ def qgep_import(precommit_callback=None):
         Common parameters for metaattributes
         """
         return {
-            "fk_dataowner": get_or_create_organisation(metaattribute.datenherr),
-            "fk_provider": get_or_create_organisation(metaattribute.datenlieferant),
+            "fk_dataowner__REL": create_or_update_organisation(metaattribute.datenherr),
+            "fk_provider__REL": create_or_update_organisation(metaattribute.datenlieferant),
             "last_modification": metaattribute.letzte_aenderung,
         }
 
@@ -155,7 +170,7 @@ def qgep_import(precommit_callback=None):
         # data before commiting.
         # See corresponding test case : tests.TestRegressions.test_self_referencing_organisation
 
-        organisation = QGEP.organisation(
+        organisation = create_or_update(QGEP.organisation,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -199,7 +214,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        channel = QGEP.channel(
+        channel = create_or_update(QGEP.channel,
 
             **base_common(row),
             **metaattribute_common(metaattribute),
@@ -252,7 +267,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        manhole = QGEP.manhole(
+        manhole = create_or_update(QGEP.manhole,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -302,7 +317,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        discharge_point = QGEP.discharge_point(
+        discharge_point = create_or_update(QGEP.discharge_point,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -352,7 +367,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        special_structure = QGEP.special_structure(
+        special_structure = create_or_update(QGEP.special_structure,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -401,7 +416,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        infiltration_installation = QGEP.infiltration_installation(
+        infiltration_installation = create_or_update(QGEP.infiltration_installation,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -453,7 +468,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        pipe_profile = QGEP.pipe_profile(
+        pipe_profile = create_or_update(QGEP.pipe_profile,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -495,7 +510,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        reach_point = QGEP.reach_point(
+        reach_point = create_or_update(QGEP.reach_point,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -544,7 +559,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        wastewater_node = QGEP.wastewater_node(
+        wastewater_node = create_or_update(QGEP.wastewater_node,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -592,7 +607,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        reach = QGEP.reach(
+        reach = create_or_update(QGEP.reach,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -654,7 +669,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        dryweather_downspout = QGEP.dryweather_downspout(
+        dryweather_downspout = create_or_update(QGEP.dryweather_downspout,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -699,7 +714,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        access_aid = QGEP.access_aid(
+        access_aid = create_or_update(QGEP.access_aid,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -744,7 +759,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        dryweather_flume = QGEP.dryweather_flume(
+        dryweather_flume = create_or_update(QGEP.dryweather_flume,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -789,7 +804,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        cover = QGEP.cover(
+        cover = create_or_update(QGEP.cover,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -843,7 +858,7 @@ def qgep_import(precommit_callback=None):
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
 
-        benching = QGEP.benching(
+        benching = create_or_update(QGEP.benching,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -865,7 +880,7 @@ def qgep_import(precommit_callback=None):
     for row, metaattribute in abwasser_session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         warnings.warn("QGEP examination.active_zone has no equivalent in the interlis model. This field will be null.")
-        examination = QGEP.examination(
+        examination = create_or_update(QGEP.examination,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -907,7 +922,7 @@ def qgep_import(precommit_callback=None):
             # The day ili2pg works, we probably need to double-check whether the referenced wastewater structure exists prior
             # to creating this association.
             # Soft matching based on from/to_point_identifier will be done in the GUI data checking process.
-            exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
+            exam_to_wastewater_structure = create_or_update(QGEP.re_maintenance_event_wastewater_structure,
                 fk_wastewater_structure=row.abwasserbauwerkref,
                 fk_maintenance_event=row.obj_id,
             )
@@ -923,7 +938,7 @@ def qgep_import(precommit_callback=None):
         # in the ili2pg mode.
         # Concerned attributes : distanz, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende
 
-        damage_manhole = QGEP.damage_manhole(
+        damage_manhole = create_or_update(QGEP.damage_manhole,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
@@ -955,7 +970,7 @@ def qgep_import(precommit_callback=None):
         # while they are on the normschachtschaden/kanalschaden subclasses
         # in the ili2pg mode.
         # Concerned attributes : distanz, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende
-        damage_channel = QGEP.damage_channel(
+        damage_channel = create_or_update(QGEP.damage_channel,
             **base_common(row),
             **metaattribute_common(metaattribute),
             # --- damage ---
@@ -981,7 +996,7 @@ def qgep_import(precommit_callback=None):
 
     print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
     for row, metaattribute in abwasser_session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
-        data_media = QGEP.data_media(
+        data_media = create_or_update(QGEP.data_media,
             **base_common(row),
             **metaattribute_common(metaattribute),
             # --- data_media ---
@@ -997,7 +1012,7 @@ def qgep_import(precommit_callback=None):
 
     print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
     for row, metaattribute in abwasser_session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
-        file = QGEP.file(
+        file = create_or_update(QGEP.file,
             **base_common(row),
             **metaattribute_common(metaattribute),
 
