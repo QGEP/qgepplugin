@@ -74,6 +74,9 @@ class Gui(QDialog):
             editor.update_listitem()
             self.category_items[cls].addChild(editor.listitem)
 
+            if editor.validity != Editor.VALID:
+                self.treeWidget.expandItem(self.category_items[cls])
+
         # Show counts
         for cls, category_item in self.category_items.items():
             category_item.setText(0, f"{cls.__name__} ({category_item.childCount()})")
