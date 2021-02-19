@@ -34,9 +34,9 @@ def custom_generate_relationship(base, direction, return_fn, attrname, local_cls
     """
     Skips creating backwards relations to avoid adding instances twice with session.merge
     """
-    if direction is interfaces.ONETOMANY and local_cls.__table__.schema == 'qgep_vl':
-        # We skip creating backwards relations from value_lists as they can lead to adding instances twice
-        return None
+    # disabling type checks on all relations, allowing to flush subclasses instead of abstract classes in relations
+    # without requiring to configure polymorphism
+    kw['enable_typechecks'] = False
     return generate_relationship(base, direction, return_fn, attrname, local_cls, referred_cls, **kw)
 
 
