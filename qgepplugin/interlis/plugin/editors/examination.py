@@ -1,4 +1,5 @@
 from sqlalchemy.orm import aliased
+from itertools import chain
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QListWidgetItem, QTreeWidgetItem, QHeaderView
@@ -54,13 +55,13 @@ class ExaminationEditor(Editor):
             if editor:  # there may be items that are already in the DB
                 widget_item.setCheckState(0, editor.listitem.checkState(0))
             widget_item.setText(1, str(damage.distance))
-            widget_item.setText(2, damage.channel_damage_code__REL.value_de)
+            widget_item.setText(2, damage.channel_damage_code__REL.value_de if damage.channel_damage_code__REL else '')
             widget_item.setText(3, damage.comments)
             self.widget.damagesTreeWidget.addTopLevelItem(widget_item)
         self.widget.damagesTreeWidget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
     def validate(self):
-        count = self._get_assigned_structures().count()
+        count = len(list(self._get_assigned_structures()))
         if count == 0:
             self.validity = Editor.WARNING
             self.message = 'Not associated any wastewater structures.'
@@ -141,14 +142,41 @@ class ExaminationEditor(Editor):
             .filter(wastewater_ne_from.identifier == from_id, wastewater_ne_to.identifier == to_id)
 
     def _get_assigned_structures(self):
+
         QGEP = get_qgep_model()
-        # TODO : this only returns values from the DB, doesn't contain newly added relations as they are not flushed yet
-        return self.session.query(QGEP.wastewater_structure) \
+
+        from_db = self.session.query(QGEP.wastewater_structure) \
             .join(QGEP.re_maintenance_event_wastewater_structure) \
             .filter(QGEP.re_maintenance_event_wastewater_structure.fk_maintenance_event == self.obj.obj_id)
 
+        in_session = [
+            inst
+            for inst
+            in self.main_dialog.editors.keys()
+            if isinstance(inst, QGEP.wastewater_structure) and inst.fk_maintenance_event == self.obj.obj_id
+        ]
+
+        seen = set()
+        for instance in chain(in_session, from_db):
+            if instance not in seen:
+                seen.add(instance)
+                yield instance
+
     def _get_child_damages(self):
         QGEP = get_qgep_model()
-        # TODO : this only returns values from the DB, doesn't contain newly added damages as they are not flushed yet
-        return self.session.query(QGEP.damage_channel) \
+
+        from_db = self.session.query(QGEP.damage_channel) \
             .filter(QGEP.damage_channel.fk_examination == self.obj.obj_id)
+
+        in_session = [
+            inst
+            for inst
+            in self.main_dialog.editors.keys()
+            if isinstance(inst, QGEP.damage_channel) and inst.fk_examination == self.obj.obj_id
+        ]
+
+        seen = set()
+        for instance in sorted(chain(in_session, from_db), key=lambda d: d.distance):
+            if instance not in seen:
+                seen.add(instance)
+                yield instance

@@ -143,6 +143,8 @@ class Gui(QDialog):
         for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
             if getattr(inspect(editor.obj), status_name):
                 self.debugTextEdit.append(f"{status_name} ")
+        self.debugTextEdit.append("-- DEBUG --")
+        self.debugTextEdit.append(repr(editor.obj))
 
         # Show the validity label
         self.validityLabel.setText(editor.message)
