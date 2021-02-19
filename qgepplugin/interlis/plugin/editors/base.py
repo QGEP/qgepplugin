@@ -104,7 +104,7 @@ class Editor():
         """
         Updates validity and message. To be overriden by subclasses.
         """
-        self.validity = Editor.UNKNOWN
+        self.validity = Editor.VALID
         self.message = "No validity check"
 
     def initially_checked(self):
