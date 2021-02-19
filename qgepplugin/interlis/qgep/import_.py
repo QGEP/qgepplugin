@@ -75,7 +75,7 @@ def qgep_import(precommit_callback=None):
             return instance.obj_id
         else:
             instance = QGEP.organisation(identifier=name)
-            qgep_session.merge(instance)
+            qgep_session.add(instance)
             return instance.obj_id
 
 
@@ -164,7 +164,7 @@ def qgep_import(precommit_callback=None):
             remark=row.bemerkung,
             uid=row.auid,
         )
-        qgep_session.merge(organisation)
+        qgep_session.add(organisation)
         print(".", end="")
     print("done")
 
@@ -217,7 +217,7 @@ def qgep_import(precommit_callback=None):
             usage_current=get_vl_code(QGEP.channel_usage_current, row.nutzungsart_ist),
             usage_planned=get_vl_code(QGEP.channel_usage_planned, row.nutzungsart_geplant),
         )
-        qgep_session.merge(channel)
+        qgep_session.add(channel)
         print(".", end="")
     print("done")
 
@@ -267,7 +267,7 @@ def qgep_import(precommit_callback=None):
             material=get_vl_code(QGEP.manhole_material, row.material),
             surface_inflow=get_vl_code(QGEP.manhole_surface_inflow, row.oberflaechenzulauf),
         )
-        qgep_session.merge(manhole)
+        qgep_session.add(manhole)
         print(".", end="")
     print("done")
 
@@ -317,7 +317,7 @@ def qgep_import(precommit_callback=None):
             # upper_elevation=row.REPLACE_ME, # TODO : NOT MAPPED
             waterlevel_hydraulic=row.wasserspiegel_hydraulik,
         )
-        qgep_session.merge(discharge_point)
+        qgep_session.add(discharge_point)
         print(".", end="")
     print("done")
 
@@ -366,7 +366,7 @@ def qgep_import(precommit_callback=None):
             stormwater_tank_arrangement=get_vl_code(QGEP.special_structure_stormwater_tank_arrangement, row.regenbecken_anordnung),
             # upper_elevation=row.REPLACE_ME,   # TODO : NOT MAPPED
         )
-        qgep_session.merge(special_structure)
+        qgep_session.add(special_structure)
         print(".", end="")
     print("done")
 
@@ -424,7 +424,7 @@ def qgep_import(precommit_callback=None):
             vehicle_access=get_vl_code(QGEP.infiltration_installation_vehicle_access, row.saugwagen),
             watertightness=get_vl_code(QGEP.infiltration_installation_watertightness, row.wasserdichtheit),
         )
-        qgep_session.merge(infiltration_installation)
+        qgep_session.add(infiltration_installation)
         print(".", end="")
     print("done")
 
@@ -463,7 +463,7 @@ def qgep_import(precommit_callback=None):
             profile_type=get_vl_code(QGEP.pipe_profile_profile_type, row.profiltyp),
             remark=row.bemerkung,
         )
-        qgep_session.merge(pipe_profile)
+        qgep_session.add(pipe_profile)
         print(".", end="")
     print("done")
 
@@ -509,7 +509,7 @@ def qgep_import(precommit_callback=None):
             remark=row.bemerkung,
             situation_geometry=ST_Force3D(row.lage),
         )
-        qgep_session.merge(reach_point)
+        qgep_session.add(reach_point)
         print(".", end="")
     print("done")
 
@@ -557,7 +557,7 @@ def qgep_import(precommit_callback=None):
             bottom_level=row.sohlenkote,
             situation_geometry=ST_Force3D(row.lage),
         )
-        qgep_session.merge(wastewater_node)
+        qgep_session.add(wastewater_node)
         print(".", end="")
     print("done")
 
@@ -619,7 +619,7 @@ def qgep_import(precommit_callback=None):
             slope_building_plan=row.plangefaelle,  # TODO : check, does this need conversion ?
             wall_roughness=row.wandrauhigkeit,
         )
-        qgep_session.merge(reach)
+        qgep_session.add(reach)
         print(".", end="")
     print("done")
 
@@ -664,7 +664,7 @@ def qgep_import(precommit_callback=None):
             # --- dryweather_downspout ---
             diameter=row.durchmesser,
         )
-        qgep_session.merge(dryweather_downspout)
+        qgep_session.add(dryweather_downspout)
         print(".", end="")
     print("done")
 
@@ -709,7 +709,7 @@ def qgep_import(precommit_callback=None):
             # --- access_aid ---
             kind=get_vl_code(QGEP.access_aid_kind, row.art),
         )
-        qgep_session.merge(access_aid)
+        qgep_session.add(access_aid)
         print(".", end="")
     print("done")
 
@@ -754,7 +754,7 @@ def qgep_import(precommit_callback=None):
             # --- dryweather_flume ---
             material=get_vl_code(QGEP.dryweather_flume_material, row.material),
         )
-        qgep_session.merge(dryweather_flume)
+        qgep_session.add(dryweather_flume)
         print(".", end="")
     print("done")
 
@@ -808,7 +808,7 @@ def qgep_import(precommit_callback=None):
             sludge_bucket=get_vl_code(QGEP.cover_sludge_bucket, row.schlammeimer),
             venting=get_vl_code(QGEP.cover_venting, row.entlueftung),
         )
-        qgep_session.merge(cover)
+        qgep_session.add(cover)
         print(".", end="")
     print("done")
 
@@ -853,7 +853,7 @@ def qgep_import(precommit_callback=None):
             # --- benching ---
             kind=get_vl_code(QGEP.benching_kind, row.art),
         )
-        qgep_session.merge(benching)
+        qgep_session.add(benching)
         print(".", end="")
     print("done")
 
@@ -896,7 +896,7 @@ def qgep_import(precommit_callback=None):
             videonumber=row.videonummer,
             weather=get_vl_code(QGEP.examination_weather, row.witterung),
         )
-        qgep_session.merge(examination)
+        qgep_session.add(examination)
 
         # In QGEP, relation between maintenance_event and wastewater_structure is done with
         # an association table instead of a foreign key on maintenance_event.
@@ -911,7 +911,7 @@ def qgep_import(precommit_callback=None):
                 fk_wastewater_structure=row.abwasserbauwerkref,
                 fk_maintenance_event=row.obj_id,
             )
-            qgep_session.merge(exam_to_wastewater_structure)
+            qgep_session.add(exam_to_wastewater_structure)
 
         print(".", end="")
     print("done")
@@ -945,7 +945,7 @@ def qgep_import(precommit_callback=None):
             manhole_damage_code=get_vl_code(QGEP.damage_manhole_manhole_damage_code, row.schachtschadencode),
             manhole_shaft_area=get_vl_code(QGEP.damage_manhole_manhole_shaft_area, row.schachtbereich),
         )
-        qgep_session.merge(damage_manhole)
+        qgep_session.add(damage_manhole)
         print(".", end="")
     print("done")
 
@@ -955,7 +955,6 @@ def qgep_import(precommit_callback=None):
         # while they are on the normschachtschaden/kanalschaden subclasses
         # in the ili2pg mode.
         # Concerned attributes : distanz, quantifizierung1, quantifizierung2, schadenlageanfang, schadenlageende
-
         damage_channel = QGEP.damage_channel(
             **base_common(row),
             **metaattribute_common(metaattribute),
@@ -976,7 +975,7 @@ def qgep_import(precommit_callback=None):
             # --- damage_channel ---
             channel_damage_code=get_vl_code(QGEP.damage_channel_channel_damage_code, row.kanalschadencode),
         )
-        qgep_session.merge(damage_channel)
+        qgep_session.add(damage_channel)
         print(".", end="")
     print("done")
 
@@ -992,7 +991,7 @@ def qgep_import(precommit_callback=None):
             path=row.pfad,
             remark=row.bemerkung,
         )
-        qgep_session.merge(data_media)
+        qgep_session.add(data_media)
         print(".", end="")
     print("done")
 
@@ -1011,7 +1010,7 @@ def qgep_import(precommit_callback=None):
             path_relative=row.relativpfad,
             remark=row.bemerkung,
         )
-        qgep_session.merge(file)
+        qgep_session.add(file)
         print(".", end="")
     print("done")
 
