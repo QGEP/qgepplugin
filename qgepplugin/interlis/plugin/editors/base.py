@@ -2,6 +2,7 @@ import os
 
 from collections import defaultdict
 
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QFont, QBrush, QColor
 from qgis.PyQt.QtWidgets import QWidget, QTreeWidgetItem
 from qgis.PyQt.uic import loadUi
@@ -56,6 +57,7 @@ class Editor():
         """
         if not hasattr(self, '_listitem'):
             self._listitem = QTreeWidgetItem()
+            self._listitem.setCheckState(0, Qt.Checked if self.initially_checked() else Qt.Unchecked)
             self.update_listitem()
         return self._listitem
 
@@ -104,3 +106,9 @@ class Editor():
         """
         self.validity = Editor.UNKNOWN
         self.message = "No validity check"
+
+    def initially_checked(self):
+        """
+        Determines if the item must be initially checked. To be overriden by subclasses.
+        """
+        return True

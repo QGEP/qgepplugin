@@ -40,11 +40,11 @@ class Gui(QDialog):
         self.category_items = defaultdict(QTreeWidgetItem)  # keys are instances' classes
         self.editors = {}
 
-        self.treeWidget.itemChanged.connect(self.item_changed)
-        self.treeWidget.currentItemChanged.connect(self.current_item_changed)
-
         self.treeWidget.clear()
         self.update_tree()
+
+        self.treeWidget.itemChanged.connect(self.item_changed)
+        self.treeWidget.currentItemChanged.connect(self.current_item_changed)
 
         # Execute the dialog
         self.show()
@@ -68,7 +68,6 @@ class Gui(QDialog):
                 self.treeWidget.addTopLevelItem(self.category_items[cls])
 
             editor.update_listitem()
-            editor.listitem.setCheckState(0, Qt.Checked)
             self.category_items[cls].addChild(editor.listitem)
 
         # Show counts
