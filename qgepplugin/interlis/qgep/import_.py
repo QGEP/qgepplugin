@@ -65,7 +65,6 @@ def qgep_import(precommit_callback=None):
             return None
         return relation.obj_id
 
-    @lru_cache(maxsize=None)
     def create_or_update(cls, **kwargs):
         """
         Updates an existing instance (if obj_id is found) or creates an instance of the provided class
@@ -78,6 +77,7 @@ def qgep_import(precommit_callback=None):
             instance = cls(**kwargs)
         return instance
 
+    @lru_cache(maxsize=None)
     def create_or_update_organisation(name):
         """
         Gets an organisation ID from it's name (and creates an entry if not existing)
