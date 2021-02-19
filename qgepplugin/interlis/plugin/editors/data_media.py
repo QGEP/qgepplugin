@@ -13,6 +13,7 @@ from .base import Editor
 class DataMediaEditor(Editor):
 
     class_name = 'data_media'
+    widget_name = 'data_media.ui'
 
     def __init__(self, *args, **kwargs):
         self._path_was_changed = False

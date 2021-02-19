@@ -13,6 +13,7 @@ from .base import Editor
 class ExaminationEditor(Editor):
 
     class_name = 'examination'
+    widget_name = 'examination.ui'
 
     def init_widget(self):
         self.reach_layer = QgsProject.instance().mapLayersByName("vw_qgep_reach")[0]

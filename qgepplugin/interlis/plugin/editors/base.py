@@ -24,6 +24,7 @@ class Editor():
     VALID = 'VALID'
 
     class_name = 'base'
+    widget_name = 'base.ui'
 
     registry = defaultdict(lambda: Editor)
 
@@ -81,7 +82,7 @@ class Editor():
             class BaseWidget(QWidget):
                 pass
             self._widget = BaseWidget()
-            loadUi(os.path.join(os.path.dirname(__file__), f'{self.class_name}.ui'), self._widget)
+            loadUi(os.path.join(os.path.dirname(__file__), self.widget_name), self._widget)
             self.init_widget()
         return self._widget
 
