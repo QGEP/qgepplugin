@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>719</width>
+    <width>495</width>
     <height>553</height>
    </rect>
   </property>
@@ -15,92 +15,99 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QTreeWidget" name="treeWidget">
-       <property name="headerHidden">
-        <bool>false</bool>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QTreeWidget" name="treeWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="headerHidden">
+       <bool>false</bool>
+      </property>
+      <attribute name="headerStretchLastSection">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>name</string>
        </property>
-       <attribute name="headerStretchLastSection">
-        <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>name</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>validity</string>
-        </property>
-       </column>
+      </column>
+      <column>
+       <property name="text">
+        <string>validity</string>
+       </property>
+      </column>
+      <item>
+       <property name="text">
+        <string>Inspections</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
        <item>
         <property name="text">
-         <string>Inspections</string>
+         <string>a</string>
         </property>
         <property name="text">
          <string/>
         </property>
-        <item>
-         <property name="text">
-          <string>a</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>b</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>c</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
        </item>
        <item>
         <property name="text">
-         <string>Organisaitons</string>
+         <string>b</string>
         </property>
         <property name="text">
          <string/>
         </property>
-        <item>
-         <property name="text">
-          <string>a</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>b</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>c</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </item>
        </item>
-      </widget>
-     </item>
-     <item>
+       <item>
+        <property name="text">
+         <string>c</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>Organisaitons</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <item>
+        <property name="text">
+         <string>a</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>b</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>c</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+      </item>
+     </widget>
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="validityLabel">
@@ -140,8 +147,8 @@
         </widget>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
