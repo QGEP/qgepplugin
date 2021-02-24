@@ -18,6 +18,14 @@ optional arguments:
   --recreate_schema          drops schema and reruns ili2pg importschema
 ```
 
+## Using in QGIS
+
+```
+# install python3-pip using OSGeo4W installer
+# in the OSGeo4W shell
+pip install sqlalchemy geoalchemy2 psycopg2
+```
+
 ## Dev
 
 Import scripts templates can be generated using `python -m interlis qwat --gen_tpl; python -m interlis qgep --gen_tpl`. This uses the mapping defined in `datamodels/mapping.py` to auto-generate import script templates, that can then be manually merged into the existing scripts.
