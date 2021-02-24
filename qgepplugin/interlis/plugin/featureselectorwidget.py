@@ -92,7 +92,7 @@ class FeatureSelectorWidget(QWidget):
         self.line_edit.clear()
         self.feature = feature
 
-        if not self.feature.isValid() or self.layer is None:
+        if self.feature is None or not self.feature.isValid() or self.layer is None:
             return
 
         expression = QgsExpression(self.layer.displayExpression())

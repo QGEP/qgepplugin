@@ -59,11 +59,11 @@ class Gui(QDialog):
                 self.editors[obj] = Editor.factory(self, self.session, obj)
             editor = self.editors[obj]
 
-            # Hide unmodified elements for now
-            if editor.status == Editor.EXISTING:
-                continue
-
             cls = obj.__class__
+
+            # Hide unmodified value lists items that may have been added to the session
+            # if editor.status == Editor.EXISTING and cls.__table__.schema == 'qgep_vl':
+            #     continue
 
             if cls not in self.category_items:
                 self.category_items[cls].setText(0, cls.__name__)
@@ -90,6 +90,14 @@ class Gui(QDialog):
 
         if checked_state == Qt.PartiallyChecked:
             return
+
+        # add or remove object from session
+        obj = self.get_obj_from_listitem(item)
+        if obj is not None:
+            if checked_state:
+                self.session.add(obj)
+            else:
+                self.session.expunge(obj)
 
         # propagate to children
         for child in [item.child(i) for i in range(item.childCount())]:
@@ -135,17 +143,25 @@ class Gui(QDialog):
 
     def refresh_editor(self, editor):
         """
-        Refreshes the widget for the object, including debug and status text
+        Refreshes the widget for the object, including validation, debug and status text
         """
+        print(f"CALLED refresh_editor (editor: {editor})")
+        # Revalidate the widget
+        editor.update_state()
+
+        # Update the list item
+        editor.update_listitem()
+
+        # Update generic widget contents
         self.debugTextEdit.clear()
         self.validityLabel.clear()
 
-        # Show all attributes in the debug text edit
+        #   Show all attributes in the debug text edit
         self.debugTextEdit.append("-- ATTRIBUTES --")
         for c in inspect(editor.obj).mapper.column_attrs:
             val = getattr(editor.obj, c.key)
             self.debugTextEdit.append(f"{c.key}: {val}")
-        # Show sqlalchemy state in the debug text edit
+        #   Show sqlalchemy state in the debug text edit
         self.debugTextEdit.append("-- SQLALCHEMY STATUS --")
         for status_name in ['transient', 'pending', 'persistent', 'deleted', 'detached', 'modified', 'expired']:
             if getattr(inspect(editor.obj), status_name):
@@ -153,7 +169,7 @@ class Gui(QDialog):
         self.debugTextEdit.append("-- DEBUG --")
         self.debugTextEdit.append(repr(editor.obj))
 
-        # Show the validity label
+        #   Show the validity label
         self.validityLabel.setText(editor.message)
         if editor.validity == Editor.INVALID:
             self.validityLabel.setStyleSheet('background-color: red; padding: 15px;')
@@ -164,7 +180,7 @@ class Gui(QDialog):
         else:
             self.validityLabel.setStyleSheet('background-color: lightgray; padding: 15px;')
 
-        # Update the widget
+        # Update the actual widget
         editor.update_widget()
 
         # Instantiate the specific widget (this has no effect if it's already active)
@@ -172,11 +188,6 @@ class Gui(QDialog):
         self.stackedWidget.setCurrentWidget(editor.widget)
 
     def commit_session(self):
-        # Expunge unchecked objects form the session
-        for editor in self.editors.values():
-            if editor.listitem.checkState(0) != Qt.Checked:
-                self.session.expunge(editor.obj)
-
         # TODO : rollback to pre-commit state, allowing user to try to fix issues
         # probably a matter of creating a savepoint before saving with
         # session.begin_nested() and one additionnal self.session.commit()
@@ -188,3 +199,9 @@ class Gui(QDialog):
         self.session.rollback()
         self.session.close()
         iface.messageBar().pushMessage("Error", "Import was canceled", level=Qgis.Warning)
+
+    def get_obj_from_listitem(self, listitem):
+        for obj, editor in self.editors.items():
+            if editor.listitem == listitem:
+                return obj
+        return None

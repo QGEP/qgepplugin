@@ -73,6 +73,11 @@ class ExaminationEditor(Editor):
             self.message = f'Associated to more than one ({count}) wastewater structures. This is allowed by the datamodel, but discouraged.'
 
     def _suggested_reach_changed(self, current_item, _previous_item):
+        if current_item is None:
+            # No selection
+            self.widget.selectorWidget.set_feature(None)
+            return
+
         obj_id = current_item.data(Qt.UserRole)
         features = self.reach_layer.getFeatures(f"ws_obj_id = '{obj_id}'")
         try:
@@ -84,16 +89,20 @@ class ExaminationEditor(Editor):
 
     def _assign_button_clicked(self):
 
+        feature: QgsFeature = self.widget.selectorWidget.feature
+
+        if feature is None:
+            # selectorWidget was empty
+            return
+
         QGEP = get_qgep_model()
 
-        feature: QgsFeature = self.widget.selectorWidget.feature
         exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
             fk_wastewater_structure=feature["ws_obj_id"],
             fk_maintenance_event=self.obj.obj_id,
         )
         self.session.add(exam_to_wastewater_structure)
 
-        self.update_state()
         self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
@@ -106,7 +115,13 @@ class ExaminationEditor(Editor):
             .filter(QGEP.re_maintenance_event_wastewater_structure.fk_wastewater_structure == structure_id) \
             .delete()
 
-        self.validate()
+        # also uncheck relations that have not yet been flushed to DB
+        for rel in [i for i in self.session.new if isinstance(i, QGEP.re_maintenance_event_wastewater_structure)]:
+            if (rel.fk_maintenance_event == self.obj.obj_id and
+                rel.fk_wastewater_structure == structure_id):
+                if rel in self.main_dialog.editors:
+                    self.main_dialog.editors[rel].listitem.setCheckState(0, False)
+
         self.main_dialog.refresh_editor(self)
         self.main_dialog.update_tree()
 
@@ -114,9 +129,12 @@ class ExaminationEditor(Editor):
         QGEP = get_qgep_model()
         check_state = item.checkState(0)
         damage_id = item.data(0, Qt.UserRole)
-        for damage in self.session:
-            if isinstance(damage, QGEP.damage_channel) and damage.obj_id == damage_id:
-                self.main_dialog.editors[damage].listitem.setCheckState(0, check_state)
+        # print(f"damage {damage_id} should be {check_state}")
+        for obj, editor in self.main_dialog.editors.items():
+            if isinstance(obj, QGEP.damage_channel) and obj.obj_id == damage_id:
+                # Forward the check event to the main tree
+                # print(f"damage {damage_id} should be {check_state}")
+                editor.listitem.setCheckState(0, check_state)
                 break
 
     def _get_suggested_structures(self, inverted=False):
@@ -147,19 +165,20 @@ class ExaminationEditor(Editor):
 
         QGEP = get_qgep_model()
 
-        from_db = self.session.query(QGEP.wastewater_structure) \
+        structures_from_db = self.session.query(QGEP.wastewater_structure) \
             .join(QGEP.re_maintenance_event_wastewater_structure) \
             .filter(QGEP.re_maintenance_event_wastewater_structure.fk_maintenance_event == self.obj.obj_id)
 
-        in_session = [
-            inst
-            for inst
-            in self.main_dialog.editors.keys()
-            if isinstance(inst, QGEP.wastewater_structure) and inst.fk_maintenance_event == self.obj.obj_id
+        # also retrieve structures from relations that have not yet been flushed to DB
+        structures_in_session = [
+            self.session.query(QGEP.wastewater_structure).get(rel.fk_wastewater_structure)
+            for rel
+            in self.session
+            if isinstance(rel, QGEP.re_maintenance_event_wastewater_structure) and rel.fk_maintenance_event == self.obj.obj_id
         ]
 
         seen = set()
-        for instance in chain(in_session, from_db):
+        for instance in chain(structures_in_session, structures_from_db):
             if instance not in seen:
                 seen.add(instance)
                 yield instance
