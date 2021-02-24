@@ -69,7 +69,7 @@ class Gui(QDialog):
 
             if cls not in self.category_items:
                 self.category_items[cls].setText(0, cls.__name__)
-                self.category_items[cls].setCheckState(0, Qt.Checked)
+                # self.category_items[cls].setCheckState(0, Qt.Checked)  # for now we remove per class checkboxes
                 self.category_items[cls].setFont(0, QFont(QFont().defaultFamily(), weight=QFont.Weight.Bold))
                 self.treeWidget.addTopLevelItem(self.category_items[cls])
 
@@ -85,48 +85,54 @@ class Gui(QDialog):
 
     def item_changed(self, item, column):
         """
-        Propagate checkboxes to parent/children
+        Adds or removes item's object from session.
+
+        (propagation to parent/children is disabled for now)
         """
 
-        checked_state = item.checkState(0)
-
-        if checked_state == Qt.PartiallyChecked:
-            return
+        checked = item.checkState(0) == Qt.Checked
 
         # add or remove object from session
         obj = self.get_obj_from_listitem(item)
         if obj is not None:
-            if checked_state:
+            if checked:
                 self.session.add(obj)
             else:
                 self.session.expunge(obj)
 
-        # propagate to children
-        for child in [item.child(i) for i in range(item.childCount())]:
-            child.setCheckState(0, checked_state)
+        # For now we remove per class checkboxes
 
-        # propagate to parent
-        parent = item.parent()
-        if parent:
-            has_checked = False
-            has_unchecked = False
-            for sibling in [parent.child(i) for i in range(parent.childCount())]:
-                if sibling.checkState(0) == Qt.Checked:
-                    has_checked = True
-                if sibling.checkState(0) == Qt.Unchecked:
-                    has_unchecked = True
-                if has_checked and has_unchecked:
-                    break
+        # checked_state = item.checkState(0)
 
-            if has_checked and has_unchecked:
-                parent.setCheckState(0, Qt.PartiallyChecked)
-            elif has_checked:
-                parent.setCheckState(0, Qt.Checked)
-            elif has_unchecked:
-                parent.setCheckState(0, Qt.Unchecked)
-            else:
-                # no children at all !!
-                parent.setCheckState(0, Qt.PartiallyChecked)
+        # if checked_state == Qt.PartiallyChecked:
+        #     return
+
+        # # propagate to children
+        # for child in [item.child(i) for i in range(item.childCount())]:
+        #     child.setCheckState(0, checked_state)
+
+        # # propagate to parent
+        # parent = item.parent()
+        # if parent:
+        #     has_checked = False
+        #     has_unchecked = False
+        #     for sibling in [parent.child(i) for i in range(parent.childCount())]:
+        #         if sibling.checkState(0) == Qt.Checked:
+        #             has_checked = True
+        #         if sibling.checkState(0) == Qt.Unchecked:
+        #             has_unchecked = True
+        #         if has_checked and has_unchecked:
+        #             break
+
+        #     if has_checked and has_unchecked:
+        #         parent.setCheckState(0, Qt.PartiallyChecked)
+        #     elif has_checked:
+        #         parent.setCheckState(0, Qt.Checked)
+        #     elif has_unchecked:
+        #         parent.setCheckState(0, Qt.Unchecked)
+        #     else:
+        #         # no children at all !!
+        #         parent.setCheckState(0, Qt.PartiallyChecked)
 
     def current_item_changed(self, current_item, previous_item):
         """
