@@ -62,8 +62,8 @@ class Gui(QDialog):
             cls = obj.__class__
 
             # Hide unmodified value lists items that may have been added to the session
-            # if editor.status == Editor.EXISTING and cls.__table__.schema == 'qgep_vl':
-            #     continue
+            if editor.status == Editor.EXISTING and cls.__table__.schema == 'qgep_vl':
+                continue
 
             if cls not in self.category_items:
                 self.category_items[cls].setText(0, cls.__name__)
