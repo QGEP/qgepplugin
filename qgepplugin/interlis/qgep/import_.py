@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_dirty
 from sqlalchemy import inspect
 from geoalchemy2.functions import ST_Transform, ST_Force2D, ST_Force3D
 import warnings
@@ -80,6 +81,7 @@ def qgep_import(precommit_callback=None):
         if instance:
             # We found it -> update
             instance.__dict__.update(kwargs)
+            flag_dirty(instance)  # we flag it as dirty so it stays in the session
         else:
             # We didn't find it -> create
             instance = cls(**kwargs)
