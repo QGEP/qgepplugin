@@ -40,6 +40,8 @@ class Gui(QDialog):
         self.category_items = defaultdict(QTreeWidgetItem)  # keys are instances' classes
         self.editors = {}
 
+        self.debugGroupBox.setChecked(False)
+
         self.treeWidget.clear()
         self.update_tree()
 
