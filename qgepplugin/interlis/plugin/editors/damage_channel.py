@@ -18,9 +18,6 @@ class DamageChannelEditor(Editor):
         """
         Determines if the item must be initially checked. To be overriden by subclasses.
         """
-        print(f"Checking {self.obj.channel_damage_code__REL}")
         if self.obj.channel_damage_code__REL.value_en == "BCD":
-            print("no")
             return False
-        print("yes")
         return True
