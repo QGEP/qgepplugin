@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 from . import utils
@@ -18,10 +19,10 @@ from .qgep.model_abwasser import Base as BaseAbwasser
 def main(args):
 
     parser = argparse.ArgumentParser(description="ili2QWAT / ili2QGEP prototype entrypoint")
-    subparsers = parser.add_subparsers(title='subcommands')
+    subparsers = parser.add_subparsers(title='subcommands', dest='parser')
+    # subparsers.required = True
 
     parser_io = subparsers.add_parser('io', help='import/export XTF files')
-    parser_io.set_defaults(parser='io')
     parser_io.add_argument("--recreate_schema", action="store_true", help="drops schema and reruns ili2pg importschema")
     parser_io.add_argument("model", choices=["qgep", "qwat"], help="datamodel")
     group = parser_io.add_mutually_exclusive_group()
@@ -29,14 +30,16 @@ def main(args):
     group.add_argument("--export_xtf", help="output file")
 
     parser_tpl = subparsers.add_parser('tpl', help='generate code templates')
-    parser_tpl.set_defaults(parser='tpl')
     parser_setupdb = subparsers.add_parser('setupdb', help='setup test db')
     parser_setupdb.set_defaults(parser='setupdb')
     parser_setupdb.add_argument("type", choices=["empty", "full", "subset"], help="type")
 
     args = parser.parse_args(args)
 
-    if args.parser == 'io' and args.model == "qgep":
+    if not args.parser:
+        parser.print_help(sys.stderr)
+        exit(1)
+    elif args.parser == 'io' and args.model == "qgep":
         utils.ili2db.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
 
         if args.export_xtf:
