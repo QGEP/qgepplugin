@@ -15,8 +15,8 @@ def qgep_export():
     ABWASSER = get_abwasser_model()
 
     # TODO: use two different sessions for reading and writing as in qgep.import_
-    qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
-    abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    qgep_session = Session(utils.sqlalchemy.create_engine(logger_name="qgep"), autocommit=False, autoflush=False)
+    abwasser_session = Session(utils.sqlalchemy.create_engine(logger_name="abwasser"), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
     def get_tid(relation):

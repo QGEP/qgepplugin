@@ -1,5 +1,6 @@
 import sqlalchemy
 import pickle
+import logging
 import os
 from sqlalchemy.orm import interfaces
 
@@ -12,9 +13,17 @@ from sqlalchemy.ext.automap import (
 from .. import config
 
 
-def create_engine():
+def create_engine(logger_name=None):
+    logging_args = {}
+    if logger_name:
+        handler = logging.FileHandler(f'qgep_export.{logger_name}.log', mode="w")
+        handler.setLevel(logging.DEBUG)
+        logging.getLogger(f"sqlalchemy.engine.base.Engine.{logger_name}").addHandler(handler)
+        logging_args = {"logging_name": logger_name, "echo": True}
+
     return sqlalchemy.create_engine(
-        f"postgresql://{config.PGUSER}:{config.PGPASS}@{config.PGHOST}:5432/{config.PGDATABASE}"
+        f"postgresql://{config.PGUSER}:{config.PGPASS}@{config.PGHOST}:5432/{config.PGDATABASE}",
+        **logging_args
     )
 
 
