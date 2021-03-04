@@ -24,4 +24,4 @@ icon=icons/qgepIcon.svg
 experimental=True
 deprecated=False
 
-plugin_dependencies=qgismodelbaker>6.3.4
+plugin_dependencies=QGIS Model Baker>=v6.3.4
