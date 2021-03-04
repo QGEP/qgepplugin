@@ -49,6 +49,7 @@ class Gui(QDialog):
         self.treeWidget.currentItemChanged.connect(self.current_item_changed)
 
         # Execute the dialog
+        self.resize(iface.mainWindow().size() * 0.75)
         self.show()
 
     def update_tree(self):
