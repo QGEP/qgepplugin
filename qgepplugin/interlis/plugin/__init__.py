@@ -111,7 +111,7 @@ def configure_from_modelbaker(iface):
     Configures config.JAVA/ILI2PG paths using modelbaker.
     Returns whether modelbaker is available, and displays instructions if not.
     """
-    REQUIRED_VERSION = 'v6.2.0'  # TODO : update once https://github.com/opengisch/QgisModelBaker/pull/473 is released
+    REQUIRED_VERSION = 'v6.4.0'  # TODO : update once https://github.com/opengisch/QgisModelBaker/pull/473 is released
     modelbaker = plugins.get('QgisModelBaker')
     if modelbaker is None:
         iface.messageBar().pushMessage(
