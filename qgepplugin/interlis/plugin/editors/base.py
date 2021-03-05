@@ -56,6 +56,8 @@ class Editor():
         self.session = session
         self.obj = obj
 
+        self.preprocess()
+
         self.update_state()
 
     @property
@@ -101,6 +103,12 @@ class Editor():
             loadUi(os.path.join(os.path.dirname(__file__), self.widget_name), self._widget)
             self.init_widget()
         return self._widget
+
+    def preprocess(self):
+        """
+        Run some preprocessing steps (such as auto-assigning data)... To be overriden by subclasses.
+        """
+        pass
 
     def init_widget(self):
         """

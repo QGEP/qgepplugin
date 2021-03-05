@@ -16,6 +16,21 @@ class ExaminationEditor(Editor):
     class_name = 'examination'
     widget_name = 'examination.ui'
 
+    def preprocess(self):
+        # We auto assign all examinations that have exactly one suggested structure,
+        # as 99% of the time, this will be a good match
+
+        QGEP = get_qgep_model()
+        suggested_structures = list(self._get_suggested_structures(inverted=False)) + list(self._get_suggested_structures(inverted=True))
+        if len(suggested_structures) == 1:
+            assigned_structure = suggested_structures[0]
+
+            exam_to_wastewater_structure = QGEP.re_maintenance_event_wastewater_structure(
+                fk_wastewater_structure=assigned_structure.obj_id,
+                fk_maintenance_event=self.obj.obj_id,
+            )
+            self.session.add(exam_to_wastewater_structure)
+
     def init_widget(self):
         self.reach_layer = QgsProject.instance().mapLayersByName("vw_qgep_reach")[0]
         self.widget.selectorWidget.set_layer(self.reach_layer)
