@@ -72,7 +72,6 @@ class TestQGEPUseCases(unittest.TestCase):
         session.close()
 
     # @unittest.skip("...")
-    @unittest.expectedFailure  # TODO : CURRENTLY FAILS BECAUSE OF https://github.com/claeis/ili2db/issues/381#issuecomment-777355799
     def test_case_b_export_complete_qgep_to_xtf(self):
         """
         # B. export the whole QGEP model to interlis
