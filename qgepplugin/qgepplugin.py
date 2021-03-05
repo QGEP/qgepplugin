@@ -121,7 +121,7 @@ class QgepPlugin(object):
             del self.logger.qgepFileHandler
 
         current_handlers = [h.__class__.__name__ for h in self.logger.handlers]
-        if self.__class__.__name__ not in current_handlers:
+        if "QgepQgsLogHandler" not in current_handlers:
             self.logger.addHandler(QgepQgsLogHandler())
 
         if logfile:
