@@ -44,6 +44,16 @@ def action_import(plugin):
     progress_dialog.setModal(True)
     progress_dialog.show()
 
+    # Validating the input file
+    progress_dialog.setLabelText("Validating the input file...")
+    QApplication.processEvents()
+    try:
+        validate_xtf_data(file_name)
+    except Exception:
+        progress_dialog.close()
+        QMessageBox.critical(None, "Invalid file", "The selected file is not a valid XTF file. Open the logs for more details on the error.")
+        return
+
     # Prepare the temporary ili2pg model
     progress_dialog.setLabelText("Creating ili schema...")
     QApplication.processEvents()
