@@ -129,11 +129,9 @@ class ExaminationEditor(Editor):
         QGEP = get_qgep_model()
         check_state = item.checkState(0)
         damage_id = item.data(0, Qt.UserRole)
-        # print(f"damage {damage_id} should be {check_state}")
         for obj, editor in self.main_dialog.editors.items():
             if isinstance(obj, QGEP.damage_channel) and obj.obj_id == damage_id:
                 # Forward the check event to the main tree
-                # print(f"damage {damage_id} should be {check_state}")
                 editor.listitem.setCheckState(0, check_state)
                 break
 

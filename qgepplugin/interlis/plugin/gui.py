@@ -154,7 +154,6 @@ class Gui(QDialog):
         """
         Refreshes the widget for the object, including validation, debug and status text
         """
-        print(f"CALLED refresh_editor (editor: {editor})")
         # Revalidate the widget
         editor.update_state()
 
