@@ -17,7 +17,9 @@ from ..qgep.export import qgep_export
 from .gui import Gui
 
 from .. import config
-from ..utils.ili2db import create_ili_schema, import_xtf_data, export_xtf_data
+from ..utils.various import logger
+from ..utils.ili2db import create_ili_schema, import_xtf_data, export_xtf_data, validate_xtf_data
+
 
 import_dialog = None
 
@@ -143,9 +145,11 @@ def configure_from_modelbaker(iface):
     # Maybe we could reuse even more (IliExecutable...) ?
 
     stdout = SimpleNamespace()
-    stdout.emit = print
+    stdout.emit = logger.info
+    stderr = SimpleNamespace()
+    stderr.emit = logger.error
 
     config.JAVA = ili2dbutils.get_java_path(ili2dbconfig.BaseConfiguration())
-    config.ILI2PG = ili2dbutils.get_ili2db_bin(globals.DbIliMode.ili2pg, 4, stdout, stdout)
+    config.ILI2PG = ili2dbutils.get_ili2db_bin(globals.DbIliMode.ili2pg, 4, stdout, stderr)
 
     return True

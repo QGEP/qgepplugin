@@ -4,12 +4,15 @@ import subprocess
 import time
 import collections
 import sys
+import logging
 
 from .. import config
 
+logger = logging.getLogger(__package__)
+
 
 def exec_(command, check=True, silent=False):
-    print(f"EXECUTING: {command}")
+    logger.info(f"EXECUTING: {command}")
     try:
         proc = subprocess.run(
             command,
@@ -20,7 +23,7 @@ def exec_(command, check=True, silent=False):
         )
     except subprocess.CalledProcessError as e:
         if check:
-            print(e.output.decode('windows-1252' if os.name == 'nt' else 'utf-8'))
+            logger.exception(e.output.decode('windows-1252' if os.name == 'nt' else 'utf-8'))
             raise Exception(f"Command errored ! See logs for more info.")
         return e.returncode
     return proc.returncode
@@ -40,10 +43,10 @@ def setup_test_db(template="full"):
     def dexec_(cmd):
         return exec_(f"docker exec qgepqwat {cmd}")
 
-    print("SETTING UP QGEP/QWAT DATABASE...")
+    logger.info("SETTING UP QGEP/QWAT DATABASE...")
     r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False, silent=True)
     if r != 0:
-        print("Test container not running, we create it")
+        logger.info("Test container not running, we create it")
 
         exec_(f"docker run -d --rm -v qgepqwat_db:/var/lib/postgresql/data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis")
 
@@ -59,7 +62,7 @@ def setup_test_db(template="full"):
 
         # Wait for PG
         while exec_("docker exec qgepqwat pg_isready", check=False, silent=True) != 0:
-            print("Postgres not ready... we wait...")
+            logger.info("Postgres not ready... we wait...")
             time.sleep(1)
 
         # Creating the template DB with empty structure
@@ -94,14 +97,14 @@ def setup_test_db(template="full"):
             )
             for row in cursor.fetchall():
                 table, column = row
-                print(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
-                print(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
+                logger.info(f"KEEPING ONLY A SUBSET OF {schema}.{table} (this can take a while)...")
+                logger.info(f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;")
                 try:
                     cursor.execute(
                         f"DELETE FROM {schema}.{table} WHERE ({column} && ST_MakeEnvelope(2750260.6, 1264318.8, 2750335.0,1264367.7, 2056)) = FALSE;"
                     )
                 except psycopg2.errors.ForeignKeyViolation as e:
-                    print(f"Exception {e} !! we still continue...")
+                    logger.warning(f"Exception {e} !! we still continue...")
                     pass
 
             if schema == 'qgep_od':
@@ -128,4 +131,3 @@ def capfirst(s):
 
 def invert_dict(d):
     return {v: k for k, v in d.items()}
-

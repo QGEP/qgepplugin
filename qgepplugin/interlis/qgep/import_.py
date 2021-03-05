@@ -11,6 +11,7 @@ from .. import utils
 from .model_qgep import get_qgep_model
 from .model_abwasser import get_abwasser_model
 
+from ..utils.various import logger
 
 def qgep_import(precommit_callback=None):
     """
@@ -174,7 +175,7 @@ def qgep_import(precommit_callback=None):
             "renovation_demand__REL": get_vl_instance(QGEP.structure_part_renovation_demand, row.instandstellung),
         }
 
-    print("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
+    logger.info("Importing ABWASSER.organisation, ABWASSER.metaattribute -> QGEP.organisation")
     for row, metaattribute in abwasser_session.query(ABWASSER.organisation, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # TODO : this may create multiple copies of the same organisation in certain circumstances.
         # Ideally we don't want to flush so we can review organisation creation like any other
@@ -192,9 +193,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(organisation)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.kanal, ABWASSER.metaattribute -> QGEP.channel")
+    logger.info("Importing ABWASSER.kanal, ABWASSER.metaattribute -> QGEP.channel")
     for row, metaattribute in abwasser_session.query(ABWASSER.kanal, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN kanal
@@ -245,9 +246,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(channel)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.normschacht, ABWASSER.metaattribute -> QGEP.manhole")
+    logger.info("Importing ABWASSER.normschacht, ABWASSER.metaattribute -> QGEP.manhole")
     for row, metaattribute in abwasser_session.query(ABWASSER.normschacht, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN normschacht
@@ -295,9 +296,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(manhole)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.einleitstelle, ABWASSER.metaattribute -> QGEP.discharge_point")
+    logger.info("Importing ABWASSER.einleitstelle, ABWASSER.metaattribute -> QGEP.discharge_point")
     for row, metaattribute in abwasser_session.query(ABWASSER.einleitstelle, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einleitstelle
@@ -345,9 +346,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(discharge_point)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.spezialbauwerk, ABWASSER.metaattribute -> QGEP.special_structure")
+    logger.info("Importing ABWASSER.spezialbauwerk, ABWASSER.metaattribute -> QGEP.special_structure")
     for row, metaattribute in abwasser_session.query(ABWASSER.spezialbauwerk, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN spezialbauwerk
@@ -394,9 +395,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(special_structure)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.versickerungsanlage, ABWASSER.metaattribute -> QGEP.infiltration_installation")
+    logger.info("Importing ABWASSER.versickerungsanlage, ABWASSER.metaattribute -> QGEP.infiltration_installation")
     for row, metaattribute in abwasser_session.query(ABWASSER.versickerungsanlage, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN versickerungsanlage
@@ -452,9 +453,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(infiltration_installation)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.rohrprofil, ABWASSER.metaattribute -> QGEP.pipe_profile")
+    logger.info("Importing ABWASSER.rohrprofil, ABWASSER.metaattribute -> QGEP.pipe_profile")
     for row, metaattribute in abwasser_session.query(ABWASSER.rohrprofil, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN rohrprofil
@@ -491,9 +492,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(pipe_profile)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.haltungspunkt, ABWASSER.metaattribute -> QGEP.reach_point")
+    logger.info("Importing ABWASSER.haltungspunkt, ABWASSER.metaattribute -> QGEP.reach_point")
     for row, metaattribute in abwasser_session.query(ABWASSER.haltungspunkt, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN haltungspunkt
@@ -537,9 +538,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(reach_point)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.abwasserknoten, ABWASSER.metaattribute -> QGEP.wastewater_node")
+    logger.info("Importing ABWASSER.abwasserknoten, ABWASSER.metaattribute -> QGEP.wastewater_node")
     for row, metaattribute in abwasser_session.query(ABWASSER.abwasserknoten, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN abwasserknoten
@@ -585,9 +586,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(wastewater_node)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.haltung, ABWASSER.metaattribute -> QGEP.reach")
+    logger.info("Importing ABWASSER.haltung, ABWASSER.metaattribute -> QGEP.reach")
     for row, metaattribute in abwasser_session.query(ABWASSER.haltung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN haltung
@@ -647,9 +648,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(reach)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute -> QGEP.dryweather_downspout")
+    logger.info("Importing ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute -> QGEP.dryweather_downspout")
     for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterfallrohr
@@ -692,9 +693,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(dryweather_downspout)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.einstiegshilfe, ABWASSER.metaattribute -> QGEP.access_aid")
+    logger.info("Importing ABWASSER.einstiegshilfe, ABWASSER.metaattribute -> QGEP.access_aid")
     for row, metaattribute in abwasser_session.query(ABWASSER.einstiegshilfe, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN einstiegshilfe
@@ -737,9 +738,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(access_aid)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.trockenwetterrinne, ABWASSER.metaattribute -> QGEP.dryweather_flume")
+    logger.info("Importing ABWASSER.trockenwetterrinne, ABWASSER.metaattribute -> QGEP.dryweather_flume")
     for row, metaattribute in abwasser_session.query(ABWASSER.trockenwetterrinne, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN trockenwetterrinne
@@ -782,9 +783,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(dryweather_flume)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.deckel, ABWASSER.metaattribute -> QGEP.cover")
+    logger.info("Importing ABWASSER.deckel, ABWASSER.metaattribute -> QGEP.cover")
     for row, metaattribute in abwasser_session.query(ABWASSER.deckel, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN deckel
@@ -836,9 +837,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(cover)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.bankett, ABWASSER.metaattribute -> QGEP.benching")
+    logger.info("Importing ABWASSER.bankett, ABWASSER.metaattribute -> QGEP.benching")
     for row, metaattribute in abwasser_session.query(ABWASSER.bankett, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         # AVAILABLE FIELDS IN bankett
@@ -881,13 +882,13 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(benching)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
     ########################################
     # VSA_KEK classes
     ########################################
 
-    print("Importing ABWASSER.untersuchung, ABWASSER.metaattribute -> QGEP.examination")
+    logger.info("Importing ABWASSER.untersuchung, ABWASSER.metaattribute -> QGEP.examination")
     for row, metaattribute in abwasser_session.query(ABWASSER.untersuchung, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
 
         warnings.warn("QGEP examination.active_zone has no equivalent in the interlis model. This field will be null.")
@@ -940,9 +941,9 @@ def qgep_import(precommit_callback=None):
             qgep_session.add(exam_to_wastewater_structure)
 
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.normschachtschaden, ABWASSER.metaattribute -> QGEP.damage_manhole")
+    logger.info("Importing ABWASSER.normschachtschaden, ABWASSER.metaattribute -> QGEP.damage_manhole")
     for row, metaattribute in abwasser_session.query(ABWASSER.normschachtschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # Note : in QGEP, some attributes are on the base damage class,
         # while they are on the normschachtschaden/kanalschaden subclasses
@@ -973,9 +974,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(damage_manhole)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.kanalschaden, ABWASSER.metaattribute -> QGEP.damage_channel")
+    logger.info("Importing ABWASSER.kanalschaden, ABWASSER.metaattribute -> QGEP.damage_channel")
     for row, metaattribute in abwasser_session.query(ABWASSER.kanalschaden, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         # Note : in QGEP, some attributes are on the base damage class,
         # while they are on the normschachtschaden/kanalschaden subclasses
@@ -1003,9 +1004,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(damage_channel)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
+    logger.info("Importing ABWASSER.datentraeger, ABWASSER.metaattribute -> QGEP.data_media")
     for row, metaattribute in abwasser_session.query(ABWASSER.datentraeger, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         data_media = create_or_update(QGEP.data_media,
             **base_common(row),
@@ -1019,9 +1020,9 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(data_media)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
-    print("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
+    logger.info("Importing ABWASSER.datei, ABWASSER.metaattribute -> QGEP.file")
     for row, metaattribute in abwasser_session.query(ABWASSER.datei, ABWASSER.metaattribute).join(ABWASSER.metaattribute):
         file = create_or_update(QGEP.file,
             **base_common(row),
@@ -1038,7 +1039,7 @@ def qgep_import(precommit_callback=None):
         )
         qgep_session.add(file)
         print(".", end="")
-    print("done")
+    logger.info("done")
 
     # Recreate the triggers
     # qgep_session.execute('SELECT qgep_sys.create_symbology_triggers();')

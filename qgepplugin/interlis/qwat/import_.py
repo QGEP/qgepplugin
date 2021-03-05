@@ -6,6 +6,7 @@ from .. import utils
 from .model_qwat import get_qwat_model
 from .model_wasser import get_wasser_model
 
+from ..utils.various import logger
 
 def qwat_import():
 
@@ -15,7 +16,7 @@ def qwat_import():
     # TODO: use two different sessions for reading and writing as in qgep.import_
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
 
-    print("Importing WASSER.hydraulischer_knoten -> QWAT.node")
+    logger.info("Importing WASSER.hydraulischer_knoten -> QWAT.node")
     for row in session.query(WASSER.hydraulischer_knoten):
         # AVAILABLE FIELDS IN WASSER.hydraulischer_knoten
 
@@ -49,10 +50,10 @@ def qwat_import():
         )
         session.add(node)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Importing WASSER.hydraulischer_knoten, WASSER.hydrant -> QWAT.hydrant")
+    logger.info("Importing WASSER.hydraulischer_knoten, WASSER.hydrant -> QWAT.hydrant")
     for row in session.query(WASSER.hydraulischer_knoten):
         # TODO : somehow join WASSER.hydrant
         # AVAILABLE FIELDS IN WASSER.hydraulischer_knoten
@@ -124,10 +125,10 @@ def qwat_import():
         )
         session.add(hydrant)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Importing WASSER.hydraulischer_knoten, WASSER.wasserbehaelter -> QWAT.tank")
+    logger.info("Importing WASSER.hydraulischer_knoten, WASSER.wasserbehaelter -> QWAT.tank")
     for row in session.query(WASSER.hydraulischer_knoten):
         # TODO : somehow join WASSER.wasserbehaelter
         # AVAILABLE FIELDS IN WASSER.hydraulischer_knoten
@@ -217,10 +218,10 @@ def qwat_import():
         )
         session.add(tank)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Importing WASSER.hydraulischer_knoten, WASSER.foerderanlage -> QWAT.pump")
+    logger.info("Importing WASSER.hydraulischer_knoten, WASSER.foerderanlage -> QWAT.pump")
     for row in session.query(WASSER.hydraulischer_knoten):
         # TODO : somehow join WASSER.foerderanlage
         # AVAILABLE FIELDS IN WASSER.hydraulischer_knoten
@@ -296,10 +297,10 @@ def qwat_import():
         )
         session.add(pump)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Importing WASSER.hydraulischer_strang, WASSER.leitung -> QWAT.pipe")
+    logger.info("Importing WASSER.hydraulischer_strang, WASSER.leitung -> QWAT.pipe")
     for row in session.query(WASSER.hydraulischer_strang):
         # TODO : somehow join WASSER.leitung
         # AVAILABLE FIELDS IN WASSER.hydraulischer_strang
@@ -365,5 +366,5 @@ def qwat_import():
         )
         session.add(pipe)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()

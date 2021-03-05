@@ -7,7 +7,7 @@ import collections
 from sqlalchemy.ext.automap import AutomapBase
 
 from .. import config
-from .various import exec_
+from .various import logger, exec_
 
 
 def _log_path(name):
@@ -16,7 +16,7 @@ def _log_path(name):
 
 
 def create_ili_schema(schema, model, recreate_schema=False):
-    print("CONNECTING TO DATABASE...")
+    logger.info("CONNECTING TO DATABASE...")
     connection = psycopg2.connect(
         f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}"
     )
@@ -27,30 +27,30 @@ def create_ili_schema(schema, model, recreate_schema=False):
         # If the schema already exists, we just truncate all tables
         cursor.execute(f"SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{schema}';")
         if cursor.rowcount > 0:
-            print(f"Schema {schema} already exists, we truncate instead")
+            logger.info(f"Schema {schema} already exists, we truncate instead")
             cursor.execute(f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}';")
             for row in cursor.fetchall():
                 cursor.execute(f"TRUNCATE TABLE {schema}.{row[0]} CASCADE;")
             return
 
-    print(f"DROPPING THE SCHEMA {schema}...")
+    logger.info(f"DROPPING THE SCHEMA {schema}...")
     cursor.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE ;')
-    print(f"CREATING THE SCHEMA {schema}...")
+    logger.info(f"CREATING THE SCHEMA {schema}...")
     cursor.execute(f'CREATE SCHEMA "{schema}";')
     connection.commit()
     connection.close()
 
-    print(f"ILIDB SCHEMAIMPORT INTO {schema}...")
+    logger.info(f"ILIDB SCHEMAIMPORT INTO {schema}...")
     exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log {_log_path("create")} --nameLang de {model}')
 
 
 def validate_xtf_data(xtf_file):
-    print("VALIDATING XTF DATA...")
+    logger.info("VALIDATING XTF DATA...")
     exec_(f'"{config.JAVA}" -jar {config.ILIVALIDATOR} --modeldir {config.ILI_FOLDER} {xtf_file}')
 
 
 def import_xtf_data(schema, xtf_file):
-    print("IMPORTING XTF DATA...")
+    logger.info("IMPORTING XTF DATA...")
     exec_(
         f'"{config.JAVA}" -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("import")} {xtf_file}'
     )
@@ -58,7 +58,7 @@ def import_xtf_data(schema, xtf_file):
 
 def export_xtf_data(schema, model_name, xtf_file):
 
-    print("EXPORT ILIDB...")
+    logger.info("EXPORT ILIDB...")
 
     exec_(
         f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
@@ -85,5 +85,5 @@ class TidMaker:
         tid = self._autoincrementer[key]
         # if was_created:
         #     # just for debugging
-        #     print(f"created tid {tid} for {key}")
+        #     logger.info(f"created tid {tid} for {key}")
         return tid

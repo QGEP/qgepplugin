@@ -6,6 +6,7 @@ from .. import utils
 from .model_qwat import get_qwat_model
 from .model_wasser import get_wasser_model
 
+from ..utils.various import logger
 
 def qwat_export():
 
@@ -16,7 +17,7 @@ def qwat_export():
     session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute="id")
 
-    print("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
+    logger.info("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
     # Some QWAT.node are abstract (have entries for subclasses, such as hydrant) and some are concrete (no subclass entry).
     # Here's we just insert the concrete ones, the abstract ones will be inserted later.
     # TODO : can't sqlalchemy manage this ? tried with session.merge instead of session.add, but it doesn't work
@@ -64,10 +65,10 @@ def qwat_export():
         )
         session.add(hydraulischer_knoten)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Exporting QWAT.hydrant -> WASSER.hydraulischer_knoten, WASSER.hydrant")
+    logger.info("Exporting QWAT.hydrant -> WASSER.hydraulischer_knoten, WASSER.hydrant")
     for row in session.query(QWAT.hydrant):
         # AVAILABLE FIELDS IN QWAT.hydrant
 
@@ -133,10 +134,10 @@ def qwat_export():
         )
         session.add(hydrant)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Exporting QWAT.tank -> WASSER.hydraulischer_knoten, WASSER.wasserbehaelter")
+    logger.info("Exporting QWAT.tank -> WASSER.hydraulischer_knoten, WASSER.wasserbehaelter")
     for row in session.query(QWAT.tank):
         # AVAILABLE FIELDS IN QWAT.tank
 
@@ -205,10 +206,10 @@ def qwat_export():
         )
         session.add(wasserbehaelter)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Exporting QWAT.pump -> WASSER.hydraulischer_knoten, WASSER.foerderanlage")
+    logger.info("Exporting QWAT.pump -> WASSER.hydraulischer_knoten, WASSER.foerderanlage")
     for row in session.query(QWAT.pump):
         # AVAILABLE FIELDS IN QWAT.pump
 
@@ -271,10 +272,10 @@ def qwat_export():
         )
         session.add(foerderanlage)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()
 
-    print("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
+    logger.info("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
     for row in session.query(QWAT.pipe):
         # AVAILABLE FIELDS IN QWAT.pipe
 
@@ -351,5 +352,5 @@ def qwat_export():
         )
         session.add(leitung)
         print(".", end="")
-    print("done")
+    logger.info("done")
     session.commit()

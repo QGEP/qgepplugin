@@ -8,6 +8,8 @@ from .. import utils
 from .model_qgep import get_qgep_model
 from .model_abwasser import get_abwasser_model
 
+from ..utils.various import logger
+
 
 def qgep_export():
 
@@ -114,7 +116,7 @@ def qgep_export():
 
     # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
 
-    print("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.organisation):
 
         # AVAILABLE FIELDS IN QGEP.organisation
@@ -143,10 +145,10 @@ def qgep_export():
         abwasser_session.add(organisation)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.channel -> ABWASSER.kanal, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.channel -> ABWASSER.kanal, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.channel):
 
         # AVAILABLE FIELDS IN QGEP.channel
@@ -184,10 +186,10 @@ def qgep_export():
         abwasser_session.add(kanal)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.manhole -> ABWASSER.normschacht, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.manhole -> ABWASSER.normschacht, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.manhole):
         normschacht = ABWASSER.normschacht(
             # --- baseclass ---
@@ -207,10 +209,10 @@ def qgep_export():
         abwasser_session.add(normschacht)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.discharge_point):
         einleitstelle = ABWASSER.einleitstelle(
 
@@ -230,10 +232,10 @@ def qgep_export():
         abwasser_session.add(einleitstelle)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.special_structure -> ABWASSER.spezialbauwerk, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.special_structure -> ABWASSER.spezialbauwerk, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.special_structure):
 
         # AVAILABLE FIELDS IN QGEP.special_structure
@@ -270,10 +272,10 @@ def qgep_export():
         abwasser_session.add(spezialbauwerk)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.infiltration_installation -> ABWASSER.versickerungsanlage, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.infiltration_installation -> ABWASSER.versickerungsanlage, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.infiltration_installation):
 
         # AVAILABLE FIELDS IN QGEP.infiltration_installation
@@ -319,10 +321,10 @@ def qgep_export():
         abwasser_session.add(versickerungsanlage)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.pipe_profile -> ABWASSER.rohrprofil, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.pipe_profile -> ABWASSER.rohrprofil, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.pipe_profile):
 
         # AVAILABLE FIELDS IN QGEP.pipe_profile
@@ -352,10 +354,10 @@ def qgep_export():
         abwasser_session.add(rohrprofil)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.reach_point -> ABWASSER.haltungspunkt, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.reach_point -> ABWASSER.haltungspunkt, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.reach_point):
 
         # AVAILABLE FIELDS IN QGEP.reach_point
@@ -389,10 +391,10 @@ def qgep_export():
         abwasser_session.add(haltungspunkt)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.wastewater_node -> ABWASSER.abwasserknoten, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.wastewater_node -> ABWASSER.abwasserknoten, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.wastewater_node):
 
         # AVAILABLE FIELDS IN QGEP.wastewater_node
@@ -428,10 +430,10 @@ def qgep_export():
         abwasser_session.add(abwasserknoten)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.reach -> ABWASSER.haltung, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.reach -> ABWASSER.haltung, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.reach):
 
         # AVAILABLE FIELDS IN QGEP.reach
@@ -481,10 +483,10 @@ def qgep_export():
         abwasser_session.add(haltung)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.dryweather_downspout -> ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.dryweather_downspout -> ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.dryweather_downspout):
 
         # AVAILABLE FIELDS IN QGEP.dryweather_downspout
@@ -517,10 +519,10 @@ def qgep_export():
         abwasser_session.add(trockenwetterfallrohr)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.access_aid -> ABWASSER.einstiegshilfe, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.access_aid -> ABWASSER.einstiegshilfe, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.access_aid):
 
         # AVAILABLE FIELDS IN QGEP.access_aid
@@ -553,10 +555,10 @@ def qgep_export():
         abwasser_session.add(einstiegshilfe)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.dryweather_flume -> ABWASSER.trockenwetterrinne, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.dryweather_flume -> ABWASSER.trockenwetterrinne, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.dryweather_flume):
 
         # AVAILABLE FIELDS IN QGEP.dryweather_flume
@@ -589,10 +591,10 @@ def qgep_export():
         abwasser_session.add(trockenwetterrinne)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.cover -> ABWASSER.deckel, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.cover -> ABWASSER.deckel, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.cover):
 
         # AVAILABLE FIELDS IN QGEP.cover
@@ -634,10 +636,10 @@ def qgep_export():
         abwasser_session.add(deckel)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.benching -> ABWASSER.bankett, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.benching -> ABWASSER.bankett, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.benching):
 
         # AVAILABLE FIELDS IN QGEP.benching
@@ -673,10 +675,10 @@ def qgep_export():
         abwasser_session.add(bankett)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.examination -> ABWASSER.untersuchung, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.examination -> ABWASSER.untersuchung, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.examination):
 
         # AVAILABLE FIELDS IN QGEP.examination
@@ -729,10 +731,10 @@ def qgep_export():
         abwasser_session.add(untersuchung)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.damage_manhole):
 
         # AVAILABLE FIELDS IN QGEP.damage_manhole
@@ -776,10 +778,10 @@ def qgep_export():
         abwasser_session.add(normschachtschaden)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.damage_channel):
 
         # AVAILABLE FIELDS IN QGEP.damage_channel
@@ -823,10 +825,10 @@ def qgep_export():
         abwasser_session.add(kanalschaden)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.data_media -> ABWASSER.datentraeger, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.data_media -> ABWASSER.datentraeger, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.data_media):
 
         # AVAILABLE FIELDS IN QGEP.data_media
@@ -854,10 +856,10 @@ def qgep_export():
         abwasser_session.add(datentraeger)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
-    print("Exporting QGEP.file -> ABWASSER.datei, ABWASSER.metaattribute")
+    logger.info("Exporting QGEP.file -> ABWASSER.datei, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.file):
 
         # AVAILABLE FIELDS IN QGEP.file
@@ -890,7 +892,7 @@ def qgep_export():
         abwasser_session.add(datei)
         create_metaattributes(row)
         print(".", end="")
-    print("done")
+    logger.info("done")
     abwasser_session.flush()
 
     abwasser_session.commit()
