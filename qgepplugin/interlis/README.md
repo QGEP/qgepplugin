@@ -15,7 +15,9 @@ optional arguments:
   --import_xtf IMPORT_XTF   input file
   --export_xtf EXPORT_XTF   output file
   --gen_tpl                 generate code templates
-  --recreate_schema          drops schema and reruns ili2pg importschema
+  --recreate_schema         drops schema and reruns ili2pg importschema
+  --skip_validation         skips running ilivalidator on input/output xtf (required to
+                            import invalid files, invalid outputs are still generated)
 ```
 
 ## Using in QGIS

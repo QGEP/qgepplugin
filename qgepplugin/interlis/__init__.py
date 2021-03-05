@@ -24,6 +24,7 @@ def main(args):
 
     parser_io = subparsers.add_parser('io', help='import/export XTF files')
     parser_io.add_argument("--recreate_schema", action="store_true", help="drops schema and reruns ili2pg importschema")
+    parser_io.add_argument("--skip_validation", action="store_true", help="skips running ilivalidator on input/output xtf (required to import invalid files, invalid outputs are still generated)")
     parser_io.add_argument("model", choices=["qgep", "qwat"], help="datamodel")
     group = parser_io.add_mutually_exclusive_group()
     group.add_argument("--import_xtf", help="input file")
@@ -39,25 +40,32 @@ def main(args):
     if not args.parser:
         parser.print_help(sys.stderr)
         exit(1)
-    elif args.parser == 'io' and args.model == "qgep":
-        utils.ili2db.create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
+    elif args.parser == 'io':
+        SCHEMA = config.ABWASSER_SCHEMA if args.model == "qgep" else config.WASSER_SCHEMA
+        ILI_MODEL = config.ABWASSER_ILI_MODEL if args.model == "qgep" else config.WASSER_ILI_MODEL
+        ILI_MODEL_NAME = config.ABWASSER_ILI_MODEL_NAME if args.model == "qgep" else config.WASSER_ILI_MODEL_NAME
+        export_f = qgep_export if args.model == "qgep" else qwat_export
+        import_f = qgep_import if args.model == "qgep" else qwat_import
 
         if args.export_xtf:
-            qgep_export()
-            utils.ili2db.export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, args.export_xtf)
-        elif args.import_xtf:
-            utils.ili2db.import_xtf_data(config.ABWASSER_SCHEMA, args.import_xtf)
-            qgep_import()
+            utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
+            export_f()
+            utils.ili2db.export_xtf_data(SCHEMA, ILI_MODEL_NAME, args.export_xtf)
+            if not args.skip_validation:
+                try:
+                    utils.ili2db.validate_xtf_data(args.export_xtf)
+                except Exception:
+                    exit(1)
 
-    elif args.parser == 'io' and args.model == "qwat":
-        utils.ili2db.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=args.recreate_schema)
-
-        if args.export_xtf:
-            qwat_export()
-            utils.ili2db.export_xtf_data(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL_NAME, args.export_xtf)
         elif args.import_xtf:
-            utils.ili2db.import_xtf_data(config.WASSER_SCHEMA, args.import_xtf)
-            qwat_import()
+            if not args.skip_validation:
+                try:
+                    utils.ili2db.validate_xtf_data(args.import_xtf)
+                except Exception:
+                    exit(1)
+            utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
+            utils.ili2db.import_xtf_data(SCHEMA, args.import_xtf)
+            import_f()
 
     elif args.parser == 'tpl':
         utils.ili2db.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=True)
