@@ -12,4 +12,5 @@ Error:     ERROR: value too long for type character varying(20)
 java.lang.NullPointerException
 ```
 
-After changing the .ili files (regex replacing `TEXT\*([0-9]+);` by `TEXT*255` ,still easier than replace in the .xtf :-) ), ili2pg works (but our import fails :-( ).
+Requires some cleanup, as there are strings that are too long. Shortening them (with some smart regep like
+`<Bezeichnung>(.{0,20}).?</Bezeichnung>` -> `<Bezeichnung>$1</Bezeichnung>`) doesn't work as then there are some duplicates.
