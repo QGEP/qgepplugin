@@ -6,7 +6,7 @@ from qgis.core import Qgis
 
 import os
 
-from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QProgressDialog
+from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QProgressDialog, QMessageBox
 
 from qgis.core import QgsProject, QgsSettings
 
