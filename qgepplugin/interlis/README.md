@@ -1,23 +1,37 @@
 # ili2QWAT / ili2QGEP prototype
 
 ## General usage
+
+Import/export
 ```
-python -m interlis [-h]
-                   [--import_xtf IMPORT_XTF | --export_xtf EXPORT_XTF | --gen_tpl]
-                   [--recreate_schema]
-                   {qgep,qwat}
+usage: python -m qgepplugin.interlis io [-h] [--recreate_schema] [--skip_validation]
+                                        [--import_xtf IMPORT_XTF | --export_xtf EXPORT_XTF]
+                                        {qgep,qwat}
 
 positional arguments:
-  {qgep,qwat}               datamodel
+  {qgep,qwat}           datamodel
 
 optional arguments:
-  -h, --help                show this help message and exit
-  --import_xtf IMPORT_XTF   input file
-  --export_xtf EXPORT_XTF   output file
-  --gen_tpl                 generate code templates
-  --recreate_schema         drops schema and reruns ili2pg importschema
-  --skip_validation         skips running ilivalidator on input/output xtf (required to
-                            import invalid files, invalid outputs are still generated)
+  -h, --help            show this help message and exit
+  --recreate_schema     drops schema and reruns ili2pg importschema
+  --skip_validation     skips running ilivalidator on input/output xtf
+                        (required to import invalid files, invalid outputs are
+                        still generated)
+  --import_xtf IMPORT_XTF
+                        input file
+  --export_xtf EXPORT_XTF
+                        output file
+```
+
+Setting up a test database
+```
+usage: python -m qgepplugin.interlis setupdb [-h] {empty,full,subset}
+
+positional arguments:
+  {empty,full,subset}  type
+
+optional arguments:
+  -h, --help           show this help message and exit
 ```
 
 ## Using in QGIS
