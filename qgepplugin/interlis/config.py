@@ -2,10 +2,12 @@ import os
 
 BASE = os.path.dirname(__file__)
 
-PGHOST = "127.0.0.1"
-PGDATABASE = "qgep_prod"
-PGUSER = "postgres"
-PGPASS = "postgres"
+PGSERVICE = "pg_qgep"  # overriden by PG* settings below
+PGHOST = None
+PGPORT = None
+PGDATABASE = None
+PGUSER = None
+PGPASS = None
 JAVA = r"java"
 ILI2PG = os.path.join(BASE, 'bin', 'ili2pg-4.4.6', 'ili2pg-4.4.6.jar')
 ILIVALIDATOR = os.path.join(BASE, 'bin', 'ilivalidator-1.11.9', 'ilivalidator-1.11.9.jar')

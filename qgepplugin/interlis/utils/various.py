@@ -3,6 +3,7 @@ import os
 import subprocess
 import time
 import collections
+import configparser
 import sys
 import logging
 
@@ -40,6 +41,8 @@ def setup_test_db(template="full"):
     for testing.
     """
 
+    pgconf = get_pgconf()
+
     def dexec_(cmd):
         return exec_(f"docker exec qgepqwat {cmd}")
 
@@ -48,7 +51,7 @@ def setup_test_db(template="full"):
     if r != 0:
         logger.info("Test container not running, we create it")
 
-        exec_(f"docker run -d --rm -v qgepqwat_db:/var/lib/postgresql/data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={config.PGPASS} -e POSTGRES_DB={config.PGDATABASE} postgis/postgis")
+        exec_(f"docker run -d --rm -v qgepqwat_db:/var/lib/postgresql/data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={pgconf['password'] or 'postgres'} -e POSTGRES_DB={pgconf['dbname'] or 'qgep_prod'} postgis/postgis")
 
         dexec_("apt-get update")
         dexec_("apt-get install -y wget")
@@ -66,22 +69,22 @@ def setup_test_db(template="full"):
             time.sleep(1)
 
         # Creating the template DB with empty structure
-        dexec_(f"psql -f qgep_1.5.4_structure_with_value_lists.sql {config.PGDATABASE} {config.PGUSER}")
-        dexec_(f"psql -f qwat_v1.3.5_structure_only.sql {config.PGDATABASE} {config.PGUSER}")
-        dexec_(f"psql -f qwat_v1.3.5_value_list_data_only.sql {config.PGDATABASE} {config.PGUSER}")
-        dexec_(f"createdb -U {config.PGUSER} --template={config.PGDATABASE} tpl_empty")
+        dexec_(f"psql -f qgep_1.5.4_structure_with_value_lists.sql qgep_prod postgres")
+        dexec_(f"psql -f qwat_v1.3.5_structure_only.sql qgep_prod postgres")
+        dexec_(f"psql -f qwat_v1.3.5_value_list_data_only.sql qgep_prod postgres")
+        dexec_(f"createdb -U postgres --template=qgep_prod tpl_empty")
 
         # Creating the template DB with full data
         dexec_(f'psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"')
-        dexec_(f"dropdb -U {config.PGUSER} {config.PGDATABASE}")
-        dexec_(f"createdb -U {config.PGUSER} {config.PGDATABASE}")
-        dexec_(f"pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qgep_1.5.4_structure_and_demo_data.backup")
-        dexec_(f"pg_restore -U {config.PGUSER} --dbname {config.PGDATABASE} --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup")
-        dexec_(f"createdb -U {config.PGUSER} --template={config.PGDATABASE} tpl_full")
+        dexec_(f"dropdb -U postgres qgep_prod")
+        dexec_(f"createdb -U postgres qgep_prod")
+        dexec_(f"pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qgep_1.5.4_structure_and_demo_data.backup")
+        dexec_(f"pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup")
+        dexec_(f"createdb -U postgres --template=qgep_prod tpl_full")
 
         # Creating the template DB with subset data
         connection = psycopg2.connect(
-            f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}"
+            f"host={pgconf['host']} port={pgconf['port']} dbname={pgconf['dbname']} user={pgconf['user']} password={pgconf['password']}"
         )
         connection.set_session(autocommit=True)
         cursor = connection.cursor()
@@ -114,15 +117,15 @@ def setup_test_db(template="full"):
             cursor.execute("SELECT qgep_sys.create_symbology_triggers();")
         cursor.close()
         dexec_(f'psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"')
-        dexec_(f"createdb -U {config.PGUSER} --template={config.PGDATABASE} tpl_subset")
+        dexec_(f"createdb -U postgres --template=qgep_prod tpl_subset")
 
         # # add our QWAT migrations
         # exec_(r'docker cp C:\Users\Olivier\Code\QWAT\data-model\update\delta\delta_1.3.6_add_vl_for_SIA_export.sql qgepqwatbuilder:/delta_1.3.6_add_vl_for_SIA_export.sql')
         # dexec_(f'psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
 
     dexec_(f'psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"')
-    dexec_(f"dropdb -U {config.PGUSER} {config.PGDATABASE}")
-    dexec_(f"createdb -U {config.PGUSER} --template=tpl_{template} {config.PGDATABASE}")
+    dexec_(f"dropdb -U postgres qgep_prod")
+    dexec_(f"createdb -U postgres --template=tpl_{template} qgep_prod")
 
 
 def capfirst(s):
@@ -131,3 +134,47 @@ def capfirst(s):
 
 def invert_dict(d):
     return {v: k for k, v in d.items()}
+
+
+def read_pgservice(service_name):
+    """
+    Returns a config object from a pg_service name (parsed from PGSERVICEFILE).
+    """
+
+    # Path for pg_service.conf
+    if os.environ.get('PGSERVICEFILE'):
+        PG_CONFIG_PATH = os.environ.get('PGSERVICEFILE')
+    elif os.environ.get('PGSYSCONFDIR'):
+        PG_CONFIG_PATH = os.path.join(os.environ.get('PGSYSCONFDIR'), 'pg_service.conf')
+    else:
+        PG_CONFIG_PATH = ' ~/.pg_service.conf'
+
+    config = configparser.ConfigParser()
+    if os.path.exists(PG_CONFIG_PATH):
+        config.read(PG_CONFIG_PATH)
+
+    return config[service_name]
+
+
+def get_pgconf():
+    """
+    Returns the postgres configuration (parsed from the config.PGSERVICE service and overriden by config.PG* settings)
+    """
+
+    if config.PGSERVICE:
+        pgconf = read_pgservice(config.PGSERVICE)
+    else:
+        pgconf = {}
+
+    if config.PGHOST:
+        pgconf['host'] = config.PGHOST
+    if config.PGPORT:
+        pgconf['port'] = config.PGPORT
+    if config.PGDATABASE:
+        pgconf['dbname'] = config.PGDATABASE
+    if config.PGUSER:
+        pgconf['user'] = config.PGUSER
+    if config.PGPASS:
+        pgconf['password'] = config.PGPASS
+
+    return collections.defaultdict(str, pgconf)

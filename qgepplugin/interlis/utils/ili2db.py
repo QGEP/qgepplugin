@@ -7,7 +7,7 @@ import collections
 from sqlalchemy.ext.automap import AutomapBase
 
 from .. import config
-from .various import logger, exec_
+from .various import logger, exec_, get_pgconf
 
 
 def _log_path(name):
@@ -17,8 +17,11 @@ def _log_path(name):
 
 def create_ili_schema(schema, model, recreate_schema=False):
     logger.info("CONNECTING TO DATABASE...")
+
+    pgconf = get_pgconf()
+
     connection = psycopg2.connect(
-        f"host={config.PGHOST} dbname={config.PGDATABASE} user={config.PGUSER} password={config.PGPASS}"
+        f"host={pgconf['host']} port={pgconf['port']} dbname={pgconf['dbname']} user={pgconf['user']} password={pgconf['password']}"
     )
     connection.set_session(autocommit=True)
     cursor = connection.cursor()
@@ -41,7 +44,8 @@ def create_ili_schema(schema, model, recreate_schema=False):
     connection.close()
 
     logger.info(f"ILIDB SCHEMAIMPORT INTO {schema}...")
-    exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log {_log_path("create")} --nameLang de {model}')
+    pgconf = get_pgconf()
+    exec_(f'"{config.JAVA}" -jar {config.ILI2PG} --schemaimport --dbhost {pgconf["host"]} --dbport {pgconf["port"]} --dbusr {pgconf["user"]} --dbpwd {pgconf["password"]} --dbdatabase {pgconf["dbname"]} --dbschema {schema} --setupPgExt --createGeomIdx --createFk --createFkIdx --createTidCol --importTid --noSmartMapping --defaultSrsCode 2056 --log {_log_path("create")} --nameLang de {model}')
 
 
 def validate_xtf_data(xtf_file):
@@ -51,17 +55,17 @@ def validate_xtf_data(xtf_file):
 
 def import_xtf_data(schema, xtf_file):
     logger.info("IMPORTING XTF DATA...")
+    pgconf = get_pgconf()
     exec_(
-        f'"{config.JAVA}" -jar {config.ILI2PG} --import --deleteData --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("import")} {xtf_file}'
+        f'"{config.JAVA}" -jar {config.ILI2PG} --import --deleteData --dbhost {pgconf["host"]} --dbport {pgconf["port"]} --dbusr {pgconf["user"]} --dbpwd {pgconf["password"]} --dbdatabase {pgconf["dbname"]} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("import")} {xtf_file}'
     )
 
 
 def export_xtf_data(schema, model_name, xtf_file):
-
     logger.info("EXPORT ILIDB...")
-
+    pgconf = get_pgconf()
     exec_(
-        f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {config.PGHOST} --dbusr {config.PGUSER} --dbpwd {config.PGPASS} --dbdatabase {config.PGDATABASE} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
+        f'"{config.JAVA}" -jar {config.ILI2PG} --export --models {model_name} --dbhost {pgconf["host"]} --dbport {pgconf["port"]} --dbusr {pgconf["user"]} --dbpwd {pgconf["password"]} --dbdatabase {pgconf["dbname"]} --dbschema {schema} --modeldir {config.ILI_FOLDER} --disableValidation --skipReferenceErrors --createTidCol --defaultSrsCode 2056 --log {_log_path("export")} {xtf_file}'
     )
 
 

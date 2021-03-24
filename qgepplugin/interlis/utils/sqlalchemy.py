@@ -10,6 +10,8 @@ from sqlalchemy.ext.automap import (
     generate_relationship,
 )
 
+from .various import get_pgconf
+
 from .. import config
 
 
@@ -21,8 +23,10 @@ def create_engine(logger_name=None):
         logging.getLogger(f"sqlalchemy.engine.base.Engine.{logger_name}").addHandler(handler)
         logging_args = {"logging_name": logger_name, "echo": True}
 
+    pgconf = get_pgconf()
+
     return sqlalchemy.create_engine(
-        f"postgresql://{config.PGUSER}:{config.PGPASS}@{config.PGHOST}:5432/{config.PGDATABASE}",
+        f"postgresql://{pgconf['user']}:{pgconf['password']}@{pgconf['host']}:{pgconf['port']}/{pgconf['dbname']}",
         **logging_args
     )
 
