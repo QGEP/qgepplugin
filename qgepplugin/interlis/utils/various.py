@@ -76,7 +76,7 @@ def setup_test_db(template="full"):
 
         # Creating the template DB with full data
         dexec_(f'psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"')
-        dexec_(f"dropdb -U postgres qgep_prod")
+        dexec_(f"dropdb -U postgres qgep_prod --if-exists")
         dexec_(f"createdb -U postgres qgep_prod")
         dexec_(f"pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qgep_1.5.4_structure_and_demo_data.backup")
         dexec_(f"pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup")
@@ -124,7 +124,7 @@ def setup_test_db(template="full"):
         # dexec_(f'psql -U postgres -d qgep_prod -f /delta_1.3.6_add_vl_for_SIA_export.sql')
 
     dexec_(f'psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid<>pg_backend_pid();"')
-    dexec_(f"dropdb -U postgres qgep_prod")
+    dexec_(f"dropdb -U postgres qgep_prod --if-exists")
     dexec_(f"createdb -U postgres --template=tpl_{template} qgep_prod")
 
 
