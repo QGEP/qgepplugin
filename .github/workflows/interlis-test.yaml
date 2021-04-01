@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - master
+      - dev-interlisexport
     tags:
       - '*'
   pull_request:
     branches:
       - master
+      - dev-interlisexport
 
 jobs:
   interlis-tests:
