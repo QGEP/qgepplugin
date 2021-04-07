@@ -21,11 +21,25 @@
 import psycopg2
 import codecs
 import subprocess
+from datetime import datetime, timedelta
 
+MEASURING_POINT_KIND = 'SWMM Simulation' #[TO VALIDATE]
+
+SWMM_OUTPUT_PARAMETERS  = {}
+SWMM_OUTPUT_PARAMETERS['average_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_OUTPUT_PARAMETERS['maximum_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_OUTPUT_PARAMETERS['maximum_hgl'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_OUTPUT_PARAMETERS['reported_max_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_OUTPUT_PARAMETERS['maximum_flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5732}
+SWMM_OUTPUT_PARAMETERS['maximum_velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
+SWMM_OUTPUT_PARAMETERS['max_over_full_flow'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5732}
+SWMM_OUTPUT_PARAMETERS['max_over_full_depth'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5734}
+
+NON_PHYSICAL_REM = 'Non-physical point which materializes swmm simulations'
 
 class QgepSwmm:
 
-    def __init__(self, title, service, state, inpfile, inptemplate, outfile, binfile, db_model_path):
+    def __init__(self, title, service, state, inpfile, inptemplate, outfile, binfile, db_model_path, feedback):
         """
         Initiate QgepSwmm
 
@@ -46,8 +60,18 @@ class QgepSwmm:
         self.output_file = outfile
         self.bin_file = binfile
         self.db_model_path = db_model_path
-        self.feedbacks = []
+        self.feedback = feedback
         self.state = state
+
+
+    def __enter__(self):
+        if self.service is not None:
+            self.con = psycopg2.connect(service=self.service)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.service is not None:
+            del self.con
 
     def get_swmm_table(self, table_name, state, ws):
         """
@@ -65,8 +89,8 @@ class QgepSwmm:
         """
 
         # Connects to service and get data and attributes from tableName
-        con = psycopg2.connect(service=self.service)
-        cur = con.cursor()
+        #con = psycopg2.connect(service=self.service)
+        cur = self.con.cursor()
         if (state == 'planned' and ws is True) or (state is None):
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
         else:
@@ -78,10 +102,12 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
+            self.feedback.reportError('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
             return None, None
+        self.feedback.pushInfo('Process vw_{table_name}'.format(table_name=table_name))
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
+        del cur
 
         return data, attributes
 
@@ -151,7 +177,7 @@ class QgepSwmm:
         index_start = options_template.find('[{parameter_name}]'.format(parameter_name=parameter_name))
         if index_start == -1:
             # The balise options is not found
-            self.feedbacks.append('There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
+            self.feedback.pushInfo('There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
             return ''
         else:
             # Search for the next opening bracket
@@ -197,11 +223,17 @@ class QgepSwmm:
 
             # Hydrology
             # ----------
+            self.feedback.setProgress(5)
             f.write(self.swmm_table('RAINGAGES', state))
+            self.feedback.setProgress(10)
             f.write(self.swmm_table('SUBCATCHMENTS', state))
+            self.feedback.setProgress(15)
             f.write(self.swmm_table('SUBAREAS', state))
+            self.feedback.setProgress(20)
             f.write(self.swmm_table('AQUIFERS'))
+            self.feedback.setProgress(25)
             f.write(self.swmm_table('INFILTRATION', state))
+            self.feedback.setProgress(30)
             f.write(self.swmm_table('POLYGONS'))
 
             f.write(self.copy_parameters_from_template('GROUNDWATER'))
@@ -212,12 +244,15 @@ class QgepSwmm:
 
             # Hydraulics: nodes
             # ------------------
+            self.feedback.setProgress(35)
             f.write(self.swmm_table('JUNCTIONS', state, ws=True))
-            # Create default junction to avoid errors
-            f.write('default_qgep_node\t0\t0\n\n')
+            self.feedback.setProgress(40)
             f.write(self.swmm_table('OUTFALLS', state, ws=True))
+            self.feedback.setProgress(45)
             f.write(self.swmm_table('STORAGES', state, ws=True))
+            self.feedback.setProgress(50)
             f.write(self.swmm_table('COORDINATES'))
+            self.feedback.setProgress(55)
             f.write(self.swmm_table('DWF', state))
 
             f.write(self.copy_parameters_from_template('INFLOWS'))
@@ -225,14 +260,20 @@ class QgepSwmm:
 
             # Hydraulics: links
             # ------------------
+            self.feedback.setProgress(60)
             f.write(self.swmm_table('CONDUITS', state, ws=True))
+            self.feedback.setProgress(65)
             f.write(self.swmm_table('LOSSES', state, ws=True))
+            self.feedback.setProgress(70)
             f.write(self.swmm_table('PUMPS', state, ws=True))
             f.write(self.copy_parameters_from_template('ORIFICES'))
             f.write(self.copy_parameters_from_template('WEIRS'))
             f.write(self.copy_parameters_from_template('OUTLETS'))
+            self.feedback.setProgress(75)
             f.write(self.swmm_table('XSECTIONS', state, ws=True))
+            self.feedback.setProgress(80)
             f.write(self.swmm_table('LOSSES', state, ws=True))
+            self.feedback.setProgress(85)
             f.write(self.swmm_table('VERTICES'))
 
             f.write(self.copy_parameters_from_template('TRANSECTS'))
@@ -240,7 +281,9 @@ class QgepSwmm:
 
             # Quality
             # --------
+            self.feedback.setProgress(90)
             f.write(self.swmm_table('LANDUSES'))
+            self.feedback.setProgress(93)
             f.write(self.swmm_table('COVERAGES'))
 
             f.write(self.copy_parameters_from_template('POLLUTANTS'))
@@ -265,7 +308,7 @@ class QgepSwmm:
             # Map labels
             # -----------
             f.write(self.copy_parameters_from_template('LABELS'))
-
+            self.feedback.setProgress(96)
             f.write(self.swmm_table('TAGS'))
 
         return
@@ -385,3 +428,296 @@ class QgepSwmm:
         ).stdout
 
         return proc
+
+    def get_analysis_option(self, parameter):
+        o = codecs.open(self.output_file, 'r', encoding='utf-8')
+        line = o.readline()
+        while line:
+            line = line.rstrip()
+            # Search for the analyis option
+            if line.find(parameter) != -1:
+                value = line.split('.')[-1].strip()
+            line = o.readline()
+        return value
+
+    def convert_to_datetime(self, str_date):
+        date = datetime.strptime(str_date, "%d/%m/%Y %H:%M:%S")
+        return date
+
+
+    def import_results(self, sim_description):
+        """
+        Import the results fro an SWMM output file
+
+        Parameters:
+        ws_obj_id (string): wastewater structure object ID
+
+        Returns:
+        me_obj_id: measuring point object ID
+
+        """
+        
+        simulation_start_date = self.convert_to_datetime(self.get_analysis_option('Starting Date'))
+        simulation_end_date = self.convert_to_datetime(self.get_analysis_option('Ending Date'))
+        simulation_duration = simulation_end_date - simulation_start_date
+        measuring_duration = simulation_duration.total_seconds() # TO VALIDATE
+        self.feedback.pushInfo('Import nodes results')
+        node_summary = self.extract_node_depth_summary()
+        self.record_measures(node_summary, simulation_start_date, sim_description, measuring_duration, 'node')
+        self.feedback.pushInfo('Import links results')
+        link_summary = self.extract_link_flow_summary()
+        self.record_measures(link_summary, simulation_start_date, sim_description, measuring_duration, 'link')
+
+        return
+
+    def record_measures(self, data, simulation_start_date, sim_description, measuring_duration, obj_type):
+        nData = len(data)
+        # Loop over each line of the node summary
+        counter = 0
+        for ws in data:
+            counter+=1
+            if obj_type == 'node':
+                self.feedback.setProgress(counter*50/nData)
+                mp_obj_id = self.create_measuring_point_node(ws['id'])
+            else:
+                self.feedback.setProgress(50+counter*50/nData)
+                mp_obj_id = self.create_measuring_point_link(ws['id'])
+            if mp_obj_id:
+                ms_obj_id = self.create_measurement_series(mp_obj_id, sim_description)
+                delta = timedelta(
+                    days=int(ws['time_max_day']), 
+                    hours=int(ws['time_max_time'].split(':')[0]),
+                    minutes=int(ws['time_max_time'].split(':')[1]))
+                for k in ws.keys():
+                    if k in SWMM_OUTPUT_PARAMETERS.keys():
+                        if SWMM_OUTPUT_PARAMETERS[k]['recorded']:
+                            time = (simulation_start_date + delta).isoformat()
+                            self.create_measurement_result(ms_obj_id, SWMM_OUTPUT_PARAMETERS[k]['qgep_measurement_type'],
+                            measuring_duration, k, time, ws[k])
+        return
+
+    def create_measuring_point_node(self, node_obj_id):
+
+        """
+        For a node creates a measuring point or get its id.
+
+        Parameters:
+        node_obj_id (string): wastewater node object ID
+
+        Returns:
+        me_obj_id: measuring point object ID
+
+        """
+
+        # Connects to service and get data and attributes from tableName
+        cur = self.con.cursor()
+
+        # Test if the measuring point exists
+        sql = """
+        SELECT mp.obj_id
+        FROM qgep_od.measuring_point mp
+        JOIN qgep_od.wastewater_structure ws on mp.fk_wastewater_structure = ws.obj_id
+        WHERE ws.fk_main_wastewater_node = 'CHamtKnv00002027'
+        AND kind = '{MEASURING_POINT_KIND}'
+        """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, node_obj_id=node_obj_id)
+    
+        cur.execute(sql)
+        res = cur.fetchone()
+
+        if res is None:
+            # Check if weather the measuring point doesnt exists or the waternode is no
+            # Measuring point doesnt exists, must be created
+            # 4594 = technical purpose [TO VALIDATE]
+            sql = """
+            INSERT INTO qgep_od.measuring_point
+            (damming_device, identifier, kind, purpose, remark, fk_wastewater_structure)
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, '{NON_PHYSICAL_REM}', ws.obj_id 
+            FROM qgep_od.wastewater_structure ws
+            WHERE fk_main_wastewater_node = '{node_obj_id}'
+            RETURNING obj_id
+            """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, node_obj_id=node_obj_id, NON_PHYSICAL_REM=NON_PHYSICAL_REM)
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback.reportError(str(psycopg2.ProgrammingError), True)
+                return None, None
+            res = cur.fetchone()
+            if res is None:
+                mp_obj_id = None
+            else:
+                mp_obj_id = res[0]
+                self.con.commit()
+            del cur
+        else:
+            mp_obj_id = res[0]
+        return mp_obj_id
+
+    def create_measuring_point_link(self, reach_obj_id):
+
+        """
+        For a node creates a measuring point or get its id.
+
+        Parameters:
+        reach_obj_id (string): reach object ID
+
+        Returns:
+        me_obj_id: measuring point object ID
+
+        """
+
+        # Connects to service and get data and attributes from tableName
+        cur = self.con.cursor()
+
+        # Test if the measuring point exists
+        sql = """
+        SELECT mp.obj_id
+        FROM qgep_od.measuring_point mp
+        JOIN qgep_od.wastewater_networkelement ne ON ne.fk_wastewater_structure = mp.fk_wastewater_structure
+        WHERE ne.obj_id = '{reach_obj_id}'
+        AND kind = '{MEASURING_POINT_KIND}'
+        """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, reach_obj_id=reach_obj_id)
+    
+        cur.execute(sql)
+        res = cur.fetchone()
+
+        if res is None:
+            # Measuring point doesnt exists, must be created
+            # 4594 = technical purpose [TO VALIDATE]
+            sql = """
+            INSERT INTO qgep_od.measuring_point
+            (damming_device, identifier, kind, purpose, remark, fk_wastewater_structure)
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, '{NON_PHYSICAL_REM}', ne.fk_wastewater_structure 
+            FROM qgep_od.wastewater_networkelement ne 
+            WHERE ne.obj_id = '{reach_obj_id}'
+            RETURNING obj_id
+            """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, NON_PHYSICAL_REM=NON_PHYSICAL_REM, reach_obj_id=reach_obj_id)
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback.reportError(str(psycopg2.ProgrammingError), True)
+                return None
+            res = cur.fetchone()
+            mp_obj_id = res[0]
+            self.con.commit()
+            del cur
+        else:
+            mp_obj_id = res[0]
+        return mp_obj_id
+
+    def create_measurement_series(self, mp_obj_id, sim_description):
+
+        """
+        Creates a measurement serie or get its id.
+
+        Parameters:
+        mp_obj_id (string): measurement point object ID
+        sim_description (string): description of the simulation
+
+        Returns:
+        mp_obj_id: measuring point object ID
+
+        """
+
+        # Connects to service
+        cur = self.con.cursor()
+
+        # Test if the measurement serie exists
+        sql = """
+        SELECT obj_id FROM qgep_od.measurement_series
+        WHERE remark = '{sim_description}'
+        AND fk_measuring_point = '{mp_obj_id}'
+        """.format(sim_description=sim_description, mp_obj_id=mp_obj_id)
+    
+        cur.execute(sql)
+        res = cur.fetchone()
+
+        if res is None:
+            # Measuring point doesnt exists, must be created
+            # 3217 = other [TO VALIDATE]
+            # No dimension, else we would need to create four measurements series l/s m/s m - [TO VALIDATE]
+            sql = """
+            INSERT INTO qgep_od.measurement_series
+            (identifier, kind, remark, fk_measuring_point)
+            VALUES
+            (null, 3217, '{sim_description}', '{mp_obj_id}') 
+            RETURNING obj_id
+            """.format(sim_description=sim_description, mp_obj_id=mp_obj_id)
+
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback.reportError(str(psycopg2.ProgrammingError), True)
+                return None
+            ms_obj_id = cur.fetchone()[0]
+            self.con.commit()
+        else:
+            ms_obj_id = res[0]
+        del cur
+        return ms_obj_id
+
+    def create_measurement_result(self, ms_obj_id, measurement_type, measuring_duration, parameter, time, value):
+
+        """
+        Creates a measurement result or update it.
+
+        Parameters:
+        ms_obj_id (string): measurement serie object ID
+        measurement_type (integer): type of measurement 5733=flow, 5734=level, 5732=other
+        measuring_duration (integer): Time step of the simulation in seconds [TO VALIDATE]
+        parameter (string): name of the SWMM parameter [TO VALIDATE]
+        time (string): timestamp of the recorded result
+        value (float): value of the measurement
+
+        Returns:
+        mr_obj_id: measurement result object ID
+
+        """
+
+        # Connects to service
+        cur = self.con.cursor()
+
+        # Test if the measurement result exists (same measurement serie, same time, same type)
+        sql = """
+        SELECT obj_id FROM qgep_od.measurement_result
+        WHERE fk_measurement_series = '{ms_obj_id}'
+        AND time = '{time}'
+        AND remark = '{parameter}'
+        AND measurement_type = {measurement_type}
+        """.format(ms_obj_id=ms_obj_id, time=time, parameter=parameter, measurement_type=measurement_type)
+    
+        cur.execute(sql)
+        res = cur.fetchone()
+
+        if res is None:
+            # Measurement result doesnt exists, must be created
+
+            sql = """
+            INSERT INTO qgep_od.measurement_result
+            (identifier, measurement_type, measuring_duration, remark, time, value, fk_measurement_series)
+            VALUES
+            (null, {measurement_type}, {measuring_duration}, '{parameter}', '{time}', {value}, '{ms_obj_id}') 
+            RETURNING obj_id
+            """.format(measurement_type=measurement_type, measuring_duration=measuring_duration, parameter=parameter,
+            time=time, value=value, ms_obj_id=ms_obj_id)
+
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback.reportError(str(psycopg2.ProgrammingError), True)
+                return None
+            mr_obj_id = cur.fetchone()[0]
+            self.con.commit()
+        else:
+            mr_obj_id = res[0]
+            # Measurement result exists, must be updated
+            sql = """
+            UPDATE qgep_od.measurement_result
+            SET measuring_duration={measuring_duration}, value={value}
+            WHERE obj_id = '{mr_obj_id}'
+            RETURNING obj_id
+            """.format(measuring_duration=measuring_duration,value=value,mr_obj_id=mr_obj_id)
+            cur.execute(sql)
+            mr_obj_id = cur.fetchone()[0]
+            self.con.commit()
+        del cur
+        return mr_obj_id

@@ -75,7 +75,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
 
-        feedback.setProgress(0)
+        feedback.setProgress(1)
 
         # init params
         out_file = self.parameterAsFileOutput(parameters, self.OUT_FILE, context)
@@ -96,10 +96,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
 
         # Get node summary from output file
-        qs = QgepSwmm(None, None, None, None, None, out_file, None, None)
-        if qs.feedbacks is not None:
-            for i in range(len(qs.feedbacks)):
-                feedback.reportError(qs.feedbacks[i])
+        qs = QgepSwmm(None, None, None, None, None, out_file, None, None, feedback)
         node_summary = qs.extract_node_depth_summary()
 
         # Fill node summary with data

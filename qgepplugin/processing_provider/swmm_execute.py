@@ -92,11 +92,9 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                     Please configure it before running Swmm algorithms.')
             )
 
-        qs = QgepSwmm(None, None, None, inp_file, None, output_file, swmm_cli, None)
-        prompt = qs.execute_swmm()
-        if qs.feedbacks is not None:
-            for i in range(len(qs.feedbacks)):
-                feedback.reportError(qs.feedbacks[i])
+        with QgepSwmm(None, None, None, inp_file, None, output_file, swmm_cli, None, feedback) as qs:
+            prompt = qs.execute_swmm()
+
 
         feedback.pushInfo(prompt)
 

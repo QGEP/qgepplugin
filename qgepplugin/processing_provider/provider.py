@@ -26,7 +26,8 @@ from .flow_times import FlowTimesAlgorithm
 from .sum_up_upstream import SumUpUpstreamAlgorithm
 from .change_reach_direction import ChangeReachDirection
 from .swmm_create_input import SwmmCreateInputAlgorithm
-from .swmm_extract_results import SwmmExtractResultsAlgorithm
+# from .swmm_extract_results import SwmmExtractResultsAlgorithm
+from .swmm_import_results import SwmmImportResultsAlgorithm
 from .swmm_execute import SwmmExecuteAlgorithm
 
 from PyQt5.QtGui import QIcon
@@ -51,13 +52,13 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
         # Load algorithms
         self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        ), SwmmCreateInputAlgorithm(), SwmmImportResultsAlgorithm(), SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
         algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        ), SwmmCreateInputAlgorithm(), SwmmImportResultsAlgorithm(), SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):
