@@ -11,7 +11,15 @@ from .model_abwasser import get_abwasser_model
 from ..utils.various import logger
 
 
-def qgep_export():
+def qgep_export(downstream_of=None, upstream_of=None):
+    """
+    Export data from the QGEP model into the ili2pg model.
+
+    Args:
+        downstream_of:  if provided, limits the export to nodes that are downstream of the provided node
+        upstream_of:    if provided, limits the export to nodes that are upstream of the provided node
+    """
+
 
     QGEP = get_qgep_model()
     ABWASSER = get_abwasser_model()
@@ -20,6 +28,37 @@ def qgep_export():
     qgep_session = Session(utils.sqlalchemy.create_engine(logger_name="qgep"), autocommit=False, autoflush=False)
     abwasser_session = Session(utils.sqlalchemy.create_engine(logger_name="abwasser"), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
+
+    # Upstream/Downstream filtering
+    upstream_of='ch13p7mzWN008128'
+    downstream_of='ch13p7mzWN005856'
+
+    upstream_query = """
+        WITH RECURSIVE node_with_child AS (
+            SELECT n.obj_id, s.to_obj_id AS child_id FROM qgep_od.vw_network_node n
+            LEFT JOIN qgep_od.vw_network_segment s ON s.from_obj_id = n.obj_id
+        ),
+        upstream AS (
+            SELECT obj_id, child_id, 0 AS depth
+            FROM node_with_child
+            WHERE obj_id = :upstream_of_node_id
+
+            UNION ALL
+
+            SELECT n.obj_id, n.child_id, upstream.depth - 1
+            FROM node_with_child n
+            INNER JOIN upstream ON upstream.obj_id = n.child_id
+        )
+        SELECT obj_id
+        FROM upstream;
+    """
+
+    # rows = qgep_session.execute(upstream_query, {'upstream_of_node_id':upstream_of})
+    # limit_ids = list(row[0] for row in rows)
+    # print(limit_ids)
+    # exit(0)
+
+        # ids = ...
 
     def get_tid(relation):
         """
@@ -115,7 +154,6 @@ def qgep_export():
         }
 
     # ADAPTED FROM 052a_sia405_abwasser_2015_2_d_interlisexport2.sql
-
     logger.info("Exporting QGEP.organisation -> ABWASSER.organisation, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.organisation):
 
@@ -148,6 +186,7 @@ def qgep_export():
     logger.info("done")
     abwasser_session.flush()
 
+    """
     logger.info("Exporting QGEP.channel -> ABWASSER.kanal, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.channel):
 
@@ -894,6 +933,7 @@ def qgep_export():
         print(".", end="")
     logger.info("done")
     abwasser_session.flush()
+    """
 
     abwasser_session.commit()
 
