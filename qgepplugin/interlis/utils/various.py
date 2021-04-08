@@ -153,7 +153,7 @@ def read_pgservice(service_name):
     if os.path.exists(PG_CONFIG_PATH):
         config.read(PG_CONFIG_PATH)
 
-    return config[service_name]
+    return config[service_name] if service_name in config else {}
 
 
 def get_pgconf():
