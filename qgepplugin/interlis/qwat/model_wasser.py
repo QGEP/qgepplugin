@@ -70,6 +70,11 @@ class foerderanlage(leitungsknoten):  # station_de_pompage
     __table_args__ = {"schema": SCHEMA}
 
 
+class absperrorgan(leitungsknoten):
+    __tablename__ = "absperrorgan"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class wassergewinnungsanlage(leitungsknoten):
     __tablename__ = "wassergewinnungsanlage"
     __table_args__ = {"schema": SCHEMA}

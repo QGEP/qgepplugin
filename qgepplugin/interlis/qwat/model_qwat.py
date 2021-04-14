@@ -82,6 +82,11 @@ class chamber(installation):
     __table_args__ = {"schema": SCHEMA}
 
 
+class source(installation):
+    __tablename__ = "source"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class pipe(Base):
     __tablename__ = "pipe"
     __table_args__ = {"schema": SCHEMA}

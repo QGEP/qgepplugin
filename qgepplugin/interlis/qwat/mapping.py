@@ -17,11 +17,12 @@ def get_qwat_mapping():
         QWAT.pump: [WASSER.foerderanlage],
         QWAT.treatment: [WASSER.anlage],
         QWAT.subscriber: [WASSER.hausanschluss],
-        # QWAT.???: [WASSER.absperrorgan],
-        # QWAT.???: [WASSER.rohrleitungsteil],
-        # QWAT.???: [WASSER.muffen],
-        # QWAT.???: [WASSER.uebrige],
-        # QWAT.???: [WASSER.wassergewinnungsanlage],
+        QWAT.source: [WASSER.wassergewinnungsanlage],
+        QWAT.chamber: [WASSER.absperrorgan],
+        QWAT.valve: [WASSER.absperrorgan],
+        # QWAT.???: [WASSER.rohrleitungsteil], # not sure to what this maps
+        # QWAT.???: [WASSER.uebrige], # not sure to what this maps
+        # QWAT.???: [WASSER.muffen], # does not exist in QWAT
 
         # Pipe
         QWAT.pipe: [WASSER.leitung],
@@ -33,7 +34,7 @@ def get_qwat_mapping():
     # NOT YET MAPPED
     # QWAT.bedding: [WASSER.REPLACE_ME],
     # QWAT.chamber: [WASSER.REPLACE_ME],
-    # QWAT.cistern: [WASSER.REPLACE_ME],
+    # QWAT.cistern: [WASSER.REPLACE_ME],  <- child of tank
     # QWAT.consumptionzone: [WASSER.REPLACE_ME],
     # QWAT.cover: [WASSER.REPLACE_ME],
     # QWAT.cover_type: [WASSER.REPLACE_ME],

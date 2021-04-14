@@ -9,6 +9,9 @@ QWAT_TO_WASSER = {
     QWAT.pump: [WASSER.foerderanlage],
     QWAT.treatment: [WASSER.anlage],
     QWAT.subscriber: [WASSER.hausanschluss],
+    QWAT.source: [WASSER.wassergewinnungsanlage],
+    QWAT.chamber: [WASSER.absperrorgan],
+    QWAT.valve: [WASSER.absperrorgan],
     QWAT.pipe: [WASSER.leitung],
 
     # AVAILABLE TABLES
@@ -16,7 +19,6 @@ QWAT_TO_WASSER = {
 
     # NOT YET MAPPED
     # QWAT.bedding: [WASSER.REPLACE_ME],
-    # QWAT.chamber: [WASSER.REPLACE_ME],
     # QWAT.cistern: [WASSER.REPLACE_ME],
     # QWAT.consumptionzone: [WASSER.REPLACE_ME],
     # QWAT.cover: [WASSER.REPLACE_ME],
@@ -57,7 +59,6 @@ QWAT_TO_WASSER = {
     # QWAT.remote: [WASSER.REPLACE_ME],
     # QWAT.remote_type: [WASSER.REPLACE_ME],
     # QWAT.samplingpoint: [WASSER.REPLACE_ME],
-    # QWAT.source: [WASSER.REPLACE_ME],
     # QWAT.source_quality: [WASSER.REPLACE_ME],
     # QWAT.source_type: [WASSER.REPLACE_ME],
     # QWAT.status: [WASSER.REPLACE_ME],
@@ -66,7 +67,6 @@ QWAT_TO_WASSER = {
     # QWAT.survey_type: [WASSER.REPLACE_ME],
     # QWAT.surveypoint: [WASSER.REPLACE_ME],
     # QWAT.tank_firestorage: [WASSER.REPLACE_ME],
-    # QWAT.valve: [WASSER.REPLACE_ME],
     # QWAT.valve_actuation: [WASSER.REPLACE_ME],
     # QWAT.valve_function: [WASSER.REPLACE_ME],
     # QWAT.valve_type: [WASSER.REPLACE_ME],
