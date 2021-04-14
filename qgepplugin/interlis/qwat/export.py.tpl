@@ -599,6 +599,44 @@ def export():
         print(".", end="")
     print("done")
 
+    print("Exporting QWAT.leak -> WASSER.schadenstelle")
+    for row in qwat_session.query(QWAT.leak):
+
+        # AVAILABLE FIELDS IN QWAT.leak
+
+        # --- leak ---
+        # _repaired, address, description, detection_date, fk_cause, fk_pipe, geometry, id, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, pipe_replaced, repair, repair_date, widespread_damage
+
+        # --- _rel_ ---
+        # fk_cause__REL, fk_pipe__REL, label_1_visible__REL, label_2_visible__REL
+
+        schadenstelle = WASSER.schadenstelle(
+            # FIELDS TO MAP TO WASSER.schadenstelle
+
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- schadenstelle ---
+            # art=row.REPLACE_ME,
+            # ausloeser=row.REPLACE_ME,
+            # behebungsdatum=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            # erhebungsdatum=row.REPLACE_ME,
+            # geometrie=row.REPLACE_ME,
+            # leitungref=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # ursache=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(schadenstelle)
+        print(".", end="")
+    print("done")
+
     wasser_session.commit()
 
     qwat_session.close()

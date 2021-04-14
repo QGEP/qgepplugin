@@ -26,6 +26,7 @@ def get_qwat_mapping():
 
         # Pipe
         QWAT.pipe: [WASSER.leitung],
+        QWAT.leak: [WASSER.schadenstelle],
     }
 
     # AVAILABLE TABLES
@@ -48,7 +49,6 @@ def get_qwat_mapping():
     # QWAT.hydrant_output: [WASSER.REPLACE_ME],
     # QWAT.hydrant_provider: [WASSER.REPLACE_ME],
     # QWAT.installation: [WASSER.REPLACE_ME],
-    # QWAT.leak: [WASSER.REPLACE_ME],
     # QWAT.leak_cause: [WASSER.REPLACE_ME],
     # QWAT.meter: [WASSER.REPLACE_ME],
     # QWAT.meter_reference: [WASSER.REPLACE_ME],

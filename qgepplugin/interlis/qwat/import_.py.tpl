@@ -27,7 +27,7 @@ def import_():
         # bemerkung, druck, geometrie, knotentyp, name_nummer, t_id, verbrauch
 
         # --- _bwrel_ ---
-        # hydraulischer_strang__BWREL_bisknotenref, hydraulischer_strang__BWREL_vonknotenref, leitungsknoten__BWREL_knotenref, metaattribute__BWREL_sia405_baseclass_metaattribute, schadenstelle__BWREL_t_id, sia405_textpos__BWREL_hydraulischer_knotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # hydraulischer_strang__BWREL_bisknotenref, hydraulischer_strang__BWREL_vonknotenref, leitungsknoten__BWREL_knotenref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_knotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
         node = QWAT.node(
             # FIELDS TO MAP TO QWAT.node
@@ -71,7 +71,7 @@ def import_():
         # art, dimension, entnahme, fliessdruck, hersteller, material, name_nummer, t_id, typ, versorgungsdruck, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -157,7 +157,7 @@ def import_():
         # art, beschichtung, brauchwasserreserve, fassungsvermoegen, leistung, loeschwasserreserve, material, name_nummer, t_id, ueberlaufhoehe, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -262,7 +262,7 @@ def import_():
         # art, leistung, name_nummer, t_id, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -353,7 +353,7 @@ def import_():
         # art, betreiber, dimension1, konzessionaer, leistung, material, name_nummer, t_id, unterhaltspflichtiger, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -447,7 +447,7 @@ def import_():
         # art, dimension, gebaeudeanschluss, isolierstueck, name_nummer, standort, t_id, typ, verbrauch, zuordnung_hydraulischer_knoten, zuordnung_hydraulischer_strang, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -526,7 +526,7 @@ def import_():
         # art, betreiber, konzessionaer, leistung, name_nummer, t_id, unterhaltspflichtiger, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -617,7 +617,7 @@ def import_():
         # art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -707,7 +707,7 @@ def import_():
         # art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, schadenstelle__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
         # --- _rel_ ---
         # knotenref__REL
@@ -788,7 +788,7 @@ def import_():
         # astatus, aussenbeschichtung, baujahr, bemerkung, betreiber, betriebsdruck, bettung, druckzone, durchmesser, durchmesseraussen, durchmesserinnen, eigentuemer, funktion, geometrie, hydraulische_rauheit, innenbeschichtung, kathodischer_schutz, konzessionaer, laenge, lagebestimmung, material, name_nummer, nennweite, sanierung_erneuerung, schubsicherung, strangref, t_id, ueberdeckung, unterhalt, unterhaltspflichtiger, verbindungsart, verlegeart, wasserqualitaet, zulaessiger_bauteil_betriebsdruck, zustand
 
         # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, schadenstelle__BWREL_leitungref, schadenstelle__BWREL_t_id, sia405_textpos__BWREL_leitungref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, schadenstelle__BWREL_leitungref, sia405_textpos__BWREL_leitungref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
         # --- _rel_ ---
         # strangref__REL
@@ -842,6 +842,57 @@ def import_():
             # year_rehabilitation=row.REPLACE_ME,
         )
         qwat_session.add(pipe)
+        print(".", end="")
+    print("done")
+
+    print("Importing WASSER.schadenstelle -> QWAT.leak")
+    for row in wasser_session.query(WASSER.schadenstelle):
+
+        # AVAILABLE FIELDS IN schadenstelle
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- schadenstelle ---
+        # art, ausloeser, behebungsdatum, bemerkung, erhebungsdatum, geometrie, leitungref, name_nummer, t_id, ursache, zustand
+
+        # --- _bwrel_ ---
+        # metaattribute__BWREL_sia405_baseclass_metaattribute, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # leitungref__REL
+
+        leak = QWAT.leak(
+            # FIELDS TO MAP TO QWAT.leak
+
+            # --- leak ---
+            # _repaired=row.REPLACE_ME,
+            # address=row.REPLACE_ME,
+            # description=row.REPLACE_ME,
+            # detection_date=row.REPLACE_ME,
+            # fk_cause=row.REPLACE_ME,
+            # fk_pipe=row.REPLACE_ME,
+            # geometry=row.REPLACE_ME,
+            # id=row.REPLACE_ME,
+            # label_1_rotation=row.REPLACE_ME,
+            # label_1_text=row.REPLACE_ME,
+            # label_1_visible=row.REPLACE_ME,
+            # label_1_x=row.REPLACE_ME,
+            # label_1_y=row.REPLACE_ME,
+            # label_2_rotation=row.REPLACE_ME,
+            # label_2_text=row.REPLACE_ME,
+            # label_2_visible=row.REPLACE_ME,
+            # label_2_x=row.REPLACE_ME,
+            # label_2_y=row.REPLACE_ME,
+            # pipe_replaced=row.REPLACE_ME,
+            # repair=row.REPLACE_ME,
+            # repair_date=row.REPLACE_ME,
+            # widespread_damage=row.REPLACE_ME,
+        )
+        qwat_session.add(leak)
         print(".", end="")
     print("done")
 

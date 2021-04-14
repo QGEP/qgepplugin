@@ -90,6 +90,11 @@ class leitung(sia405_baseclass):  # conduite
     __table_args__ = {"schema": SCHEMA}
 
 
+class schadenstelle(sia405_baseclass):
+    __tablename__ = "schadenstelle"
+    __table_args__ = {"schema": SCHEMA}
+
+
 _prepared = False
 def get_wasser_model():
     global _prepared

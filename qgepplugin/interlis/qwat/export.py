@@ -105,7 +105,7 @@ def qwat_export():
         create_metaattributes(hydraulischer_knoten)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.hydrant -> WASSER.hydrant")
     for row in qwat_session.query(QWAT.hydrant):
@@ -153,7 +153,7 @@ def qwat_export():
         create_metaattributes(hydrant)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.tank -> WASSER.wasserbehaelter")
     for row in qwat_session.query(QWAT.tank):
@@ -204,7 +204,7 @@ def qwat_export():
         create_metaattributes(wasserbehaelter)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.pump -> WASSER.foerderanlage")
     for row in qwat_session.query(QWAT.pump):
@@ -250,7 +250,7 @@ def qwat_export():
         create_metaattributes(foerderanlage)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.treatment -> WASSER.anlage")
     for row in qwat_session.query(QWAT.treatment):
@@ -301,7 +301,7 @@ def qwat_export():
         create_metaattributes(anlage)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.subscriber -> WASSER.hausanschluss")
     for row in qwat_session.query(QWAT.subscriber):
@@ -351,7 +351,7 @@ def qwat_export():
         create_metaattributes(hausanschluss)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.source -> WASSER.wassergewinnungsanlage")
     for row in qwat_session.query(QWAT.source):
@@ -400,7 +400,7 @@ def qwat_export():
         create_metaattributes(wassergewinnungsanlage)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.chamber -> WASSER.absperrorgan - PARTIAL")
     for row in qwat_session.query(QWAT.chamber):
@@ -460,7 +460,7 @@ def qwat_export():
         create_metaattributes(absperrorgan)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.valve -> WASSER.absperrorgan")
     for row in qwat_session.query(QWAT.valve):
@@ -533,7 +533,7 @@ def qwat_export():
         create_metaattributes(absperrorgan)
         print(".", end="")
     print("done")
-    wasser_session.commit()
+    wasser_session.flush()
 
     print("Exporting QWAT.pipe -> WASSER.leitung")
     for row in qwat_session.query(QWAT.pipe):
@@ -596,4 +596,43 @@ def qwat_export():
         create_metaattributes(leitung)
         print(".", end="")
     print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.leak -> WASSER.schadenstelle")
+    for row in qwat_session.query(QWAT.leak):
+
+        # AVAILABLE FIELDS IN QWAT.leak
+
+        # --- leak ---
+        # _repaired, address, description, detection_date, fk_cause, fk_pipe, geometry, id, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, pipe_replaced, repair, repair_date, widespread_damage
+
+        # --- _rel_ ---
+        # fk_cause__REL, fk_pipe__REL, label_1_visible__REL, label_2_visible__REL
+
+        schadenstelle = WASSER.schadenstelle(
+            # FIELDS TO MAP TO WASSER.schadenstelle
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "schadenstelle"),
+
+            # --- schadenstelle ---
+            # art=row.REPLACE_ME,
+            # ausloeser=row.REPLACE_ME,
+            # behebungsdatum=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            # erhebungsdatum=row.REPLACE_ME,
+            # geometrie=row.REPLACE_ME,
+            # leitungref=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # ursache=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(schadenstelle)
+        create_metaattributes(leitung)
+        print(".", end="")
+    print("done")
+
     wasser_session.commit()
+
