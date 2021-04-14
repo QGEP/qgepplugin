@@ -45,6 +45,16 @@ class leitungsknoten(sia405_baseclass):  # neud_de_conduite
     __table_args__ = {"schema": SCHEMA}
 
 
+class anlage(leitungsknoten):
+    __tablename__ = "anlage"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class hausanschluss(leitungsknoten):
+    __tablename__ = "hausanschluss"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class hydrant(leitungsknoten):  # hydrant
     __tablename__ = "hydrant"
     __table_args__ = {"schema": SCHEMA}
@@ -57,6 +67,11 @@ class wasserbehaelter(leitungsknoten):  # reservoir_d_eau
 
 class foerderanlage(leitungsknoten):  # station_de_pompage
     __tablename__ = "foerderanlage"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class wassergewinnungsanlage(leitungsknoten):
+    __tablename__ = "wassergewinnungsanlage"
     __table_args__ = {"schema": SCHEMA}
 
 

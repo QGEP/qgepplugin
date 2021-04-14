@@ -31,10 +31,10 @@ Base = automap_base()
 
 SCHEMA = config.QWAT_SCHEMA
 
+
 class node(Base):
     __tablename__ = "node"
     __table_args__ = {"schema": SCHEMA}
-
 
 
 class network_element(node):
@@ -42,8 +42,18 @@ class network_element(node):
     __table_args__ = {"schema": SCHEMA}
 
 
+class part(network_element):
+    __tablename__ = "part"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class hydrant(network_element):
     __tablename__ = "hydrant"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class subscriber(network_element):
+    __tablename__ = "subscriber"
     __table_args__ = {"schema": SCHEMA}
 
 
@@ -57,8 +67,18 @@ class tank(installation):
     __table_args__ = {"schema": SCHEMA}
 
 
+class treatment(installation):
+    __tablename__ = "treatment"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class pump(installation):
     __tablename__ = "pump"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class chamber(installation):
+    __tablename__ = "chamber"
     __table_args__ = {"schema": SCHEMA}
 
 
