@@ -28,7 +28,7 @@ def qwat_export():
             return None
         return tid_maker.tid_for_row(relation, for_class=for_class)
 
-    def create_metaattributes(row, for_class=None):
+    def create_metaattributes(instance):
         warnings.warn(f'QWAT doesn\'t define meta attributes. Dummy metaattributes will be created with an arbitrary date.')
 
         # NOTE : QWAT doesn't define meta attributes, so we create a dummy metattribute
@@ -38,9 +38,9 @@ def qwat_export():
             datenherr='unknown',
             datenlieferant='unknown',
             letzte_aenderung=datetime.datetime.min,
-            sia405_baseclass_metaattribute=get_tid(row, for_class=for_class),
+            sia405_baseclass_metaattribute=instance.t_id,
             # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
-            t_id=get_tid(row, for_class=for_class),
+            t_id=instance.t_id,
             t_seq=0,
         )
         wasser_session.add(metaattribute)
@@ -102,7 +102,7 @@ def qwat_export():
             # verbrauch=row.REPLACE_ME,
         )
         wasser_session.add(hydraulischer_knoten)
-        create_metaattributes(row, QWAT.node)
+        create_metaattributes(hydraulischer_knoten)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -150,7 +150,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(hydrant)
-        create_metaattributes(row)
+        create_metaattributes(hydrant)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -201,6 +201,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(wasserbehaelter)
+        create_metaattributes(wasserbehaelter)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -246,6 +247,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(foerderanlage)
+        create_metaattributes(foerderanlage)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -296,6 +298,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(anlage)
+        create_metaattributes(anlage)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -345,6 +348,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(hausanschluss)
+        create_metaattributes(hausanschluss)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -393,6 +397,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(wassergewinnungsanlage)
+        create_metaattributes(wassergewinnungsanlage)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -452,6 +457,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(absperrorgan)
+        create_metaattributes(absperrorgan)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -460,7 +466,9 @@ def qwat_export():
     for row in qwat_session.query(QWAT.valve):
         """
         Valves are reprsented on the pipes in QWAT, and as nodes in SIA405.
-        We create the required hydraulischer_knoten on the fly.
+        We create the required hydraulischer_knoten on the fly. Not done yet:
+        splitting the pipes at nodes. To do that, we probably should do this
+        as a post-import processing step.
         """
 
         # AVAILABLE FIELDS IN QWAT.valve
@@ -486,6 +494,7 @@ def qwat_export():
             # verbrauch=row.REPLACE_ME,
         )
         wasser_session.add(hydraulischer_knoten)
+        create_metaattributes(hydraulischer_knoten)
 
         absperrorgan = WASSER.absperrorgan(
             # FIELDS TO MAP TO WASSER.absperrorgan
@@ -521,6 +530,7 @@ def qwat_export():
             # zustand=row.REPLACE_ME,
         )
         wasser_session.add(absperrorgan)
+        create_metaattributes(absperrorgan)
         print(".", end="")
     print("done")
     wasser_session.commit()
@@ -583,6 +593,7 @@ def qwat_export():
             zustand="undefined",
         )
         wasser_session.add(leitung)
+        create_metaattributes(leitung)
         print(".", end="")
     print("done")
     wasser_session.commit()
