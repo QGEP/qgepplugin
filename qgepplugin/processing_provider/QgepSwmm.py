@@ -364,7 +364,6 @@ class QgepSwmm:
         o = codecs.open(self.rpt_file, 'r', encoding='utf-8')
         line = o.readline()
         title_found = False
-        end_table_found = False
         line_number = -1
         data_indexes = {}
         heading_lines = 5
@@ -389,7 +388,6 @@ class QgepSwmm:
                     data_indexes[obj_id]['type'] = 'node'
 
             if title_found and line_after_title > heading_lines and line.strip() == '':
-                end_table_found = True
                 data_indexes[obj_id]['end_index'] = line_number - 1
 
             if title_found:
@@ -546,12 +544,12 @@ class QgepSwmm:
 
         data_indexes = self.extract_time_series_indexes()
 
-        nData = len(data_indexes.keys())
+        ndata = len(data_indexes.keys())
         self.feedback_push_info('Import full results')
         counter = 0
         for obj_id in data_indexes.keys():
             counter += 1
-            self.feedback_set_progress(counter * 100 / nData)
+            self.feedback_set_progress(counter * 100 / ndata)
             # Create measuring point if necessary
             if data_indexes[obj_id]['type'] == 'node':
                 mp_obj_id = self.create_measuring_point_node(obj_id, sim_description)
@@ -651,17 +649,17 @@ class QgepSwmm:
 
         """
 
-        nData = len(data)
+        ndata = len(data)
         # Loop over each line of the node summary
         counter = 0
         for ws in data:
             counter += 1
             if obj_type == 'node':
-                self.feedback_set_progress(counter * 50 / nData)
+                self.feedback_set_progress(counter * 50 / ndata)
                 mp_obj_id = self.create_measuring_point_node(
                     ws['id'], sim_description)
             else:
-                self.feedback_set_progress(50 + counter * 50 / nData)
+                self.feedback_set_progress(50 + counter * 50 / ndata)
                 mp_obj_id = self.create_measuring_point_link(
                     ws['id'], sim_description)
             if mp_obj_id:

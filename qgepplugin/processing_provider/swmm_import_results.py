@@ -21,7 +21,6 @@
 
 from qgis.core import (
     QgsProcessingContext,
-    QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterFile,
     QgsProcessingParameterBoolean,
@@ -30,8 +29,6 @@ from qgis.core import (
 
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
-
-from PyQt5.QtCore import QVariant
 
 __author__ = 'Timothée Produit'
 __date__ = '2021-04-30'

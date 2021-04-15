@@ -95,7 +95,6 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         with QgepSwmm(None, None, None, inp_file, None, rpt_file, swmm_cli, feedback) as qs:
             prompt = qs.execute_swmm()
 
-
         feedback.pushInfo(prompt)
 
         if re.search('There are errors', prompt):
