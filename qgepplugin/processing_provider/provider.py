@@ -51,14 +51,18 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmImportResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        self.alglist = [
+            SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(), 
+            SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmImportResultsAlgorithm(),
+            SwmmExecuteAlgorithm()]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmImportResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        algs = [
+            SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(),
+            SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmImportResultsAlgorithm(),
+            SwmmExecuteAlgorithm()]
         return algs
 
     def id(self):
@@ -86,11 +90,13 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
     def load(self):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
-        ProcessingConfig.addSetting(Setting(self.name(),
-                                            'SWMM_PATH',
-                                            self.tr(r'SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)'),
-                                            None,
-                                            valuetype=Setting.FILE))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(),
+                'SWMM_PATH',
+                self.tr(r'SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)'),
+                None,
+                valuetype=Setting.FILE))
 
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()

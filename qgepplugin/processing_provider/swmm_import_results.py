@@ -50,7 +50,7 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
     DATABASE = 'DATABASE'
     SIM_DESCRIPTION = 'SIM_DESCRIPTION'
     IMPORT_FULL_RESULTS = 'IMPORT_FULL_RESULTS'
-    
+  
     def name(self):
         return 'swmm_import_results'
 
@@ -77,7 +77,6 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         description = self.tr('Import full results in addition to summary')
         self.addParameter(QgsProcessingParameterBoolean(
             self.IMPORT_FULL_RESULTS, description=description, defaultValue=False))
-
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""

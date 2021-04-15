@@ -26,26 +26,43 @@ from datetime import datetime, timedelta
 MEASURING_POINT_KIND = 'Diverse kind of SWMM simulation parameters'
 MEASURING_DEVICE_REMARK = 'SWMM Simulation'
 
-SWMM_SUMMARY_PARAMETERS  = {}
-SWMM_SUMMARY_PARAMETERS['average_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_SUMMARY_PARAMETERS['maximum_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_SUMMARY_PARAMETERS['maximum_hgl'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
-SWMM_SUMMARY_PARAMETERS['reported_max_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_SUMMARY_PARAMETERS['maximum_flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
-SWMM_SUMMARY_PARAMETERS['maximum_velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
-SWMM_SUMMARY_PARAMETERS['max_over_full_flow'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5733}
-SWMM_SUMMARY_PARAMETERS['max_over_full_depth'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS = {}
+SWMM_SUMMARY_PARAMETERS['average_depth'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734
+    }
+SWMM_SUMMARY_PARAMETERS['maximum_depth'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS['maximum_hgl'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
+SWMM_SUMMARY_PARAMETERS['reported_max_depth'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS['maximum_flow'] = {
+    'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_SUMMARY_PARAMETERS['maximum_velocity'] = {
+    'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
+SWMM_SUMMARY_PARAMETERS['max_over_full_flow'] = {
+    'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5733}
+SWMM_SUMMARY_PARAMETERS['max_over_full_depth'] = {
+    'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5734}
 
-SWMM_RESULTS_PARAMETERS  = {}
-SWMM_RESULTS_PARAMETERS['flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
-SWMM_RESULTS_PARAMETERS['velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
-SWMM_RESULTS_PARAMETERS['depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_RESULTS_PARAMETERS['capacity'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5732}
-SWMM_RESULTS_PARAMETERS['inflow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
-SWMM_RESULTS_PARAMETERS['flooding'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
-SWMM_RESULTS_PARAMETERS['head'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
+SWMM_RESULTS_PARAMETERS = {}
+SWMM_RESULTS_PARAMETERS['flow'] = {
+    'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['velocity'] = {
+    'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
+SWMM_RESULTS_PARAMETERS['depth'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_RESULTS_PARAMETERS['capacity'] = {
+    'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5732}
+SWMM_RESULTS_PARAMETERS['inflow'] = {
+    'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['flooding'] = {
+    'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['head'] = {
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
 
 NON_PHYSICAL_REM = 'Non-physical point which materializes swmm simulations'
+
 
 class QgepSwmm:
 
@@ -71,7 +88,6 @@ class QgepSwmm:
         self.bin_file = binfile
         self.feedback = feedback
         self.state = state
-
 
     def __enter__(self):
         if self.service is not None:
@@ -113,7 +129,6 @@ class QgepSwmm:
         """
 
         # Connects to service and get data and attributes from tableName
-        #con = psycopg2.connect(service=self.service)
         cur = self.con.cursor()
         if (state == 'planned' and ws is True) or (state is None):
             sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
@@ -201,7 +216,8 @@ class QgepSwmm:
         index_start = options_template.find('[{parameter_name}]'.format(parameter_name=parameter_name))
         if index_start == -1:
             # The balise options is not found
-            self.feedback_push_info('There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
+            self.feedback_push_info(
+                'There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
             return ''
         else:
             # Search for the next opening bracket
@@ -337,7 +353,6 @@ class QgepSwmm:
 
         return
 
-    
     def extract_time_series_indexes(self):
         """
         Extract full time series from swmm report file
@@ -362,16 +377,16 @@ class QgepSwmm:
                 # The following title is found: stop the recording of the indexes
                 title_found = False
 
-            if line.find('<<< Link ') != -1 or  line.find('<<< Node ') != -1:
+            if line.find('<<< Link ') != -1 or line.find('<<< Node ') != -1:
                 title_found = True
                 line_after_title = 0
                 obj_id = line.strip().split(' ')[2]
                 data_indexes[obj_id] = {}
                 data_indexes[obj_id]['title_index'] = line_number
                 data_indexes[obj_id]['start_index'] = line_number + heading_lines
-                if line.find('Link')  != -1:
+                if line.find('Link') != -1:
                     data_indexes[obj_id]['type'] = 'link'
-                if line.find('Node')  != -1:
+                if line.find('Node') != -1:
                     data_indexes[obj_id]['type'] = 'node'
 
             if title_found and line_after_title > heading_lines and line.strip() == '':
@@ -536,8 +551,8 @@ class QgepSwmm:
         self.feedback_push_info('Import full results')
         counter = 0
         for obj_id in data_indexes.keys():
-            counter+=1
-            self.feedback_set_progress(counter*100/nData)
+            counter += 1
+            self.feedback_set_progress(counter * 100 / nData)
             # Create measuring point if necessary
             if data_indexes[obj_id]['type'] == 'node':
                 mp_obj_id = self.create_measuring_point_node(obj_id, sim_description)
@@ -547,20 +562,22 @@ class QgepSwmm:
                 # Create measuring device 
                 self.create_measuring_device(mp_obj_id)
                 # Get measurement data of the current object
-                measurement_data = self.get_full_results(data_indexes[obj_id]['start_index'], data_indexes[obj_id]['end_index'], data_indexes[obj_id]['type'])
+                measurement_data = self.get_full_results(
+                    data_indexes[obj_id]['start_index'], data_indexes[obj_id]['end_index'],
+                    data_indexes[obj_id]['type'])
                 # Record each measurement
                 m_counter = 0
                 for m in measurement_data:
-                    m_counter+=1
-                    time = self.convert_to_datetime(m['date'] + ' ' +m['time']).isoformat()
+                    m_counter += 1
+                    time = self.convert_to_datetime(m['date'] + ' ' + m['time']).isoformat()
                     for k in m.keys():
                         if k in SWMM_RESULTS_PARAMETERS.keys():
                             if SWMM_RESULTS_PARAMETERS[k]['recorded']:
-                                ms_obj_id = self.create_measurement_series(mp_obj_id, k, SWMM_RESULTS_PARAMETERS[k]['dimension'])
-                                self.create_measurement_result(ms_obj_id, SWMM_RESULTS_PARAMETERS[k]['qgep_measurement_type'],
-                                measuring_duration, time, m[k])
-
-
+                                ms_obj_id = self.create_measurement_series(
+                                    mp_obj_id, k, SWMM_RESULTS_PARAMETERS[k]['dimension'])
+                                self.create_measurement_result(
+                                    ms_obj_id, SWMM_RESULTS_PARAMETERS[k]['qgep_measurement_type'],
+                                    measuring_duration, time, m[k])
         return
 
     def get_full_results(self, start_index, end_index, swmm_type):
@@ -579,7 +596,7 @@ class QgepSwmm:
         no_line = -1
         datas = []
         while line:
-            no_line +=1
+            no_line += 1
             if no_line >= start_index and no_line < end_index:
                 values = line.strip().split()
                 data = {}
@@ -640,13 +657,15 @@ class QgepSwmm:
         # Loop over each line of the node summary
         counter = 0
         for ws in data:
-            counter+=1
+            counter += 1
             if obj_type == 'node':
-                self.feedback_set_progress(counter*50/nData)
-                mp_obj_id = self.create_measuring_point_node(ws['id'], sim_description)
+                self.feedback_set_progress(counter * 50 / nData)
+                mp_obj_id = self.create_measuring_point_node(
+                    ws['id'], sim_description)
             else:
-                self.feedback_set_progress(50+counter*50/nData)
-                mp_obj_id = self.create_measuring_point_link(ws['id'], sim_description)
+                self.feedback_set_progress(50 + counter * 50 / nData)
+                mp_obj_id = self.create_measuring_point_link(
+                    ws['id'], sim_description)
             if mp_obj_id:
                 self.create_measuring_device(mp_obj_id)
                 delta = timedelta(
@@ -656,10 +675,15 @@ class QgepSwmm:
                 for k in ws.keys():
                     if k in SWMM_SUMMARY_PARAMETERS.keys():
                         if SWMM_SUMMARY_PARAMETERS[k]['recorded']:
-                            ms_obj_id = self.create_measurement_series(mp_obj_id, k, SWMM_SUMMARY_PARAMETERS[k]['dimension'])
+                            ms_obj_id = self.create_measurement_series(
+                                mp_obj_id, k, 
+                                SWMM_SUMMARY_PARAMETERS[k]['dimension'])
                             time = (simulation_start_date + delta).isoformat()
-                            self.create_measurement_result(ms_obj_id, SWMM_SUMMARY_PARAMETERS[k]['qgep_measurement_type'],
-                            measuring_duration, time, ws[k])
+                            self.create_measurement_result(
+                                ms_obj_id, 
+                                SWMM_SUMMARY_PARAMETERS[k]
+                                ['qgep_measurement_type'],
+                                measuring_duration, time, ws[k])
         return
 
     def create_measuring_point_node(self, node_obj_id, sim_description):
@@ -696,12 +720,17 @@ class QgepSwmm:
             # 4594 = technical purpose [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measuring_point
-            (damming_device, identifier, kind, purpose, remark, fk_wastewater_structure)
-            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, '{sim_description}', ws.obj_id 
+            (damming_device, identifier, kind, 
+            purpose, remark, fk_wastewater_structure)
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, 
+            '{sim_description}', ws.obj_id 
             FROM qgep_od.wastewater_structure ws
             WHERE fk_main_wastewater_node = '{node_obj_id}'
             RETURNING obj_id
-            """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, node_obj_id=node_obj_id, sim_description=sim_description)
+            """.format(
+                MEASURING_POINT_KIND=MEASURING_POINT_KIND, 
+                node_obj_id=node_obj_id, 
+                sim_description=sim_description)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
@@ -739,7 +768,8 @@ class QgepSwmm:
         sql = """
         SELECT mp.obj_id
         FROM qgep_od.measuring_point mp
-        JOIN qgep_od.wastewater_networkelement ne ON ne.fk_wastewater_structure = mp.fk_wastewater_structure
+        JOIN qgep_od.wastewater_networkelement ne ON 
+        ne.fk_wastewater_structure = mp.fk_wastewater_structure
         WHERE ne.obj_id = '{reach_obj_id}'
         AND mp.remark = '{sim_description}'
         """.format(sim_description=sim_description, reach_obj_id=reach_obj_id)
@@ -752,12 +782,16 @@ class QgepSwmm:
             # 4594 = technical purpose [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measuring_point
-            (damming_device, identifier, kind, purpose, remark, fk_wastewater_structure)
-            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, '{sim_description}', ne.fk_wastewater_structure 
+            (damming_device, identifier, kind, purpose, remark, 
+            fk_wastewater_structure)
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, 
+            '{sim_description}', ne.fk_wastewater_structure 
             FROM qgep_od.wastewater_networkelement ne 
             WHERE ne.obj_id = '{reach_obj_id}'
             RETURNING obj_id
-            """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, sim_description=sim_description, reach_obj_id=reach_obj_id)
+            """.format(
+                MEASURING_POINT_KIND=MEASURING_POINT_KIND, 
+                sim_description=sim_description, reach_obj_id=reach_obj_id)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
@@ -792,7 +826,9 @@ class QgepSwmm:
         FROM qgep_od.measuring_device md
         WHERE md.fk_measuring_point = '{mp_obj_id}'
         AND remark = '{MEASURING_DEVICE_REMARK}'
-        """.format(MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id)
+        """.format(
+            MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, 
+            mp_obj_id=mp_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -804,7 +840,9 @@ class QgepSwmm:
             VALUES
             (5702, '{MEASURING_DEVICE_REMARK}','{mp_obj_id}')
             RETURNING obj_id
-            """.format(MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id)
+            """.format(
+                MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK,
+                mp_obj_id=mp_obj_id)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
@@ -852,14 +890,18 @@ class QgepSwmm:
         if res is None:
             # Measuring point doesnt exists, must be created
             # 3217 = other [TO VALIDATE]
-            # No dimension, else we would need to create four measurements series l/s m/s m - [TO VALIDATE]
+            # No dimension, else we would need to create four measurements 
+            # series l/s m/s m - [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measurement_series
             (identifier, dimension, kind, remark, fk_measuring_point)
             VALUES
-            (null, '{parameter_dimension}', 3217, '{parameter_name}', '{mp_obj_id}') 
+            (null, '{parameter_dimension}', 3217,
+            '{parameter_name}', '{mp_obj_id}') 
             RETURNING obj_id
-            """.format(parameter_dimension=parameter_dimension,parameter_name=parameter_name, mp_obj_id=mp_obj_id)
+            """.format(
+                parameter_dimension=parameter_dimension,
+                parameter_name=parameter_name, mp_obj_id=mp_obj_id)
 
             try:
                 cur.execute(sql)
@@ -909,12 +951,14 @@ class QgepSwmm:
 
             sql = """
             INSERT INTO qgep_od.measurement_result
-            (identifier, measurement_type, measuring_duration, time, value, fk_measurement_series)
+            (identifier, measurement_type, measuring_duration, 
+            time, value, fk_measurement_series)
             VALUES
-            (null, {measurement_type}, {measuring_duration}, '{time}', {value}, '{ms_obj_id}') 
+            (null, {measurement_type}, {measuring_duration}, '{time}', {value}, '{ms_obj_id}')
             RETURNING obj_id
-            """.format(measurement_type=measurement_type, measuring_duration=measuring_duration,
-            time=time, value=value, ms_obj_id=ms_obj_id)
+            """.format(
+                measurement_type=measurement_type, measuring_duration=measuring_duration,
+                time=time, value=value, ms_obj_id=ms_obj_id)
 
             try:
                 cur.execute(sql)
@@ -931,7 +975,7 @@ class QgepSwmm:
             SET measuring_duration={measuring_duration}, value={value}
             WHERE obj_id = '{mr_obj_id}'
             RETURNING obj_id
-            """.format(measuring_duration=measuring_duration,value=value,mr_obj_id=mr_obj_id)
+            """.format(measuring_duration=measuring_duration, value=value, mr_obj_id=mr_obj_id)
             cur.execute(sql)
             mr_obj_id = cur.fetchone()[0]
             self.con.commit()
