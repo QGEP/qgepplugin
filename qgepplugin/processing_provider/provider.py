@@ -52,7 +52,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
         # Load algorithms
         self.alglist = [
-            SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(), 
+            SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(),
             SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm()]
         for alg in self.alglist:

@@ -50,7 +50,7 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
     DATABASE = 'DATABASE'
     SIM_DESCRIPTION = 'SIM_DESCRIPTION'
     IMPORT_FULL_RESULTS = 'IMPORT_FULL_RESULTS'
-  
+
     def name(self):
         return 'swmm_import_results'
 
@@ -73,7 +73,7 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         description = self.tr('Simulation name')
         self.addParameter(QgsProcessingParameterString(
             self.SIM_DESCRIPTION, description=description, defaultValue="SWMM simulation, rain T100, current"))
-        
+
         description = self.tr('Import full results in addition to summary')
         self.addParameter(QgsProcessingParameterBoolean(
             self.IMPORT_FULL_RESULTS, description=description, defaultValue=False))
@@ -95,7 +95,7 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
             qs.import_summary(sim_description)
             if import_full_result:
                 qs.import_full_results(sim_description)
-        
+
         feedback.setProgress(100)
 
         return {}

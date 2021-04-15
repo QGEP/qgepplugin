@@ -28,8 +28,7 @@ MEASURING_DEVICE_REMARK = 'SWMM Simulation'
 
 SWMM_SUMMARY_PARAMETERS = {}
 SWMM_SUMMARY_PARAMETERS['average_depth'] = {
-    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734
-    }
+    'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
 SWMM_SUMMARY_PARAMETERS['maximum_depth'] = {
     'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
 SWMM_SUMMARY_PARAMETERS['maximum_hgl'] = {
@@ -391,7 +390,7 @@ class QgepSwmm:
 
             if title_found and line_after_title > heading_lines and line.strip() == '':
                 end_table_found = True
-                data_indexes[obj_id]['end_index'] = line_number-1
+                data_indexes[obj_id]['end_index'] = line_number - 1
 
             if title_found:
                 line_after_title += 1
@@ -559,7 +558,7 @@ class QgepSwmm:
             if data_indexes[obj_id]['type'] == 'link':
                 mp_obj_id = self.create_measuring_point_link(obj_id, sim_description)
             if mp_obj_id:
-                # Create measuring device 
+                # Create measuring device
                 self.create_measuring_device(mp_obj_id)
                 # Get measurement data of the current object
                 measurement_data = self.get_full_results(
@@ -616,7 +615,7 @@ class QgepSwmm:
                     datas.append(data)
             line = o.readline()
         return datas
-            
+
     def import_summary(self, sim_description):
         """
         Import the summary results from an SWMM report file
@@ -625,7 +624,6 @@ class QgepSwmm:
         sim_description (string): Title of the simulation
 
         """
-        
         simulation_start_date = self.convert_to_datetime(self.get_analysis_option('Starting Date'))
         simulation_end_date = self.convert_to_datetime(self.get_analysis_option('Ending Date'))
         simulation_duration = simulation_end_date - simulation_start_date
@@ -669,18 +667,18 @@ class QgepSwmm:
             if mp_obj_id:
                 self.create_measuring_device(mp_obj_id)
                 delta = timedelta(
-                    days=int(ws['time_max_day']), 
+                    days=int(ws['time_max_day']),
                     hours=int(ws['time_max_time'].split(':')[0]),
                     minutes=int(ws['time_max_time'].split(':')[1]))
                 for k in ws.keys():
                     if k in SWMM_SUMMARY_PARAMETERS.keys():
                         if SWMM_SUMMARY_PARAMETERS[k]['recorded']:
                             ms_obj_id = self.create_measurement_series(
-                                mp_obj_id, k, 
+                                mp_obj_id, k,
                                 SWMM_SUMMARY_PARAMETERS[k]['dimension'])
                             time = (simulation_start_date + delta).isoformat()
                             self.create_measurement_result(
-                                ms_obj_id, 
+                                ms_obj_id,
                                 SWMM_SUMMARY_PARAMETERS[k]
                                 ['qgep_measurement_type'],
                                 measuring_duration, time, ws[k])
@@ -711,7 +709,6 @@ class QgepSwmm:
         WHERE ws.fk_main_wastewater_node = '{node_obj_id}'
         AND mp.remark = '{sim_description}'
         """.format(sim_description=sim_description, node_obj_id=node_obj_id)
-    
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -720,16 +717,16 @@ class QgepSwmm:
             # 4594 = technical purpose [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measuring_point
-            (damming_device, identifier, kind, 
+            (damming_device, identifier, kind,
             purpose, remark, fk_wastewater_structure)
-            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, 
-            '{sim_description}', ws.obj_id 
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594,
+            '{sim_description}', ws.obj_id
             FROM qgep_od.wastewater_structure ws
             WHERE fk_main_wastewater_node = '{node_obj_id}'
             RETURNING obj_id
             """.format(
-                MEASURING_POINT_KIND=MEASURING_POINT_KIND, 
-                node_obj_id=node_obj_id, 
+                MEASURING_POINT_KIND=MEASURING_POINT_KIND,
+                node_obj_id=node_obj_id,
                 sim_description=sim_description)
             try:
                 cur.execute(sql)
@@ -768,12 +765,11 @@ class QgepSwmm:
         sql = """
         SELECT mp.obj_id
         FROM qgep_od.measuring_point mp
-        JOIN qgep_od.wastewater_networkelement ne ON 
+        JOIN qgep_od.wastewater_networkelement ne ON
         ne.fk_wastewater_structure = mp.fk_wastewater_structure
         WHERE ne.obj_id = '{reach_obj_id}'
         AND mp.remark = '{sim_description}'
         """.format(sim_description=sim_description, reach_obj_id=reach_obj_id)
-    
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -782,15 +778,15 @@ class QgepSwmm:
             # 4594 = technical purpose [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measuring_point
-            (damming_device, identifier, kind, purpose, remark, 
+            (damming_device, identifier, kind, purpose, remark,
             fk_wastewater_structure)
-            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594, 
-            '{sim_description}', ne.fk_wastewater_structure 
-            FROM qgep_od.wastewater_networkelement ne 
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594,
+            '{sim_description}', ne.fk_wastewater_structure
+            FROM qgep_od.wastewater_networkelement ne
             WHERE ne.obj_id = '{reach_obj_id}'
             RETURNING obj_id
             """.format(
-                MEASURING_POINT_KIND=MEASURING_POINT_KIND, 
+                MEASURING_POINT_KIND=MEASURING_POINT_KIND,
                 sim_description=sim_description, reach_obj_id=reach_obj_id)
             try:
                 cur.execute(sql)
@@ -827,7 +823,7 @@ class QgepSwmm:
         WHERE md.fk_measuring_point = '{mp_obj_id}'
         AND remark = '{MEASURING_DEVICE_REMARK}'
         """.format(
-            MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, 
+            MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK,
             mp_obj_id=mp_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
@@ -836,7 +832,7 @@ class QgepSwmm:
             # Measuring device doesnt exists, must be created
             sql = """
             INSERT INTO qgep_od.measuring_device
-            (kind, remark, fk_measuring_point) 
+            (kind, remark, fk_measuring_point)
             VALUES
             (5702, '{MEASURING_DEVICE_REMARK}','{mp_obj_id}')
             RETURNING obj_id
@@ -883,21 +879,20 @@ class QgepSwmm:
         WHERE remark = '{parameter_name}'
         AND fk_measuring_point = '{mp_obj_id}'
         """.format(parameter_name=parameter_name, mp_obj_id=mp_obj_id)
-    
         cur.execute(sql)
         res = cur.fetchone()
 
         if res is None:
             # Measuring point doesnt exists, must be created
             # 3217 = other [TO VALIDATE]
-            # No dimension, else we would need to create four measurements 
+            # No dimension, else we would need to create four measurements
             # series l/s m/s m - [TO VALIDATE]
             sql = """
             INSERT INTO qgep_od.measurement_series
             (identifier, dimension, kind, remark, fk_measuring_point)
             VALUES
             (null, '{parameter_dimension}', 3217,
-            '{parameter_name}', '{mp_obj_id}') 
+            '{parameter_name}', '{mp_obj_id}')
             RETURNING obj_id
             """.format(
                 parameter_dimension=parameter_dimension,
@@ -942,7 +937,6 @@ class QgepSwmm:
         AND time = '{time}'
         AND measurement_type = {measurement_type}
         """.format(ms_obj_id=ms_obj_id, time=time, measurement_type=measurement_type)
-    
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -981,3 +975,4 @@ class QgepSwmm:
             self.con.commit()
         del cur
         return mr_obj_id
+        
