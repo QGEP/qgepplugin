@@ -92,7 +92,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                     Please configure it before running Swmm algorithms.')
             )
 
-        with QgepSwmm(None, None, None, inp_file, None, rpt_file, swmm_cli, None, feedback) as qs:
+        with QgepSwmm(None, None, None, inp_file, None, rpt_file, swmm_cli, feedback) as qs:
             prompt = qs.execute_swmm()
 
 

@@ -26,21 +26,30 @@ from datetime import datetime, timedelta
 MEASURING_POINT_KIND = 'Diverse kind of SWMM simulation parameters'
 MEASURING_DEVICE_REMARK = 'SWMM Simulation'
 
-SWMM_OUTPUT_PARAMETERS  = {}
-SWMM_OUTPUT_PARAMETERS['average_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_OUTPUT_PARAMETERS['maximum_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_OUTPUT_PARAMETERS['maximum_hgl'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_OUTPUT_PARAMETERS['reported_max_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
-SWMM_OUTPUT_PARAMETERS['maximum_flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5732}
-SWMM_OUTPUT_PARAMETERS['maximum_velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
-SWMM_OUTPUT_PARAMETERS['max_over_full_flow'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5732}
-SWMM_OUTPUT_PARAMETERS['max_over_full_depth'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS  = {}
+SWMM_SUMMARY_PARAMETERS['average_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS['maximum_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS['maximum_hgl'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
+SWMM_SUMMARY_PARAMETERS['reported_max_depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_SUMMARY_PARAMETERS['maximum_flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_SUMMARY_PARAMETERS['maximum_velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
+SWMM_SUMMARY_PARAMETERS['max_over_full_flow'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5733}
+SWMM_SUMMARY_PARAMETERS['max_over_full_depth'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5734}
+
+SWMM_RESULTS_PARAMETERS  = {}
+SWMM_RESULTS_PARAMETERS['flow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['velocity'] = {'recorded': True, 'dimension': 'm/s', 'qgep_measurement_type': 5732}
+SWMM_RESULTS_PARAMETERS['depth'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5734}
+SWMM_RESULTS_PARAMETERS['capacity'] = {'recorded': True, 'dimension': '-', 'qgep_measurement_type': 5732}
+SWMM_RESULTS_PARAMETERS['inflow'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['flooding'] = {'recorded': True, 'dimension': 'l/s', 'qgep_measurement_type': 5733}
+SWMM_RESULTS_PARAMETERS['head'] = {'recorded': True, 'dimension': 'm', 'qgep_measurement_type': 5732}
 
 NON_PHYSICAL_REM = 'Non-physical point which materializes swmm simulations'
 
 class QgepSwmm:
 
-    def __init__(self, title, service, state, inpfile, inptemplate, rptfile, binfile, db_model_path, feedback):
+    def __init__(self, title, service, state, inpfile, inptemplate, rptfile, binfile, feedback):
         """
         Initiate QgepSwmm
 
@@ -52,7 +61,7 @@ class QgepSwmm:
         inptemplate (path): path of the INP file which store simulations parameters
         rptfile (path): path of the OUT file which contains swmm results
         binfile (path): path of the swmm executable
-        db_model_path (path): path of the folder which contains the db model
+        feedback (pyQGIS feedback)
         """
         self.title = title
         self.service = service
@@ -60,7 +69,6 @@ class QgepSwmm:
         self.options_template_file = inptemplate
         self.rpt_file = rptfile
         self.bin_file = binfile
-        self.db_model_path = db_model_path
         self.feedback = feedback
         self.state = state
 
@@ -329,12 +337,13 @@ class QgepSwmm:
 
         return
 
+    
     def extract_time_series_indexes(self):
         """
-        Extract full time series from swmm output file
+        Extract full time series from swmm report file
 
         Returns:
-        data_indexes (dictionnary): dictionnary of the object id with data indexes
+        data_indexes (dictionary): dictionary of the object id with data indexes
 
         """
 
@@ -349,12 +358,14 @@ class QgepSwmm:
             line_number += 1
             line = line.rstrip()
             # Search for the table title
-            if line.find('<<< Link ') != -1:
-                
+            if line.find('*****') != -1:
+                # The following title is found: stop the recording of the indexes
+                title_found = False
+
+            if line.find('<<< Link ') != -1 or  line.find('<<< Node ') != -1:
                 title_found = True
                 line_after_title = 0
                 obj_id = line.strip().split(' ')[2]
-                print (obj_id)
                 data_indexes[obj_id] = {}
                 data_indexes[obj_id]['title_index'] = line_number
                 data_indexes[obj_id]['start_index'] = line_number + heading_lines
@@ -374,9 +385,9 @@ class QgepSwmm:
 
         return data_indexes
 
-    def extract_result_lines(self, table_title):
+    def extract_summary_lines(self, table_title):
         """
-        Extract result data from swmm output file
+        Extract result data from swmm report file
 
         Parameters:
         table_title (string): Name of the section to be extracted
@@ -422,7 +433,7 @@ class QgepSwmm:
 
         """
 
-        data = self.extract_result_lines('Node Depth Summary')
+        data = self.extract_summary_lines('Node Depth Summary')
         result = []
         for d in data:
             curres = {}
@@ -446,7 +457,7 @@ class QgepSwmm:
 
         """
 
-        data = self.extract_result_lines('Link Flow Summary')
+        data = self.extract_summary_lines('Link Flow Summary')
         result = []
         for d in data:
 
@@ -505,16 +516,97 @@ class QgepSwmm:
         date = datetime.strptime(str_date, "%d/%m/%Y %H:%M:%S")
         return date
 
-
-    def import_results(self, sim_description):
+    def import_full_results(self, sim_description):
         """
-        Import the results fro an SWMM output file
+        Import the full results from an SWMM report file
 
         Parameters:
-        ws_obj_id (string): wastewater structure object ID
+        sim_description (string): Title of the simulation
+
+        """
+
+        simulation_start_date = self.convert_to_datetime(self.get_analysis_option('Starting Date'))
+        simulation_end_date = self.convert_to_datetime(self.get_analysis_option('Ending Date'))
+        simulation_duration = simulation_end_date - simulation_start_date
+        measuring_duration = simulation_duration.total_seconds()
+
+        data_indexes = self.extract_time_series_indexes()
+
+        nData = len(data_indexes.keys())
+        self.feedback_push_info('Import full results')
+        counter = 0
+        for obj_id in data_indexes.keys():
+            counter+=1
+            self.feedback_set_progress(counter*100/nData)
+            # Create measuring point if necessary
+            if data_indexes[obj_id]['type'] == 'node':
+                mp_obj_id = self.create_measuring_point_node(obj_id, sim_description)
+            if data_indexes[obj_id]['type'] == 'link':
+                mp_obj_id = self.create_measuring_point_link(obj_id, sim_description)
+            if mp_obj_id:
+                # Create measuring device 
+                self.create_measuring_device(mp_obj_id)
+                # Get measurement data of the current object
+                measurement_data = self.get_full_results(data_indexes[obj_id]['start_index'], data_indexes[obj_id]['end_index'], data_indexes[obj_id]['type'])
+                # Record each measurement
+                m_counter = 0
+                for m in measurement_data:
+                    m_counter+=1
+                    time = self.convert_to_datetime(m['date'] + ' ' +m['time']).isoformat()
+                    for k in m.keys():
+                        if k in SWMM_RESULTS_PARAMETERS.keys():
+                            if SWMM_RESULTS_PARAMETERS[k]['recorded']:
+                                ms_obj_id = self.create_measurement_series(mp_obj_id, k, SWMM_RESULTS_PARAMETERS[k]['dimension'])
+                                self.create_measurement_result(ms_obj_id, SWMM_RESULTS_PARAMETERS[k]['qgep_measurement_type'],
+                                measuring_duration, time, m[k])
+
+
+        return
+
+    def get_full_results(self, start_index, end_index, swmm_type):
+        """
+        Get the full result of a node or link
+
+        Parameters:
+        start_index (integer): Index of the first line containing the data
+        end_index (integer): Index of the last line containing the data
 
         Returns:
-        me_obj_id: measuring point object ID
+        datas: array of dictionnary containing the data
+        """
+        o = codecs.open(self.rpt_file, 'r', encoding='utf-8')
+        line = o.readline()
+        no_line = -1
+        datas = []
+        while line:
+            no_line +=1
+            if no_line >= start_index and no_line < end_index:
+                print (line)
+                values = line.strip().split()
+                data = {}
+                if len(values) != 0:
+                    data['date'] = values[0]
+                    data['time'] = values[1]
+                    if swmm_type == 'node':
+                        data['inflow'] = values[2]
+                        data['flooding'] = values[3]
+                        data['depth'] = values[4]
+                        data['head'] = values[5]
+                    if swmm_type == 'link':
+                        data['flow'] = values[2]
+                        data['velocity'] = values[3]
+                        data['depth'] = values[4]
+                        data['capacity'] = values[5]
+                    datas.append(data)
+            line = o.readline()
+        return datas
+            
+    def import_summary(self, sim_description):
+        """
+        Import the summary results from an SWMM report file
+
+        Parameters:
+        sim_description (string): Title of the simulation
 
         """
         
@@ -522,26 +614,37 @@ class QgepSwmm:
         simulation_end_date = self.convert_to_datetime(self.get_analysis_option('Ending Date'))
         simulation_duration = simulation_end_date - simulation_start_date
         measuring_duration = simulation_duration.total_seconds()
-        self.feedback_push_info('Import nodes results')
+        self.feedback_push_info('Import nodes summary')
         node_summary = self.extract_node_depth_summary()
-        self.record_measures(node_summary, simulation_start_date, sim_description, measuring_duration, 'node')
-        self.feedback_push_info('Import links results')
+        self.record_summary(node_summary, simulation_start_date, sim_description, measuring_duration, 'node')
+        self.feedback_push_info('Import links summary')
         link_summary = self.extract_link_flow_summary()
-        self.record_measures(link_summary, simulation_start_date, sim_description, measuring_duration, 'link')
+        self.record_summary(link_summary, simulation_start_date, sim_description, measuring_duration, 'link')
 
         return
 
-    def record_measures(self, data, simulation_start_date, sim_description, measuring_duration, obj_type):
+    def record_summary(self, data, simulation_start_date, sim_description, measuring_duration, obj_type):
+
+        """
+        Record the node and link summary in the database
+
+        Parameters:
+        data (array): data extracted from the summary
+        simulation_start_date (datetime): start of the simulation
+        sim_description (string): name of the simulation
+        measuring_duration (integer): time length of the simulation in seconds
+        obj_type (string): link or node
+
+        """
+
         nData = len(data)
         # Loop over each line of the node summary
         counter = 0
         for ws in data:
-            print (ws)
             counter+=1
             if obj_type == 'node':
                 self.feedback_set_progress(counter*50/nData)
                 mp_obj_id = self.create_measuring_point_node(ws['id'], sim_description)
-                print (mp_obj_id)
             else:
                 self.feedback_set_progress(50+counter*50/nData)
                 mp_obj_id = self.create_measuring_point_link(ws['id'], sim_description)
@@ -552,11 +655,11 @@ class QgepSwmm:
                     hours=int(ws['time_max_time'].split(':')[0]),
                     minutes=int(ws['time_max_time'].split(':')[1]))
                 for k in ws.keys():
-                    if k in SWMM_OUTPUT_PARAMETERS.keys():
-                        if SWMM_OUTPUT_PARAMETERS[k]['recorded']:
-                            ms_obj_id = self.create_measurement_series(mp_obj_id, k, SWMM_OUTPUT_PARAMETERS[k]['dimension'])
+                    if k in SWMM_SUMMARY_PARAMETERS.keys():
+                        if SWMM_SUMMARY_PARAMETERS[k]['recorded']:
+                            ms_obj_id = self.create_measurement_series(mp_obj_id, k, SWMM_SUMMARY_PARAMETERS[k]['dimension'])
                             time = (simulation_start_date + delta).isoformat()
-                            self.create_measurement_result(ms_obj_id, SWMM_OUTPUT_PARAMETERS[k]['qgep_measurement_type'],
+                            self.create_measurement_result(ms_obj_id, SWMM_SUMMARY_PARAMETERS[k]['qgep_measurement_type'],
                             measuring_duration, time, ws[k])
         return
 
@@ -590,7 +693,6 @@ class QgepSwmm:
         res = cur.fetchone()
 
         if res is None:
-            # Check if weather the measuring point doesnt exists or the waternode is no
             # Measuring point doesnt exists, must be created
             # 4594 = technical purpose [TO VALIDATE]
             sql = """
@@ -657,6 +759,7 @@ class QgepSwmm:
             WHERE ne.obj_id = '{reach_obj_id}'
             RETURNING obj_id
             """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, sim_description=sim_description, reach_obj_id=reach_obj_id)
+            print(sql)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:

@@ -49,7 +49,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
     """
     """
 
-    OUT_FILE = 'OUT_FILE'
+    RPT_FILE = 'RPT_FILE'
     NODE_SUMMARY = 'NODE_SUMMARY'
     LINK_SUMMARY = 'LINK_SUMMARY'
     XSECTION_SUMMARY = 'XSECTION_SUMMARY'
@@ -66,8 +66,8 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('OUT File')
-        self.addParameter(QgsProcessingParameterFile(self.OUT_FILE, description=description))
+        description = self.tr('RPT File')
+        self.addParameter(QgsProcessingParameterFile(self.RPT_FILE, description=description))
 
         self.addParameter(QgsProcessingParameterFeatureSink(self.NODE_SUMMARY, self.tr('Node summary')))
         self.addParameter(QgsProcessingParameterFeatureSink(self.LINK_SUMMARY, self.tr('Link summary')))
@@ -78,7 +78,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         feedback.setProgress(1)
 
         # init params
-        out_file = self.parameterAsFileOutput(parameters, self.OUT_FILE, context)
+        rpt_file = self.parameterAsFileOutput(parameters, self.RPT_FILE, context)
 
         # create feature sink for node summary
         fields = QgsFields()
@@ -96,7 +96,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
 
         # Get node summary from output file
-        qs = QgepSwmm(None, None, None, None, None, out_file, None, None, feedback)
+        qs = QgepSwmm(None, None, None, None, None, rpt_file, None, feedback)
         node_summary = qs.extract_node_depth_summary()
 
         # Fill node summary with data

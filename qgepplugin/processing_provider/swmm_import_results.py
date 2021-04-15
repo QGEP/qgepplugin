@@ -28,6 +28,7 @@ from qgis.core import (
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterFile,
+    QgsProcessingParameterBoolean,
     # QgsProcessingParameterFeatureSink
     QgsProcessingParameterString
 )
@@ -50,10 +51,11 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
     """
     """
 
-    OUT_FILE = 'OUT_FILE'
+    RPT_FILE = 'RPT_FILE'
     DATABASE = 'DATABASE'
     SIM_DESCRIPTION = 'SIM_DESCRIPTION'
-
+    IMPORT_FULL_RESULTS = 'IMPORT_FULL_RESULTS'
+    
     def name(self):
         return 'swmm_import_results'
 
@@ -66,8 +68,8 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('SWMM summary file (.rpt)')
-        self.addParameter(QgsProcessingParameterFile(self.OUT_FILE, description=description))
+        description = self.tr('SWMM report file (.rpt)')
+        self.addParameter(QgsProcessingParameterFile(self.RPT_FILE, description=description))
 
         description = self.tr('Database')
         self.addParameter(QgsProcessingParameterString(
@@ -76,6 +78,10 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         description = self.tr('Simulation name')
         self.addParameter(QgsProcessingParameterString(
             self.SIM_DESCRIPTION, description=description, defaultValue="SWMM simulation, rain T100, current"))
+        
+        description = self.tr('Import full results in addition to summary')
+        self.addParameter(QgsProcessingParameterBoolean(
+            self.IMPORT_FULL_RESULTS, description=description, defaultValue=False))
 
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
@@ -85,15 +91,16 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         feedback.setProgress(1)
 
         # init params
-        out_file = self.parameterAsFileOutput(parameters, self.OUT_FILE, context)
+        rpt_file = self.parameterAsFileOutput(parameters, self.RPT_FILE, context)
         database = self.parameterAsString(parameters, self.DATABASE, context)
         sim_description = self.parameterAsString(parameters, self.SIM_DESCRIPTION, context)
+        import_full_result = self.parameterAsBoolean(parameters, self.IMPORT_FULL_RESULTS, context)
 
         # Get node summary from output file
-        #qs = QgepSwmm(sim_description, database, None, None, None, out_file, None, None, feedback)
-        #qs.import_results(sim_description)
-        with QgepSwmm(sim_description, database, None, None, None, out_file, None, None, feedback) as qs:
-            qs.import_results(sim_description)
+        with QgepSwmm(sim_description, database, None, None, None, rpt_file, None, feedback) as qs:
+            qs.import_summary(sim_description)
+            if import_full_result:
+                qs.import_full_results(sim_description)
         
         feedback.setProgress(100)
 
