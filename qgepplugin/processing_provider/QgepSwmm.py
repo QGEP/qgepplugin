@@ -489,7 +489,7 @@ class QgepSwmm:
         """
 
         command = [self.bin_file, self.input_file, self.rpt_file]
-        print('command', command)
+        self.feedback_push_info('command: ' + command)
         proc = subprocess.run(
             command,
             shell=True,
@@ -581,7 +581,6 @@ class QgepSwmm:
         while line:
             no_line +=1
             if no_line >= start_index and no_line < end_index:
-                print (line)
                 values = line.strip().split()
                 data = {}
                 if len(values) != 0:
@@ -759,7 +758,6 @@ class QgepSwmm:
             WHERE ne.obj_id = '{reach_obj_id}'
             RETURNING obj_id
             """.format(MEASURING_POINT_KIND=MEASURING_POINT_KIND, sim_description=sim_description, reach_obj_id=reach_obj_id)
-            print(sql)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:

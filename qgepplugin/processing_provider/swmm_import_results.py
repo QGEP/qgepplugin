@@ -20,16 +20,11 @@
 """
 
 from qgis.core import (
-    #QgsFeature,
-    #QgsFeatureSink,
-    #QgsField,
-    #QgsFields,
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterFile,
     QgsProcessingParameterBoolean,
-    # QgsProcessingParameterFeatureSink
     QgsProcessingParameterString
 )
 
