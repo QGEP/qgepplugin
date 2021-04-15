@@ -945,7 +945,7 @@ class QgepSwmm:
 
             sql = """
             INSERT INTO qgep_od.measurement_result
-            (identifier, measurement_type, measuring_duration, 
+            (identifier, measurement_type, measuring_duration,
             time, value, fk_measurement_series)
             VALUES
             (null, {measurement_type}, {measuring_duration}, '{time}', {value}, '{ms_obj_id}')
@@ -975,4 +975,3 @@ class QgepSwmm:
             self.con.commit()
         del cur
         return mr_obj_id
-        
