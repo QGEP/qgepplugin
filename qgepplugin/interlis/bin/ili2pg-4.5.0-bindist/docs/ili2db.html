@@ -778,6 +778,13 @@ gibt einen spezifischen Hinweis auf PostGIS, GeoPackage oder FileGDB.</p>
 <p><strong>PostGIS:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2pg.jar [Options] [file]</tt></p>
 <p><strong>GeoPackage:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2gpkg.jar [Options] [file]</tt></p>
 <p><strong>FileGDB:</strong> <tt class="docutils literal">java <span class="pre">-jar</span> ili2fgdb.jar [Options] [file]</tt></p>
+<p>Der Rückgabewert ist wie folgt:</p>
+<blockquote>
+<ul class="simple">
+<li>0 import/export ok, keine Fehler festgestellt</li>
+<li>!0 import/export nicht ok, Fehler festgestellt</li>
+</ul>
+</blockquote>
 <p>Optionen:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -966,10 +973,10 @@ MetaAttrN=AttrValueN
 <td colspan="2">Strukturattribute mit dem Metaattribut <tt class="docutils literal">ili2db.mapping=JSON</tt>, werden direkt als Spalte mit dem Typ JSON abgebildet.</td>
 </tr>
 <tr><td>--expandMultilingual</td>
-<td colspan="2">Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp LocalisationCH_V1.MultilingualText oder LocalisationCH_V1.MultilingualMText ist und die ausser „LocalisedText“ keine weiteren Attribute haben, werden direkt als Spalten in der Tabelle des Strukturattributes abgebildet, d.h. keine Records in den Tabellen für die Multilingual-Strukturen.</td>
+<td colspan="2">Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp LocalisationCH_V1.MultilingualText oder LocalisationCH_V1.MultilingualMText ist (oder das Metaattribut ili2db.mapping=Multilingual haben) und die ausser „LocalisedText“ keine weiteren Attribute haben, werden direkt als Spalten in der Tabelle des Strukturattributes abgebildet, d.h. keine Records in den Tabellen für die Multilingual-Strukturen.</td>
 </tr>
 <tr><td>--expandLocalised</td>
-<td colspan="2">Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp LocalisationCH_V1.LocalisedText oder LocalisationCH_V1.LocalisedMText ist und die ausser „Language“ und „Text“ keine weiteren Attribute haben, werden direkt als Spalten in der Tabelle des Strukturattributes abgebildet, d.h. keine Records in den Tabellen für die Multilingual-Strukturen.</td>
+<td colspan="2">Strukturattribute deren maximale Kardinalität 1 ist, deren Basistyp LocalisationCH_V1.LocalisedText oder LocalisationCH_V1.LocalisedMText (oder das Metaattribut ili2db.mapping=Localised haben) ist und die ausser „Language“ und „Text“ keine weiteren Attribute haben, werden direkt als Spalten in der Tabelle des Strukturattributes abgebildet, d.h. keine Records in den Tabellen für die Multilingual-Strukturen.</td>
 </tr>
 <tr><td>--createGeomIdx</td>
 <td colspan="2">Erstellt für jede Geometriespalte in der Datenbank einen räumlichen Index. (siehe Kapitel Abbildungsregeln/Geometrieattribute)</td>
@@ -1077,6 +1084,12 @@ Mehrere Sprachen können durch Semikolon getrennt werden, um die Priorität zu r
 </tr>
 <tr><td>--createNumChecks</td>
 <td colspan="2">Erstellt für numerische Datentypen CHECK-Constraints in der Datenbank.</td>
+</tr>
+<tr><td>--createTextChecks</td>
+<td colspan="2">Erstellt für Text Datentypen CHECK-Constraints in der Datenbank. (nicht nur Leerzeichen; bei TEXT keine Zeilenumbrüche)</td>
+</tr>
+<tr><td>--createDateTimeChecks</td>
+<td colspan="2">Erstellt für Datum und Zeit Datentypen CHECK-Constraints in der Datenbank.</td>
 </tr>
 <tr><td>--createTypeConstraints</td>
 <td colspan="2">Erstellt für die t_type Spalte ein CHECK-Constraint in der Datenbank.</td>
@@ -1966,8 +1979,10 @@ CREATE TABLE D (
 <li>GeometryCHLV95_V1.MultiDirectedLine</li>
 <li>CatalogueObjects_V1.Catalogues.CatalogueReference</li>
 <li>CatalogueObjects_V1.Catalogues.MandatoryCatalogueReference</li>
+<li>Strukturen mit dem Interlis Metaattribut ili2db.mapping=Multilingual</li>
 <li>LocalisationCH_V1.MultilingualMText</li>
 <li>LocalisationCH_V1.MultilingualText</li>
+<li>Strukturen mit dem Interlis Metaattribut ili2db.mapping=Localised</li>
 <li>LocalisationCH_V1.LocalisedMText</li>
 <li>LocalisationCH_V1.LocalisedText</li>
 </ul>
