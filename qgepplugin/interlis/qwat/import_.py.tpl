@@ -773,8 +773,25 @@ def import_():
         print(".", end="")
     print("done")
 
-    print("Importing WASSER.leitung -> QWAT.pipe")
-    for row in wasser_session.query(WASSER.leitung):
+    print("Importing WASSER.hydraulischer_strang, WASSER.leitung -> QWAT.pipe")
+    for row, leitung in wasser_session.query(WASSER.hydraulischer_strang, WASSER.leitung).join(WASSER.leitung):
+
+        # AVAILABLE FIELDS IN hydraulischer_strang
+
+        # --- baseclass ---
+        # t_ili_tid, t_type
+
+        # --- sia405_baseclass ---
+        # obj_id
+
+        # --- hydraulischer_strang ---
+        # bemerkung, bisknotenref, durchfluss, fliessgeschwindigkeit, name_nummer, referenz_durchmesser, referenz_laenge, referenz_rauheit, t_id, verbrauch, vonknotenref, zustand
+
+        # --- _bwrel_ ---
+        # leitung__BWREL_strangref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_strangref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+
+        # --- _rel_ ---
+        # bisknotenref__REL, vonknotenref__REL
 
         # AVAILABLE FIELDS IN leitung
 

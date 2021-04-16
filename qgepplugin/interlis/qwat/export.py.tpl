@@ -534,7 +534,7 @@ def export():
         print(".", end="")
     print("done")
 
-    print("Exporting QWAT.pipe -> WASSER.leitung")
+    print("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
     for row in qwat_session.query(QWAT.pipe):
 
         # AVAILABLE FIELDS IN QWAT.pipe
@@ -548,6 +548,31 @@ def export():
         # --- _rel_ ---
         # fk_bedding__REL, fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_function__REL, fk_installmethod__REL, fk_material__REL, fk_node_a__REL, fk_node_b__REL, fk_parent__REL, fk_precision__REL, fk_pressurezone__REL, fk_protection__REL, fk_status__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL, schema_force_visible__REL
 
+        hydraulischer_strang = WASSER.hydraulischer_strang(
+            # FIELDS TO MAP TO WASSER.hydraulischer_strang
+
+            # --- baseclass ---
+            # t_ili_tid=row.REPLACE_ME,
+            # t_type=row.REPLACE_ME,
+
+            # --- sia405_baseclass ---
+            # obj_id=row.REPLACE_ME,
+
+            # --- hydraulischer_strang ---
+            # bemerkung=row.REPLACE_ME,
+            # bisknotenref=row.REPLACE_ME,
+            # durchfluss=row.REPLACE_ME,
+            # fliessgeschwindigkeit=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # referenz_durchmesser=row.REPLACE_ME,
+            # referenz_laenge=row.REPLACE_ME,
+            # referenz_rauheit=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # verbrauch=row.REPLACE_ME,
+            # vonknotenref=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(hydraulischer_strang)
         leitung = WASSER.leitung(
             # FIELDS TO MAP TO WASSER.leitung
 

@@ -25,7 +25,7 @@ def get_qwat_mapping():
         # QWAT.???: [WASSER.muffen], # does not exist in QWAT
 
         # Pipe
-        QWAT.pipe: [WASSER.leitung],
+        QWAT.pipe: [WASSER.hydraulischer_strang, WASSER.leitung],
         QWAT.leak: [WASSER.schadenstelle],
     }
 

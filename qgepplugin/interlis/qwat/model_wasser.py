@@ -90,6 +90,11 @@ class leitung(sia405_baseclass):  # conduite
     __table_args__ = {"schema": SCHEMA}
 
 
+class hydraulischer_strang(sia405_baseclass):
+    __tablename__ = "hydraulischer_strang"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class schadenstelle(sia405_baseclass):
     __tablename__ = "schadenstelle"
     __table_args__ = {"schema": SCHEMA}

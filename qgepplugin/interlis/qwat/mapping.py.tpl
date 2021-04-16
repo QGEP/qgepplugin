@@ -12,7 +12,7 @@ QWAT_TO_WASSER = {
     QWAT.source: [WASSER.wassergewinnungsanlage],
     QWAT.chamber: [WASSER.absperrorgan],
     QWAT.valve: [WASSER.absperrorgan],
-    QWAT.pipe: [WASSER.leitung],
+    QWAT.pipe: [WASSER.hydraulischer_strang, WASSER.leitung],
     QWAT.leak: [WASSER.schadenstelle],
 
     # AVAILABLE TABLES
