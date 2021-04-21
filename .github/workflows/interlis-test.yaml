@@ -27,3 +27,9 @@ jobs:
         run: |
           cd qgepplugin
           python -m unittest interlis.tests
+        env:
+            PGHOST: 127.0.0.1
+            PGPORT: 5432
+            PGDATABASE: qgep_prod
+            PGUSER: postgres
+            PGPASS: postgres
