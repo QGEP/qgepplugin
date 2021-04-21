@@ -97,6 +97,11 @@ def setup_test_db(template="full"):
             dexec_("pg_restore -U postgres --dbname qgep_prod --verbose --no-privileges --exit-on-error qwat_v1.3.5_data_and_structure_sample.backup")
             dexec_("createdb -U postgres --template=qgep_prod tpl_full")
 
+            # Hotfix invalid data
+            delta_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'test_data', 'qgep_demodata_hotfix.sql')
+            exec_(f'docker cp {delta_path} qgepqwat:/tpl_full_hotfix.sql')
+            dexec_('psql -U postgres -d tpl_full -f /tpl_full_hotfix.sql')
+
             # Creating the template DB with subset data
             # THIS IS QUITE SLOW, WE DISABLE IT FOR NOW
             # connection = psycopg2.connect(
