@@ -74,7 +74,7 @@ def qgep_export():
             # 'akten': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
             'astatus': get_vl(row.status__REL),
             'baujahr': row.year_of_construction,
-            'baulicherzustand': get_vl(row.structure_condition),
+            'baulicherzustand': get_vl(row.structure_condition__REL),
             # 'baulos': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
             'bemerkung': row.remark,
             'betreiberref': get_tid(row.fk_operator__REL),
@@ -85,7 +85,7 @@ def qgep_export():
             'ersatzjahr': row.year_of_replacement,
             'finanzierung': row.financing,
             'inspektionsintervall': row.inspection_interval,
-            'sanierungsbedarf': get_vl(row.renovation_necessity),
+            'sanierungsbedarf': get_vl(row.renovation_necessity__REL),
             'standortname': row.location_name,
             'subventionen': row.subsidies,
             'wbw_basisjahr': row.rv_base_year,
