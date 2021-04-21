@@ -26,7 +26,6 @@ logger.addHandler(handler)
 
 class TestQGEPUseCases(unittest.TestCase):
 
-    # @unittest.skip("...")
     def test_case_a_import_wincan_xtf(self):
         """
         # A. import Wincan-generated xtf data into QGEP
@@ -80,14 +79,14 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.organisation).count(), 18)
         session.close()
 
-    @unittest.skip("full export is way too slow to test")
+    @unittest.skipIf(os.getenv("INCLUDE_SLOW_TESTS", "").lower() != 'true', "slow test excluded by default, set INCLUDE_SLOW_TESTS=true to run")
     def test_case_b_export_complete_qgep_to_xtf(self):
         """
         # B. export the whole QGEP model to interlis
         """
 
-        # Prepare subset db (full export is too slow)
-        main(["setupdb", "subset"])
+        # Prepare subset db
+        main(["setupdb", "full"])
 
         path = os.path.join(tempfile.mkdtemp(), "export.xtf")
         main(["io", "--export_xtf", path, "qgep", "--recreate_schema"])
@@ -96,13 +95,14 @@ class TestQGEPUseCases(unittest.TestCase):
         print(f"Saved to {path}")
         utils.ili2db.validate_xtf_data(path)
 
-    @unittest.skip("input file is invalid")
+    @unittest.expectedFailure
     def test_case_c_import_complete_xtf_to_qgep(self):
         """
         # C. import a whole interlis transfer file into QGEP
         """
 
         # Incomming XTF
+        # THIS INPUT FILE IS INVALID !
         path = os.path.join(os.path.dirname(__file__), 'data', 'test_data', 'case_c_import_all.xtf')
 
         # Prepare subset db (we import in an empty schema)

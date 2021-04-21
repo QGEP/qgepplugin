@@ -16,6 +16,9 @@ jobs:
   interlis-tests:
     name: Interlis-tests
     runs-on: ubuntu-20.04
+    strategy:
+        matrix:
+            slow: ["true", "false"]
 
     steps:
       - uses: actions/checkout@v2
@@ -33,6 +36,7 @@ jobs:
           cd qgepplugin
           python -m unittest interlis.tests
         env:
+            INCLUDE_SLOW_TESTS: ${{ matrix.slow }}
             PGHOST: 127.0.0.1
             PGPORT: 5432
             PGDATABASE: qgep_prod
