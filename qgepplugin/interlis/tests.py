@@ -18,9 +18,9 @@ from .qgep.model_qgep import get_qgep_model
 
 
 # Display logging in unittest output
-logger = logging.getLogger(__package__)
+logger = logging.getLogger()
 logger.setLevel(logging.WARNING)
-handler = logging.StreamHandler(sys.stderr)
+handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.WARNING)
 logger.addHandler(handler)
 
