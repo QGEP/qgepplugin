@@ -3,9 +3,11 @@ python -m unittest interlis.tests
 """
 
 import os
+import sys
 import unittest
 import decimal
 import tempfile
+import logging
 
 from sqlalchemy.orm import Session
 
@@ -13,6 +15,14 @@ from . import main
 from . import utils
 
 from .qgep.model_qgep import get_qgep_model
+
+
+# Display logging in unittest output
+logger = logging.getLogger(__package__)
+logger.setLevel(logging.WARNING)
+handler = logging.StreamHandler(sys.stderr)
+handler.setLevel(logging.WARNING)
+logger.addHandler(handler)
 
 class TestQGEPUseCases(unittest.TestCase):
 
