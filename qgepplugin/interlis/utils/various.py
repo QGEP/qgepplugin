@@ -61,17 +61,17 @@ def setup_test_db(template="full"):
             logger.info("Postgres not ready... we wait...")
             time.sleep(1)
 
-        db_dont_exist = (
-            dexec_("createdb -U postgres tpl_empty") == 0
-            and dexec_("createdb -U postgres tpl_subset") == 0
-            and dexec_("createdb -U postgres tpl_full")
+        db_didnt_exist = (
+            dexec_("createdb -U postgres tpl_empty", check=False) == 0
+            or dexec_("createdb -U postgres tpl_subset", check=False) == 0
+            or dexec_("createdb -U postgres tpl_full", check=False) == 0
         )
-        if db_dont_exist:
+        if db_didnt_exist:
             logger.info("Test templates don't exist, we create them")
 
-            dexec_(f"dropdb -U postgres tpl_empty")
-            dexec_(f"dropdb -U postgres tpl_subset")
-            dexec_(f"dropdb -U postgres tpl_full")
+            dexec_("dropdb -U postgres tpl_empty --if-exists")
+            dexec_("dropdb -U postgres tpl_subset --if-exists")
+            dexec_("dropdb -U postgres tpl_full --if-exists")
 
             dexec_("apt-get update")
             dexec_("apt-get install -y wget")
