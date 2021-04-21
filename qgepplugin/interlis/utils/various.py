@@ -15,7 +15,7 @@ logger = logging.getLogger(__package__)
 class CmdException(BaseException):
     pass
 
-def exec_(command, check=True, silent=False):
+def exec_(command, check=True):
     logger.info(f"EXECUTING: {command}")
     try:
         proc = subprocess.run(
@@ -50,14 +50,14 @@ def setup_test_db(template="full"):
         return exec_(f"docker exec qgepqwat {cmd}")
 
     logger.info("SETTING UP QGEP/QWAT DATABASE...")
-    r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False, silent=True)
+    r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False)
     if r != 0:
         logger.info("Test container not running, we create it")
 
         exec_(f"docker run -d --rm -v qgepqwat_db:/var/lib/postgresql/data -p 5432:5432 --name qgepqwat -e POSTGRES_PASSWORD={pgconf['password'] or 'postgres'} -e POSTGRES_DB={pgconf['dbname'] or 'qgep_prod'} postgis/postgis")
 
         # Wait for PG
-        while exec_("docker exec qgepqwat pg_isready", check=False, silent=True) != 0:
+        while exec_("docker exec qgepqwat pg_isready", check=False) != 0:
             logger.info("Postgres not ready... we wait...")
             time.sleep(1)
 
