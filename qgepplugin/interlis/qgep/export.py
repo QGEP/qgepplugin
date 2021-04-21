@@ -468,7 +468,7 @@ def qgep_export():
             laengeeffektiv=row.length_effective,
             lagebestimmung=get_vl(row.horizontal_positioning__REL),
             lichte_hoehe=row.clear_height,
-            material=row.material,
+            material=get_vl(row.material__REL),
             nachhaltungspunktref=get_tid(row.fk_reach_point_to__REL),
             plangefaelle=row.slope_building_plan,  # TODO : check, does this need conversion ?
             reibungsbeiwert=row.coefficient_of_friction,
