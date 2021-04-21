@@ -16,9 +16,17 @@ jobs:
   interlis-tests:
     name: Interlis-tests
     runs-on: ubuntu-20.04
+    strategy:
+        matrix:
+            slow: ["true", "false"]
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+            python-version: 3.8
 
       - name: Install python deps
         run: pip install -r qgepplugin/interlis/requirements.txt
@@ -27,3 +35,10 @@ jobs:
         run: |
           cd qgepplugin
           python -m unittest interlis.tests
+        env:
+            INCLUDE_SLOW_TESTS: ${{ matrix.slow }}
+            PGHOST: 127.0.0.1
+            PGPORT: 5432
+            PGDATABASE: qgep_prod
+            PGUSER: postgres
+            PGPASS: postgres

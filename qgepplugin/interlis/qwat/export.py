@@ -1,5 +1,8 @@
+import datetime
+import warnings
+
 from sqlalchemy.orm import Session
-from geoalchemy2.functions import ST_Transform, ST_Force2D
+from geoalchemy2.functions import ST_Transform, ST_Force2D, ST_Z, ST_ForceCurve, ST_LineSubstring, ST_CurveToLine
 
 from .. import utils
 
@@ -13,63 +16,107 @@ def qwat_export():
     QWAT = get_qwat_model()
     WASSER = get_wasser_model()
 
-    # TODO: use two different sessions for reading and writing as in qgep.import_
-    session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
-    tid_maker = utils.ili2db.TidMaker(id_attribute="id")
+    # Logging disabled (very slow)
+    # qwat_session = Session(utils.sqlalchemy.create_engine(logger_name='qwat'), autocommit=False, autoflush=False)
+    # wasser_session = Session(utils.sqlalchemy.create_engine(logger_name='wasser'), autocommit=False, autoflush=False)
+    qwat_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    wasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    tid_maker = utils.ili2db.TidMaker(id_attribute='id')
 
-    logger.info("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
-    # Some QWAT.node are abstract (have entries for subclasses, such as hydrant) and some are concrete (no subclass entry).
-    # Here's we just insert the concrete ones, the abstract ones will be inserted later.
-    # TODO : can't sqlalchemy manage this ? tried with session.merge instead of session.add, but it doesn't work
-    # alternatively we could delete the abstract nodes just before adding the subclasses below
-    network_elements_ids = set()
-    network_elements_ids.update(o[0] for o in session.query(QWAT.hydrant.id).all())
-    network_elements_ids.update(o[0] for o in session.query(QWAT.tank.id).all())
-    network_elements_ids.update(o[0] for o in session.query(QWAT.pump.id).all())
-    # SELECT * FROM "qwat_od"."node" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."network_element" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."hydrant" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."installation" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."part" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."subscriber" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."meter" WHERE id=8102;
-    # SELECT * FROM "qwat_od"."valve" WHERE id=8102;
-    for row in session.query(QWAT.node):
-        # We skip abstract entries element (those that have entries for subclasses)
-        if row.id in network_elements_ids:
-            continue
+    def get_tid(relation, for_class=None):
+        """
+        Makes a tid for a relation
+        """
+        if relation is None:
+            return None
+        return tid_maker.tid_for_row(relation, for_class=for_class)
+
+    def create_metaattributes(instance):
+        warnings.warn(f'QWAT doesn\'t define meta attributes. Dummy metaattributes will be created with an arbitrary date.')
+
+        # NOTE : QWAT doesn't define meta attributes, so we create a dummy metattribute
+        metaattribute = WASSER.metaattribute(
+            # FIELDS TO MAP TO WASSER.metaattribute
+            # --- metaattribute ---
+            datenherr='unknown',
+            datenlieferant='unknown',
+            letzte_aenderung=datetime.datetime.min,
+            sia405_baseclass_metaattribute=instance.t_id,
+            # OD : is this OK ? Don't we need a different t_id from what inserted above in organisation ? if so, consider adding a "for_class" arg to tid_for_row
+            t_id=instance.t_id,
+            t_seq=0,
+        )
+        wasser_session.add(metaattribute)
+
+    def base_common(row, type_name, tid_for_class=None):
+        """
+        Returns common attributes for base
+        """
+        return {
+            "t_ili_tid": row.id,
+            "t_type": type_name,
+            "obj_id": row.id,
+            "t_id": get_tid(row, tid_for_class),
+        }
+
+    def leitungsknoten_common(row):
+        """
+        Returns common attributes for leitungsknoten
+        """
+        return {
+            # --- leitungsknoten ---
+            # "bemerkung": row.REPLACE_ME,
+            # "druckzone": row.REPLACE_ME,
+            # "eigentuemer": row.REPLACE_ME,
+            # "einbaujahr": row.REPLACE_ME,
+            "geometrie": ST_Force2D(ST_Transform(row.geometry, 2056)),
+            "hoehe": ST_Z(row.geometry),
+            # "hoehenbestimmung": row.REPLACE_ME,
+            "knotenref": tid_maker.tid_for_row(row, QWAT.node),  # we use the generated hydraulischer_knoten t_id
+            "lagebestimmung": "undefined",
+            "symbolori": 0,
+        }
+
+    print("Exporting QWAT.node -> WASSER.hydraulischer_knoten")
+    for row in qwat_session.query(QWAT.node):
+        """
+        We map QWAT nodes to hydraulischer_knoten. QWAT nodes subclasses (such as hydrant)
+        will be mapped to leitungsknoten. This is why we need to specify a class for t_id maker.
+        """
 
         # AVAILABLE FIELDS IN QWAT.node
 
         # --- node ---
         # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, id, update_geometry_alt1, update_geometry_alt2
 
-        # --- _relations_ ---
-        # fk_district_REL, fk_pressurezone_REL
+        # --- _bwrel_ ---
+        # pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b
+
+        # --- _rel_ ---
+        # fk_district__REL, fk_pressurezone__REL
 
         hydraulischer_knoten = WASSER.hydraulischer_knoten(
             # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-            # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="hydraulischer_knoten",
-            # --- sia405_baseclass ---
-            obj_id=row.id,
+
+            **base_common(row, "hydraulischer_knoten", QWAT.node),
+
             # --- hydraulischer_knoten ---
             # bemerkung=row.REPLACE_ME,
             # druck=row.REPLACE_ME,
             geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # type_de_noeud=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.node.make_tid(row.id),
+            knotentyp="Normalknoten",
+            name_nummer=str(row.id),
             # verbrauch=row.REPLACE_ME,
         )
-        session.add(hydraulischer_knoten)
+        wasser_session.add(hydraulischer_knoten)
+        create_metaattributes(hydraulischer_knoten)
         print(".", end="")
-    logger.info("done")
-    session.commit()
+    print("done")
+    wasser_session.flush()
 
-    logger.info("Exporting QWAT.hydrant -> WASSER.hydraulischer_knoten, WASSER.hydrant")
-    for row in session.query(QWAT.hydrant):
+    print("Exporting QWAT.hydrant -> WASSER.hydrant")
+    for row in qwat_session.query(QWAT.hydrant):
+
         # AVAILABLE FIELDS IN QWAT.hydrant
 
         # --- node ---
@@ -81,44 +128,22 @@ def qwat_export():
         # --- hydrant ---
         # fk_material, fk_model_inf, fk_model_sup, fk_output, fk_provider, flow, id, marked, observation_date, observation_source, pressure_dynamic, pressure_static, underground
 
-        # --- _relations_ ---
-        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_material_REL, fk_model_inf_REL, fk_model_sup_REL, fk_object_reference_REL, fk_output_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_provider_REL, fk_status_REL, label_1_visible_REL, label_2_visible_REL
+        # --- _bwrel_ ---
+        # meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, samplingpoint__BWREL_id
 
-        hydraulischer_knoten = WASSER.hydraulischer_knoten(
-            # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-            # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="hydraulischer_knoten",
-            # --- sia405_baseclass ---
-            obj_id=row.id,
-            # --- hydraulischer_knoten ---
-            # bemerkung=row.REPLACE_ME,
-            # druck=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # knotentyp=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.hydrant.make_tid(row.id),
-            # verbrauch=row.REPLACE_ME,
-        )
-        session.add(hydraulischer_knoten)
+        # --- _rel_ ---
+        # fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_material__REL, fk_model_inf__REL, fk_model_sup__REL, fk_object_reference__REL, fk_output__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_provider__REL, fk_status__REL, label_1_visible__REL, label_2_visible__REL
+
         hydrant = WASSER.hydrant(
             # FIELDS TO MAP TO WASSER.hydrant
+
             # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="hydrant",
             # --- sia405_baseclass ---
-            obj_id=row.id,
-            # --- noeud_de_leitung ---
-            # bemerkung=row.REPLACE_ME,
-            # druckzone=row.REPLACE_ME,
-            # eigentuemer=row.REPLACE_ME,
-            # einbaujahr=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # hoehe=row.REPLACE_ME,
-            # hoehenbestimmung=row.REPLACE_ME,
-            knotenref=hydraulischer_knoten.t_id,
-            lagebestimmung="???",
-            symbolori=0,  # ???
+            **base_common(row, "hydrant"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
             # --- hydrant ---
             # art=row.REPLACE_ME,
             # dimension=row.REPLACE_ME,
@@ -126,19 +151,20 @@ def qwat_export():
             # fliessdruck=row.REPLACE_ME,
             # hersteller=row.REPLACE_ME,
             # material=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.hydrant.make_tid(row.id + 10000000),  # TODO : not too clean...
+            # name_nummer=row.REPLACE_ME,
             # typ=row.REPLACE_ME,
             # versorgungsdruck=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
         )
-        session.add(hydrant)
+        wasser_session.add(hydrant)
+        create_metaattributes(hydrant)
         print(".", end="")
-    logger.info("done")
-    session.commit()
+    print("done")
+    wasser_session.flush()
 
-    logger.info("Exporting QWAT.tank -> WASSER.hydraulischer_knoten, WASSER.wasserbehaelter")
-    for row in session.query(QWAT.tank):
+    print("Exporting QWAT.tank -> WASSER.wasserbehaelter")
+    for row in qwat_session.query(QWAT.tank):
+
         # AVAILABLE FIELDS IN QWAT.tank
 
         # --- node ---
@@ -153,64 +179,43 @@ def qwat_export():
         # --- tank ---
         # _cistern1_litrepercm, _cistern2_litrepercm, _litrepercm, altitude_apron, altitude_overflow, cistern1_dimension_1, cistern1_dimension_2, cistern1_fk_type, cistern1_storage, cistern2_dimension_1, cistern2_dimension_2, cistern2_fk_type, cistern2_storage, fire_remote, fire_valve, fk_overflow, fk_tank_firestorage, height_max, id, storage_fire, storage_supply, storage_total
 
-        # --- _relations_ ---
-        # cistern1_fk_type_REL, cistern2_fk_type_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_overflow_REL, fk_parent_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_remote_REL, fk_status_REL, fk_tank_firestorage_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
+        # --- _bwrel_ ---
+        # cover__BWREL_fk_installation, installation__BWREL_fk_parent, meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, pressurecontrol_type__BWREL_id, samplingpoint__BWREL_id, source__BWREL_id, subscriber__BWREL_id
 
-        hydraulischer_knoten = WASSER.hydraulischer_knoten(
-            # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-            # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="hydraulischer_knoten",
-            # --- sia405_baseclass ---
-            obj_id=row.id,
-            # --- hydraulischer_knoten ---
-            # bemerkung=row.REPLACE_ME,
-            # druck=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # knotentyp=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.tank.make_tid(row.id),
-            # verbrauch=row.REPLACE_ME,
-        )
-        session.add(hydraulischer_knoten)
+        # --- _rel_ ---
+        # cistern1_fk_type__REL, cistern2_fk_type__REL, fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_object_reference__REL, fk_overflow__REL, fk_parent__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_remote__REL, fk_status__REL, fk_tank_firestorage__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL
+
         wasserbehaelter = WASSER.wasserbehaelter(
             # FIELDS TO MAP TO WASSER.wasserbehaelter
+
             # --- baseclass ---
-            # t_ili_tid=QWAT.tank.make_tid(row.id),
-            t_type="wasserbehaelter",
             # --- sia405_baseclass ---
-            obj_id=row.id,
+            **base_common(row, "wasserbehaelter"),
+
             # --- leitungsknoten ---
-            # bemerkung=row.REPLACE_ME,
-            # druckzone=row.REPLACE_ME,
-            # eigentuemer=row.REPLACE_ME,
-            # einbaujahr=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # hoehe=row.REPLACE_ME,
-            # hoehenbestimmung=row.REPLACE_ME,
-            knotenref=hydraulischer_knoten.t_id,
-            lagebestimmung="???",
-            symbolori=0,  # ???
+            **leitungsknoten_common(row),
+
             # --- wasserbehaelter ---
             # art=row.REPLACE_ME,
             # beschichtung=row.REPLACE_ME,
-            brauchwasserreserve=row.storage_supply or 0,
-            fassungsvermoegen=0,  # ???
+            brauchwasserreserve=0,
+            fassungsvermoegen=0,
             # leistung=row.REPLACE_ME,
-            loeschwasserreserve=row.storage_fire or 0,
+            loeschwasserreserve=0,
             # material=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.tank.make_tid(row.id + 10000000),  # TODO : not too clean...
-            ueberlaufhoehe=row.altitude_overflow or 0,
+            # name_nummer=row.REPLACE_ME,
+            ueberlaufhoehe=0,
             # zustand=row.REPLACE_ME,
         )
-        session.add(wasserbehaelter)
+        wasser_session.add(wasserbehaelter)
+        create_metaattributes(wasserbehaelter)
         print(".", end="")
-    logger.info("done")
-    session.commit()
+    print("done")
+    wasser_session.flush()
 
-    logger.info("Exporting QWAT.pump -> WASSER.hydraulischer_knoten, WASSER.foerderanlage")
-    for row in session.query(QWAT.pump):
+    print("Exporting QWAT.pump -> WASSER.foerderanlage")
+    for row in qwat_session.query(QWAT.pump):
+
         # AVAILABLE FIELDS IN QWAT.pump
 
         # --- node ---
@@ -225,122 +230,315 @@ def qwat_export():
         # --- pump ---
         # fk_pipe_in, fk_pipe_out, fk_pump_operating, fk_pump_type, id, manometric_height, no_pumps, rejected_flow
 
-        # --- _relations_ ---
-        # fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_object_reference_REL, fk_parent_REL, fk_pipe_in_REL, fk_pipe_out_REL, fk_precision_REL, fk_precisionalti_REL, fk_pressurezone_REL, fk_pump_operating_REL, fk_pump_type_REL, fk_remote_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL
+        # --- _bwrel_ ---
+        # cover__BWREL_fk_installation, installation__BWREL_fk_parent, meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, pressurecontrol_type__BWREL_id, samplingpoint__BWREL_id, source__BWREL_id, subscriber__BWREL_id
 
-        hydraulischer_knoten = WASSER.hydraulischer_knoten(
-            # FIELDS TO MAP TO WASSER.hydraulischer_knoten
-            # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="hydraulischer_knoten",
-            # --- sia405_baseclass ---
-            obj_id=row.id,
-            # --- hydraulischer_knoten ---
-            # bemerkung=row.REPLACE_ME,
-            # druck=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # knotentyp=row.REPLACE_ME,
-            name_nummer="???",
-            t_id=QWAT.pump.make_tid(row.id),
-            # verbrauch=row.REPLACE_ME,
-        )
-        session.add(hydraulischer_knoten)
+        # --- _rel_ ---
+        # fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_object_reference__REL, fk_parent__REL, fk_pipe_in__REL, fk_pipe_out__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_pump_operating__REL, fk_pump_type__REL, fk_remote__REL, fk_status__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL
+
         foerderanlage = WASSER.foerderanlage(
             # FIELDS TO MAP TO WASSER.foerderanlage
+
             # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="foerderanlage",
             # --- sia405_baseclass ---
-            obj_id=row.id,
-            # --- noeud_de_leitung ---
-            # bemerkung=row.REPLACE_ME,
-            # druckzone=row.REPLACE_ME,
-            # eigentuemer=row.REPLACE_ME,
-            # einbaujahr=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
-            # hoehe=row.REPLACE_ME,
-            # hoehenbestimmung=row.REPLACE_ME,
-            knotenref=hydraulischer_knoten.t_id,
-            lagebestimmung="???",
-            symbolori=0,  # ???
+            **base_common(row, "foerderanlage"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
             # --- foerderanlage ---
             # art=row.REPLACE_ME,
-            leistung=0,  # ???
+            leistung="undefined",
             # name_nummer=row.REPLACE_ME,
-            t_id=QWAT.pump.make_tid(row.id + 10000000),  # TODO : not too clean...
+            # t_id=row.REPLACE_ME,
             # zustand=row.REPLACE_ME,
         )
-        session.add(foerderanlage)
+        wasser_session.add(foerderanlage)
+        create_metaattributes(foerderanlage)
         print(".", end="")
-    logger.info("done")
-    session.commit()
+    print("done")
+    wasser_session.flush()
 
-    logger.info("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
-    for row in session.query(QWAT.pipe):
+    print("Exporting QWAT.treatment -> WASSER.anlage")
+    for row in qwat_session.query(QWAT.treatment):
+
+        # AVAILABLE FIELDS IN QWAT.treatment
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- installation ---
+        # eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel
+
+        # --- treatment ---
+        # activatedcharcoal, filtration_membrane, filtration_sandorgravel, flocculation, id, sanitization_chlorine_gas, sanitization_chlorine_liquid, sanitization_ozone, sanitization_uv, settling, treatment_capacity
+
+        # --- _bwrel_ ---
+        # cover__BWREL_fk_installation, installation__BWREL_fk_parent, meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, pressurecontrol_type__BWREL_id, samplingpoint__BWREL_id, source__BWREL_id, subscriber__BWREL_id
+
+        # --- _rel_ ---
+        # fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_object_reference__REL, fk_parent__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_remote__REL, fk_status__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL
+
+        anlage = WASSER.anlage(
+            # FIELDS TO MAP TO WASSER.anlage
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "anlage"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
+            # --- anlage ---
+            # art=row.REPLACE_ME,
+            # betreiber=row.REPLACE_ME,
+            # dimension1=row.REPLACE_ME,
+            # konzessionaer=row.REPLACE_ME,
+            # leistung=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # unterhaltspflichtiger=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(anlage)
+        create_metaattributes(anlage)
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.subscriber -> WASSER.hausanschluss")
+    for row in qwat_session.query(QWAT.subscriber):
+
+        # AVAILABLE FIELDS IN QWAT.subscriber
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- subscriber ---
+        # fk_pipe, fk_subscriber_type, flow_current, flow_planned, id, parcel
+
+        # --- _bwrel_ ---
+        # subscriber_reference__BWREL_fk_subscriber
+
+        # --- _rel_ ---
+        # fk_pipe__REL, fk_subscriber_type__REL, id__REL
+
+        hausanschluss = WASSER.hausanschluss(
+            # FIELDS TO MAP TO WASSER.hausanschluss
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "hausanschluss"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
+            # --- hausanschluss ---
+            # art=row.REPLACE_ME,
+            # dimension=row.REPLACE_ME,
+            # gebaeudeanschluss=row.REPLACE_ME,
+            # isolierstueck=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # standort=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # typ=row.REPLACE_ME,
+            # verbrauch=row.REPLACE_ME,
+            zuordnung_hydraulischer_knoten="undefined",
+            zuordnung_hydraulischer_strang="undefined",
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(hausanschluss)
+        create_metaattributes(hausanschluss)
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.source -> WASSER.wassergewinnungsanlage")
+    for row in qwat_session.query(QWAT.source):
+
+        # AVAILABLE FIELDS IN QWAT.source
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- installation ---
+        # eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel
+
+        # --- source ---
+        # contract_end, fk_source_quality, fk_source_type, flow_average, flow_concession, flow_lowest, gathering_chamber, id
+
+        # --- _bwrel_ ---
+        # cover__BWREL_fk_installation, installation__BWREL_fk_parent, meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, pressurecontrol_type__BWREL_id, samplingpoint__BWREL_id
+
+        # --- _rel_ ---
+        # fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_object_reference__REL, fk_parent__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_remote__REL, fk_source_quality__REL, fk_source_type__REL, fk_status__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL
+
+        wassergewinnungsanlage = WASSER.wassergewinnungsanlage(
+            # FIELDS TO MAP TO WASSER.wassergewinnungsanlage
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "wassergewinnungsanlage"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
+            # --- wassergewinnungsanlage ---
+            # art=row.REPLACE_ME,
+            # betreiber=row.REPLACE_ME,
+            # konzessionaer=row.REPLACE_ME,
+            # leistung=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # unterhaltspflichtiger=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(wassergewinnungsanlage)
+        create_metaattributes(wassergewinnungsanlage)
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.chamber -> WASSER.absperrorgan - PARTIAL")
+    for row in qwat_session.query(QWAT.chamber):
+        """
+        Some (NOT ALL) QWAT chambers are translated to absperrorgan.
+        """
+
+        # WARNING ! ONLY SOME CHAMBERS ARE MAPPED TO VALVES
+        if not row.networkseparation:
+            continue
+
+        # AVAILABLE FIELDS IN QWAT.chamber
+
+        # --- node ---
+        # _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, fk_district, fk_pressurezone, fk_printmap, geometry, geometry_alt1, geometry_alt2, update_geometry_alt1, update_geometry_alt2
+
+        # --- network_element ---
+        # altitude, fk_distributor, fk_folder, fk_locationtype, fk_object_reference, fk_precision, fk_precisionalti, fk_status, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, orientation, remark, year, year_end
+
+        # --- installation ---
+        # eca, fk_parent, fk_remote, fk_watertype, geometry_polygon, name, open_water_surface, parcel
+
+        # --- chamber ---
+        # depth, flow_meter, id, manometer, networkseparation, no_valves, water_meter
+
+        # --- _bwrel_ ---
+        # cover__BWREL_fk_installation, installation__BWREL_fk_parent, meter__BWREL_id, pipe__BWREL_fk_node_a, pipe__BWREL_fk_node_b, pressurecontrol_type__BWREL_id, samplingpoint__BWREL_id, source__BWREL_id
+
+        # --- _rel_ ---
+        # fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_object_reference__REL, fk_parent__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_remote__REL, fk_status__REL, fk_watertype__REL, label_1_visible__REL, label_2_visible__REL
+
+        absperrorgan = WASSER.absperrorgan(
+            # FIELDS TO MAP TO WASSER.absperrorgan
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "absperrorgan"),
+
+            # --- leitungsknoten ---
+            **leitungsknoten_common(row),
+
+            # --- absperrorgan ---
+            # art=row.REPLACE_ME,
+            # hersteller=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # nennweite=row.REPLACE_ME,
+            # schaltantrieb=row.REPLACE_ME,
+            # schaltzustand=row.REPLACE_ME,
+            # schliessrichtung=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # typ=row.REPLACE_ME,
+            # zulaessiger_bauteil_betriebsdruck=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(absperrorgan)
+        create_metaattributes(absperrorgan)
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.pipe -> WASSER.hydraulischer_strang, WASSER.leitung")
+    for row in qwat_session.query(QWAT.pipe):
+
         # AVAILABLE FIELDS IN QWAT.pipe
 
         # --- pipe ---
         # _diff_elevation, _geometry_alt1_used, _geometry_alt2_used, _length2d, _length3d, _printmaps, _schema_visible, _valve_closed, _valve_count, fk_bedding, fk_distributor, fk_district, fk_folder, fk_function, fk_installmethod, fk_locationtype, fk_material, fk_node_a, fk_node_b, fk_parent, fk_precision, fk_pressurezone, fk_printmap, fk_protection, fk_status, fk_watertype, geometry, geometry_alt1, geometry_alt2, id, label_1_text, label_1_visible, label_2_text, label_2_visible, pressure_nominal, remark, schema_force_visible, tunnel_or_bridge, update_geometry_alt1, update_geometry_alt2, year, year_end, year_rehabilitation
 
-        # --- _relations_ ---
-        # fk_bedding_REL, fk_distributor_REL, fk_district_REL, fk_folder_REL, fk_function_REL, fk_installmethod_REL, fk_material_REL, fk_node_a_REL, fk_node_b_REL, fk_parent_REL, fk_precision_REL, fk_pressurezone_REL, fk_protection_REL, fk_status_REL, fk_watertype_REL, label_1_visible_REL, label_2_visible_REL, schema_force_visible_REL
+        # --- _bwrel_ ---
+        # crossing__BWREL__pipe1_id, crossing__BWREL__pipe2_id, leak__BWREL_fk_pipe, meter__BWREL_fk_pipe, part__BWREL_fk_pipe, pipe__BWREL_fk_parent, pump__BWREL_fk_pipe_in, pump__BWREL_fk_pipe_out, subscriber__BWREL_fk_pipe, valve__BWREL_fk_pipe
 
+        # --- _rel_ ---
         hydraulischer_strang = WASSER.hydraulischer_strang(
             # FIELDS TO MAP TO WASSER.hydraulischer_strang
+
             # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="troncon_hydraulique",
             # --- sia405_baseclass ---
-            obj_id=row.id,
+            **base_common(row, "leitung", tid_for_class=WASSER.hydraulischer_strang),
+
             # --- hydraulischer_strang ---
             # bemerkung=row.REPLACE_ME,
-            bisknotenref=QWAT.node.make_tid(row.fk_node_b),
+            bisknotenref=get_tid(row.fk_node_b__REL, QWAT.node),
             # durchfluss=row.REPLACE_ME,
             # fliessgeschwindigkeit=row.REPLACE_ME,
-            name_nummer="???",
-            referenz_durchmesser=0,  # ???,
-            referenz_laenge=0,  # ???
-            referenz_rauheit=0,  # ???,
-            t_id=QWAT.pipe.make_tid(row.id),
+            name_nummer=str(get_tid(row, WASSER.hydraulischer_strang)),
+            referenz_durchmesser=0,
+            referenz_laenge=0,
+            # referenz_rauheit=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
             # verbrauch=row.REPLACE_ME,
-            vonknotenref=QWAT.node.make_tid(row.fk_node_a),
+            vonknotenref=get_tid(row.fk_node_a__REL, QWAT.node),
             # zustand=row.REPLACE_ME,
         )
-        session.add(hydraulischer_strang)
+        wasser_session.add(hydraulischer_strang)
+        create_metaattributes(hydraulischer_strang)
+
         leitung = WASSER.leitung(
             # FIELDS TO MAP TO WASSER.leitung
+
             # --- baseclass ---
-            t_ili_tid=row.id,
-            t_type="leitung",
             # --- sia405_baseclass ---
-            obj_id=row.id,
+            **base_common(row, "leitung", tid_for_class=WASSER.leitung),
+
             # --- leitung ---
-            astatus="?",  # ???
+            astatus="undefined",
             # aussenbeschichtung=row.REPLACE_ME,
-            baujahr=max(1800, row.year or 0),
+            baujahr=0,
+            # bemerkung=row.REPLACE_ME,
             # betreiber=row.REPLACE_ME,
             # betriebsdruck=row.REPLACE_ME,
             # bettung=row.REPLACE_ME,
-            druckzone=row.fk_pressurezone_REL.name,
+            druckzone="undefined",
             # durchmesser=row.REPLACE_ME,
             # durchmesseraussen=row.REPLACE_ME,
             # durchmesserinnen=row.REPLACE_ME,
             # eigentuemer=row.REPLACE_ME,
             # funktion=row.REPLACE_ME,
-            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            geometrie=ST_ForceCurve(ST_Force2D(ST_Transform(row.geometry, 2056))),
             # hydraulische_rauheit=row.REPLACE_ME,
             # innenbeschichtung=row.REPLACE_ME,
             # kathodischer_schutz=row.REPLACE_ME,
             # konzessionaer=row.REPLACE_ME,
-            laenge=row._length2d,
+            laenge=0,
             # lagebestimmung=row.REPLACE_ME,
-            material=row.fk_material_REL.sia_fr,
-            name_nummer="???",
+            # material=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
             # nennweite=row.REPLACE_ME,
             # sanierung_erneuerung=row.REPLACE_ME,
             # schubsicherung=row.REPLACE_ME,
-            strangref=hydraulischer_strang.t_id,
-            t_id=QWAT.pipe.make_tid(row.id + 10000000),  # TODO : not too clean...
+            # strangref=row.REPLACE_ME,
             # ueberdeckung=row.REPLACE_ME,
             # unterhalt=row.REPLACE_ME,
             # unterhaltspflichtiger=row.REPLACE_ME,
@@ -348,9 +546,157 @@ def qwat_export():
             # verlegeart=row.REPLACE_ME,
             # wasserqualitaet=row.REPLACE_ME,
             # zulaessiger_bauteil_betriebsdruck=row.REPLACE_ME,
-            zustand=row.fk_status_REL.value_en,
+            zustand="undefined",
         )
-        session.add(leitung)
+        wasser_session.add(leitung)
+        create_metaattributes(leitung)
         print(".", end="")
-    logger.info("done")
-    session.commit()
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.leak -> WASSER.schadenstelle")
+    for row in qwat_session.query(QWAT.leak):
+
+        # AVAILABLE FIELDS IN QWAT.leak
+
+        # --- leak ---
+        # _repaired, address, description, detection_date, fk_cause, fk_pipe, geometry, id, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, pipe_replaced, repair, repair_date, widespread_damage
+
+        # --- _rel_ ---
+        # fk_cause__REL, fk_pipe__REL, label_1_visible__REL, label_2_visible__REL
+
+        if row.fk_pipe__REL is None:
+            warnings.warn(f"Cannot export QWAT.leak {row.id} as it has no related pipe, which are mandatory in SIA405.")
+            continue
+
+        schadenstelle = WASSER.schadenstelle(
+            # FIELDS TO MAP TO WASSER.schadenstelle
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "schadenstelle"),
+
+            # --- schadenstelle ---
+            # art=row.REPLACE_ME,
+            # ausloeser=row.REPLACE_ME,
+            # behebungsdatum=row.REPLACE_ME,
+            # bemerkung=row.REPLACE_ME,
+            erhebungsdatum=datetime.datetime.min,
+            geometrie=ST_Transform(row.geometry, 2056),
+            leitungref=get_tid(row.fk_pipe__REL, for_class=WASSER.leitung),
+            # name_nummer=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # ursache=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(schadenstelle)
+        create_metaattributes(schadenstelle)
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    print("Exporting QWAT.valve -> WASSER.absperrorgan")
+    for row in qwat_session.query(QWAT.valve):
+        """
+        Valves are reprsented on the pipes in QWAT, and as nodes in SIA405.
+        We create the required hydraulischer_knoten on the fly. Not done yet:
+        splitting the pipes at nodes. To do that, we probably should do this
+        as a post-import processing step.
+        """
+
+        # AVAILABLE FIELDS IN QWAT.valve
+        # --- valve --- _geometry_alt1_used, _geometry_alt2_used, _pipe_node_type, _pipe_orientation, _pipe_schema_visible, _printmaps, _schema_visible, altitude, closed, fk_distributor, fk_district, fk_folder, fk_handle_precision, fk_handle_precisionalti, fk_locationtype, fk_maintenance, fk_nominal_diameter, fk_object_reference, fk_pipe, fk_precision, fk_precisionalti, fk_pressurezone, fk_printmap, fk_status, fk_valve_actuation, fk_valve_function, fk_valve_type, geometry, geometry_alt1, geometry_alt2, handle_altitude, handle_geometry, id, identification, label_1_rotation, label_1_text, label_1_visible, label_1_x, label_1_y, label_2_rotation, label_2_text, label_2_visible, label_2_x, label_2_y, networkseparation, orientation, remark, schema_force_visible, update_geometry_alt1, update_geometry_alt2, year, year_end
+        # --- _rel_ --- fk_distributor__REL, fk_district__REL, fk_folder__REL, fk_handle_precision__REL, fk_handle_precisionalti__REL, fk_nominal_diameter__REL, fk_object_reference__REL, fk_pipe__REL, fk_precision__REL, fk_precisionalti__REL, fk_pressurezone__REL, fk_status__REL, fk_valve_actuation__REL, fk_valve_function__REL, fk_valve_type__REL, label_1_visible__REL, label_2_visible__REL, schema_force_visible__REL
+
+        # We add an intermediate node to split the pipe
+        hydraulischer_knoten = WASSER.hydraulischer_knoten(
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "hydraulischer_knoten", tid_for_class=QWAT.valve),
+
+            # --- hydraulischer_knoten ---
+            # bemerkung=row.REPLACE_ME,
+            # druck=row.REPLACE_ME,
+            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            knotentyp="Normalknoten",
+            name_nummer=str(row.id),
+            # verbrauch=row.REPLACE_ME,
+        )
+        wasser_session.add(hydraulischer_knoten)
+        create_metaattributes(hydraulischer_knoten)
+
+        absperrorgan = WASSER.absperrorgan(
+            # FIELDS TO MAP TO WASSER.absperrorgan
+
+            # --- baseclass ---
+            # --- sia405_baseclass ---
+            **base_common(row, "absperrorgan"),
+
+            # --- leitungsknoten ---
+            # bemerkung=row.REPLACE_ME,
+            # druckzone=row.REPLACE_ME,
+            # eigentuemer=row.REPLACE_ME,
+            # einbaujahr=row.REPLACE_ME,
+            geometrie=ST_Force2D(ST_Transform(row.geometry, 2056)),
+            hoehe=ST_Z(row.geometry),
+            # hoehenbestimmung=row.REPLACE_ME,
+            knotenref__REL=hydraulischer_knoten,
+            lagebestimmung="undefined",
+            symbolori=0,
+
+            # --- absperrorgan ---
+            # art=row.REPLACE_ME,
+            # hersteller=row.REPLACE_ME,
+            # material=row.REPLACE_ME,
+            # name_nummer=row.REPLACE_ME,
+            # nennweite=row.REPLACE_ME,
+            # schaltantrieb=row.REPLACE_ME,
+            # schaltzustand=row.REPLACE_ME,
+            # schliessrichtung=row.REPLACE_ME,
+            # t_id=row.REPLACE_ME,
+            # typ=row.REPLACE_ME,
+            # zulaessiger_bauteil_betriebsdruck=row.REPLACE_ME,
+            # zustand=row.REPLACE_ME,
+        )
+        wasser_session.add(absperrorgan)
+        create_metaattributes(absperrorgan)
+
+        if row.fk_pipe__REL is None:
+            # If there's no related pipe, we keep the valve as a standalone
+            continue
+        # Otherwise, we split the pipe at the valve.
+
+        # Get the related pipe
+        strang_a = wasser_session.query(WASSER.hydraulischer_strang).get(get_tid(row.fk_pipe__REL, for_class=WASSER.hydraulischer_strang))
+        leitung_a = wasser_session.query(WASSER.leitung).get(get_tid(row.fk_pipe__REL, for_class=WASSER.leitung))
+
+        # We clone the pipe
+        strang_b = utils.sqlalchemy.copy_instance(strang_a)
+        strang_b.t_id = get_tid(row, for_class=WASSER.hydraulischer_strang)
+        strang_b.obj_id = get_tid(row, for_class=WASSER.hydraulischer_strang)
+        strang_b.t_ili_tid = get_tid(row, for_class=WASSER.hydraulischer_strang)
+        leitung_b = utils.sqlalchemy.copy_instance(leitung_a)
+        leitung_b.t_id = get_tid(row, for_class=WASSER.leitung)
+        leitung_b.obj_id = get_tid(row, for_class=WASSER.leitung)
+        leitung_b.t_ili_tid = get_tid(row, for_class=WASSER.leitung)
+        leitung_b.strangref__REL = strang_b
+
+        # We connect to the midpoint and adapt geom
+        strang_a.bisknotenref__REL = hydraulischer_knoten
+        strang_b.vonknotenref__REL = hydraulischer_knoten
+        # TODO the geometry of the new node does not necessarily lie in the middle (nor on the segment)
+        leitung_a.geometrie = ST_ForceCurve(ST_LineSubstring(ST_CurveToLine(leitung_a.geometrie), 0, 0.5))
+        leitung_b.geometrie = ST_ForceCurve(ST_LineSubstring(ST_CurveToLine(leitung_b.geometrie), 0.5, 1))
+
+        # And add to session
+        wasser_session.add(strang_b)
+        wasser_session.add(leitung_b)
+        create_metaattributes(strang_b)
+        create_metaattributes(leitung_b)
+
+        print(".", end="")
+    print("done")
+    wasser_session.flush()
+
+    wasser_session.commit()

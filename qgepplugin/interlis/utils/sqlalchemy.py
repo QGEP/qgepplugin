@@ -3,6 +3,7 @@ import pickle
 import logging
 import os
 from sqlalchemy.orm import interfaces
+from sqlalchemy import inspect
 
 from sqlalchemy.ext.automap import (
     name_for_collection_relationship,
@@ -88,3 +89,15 @@ def prepare_automap_base(base, schema):
     # DOESN'T WORK, BUT CACHING WOULD BE GOOD
     # with open(pickle_file, 'wb') as f:
     #     pickle.dump(base.metadata, f)
+
+
+def copy_instance(instance):
+    """
+    Creates a copy of an SQLAchely ORM instance. Dont forget to change (or nullify) the primary key.
+    """
+    klass = instance.__class__
+    mapper = inspect(klass)
+    new_instance = klass()
+    for attr in mapper.attrs:
+        setattr(new_instance, attr.key, getattr(instance, attr.key))
+    return new_instance

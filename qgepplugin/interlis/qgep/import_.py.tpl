@@ -29,7 +29,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -76,7 +76,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -161,7 +161,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -244,7 +244,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -327,7 +327,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -409,7 +409,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -494,7 +494,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -539,7 +539,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -591,7 +591,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -644,7 +644,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -711,7 +711,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -762,7 +762,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -813,7 +813,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -864,7 +864,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -924,7 +924,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -975,7 +975,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -1044,7 +1044,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -1104,7 +1104,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -1157,7 +1157,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL
@@ -1203,7 +1203,7 @@ def import_():
         # AVAILABLE FIELDS IN metaattribute
 
         # --- metaattribute ---
-        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_seq
+        # datenherr, datenlieferant, letzte_aenderung, sia405_baseclass_metaattribute, t_id, t_ili_tid, t_seq
 
         # --- _rel_ ---
         # sia405_baseclass_metaattribute__REL

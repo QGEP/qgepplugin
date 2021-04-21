@@ -24,9 +24,11 @@ def qgep_export(downstream_of=None, upstream_of=None):
     QGEP = get_qgep_model()
     ABWASSER = get_abwasser_model()
 
-    # TODO: use two different sessions for reading and writing as in qgep.import_
-    qgep_session = Session(utils.sqlalchemy.create_engine(logger_name="qgep"), autocommit=False, autoflush=False)
-    abwasser_session = Session(utils.sqlalchemy.create_engine(logger_name="abwasser"), autocommit=False, autoflush=False)
+    # Logging disabled (very slow)
+    # qgep_session = Session(utils.sqlalchemy.create_engine(logger_name="qgep"), autocommit=False, autoflush=False)
+    # abwasser_session = Session(utils.sqlalchemy.create_engine(logger_name="abwasser"), autocommit=False, autoflush=False)
+    qgep_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
+    abwasser_session = Session(utils.sqlalchemy.create_engine(), autocommit=False, autoflush=False)
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
     # Upstream/Downstream filtering
@@ -111,7 +113,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
             # 'akten': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
             'astatus': get_vl(row.status__REL),
             'baujahr': row.year_of_construction,
-            'baulicherzustand': row.structure_condition,
+            'baulicherzustand': get_vl(row.structure_condition__REL),
             # 'baulos': row.REPLACE_ME,  # TODO : not sure, is it contract_section or records ?
             'bemerkung': row.remark,
             'betreiberref': get_tid(row.fk_operator__REL),
@@ -122,7 +124,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
             'ersatzjahr': row.year_of_replacement,
             'finanzierung': row.financing,
             'inspektionsintervall': row.inspection_interval,
-            'sanierungsbedarf': row.renovation_necessity,
+            'sanierungsbedarf': get_vl(row.renovation_necessity__REL),
             'standortname': row.location_name,
             'subventionen': row.subsidies,
             'wbw_basisjahr': row.rv_base_year,
@@ -505,7 +507,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
             laengeeffektiv=row.length_effective,
             lagebestimmung=get_vl(row.horizontal_positioning__REL),
             lichte_hoehe=row.clear_height,
-            material=row.material,
+            material=get_vl(row.material__REL),
             nachhaltungspunktref=get_tid(row.fk_reach_point_to__REL),
             plangefaelle=row.slope_building_plan,  # TODO : check, does this need conversion ?
             reibungsbeiwert=row.coefficient_of_friction,

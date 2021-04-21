@@ -45,6 +45,16 @@ class leitungsknoten(sia405_baseclass):  # neud_de_conduite
     __table_args__ = {"schema": SCHEMA}
 
 
+class anlage(leitungsknoten):
+    __tablename__ = "anlage"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class hausanschluss(leitungsknoten):
+    __tablename__ = "hausanschluss"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class hydrant(leitungsknoten):  # hydrant
     __tablename__ = "hydrant"
     __table_args__ = {"schema": SCHEMA}
@@ -60,6 +70,16 @@ class foerderanlage(leitungsknoten):  # station_de_pompage
     __table_args__ = {"schema": SCHEMA}
 
 
+class absperrorgan(leitungsknoten):
+    __tablename__ = "absperrorgan"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class wassergewinnungsanlage(leitungsknoten):
+    __tablename__ = "wassergewinnungsanlage"
+    __table_args__ = {"schema": SCHEMA}
+
+
 class hydraulischer_strang(sia405_baseclass):  # troncon_hydraulique
     __tablename__ = "hydraulischer_strang"
     __table_args__ = {"schema": SCHEMA}
@@ -67,6 +87,16 @@ class hydraulischer_strang(sia405_baseclass):  # troncon_hydraulique
 
 class leitung(sia405_baseclass):  # conduite
     __tablename__ = "leitung"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class hydraulischer_strang(sia405_baseclass):
+    __tablename__ = "hydraulischer_strang"
+    __table_args__ = {"schema": SCHEMA}
+
+
+class schadenstelle(sia405_baseclass):
+    __tablename__ = "schadenstelle"
     __table_args__ = {"schema": SCHEMA}
 
 

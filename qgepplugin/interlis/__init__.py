@@ -54,14 +54,16 @@ def main(args):
             if not args.skip_validation:
                 try:
                     utils.ili2db.validate_xtf_data(args.export_xtf)
-                except Exception:
+                except utils.various.CmdException:
+                    print("Ilivalidator doesn't recognize output as valid ! Run with --skip_validation to ignore")
                     exit(1)
 
         elif args.import_xtf:
             if not args.skip_validation:
                 try:
                     utils.ili2db.validate_xtf_data(args.import_xtf)
-                except Exception:
+                except utils.various.CmdException:
+                    print("Ilivalidator doesn't recognize input as valid ! Run with --skip_validation to ignore")
                     exit(1)
             utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
             utils.ili2db.import_xtf_data(SCHEMA, args.import_xtf)
@@ -78,6 +80,8 @@ def main(args):
         utils.templates.generate_template("qwat", "wasser", BaseQwat, BaseWasser, QWATMAPPING)
 
     elif args.parser == 'setupdb':
+        if args.type == 'subset':
+            raise Exception("subset is currently disabled as quite slow, uncomment corresponding lines utils/various.py")
         utils.various.setup_test_db(args.type)
 
     print("Operation completed sucessfully !")
