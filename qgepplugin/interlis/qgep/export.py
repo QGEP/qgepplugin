@@ -31,67 +31,63 @@ def qgep_export(downstream_of=None, upstream_of=None):
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
     # Upstream/Downstream filtering
+    subset_ids = None
     upstream_of = 'ch13p7mzWN008128'
     downstream_of = 'ch13p7mzWN005856'
 
-    common_table_expressions = []
-    params = {}
-    select_clauses = []
-    if upstream_of:
-        common_table_expressions.append("""
-            node_with_child AS (
-                SELECT n.obj_id, s.to_obj_id AS child_id FROM qgep_od.vw_network_node n
-                LEFT JOIN qgep_od.vw_network_segment s ON s.from_obj_id = n.obj_id
-            ),
-            upstream AS (
-                SELECT obj_id, child_id, 0 AS depth
-                FROM node_with_child
-                WHERE obj_id = :upstream_of
+    if upstream_of or downstream_of:
 
-                UNION ALL
+        common_table_expressions = []
+        params = {}
+        select_clauses = []
+        if upstream_of:
+            common_table_expressions.append("""
+                node_with_child AS (
+                    SELECT n.id, s.to_node AS child_id, n.ne_id FROM qgep_network.node n
+                    LEFT JOIN qgep_network.segment s ON s.from_node = n.id
+                ),
+                upstream AS (
+                    SELECT id, child_id, ne_id
+                    FROM node_with_child
+                    WHERE ne_id = :upstream_of
 
-                SELECT n.obj_id, n.child_id, upstream.depth - 1
-                FROM node_with_child n
-                INNER JOIN upstream ON upstream.obj_id = n.child_id
-            )
-        """)
-        select_clauses.append("SELECT obj_id FROM upstream")
-        params['upstream_of'] = upstream_of
+                    UNION ALL
 
-    if downstream_of:
-        common_table_expressions.append("""
-            node_with_parent AS (
-                SELECT n.obj_id, s.from_obj_id AS parent_id
-                FROM qgep_od.vw_network_node n
-                LEFT JOIN qgep_od.vw_network_segment s ON s.to_obj_id = n.obj_id
-            ),
-            downstream AS (
-                SELECT obj_id, parent_id, 0 AS depth
-                FROM node_with_parent
-                WHERE obj_id = :downstream_of
+                    SELECT n.id, n.child_id, n.ne_id
+                    FROM node_with_child n
+                    INNER JOIN upstream ON upstream.id = n.child_id
+                )
+            """)
+            select_clauses.append("SELECT ne_id FROM upstream")
+            params['upstream_of'] = upstream_of
 
-                UNION ALL
+        if downstream_of:
+            common_table_expressions.append("""
+                node_with_parent AS (
+                    SELECT n.id, s.from_node AS parent_id, n.ne_id FROM qgep_network.node n
+                    LEFT JOIN qgep_network.segment s ON s.to_node = n.id
+                ),
+                downstream AS (
+                    SELECT id, parent_id, ne_id
+                    FROM node_with_parent
+                    WHERE ne_id = :downstream_of
 
-                SELECT n.obj_id, n.parent_id, downstream.depth + 1
-                FROM node_with_parent n
-                INNER JOIN downstream ON downstream.obj_id = n.parent_id
-            )
-        """)
-        select_clauses.append("SELECT obj_id FROM downstream")
-        params['downstream_of'] = downstream_of
+                    UNION ALL
 
-    subset_query = f"WITH RECURSIVE {','.join(common_table_expressions)} {' INTERSECT '.join(select_clauses)};"
-    print("Query is")
-    print("-"*80)
-    print(subset_query)
-    print("-"*80)
+                    SELECT n.id, n.parent_id, n.ne_id
+                    FROM node_with_parent n
+                    INNER JOIN downstream ON downstream.id = n.parent_id
+                )
+            """)
+            select_clauses.append("SELECT ne_id FROM downstream")
+            params['downstream_of'] = downstream_of
 
-    rows = qgep_session.execute(subset_query, params)
-    limit_ids = list(row[0] for row in rows)
-    print(limit_ids)
-    exit(0)
+        subset_query = f"WITH RECURSIVE {','.join(common_table_expressions)} {' INTERSECT '.join(select_clauses)};"
 
-        # ids = ...
+        rows = qgep_session.execute(subset_query, params)
+        subset_ids = list(row[0] for row in rows)
+    print(subset_ids)
+
 
     def get_tid(relation):
         """
@@ -219,9 +215,8 @@ def qgep_export(downstream_of=None, upstream_of=None):
     logger.info("done")
     abwasser_session.flush()
 
-    """
     logger.info("Exporting QGEP.channel -> ABWASSER.kanal, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.channel):
+    for row in qgep_session.query(QGEP.channel).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.channel
 
@@ -262,7 +257,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.manhole -> ABWASSER.normschacht, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.manhole):
+    for row in qgep_session.query(QGEP.manhole).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
         normschacht = ABWASSER.normschacht(
             # --- baseclass ---
             # --- sia405_baseclass ---
@@ -284,6 +279,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     logger.info("done")
     abwasser_session.flush()
 
+    """
     logger.info("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
     for row in qgep_session.query(QGEP.discharge_point):
         einleitstelle = ABWASSER.einleitstelle(
