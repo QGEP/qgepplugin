@@ -20,7 +20,6 @@ def qgep_export(downstream_of=None, upstream_of=None):
         upstream_of:    if provided, limits the export to nodes that are upstream of the provided node
     """
 
-
     QGEP = get_qgep_model()
     ABWASSER = get_abwasser_model()
 
@@ -32,33 +31,65 @@ def qgep_export(downstream_of=None, upstream_of=None):
     tid_maker = utils.ili2db.TidMaker(id_attribute='obj_id')
 
     # Upstream/Downstream filtering
-    upstream_of='ch13p7mzWN008128'
-    downstream_of='ch13p7mzWN005856'
+    upstream_of = 'ch13p7mzWN008128'
+    downstream_of = 'ch13p7mzWN005856'
 
-    upstream_query = """
-        WITH RECURSIVE node_with_child AS (
-            SELECT n.obj_id, s.to_obj_id AS child_id FROM qgep_od.vw_network_node n
-            LEFT JOIN qgep_od.vw_network_segment s ON s.from_obj_id = n.obj_id
-        ),
-        upstream AS (
-            SELECT obj_id, child_id, 0 AS depth
-            FROM node_with_child
-            WHERE obj_id = :upstream_of_node_id
+    common_table_expressions = []
+    params = {}
+    select_clauses = []
+    if upstream_of:
+        common_table_expressions.append("""
+            node_with_child AS (
+                SELECT n.obj_id, s.to_obj_id AS child_id FROM qgep_od.vw_network_node n
+                LEFT JOIN qgep_od.vw_network_segment s ON s.from_obj_id = n.obj_id
+            ),
+            upstream AS (
+                SELECT obj_id, child_id, 0 AS depth
+                FROM node_with_child
+                WHERE obj_id = :upstream_of
 
-            UNION ALL
+                UNION ALL
 
-            SELECT n.obj_id, n.child_id, upstream.depth - 1
-            FROM node_with_child n
-            INNER JOIN upstream ON upstream.obj_id = n.child_id
-        )
-        SELECT obj_id
-        FROM upstream;
-    """
+                SELECT n.obj_id, n.child_id, upstream.depth - 1
+                FROM node_with_child n
+                INNER JOIN upstream ON upstream.obj_id = n.child_id
+            )
+        """)
+        select_clauses.append("SELECT obj_id FROM upstream")
+        params['upstream_of'] = upstream_of
 
-    # rows = qgep_session.execute(upstream_query, {'upstream_of_node_id':upstream_of})
-    # limit_ids = list(row[0] for row in rows)
-    # print(limit_ids)
-    # exit(0)
+    if downstream_of:
+        common_table_expressions.append("""
+            node_with_parent AS (
+                SELECT n.obj_id, s.from_obj_id AS parent_id
+                FROM qgep_od.vw_network_node n
+                LEFT JOIN qgep_od.vw_network_segment s ON s.to_obj_id = n.obj_id
+            ),
+            downstream AS (
+                SELECT obj_id, parent_id, 0 AS depth
+                FROM node_with_parent
+                WHERE obj_id = :downstream_of
+
+                UNION ALL
+
+                SELECT n.obj_id, n.parent_id, downstream.depth + 1
+                FROM node_with_parent n
+                INNER JOIN downstream ON downstream.obj_id = n.parent_id
+            )
+        """)
+        select_clauses.append("SELECT obj_id FROM downstream")
+        params['downstream_of'] = downstream_of
+
+    subset_query = f"WITH RECURSIVE {','.join(common_table_expressions)} {' INTERSECT '.join(select_clauses)};"
+    print("Query is")
+    print("-"*80)
+    print(subset_query)
+    print("-"*80)
+
+    rows = qgep_session.execute(subset_query, params)
+    limit_ids = list(row[0] for row in rows)
+    print(limit_ids)
+    exit(0)
 
         # ids = ...
 
