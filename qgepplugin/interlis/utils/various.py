@@ -46,8 +46,8 @@ def setup_test_db(template="full"):
 
     pgconf = get_pgconf()
 
-    def dexec_(cmd):
-        return exec_(f"docker exec qgepqwat {cmd}")
+    def dexec_(cmd, check=True):
+        return exec_(f"docker exec qgepqwat {cmd}", check)
 
     logger.info("SETTING UP QGEP/QWAT DATABASE...")
     r = exec_("docker inspect -f '{{.State.Running}}' qgepqwat", check=False)
