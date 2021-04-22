@@ -30,6 +30,7 @@ from builtins import str
 from builtins import object
 import logging
 import os
+import sys
 
 from qgis.PyQt.QtCore import QSettings, Qt, QLocale
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
@@ -37,6 +38,8 @@ from qgis.PyQt.QtGui import QIcon
 
 from qgis.utils import qgsfunction
 from qgis.core import QgsApplication
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'qgepqwat2ili'))
 
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
@@ -54,7 +57,9 @@ from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
 from .utils.plugin_utils import plugin_root_path
 from .processing_provider.provider import QgepProcessingProvider
-from .qgepqwat2ili.qgepqwat2ili.gui import action_import, action_export
+
+
+from qgepqwat2ili.gui import action_import, action_export
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
