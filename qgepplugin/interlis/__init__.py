@@ -22,15 +22,23 @@ def main(args):
     subparsers = parser.add_subparsers(title='subcommands', dest='parser')
     # subparsers.required = True
 
-    parser_io = subparsers.add_parser('io', help='import/export XTF files')
-    parser_io.add_argument("--recreate_schema", action="store_true", help="drops schema and reruns ili2pg importschema")
-    parser_io.add_argument("--skip_validation", action="store_true", help="skips running ilivalidator on input/output xtf (required to import invalid files, invalid outputs are still generated)")
-    parser_io.add_argument("model", choices=["qgep", "qwat"], help="datamodel")
-    group = parser_io.add_mutually_exclusive_group()
-    group.add_argument("--import_xtf", help="input file")
-    group.add_argument("--export_xtf", help="output file")
+    parser_qgep = subparsers.add_parser('qgep', help='import/export QGEP datamodel')
+    # group = parser_qgep.add_mutually_exclusive_group(required=True)
+    parser_qgep.add_argument("direction", choices=["import", "export"])
+    parser_qgep.add_argument("--upstream_of", help="limit to network upstream of network element (id)")
+    parser_qgep.add_argument("--downstream_of", help="limit to network downstream of network element (id)")
+    parser_qgep.add_argument("--recreate_schema", action="store_true", help="drops schema and reruns ili2pg importschema")
+    parser_qgep.add_argument("--skip_validation", action="store_true", help="skips running ilivalidator on input/output xtf (required to import invalid files, invalid outputs are still generated)")
+    parser_qgep.add_argument("path", help="path to the input/output .xtf file")
 
-    parser_tpl = subparsers.add_parser('tpl', help='generate code templates')
+    parser_qwat = subparsers.add_parser('qwat', help='import/export QWAT datamodel')
+    parser_qwat.add_argument("direction", choices=["import", "export"])
+    parser_qwat.add_argument("--recreate_schema", action="store_true", help="drops schema and reruns ili2pg importschema")
+    parser_qwat.add_argument("--skip_validation", action="store_true", help="skips running ilivalidator on input/output xtf (required to import invalid files, invalid outputs are still generated)")
+    parser_qwat.add_argument("path", help="path to the input/output .xtf file")
+
+    parser_tpl = subparsers.add_parser('tpl', help='generate code templates [dev]')
+
     parser_setupdb = subparsers.add_parser('setupdb', help='setup test db')
     parser_setupdb.set_defaults(parser='setupdb')
     parser_setupdb.add_argument("type", choices=["empty", "full", "subset"], help="type")
@@ -40,34 +48,62 @@ def main(args):
     if not args.parser:
         parser.print_help(sys.stderr)
         exit(1)
-    elif args.parser == 'io':
-        SCHEMA = config.ABWASSER_SCHEMA if args.model == "qgep" else config.WASSER_SCHEMA
-        ILI_MODEL = config.ABWASSER_ILI_MODEL if args.model == "qgep" else config.WASSER_ILI_MODEL
-        ILI_MODEL_NAME = config.ABWASSER_ILI_MODEL_NAME if args.model == "qgep" else config.WASSER_ILI_MODEL_NAME
-        export_f = qgep_export if args.model == "qgep" else qwat_export
-        import_f = qgep_import if args.model == "qgep" else qwat_import
 
-        if args.export_xtf:
+    elif args.parser == 'qgep':
+        SCHEMA = config.ABWASSER_SCHEMA
+        ILI_MODEL = config.ABWASSER_ILI_MODEL
+        ILI_MODEL_NAME = config.ABWASSER_ILI_MODEL_NAME
+        if args.direction == 'export':
             utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
-            export_f()
-            utils.ili2db.export_xtf_data(SCHEMA, ILI_MODEL_NAME, args.export_xtf)
+            qgep_export(upstream_of=args.upstream_of, downstream_of=args.downstream_of)
+            utils.ili2db.export_xtf_data(SCHEMA, ILI_MODEL_NAME, args.path)
             if not args.skip_validation:
                 try:
-                    utils.ili2db.validate_xtf_data(args.export_xtf)
+                    utils.ili2db.validate_xtf_data(args.path)
                 except utils.various.CmdException:
                     print("Ilivalidator doesn't recognize output as valid ! Run with --skip_validation to ignore")
                     exit(1)
 
-        elif args.import_xtf:
+        elif args.direction == 'import':
+            if args.upstream_of or args.downstream_of:
+                print("Subnetwork is only supported on export")
+                exit(1)
             if not args.skip_validation:
                 try:
-                    utils.ili2db.validate_xtf_data(args.import_xtf)
+                    utils.ili2db.validate_xtf_data(args.path)
                 except utils.various.CmdException:
                     print("Ilivalidator doesn't recognize input as valid ! Run with --skip_validation to ignore")
                     exit(1)
             utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
-            utils.ili2db.import_xtf_data(SCHEMA, args.import_xtf)
-            import_f()
+            utils.ili2db.import_xtf_data(SCHEMA, args.path)
+            qgep_import()
+
+    elif args.parser == 'qwat':
+        SCHEMA = config.ABWASSER_SCHEMA if args.model == "qgep" else config.WASSER_SCHEMA
+        ILI_MODEL = config.ABWASSER_ILI_MODEL if args.model == "qgep" else config.WASSER_ILI_MODEL
+        ILI_MODEL_NAME = config.ABWASSER_ILI_MODEL_NAME if args.model == "qgep" else config.WASSER_ILI_MODEL_NAME
+        if args.direction == 'export':
+            utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
+            qwat_export()
+            utils.ili2db.export_xtf_data(SCHEMA, ILI_MODEL_NAME, args.path)
+            if not args.skip_validation:
+                try:
+                    utils.ili2db.validate_xtf_data(args.path)
+                except utils.various.CmdException:
+                    print("Ilivalidator doesn't recognize output as valid ! Run with --skip_validation to ignore")
+                    exit(1)
+
+        elif args.direction == 'import':
+            if not args.skip_validation:
+                try:
+                    utils.ili2db.validate_xtf_data(args.path)
+                except utils.various.CmdException:
+                    print("Ilivalidator doesn't recognize input as valid ! Run with --skip_validation to ignore")
+                    exit(1)
+            utils.ili2db.create_ili_schema(SCHEMA, ILI_MODEL, recreate_schema=args.recreate_schema)
+            utils.ili2db.import_xtf_data(SCHEMA, args.path)
+            qwat_import()
+
 
     elif args.parser == 'tpl':
         utils.ili2db.create_ili_schema(config.WASSER_SCHEMA, config.WASSER_ILI_MODEL, recreate_schema=True)
@@ -83,5 +119,9 @@ def main(args):
         if args.type == 'subset':
             raise Exception("subset is currently disabled as quite slow, uncomment corresponding lines utils/various.py")
         utils.various.setup_test_db(args.type)
+
+    else:
+        print("Unknown operation")
+        exit(1)
 
     print("Operation completed sucessfully !")

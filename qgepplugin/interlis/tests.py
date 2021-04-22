@@ -49,7 +49,7 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.organisation).count(), 15)
         session.close()
 
-        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
+        main(["qgep", "import", path, "--recreate_schema"])
 
         # make sure all elements got imported
         session = Session(utils.sqlalchemy.create_engine())
@@ -70,7 +70,7 @@ class TestQGEPUseCases(unittest.TestCase):
 
         # assert idempotency
 
-        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
+        main(["qgep", "import", path, "--recreate_schema"])
         session = Session(utils.sqlalchemy.create_engine())
         self.assertEqual(session.query(QGEP.damage_channel).count(), 8)
         self.assertEqual(session.query(QGEP.examination).count(), 1)
@@ -89,7 +89,7 @@ class TestQGEPUseCases(unittest.TestCase):
         main(["setupdb", "full"])
 
         path = os.path.join(tempfile.mkdtemp(), "export.xtf")
-        main(["io", "--export_xtf", path, "qgep", "--recreate_schema"])
+        main(["qgep", "export", path, "--recreate_schema"])
 
         # Validate the outgoing XTF
         print(f"Saved to {path}")
@@ -115,7 +115,7 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.manhole).count(), 0)
         session.close()
 
-        main(["io", "--import_xtf", path, "qgep", "--recreate_schema"])
+        main(["qgep", "import", path, "--recreate_schema"])
 
         # make sure all elements got imported
         session = Session(utils.sqlalchemy.create_engine())
@@ -126,6 +126,20 @@ class TestQGEPUseCases(unittest.TestCase):
         self.assertEqual(session.query(QGEP.manhole).get("ch080qwzNS000113").year_of_construction, 1950)
         session.close()
 
+    def test_case_d_export_subset(self):
+        """
+        # D. export a subset
+        """
+
+        # Prepare subset db
+        main(["setupdb", "full"])
+
+        path = os.path.join(tempfile.mkdtemp(), "export.xtf")
+        main(["qgep", "export", path, "--recreate_schema", "--upstream_of", 'ch13p7mzWN008128', "--downstream_of", 'ch13p7mzWN005856'])
+
+        # Validate the outgoing XTF
+        print(f"Saved to {path}")
+        utils.ili2db.validate_xtf_data(path)
 
 class TestRegressions(unittest.TestCase):
 
