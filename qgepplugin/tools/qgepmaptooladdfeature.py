@@ -48,6 +48,8 @@ from qgis.core import (
     QgsFeatureRequest,
     QgsGeometry,
     QgsWkbTypes,
+    QgsSettings,
+    Qgis,
     NULL
 )
 from qgis.PyQt.QtGui import QCursor, QColor
@@ -74,8 +76,12 @@ class QgepRubberBand3D(QgsRubberBand):
         self.points = []
 
     def asGeometry3D(self):
+        def ensure_z(z):
+            if math.isnan(z):
+                return QgsSettings().value("/qgis/digitizing/default_z_value", Qgis.DEFAULT_Z_COORDINATE)
+            return z
         wkt = 'LineStringZ('\
-              + ', '.join(['{} {} {}'.format(p.x(), p.y(), 0 if math.isnan(p.z()) else p.z()) for p in self.points])\
+              + ', '.join(['{} {} {}'.format(p.x(), p.y(), ensure_z(p.z())) for p in self.points])\
               + ')'
         return QgsGeometry.fromWkt(wkt)
 
