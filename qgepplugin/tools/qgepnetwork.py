@@ -198,7 +198,7 @@ class QgepGraphManager(QObject):
         """
         spenttime = 0
         if self.timings:
-            spenttime = time.perf_counter() - self.timings[-1][1]
+            spenttime = time.process_time() - self.timings[-1][1]
         self.timings.append((name, spenttime))
 
     # Creates a network graph
