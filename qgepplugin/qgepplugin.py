@@ -54,7 +54,7 @@ from .utils.translation import setup_i18n
 from .utils.qgeplayermanager import QgepLayerNotifier
 from .utils.plugin_utils import plugin_root_path
 from .processing_provider.provider import QgepProcessingProvider
-from .interlis.plugin import action_import, action_export
+from .qgepqwat2ili.qgepqwat2ili.gui import action_import, action_export
 
 LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
 
