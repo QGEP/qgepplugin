@@ -21,16 +21,13 @@ def import_():
 {% endif %}
 
 {% for class_from in classes_from %}
-        # AVAILABLE FIELDS IN {{class_from.__name__}}
 {% for src_table, fields in class_from|classfields %}
 
-        # --- {{src_table}} ---
-        # {{fields|sort|join(", ")}}
+        # {{src_table}} --- {{fields|sort|join(", ")}}
 {% endfor %}
 
 {% endfor %}
         {{class_to.__name__}} = {{model_name|upper}}.{{class_to.__name__}}(
-            # FIELDS TO MAP TO {{model_name|upper}}.{{class_to.__name__}}
 {% for dst_table, fields in class_to|classfields %}
 {% if dst_table != '_rel_' and dst_table != '_bwrel_' %}
 

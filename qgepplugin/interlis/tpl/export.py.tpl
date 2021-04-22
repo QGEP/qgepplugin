@@ -30,11 +30,8 @@ def export():
     print("Exporting {{model_name|upper}}.{{class_from.__name__}} -> {{classes_to|qualclassesnames}}")
     for row in {{model_name}}_session.query({{model_name|upper}}.{{class_from.__name__}}):
 
-        # AVAILABLE FIELDS IN {{model_name|upper}}.{{class_from.__name__}}
 {% for src_table, fields in class_from|classfields %}
-
-        # --- {{src_table}} ---
-        # {{fields|sort|join(", ")}}
+        # {{src_table}} --- {{fields|sort|join(", ")}}
 {% endfor %}
 
 {% for class_to in classes_to %}
@@ -42,7 +39,6 @@ def export():
         create_metaattributes(row, session)
 {% else %}
         {{class_to.__name__}} = {{ilimodel_name|upper}}.{{class_to.__name__}}(
-            # FIELDS TO MAP TO {{ilimodel_name|upper}}.{{class_to.__name__}}
 {% for dst_table, fields in class_to|classfields %}
 {% if dst_table != '_rel_' and dst_table != '_bwrel_' %}
 

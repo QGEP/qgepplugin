@@ -15,22 +15,16 @@ def import_():
     print("Importing WASSER.hydraulischer_knoten -> QWAT.node")
     for row in wasser_session.query(WASSER.hydraulischer_knoten):
 
-        # AVAILABLE FIELDS IN hydraulischer_knoten
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- hydraulischer_knoten ---
-        # bemerkung, druck, geometrie, knotentyp, name_nummer, t_id, verbrauch
+        # hydraulischer_knoten --- bemerkung, druck, geometrie, knotentyp, name_nummer, t_id, verbrauch
 
-        # --- _bwrel_ ---
-        # hydraulischer_strang__BWREL_bisknotenref, hydraulischer_strang__BWREL_vonknotenref, leitungsknoten__BWREL_knotenref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_knotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # _bwrel_ --- hydraulischer_strang__BWREL_bisknotenref, hydraulischer_strang__BWREL_vonknotenref, leitungsknoten__BWREL_knotenref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_knotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
         node = QWAT.node(
-            # FIELDS TO MAP TO QWAT.node
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -56,28 +50,20 @@ def import_():
     print("Importing WASSER.hydrant -> QWAT.hydrant")
     for row in wasser_session.query(WASSER.hydrant):
 
-        # AVAILABLE FIELDS IN hydrant
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- hydrant ---
-        # art, dimension, entnahme, fliessdruck, hersteller, material, name_nummer, t_id, typ, versorgungsdruck, zustand
+        # hydrant --- art, dimension, entnahme, fliessdruck, hersteller, material, name_nummer, t_id, typ, versorgungsdruck, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         hydrant = QWAT.hydrant(
-            # FIELDS TO MAP TO QWAT.hydrant
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -142,28 +128,20 @@ def import_():
     print("Importing WASSER.wasserbehaelter -> QWAT.tank")
     for row in wasser_session.query(WASSER.wasserbehaelter):
 
-        # AVAILABLE FIELDS IN wasserbehaelter
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- wasserbehaelter ---
-        # art, beschichtung, brauchwasserreserve, fassungsvermoegen, leistung, loeschwasserreserve, material, name_nummer, t_id, ueberlaufhoehe, zustand
+        # wasserbehaelter --- art, beschichtung, brauchwasserreserve, fassungsvermoegen, leistung, loeschwasserreserve, material, name_nummer, t_id, ueberlaufhoehe, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         tank = QWAT.tank(
-            # FIELDS TO MAP TO QWAT.tank
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -247,28 +225,20 @@ def import_():
     print("Importing WASSER.foerderanlage -> QWAT.pump")
     for row in wasser_session.query(WASSER.foerderanlage):
 
-        # AVAILABLE FIELDS IN foerderanlage
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- foerderanlage ---
-        # art, leistung, name_nummer, t_id, zustand
+        # foerderanlage --- art, leistung, name_nummer, t_id, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         pump = QWAT.pump(
-            # FIELDS TO MAP TO QWAT.pump
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -338,28 +308,20 @@ def import_():
     print("Importing WASSER.anlage -> QWAT.treatment")
     for row in wasser_session.query(WASSER.anlage):
 
-        # AVAILABLE FIELDS IN anlage
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- anlage ---
-        # art, betreiber, dimension1, konzessionaer, leistung, material, name_nummer, t_id, unterhaltspflichtiger, zustand
+        # anlage --- art, betreiber, dimension1, konzessionaer, leistung, material, name_nummer, t_id, unterhaltspflichtiger, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         treatment = QWAT.treatment(
-            # FIELDS TO MAP TO QWAT.treatment
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -432,28 +394,20 @@ def import_():
     print("Importing WASSER.hausanschluss -> QWAT.subscriber")
     for row in wasser_session.query(WASSER.hausanschluss):
 
-        # AVAILABLE FIELDS IN hausanschluss
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- hausanschluss ---
-        # art, dimension, gebaeudeanschluss, isolierstueck, name_nummer, standort, t_id, typ, verbrauch, zuordnung_hydraulischer_knoten, zuordnung_hydraulischer_strang, zustand
+        # hausanschluss --- art, dimension, gebaeudeanschluss, isolierstueck, name_nummer, standort, t_id, typ, verbrauch, zuordnung_hydraulischer_knoten, zuordnung_hydraulischer_strang, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         subscriber = QWAT.subscriber(
-            # FIELDS TO MAP TO QWAT.subscriber
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -511,28 +465,20 @@ def import_():
     print("Importing WASSER.wassergewinnungsanlage -> QWAT.source")
     for row in wasser_session.query(WASSER.wassergewinnungsanlage):
 
-        # AVAILABLE FIELDS IN wassergewinnungsanlage
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- wassergewinnungsanlage ---
-        # art, betreiber, konzessionaer, leistung, name_nummer, t_id, unterhaltspflichtiger, zustand
+        # wassergewinnungsanlage --- art, betreiber, konzessionaer, leistung, name_nummer, t_id, unterhaltspflichtiger, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         source = QWAT.source(
-            # FIELDS TO MAP TO QWAT.source
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -602,28 +548,20 @@ def import_():
     print("Importing WASSER.absperrorgan -> QWAT.chamber")
     for row in wasser_session.query(WASSER.absperrorgan):
 
-        # AVAILABLE FIELDS IN absperrorgan
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- absperrorgan ---
-        # art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
+        # absperrorgan --- art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         chamber = QWAT.chamber(
-            # FIELDS TO MAP TO QWAT.chamber
 
             # --- node ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -692,28 +630,20 @@ def import_():
     print("Importing WASSER.absperrorgan -> QWAT.valve")
     for row in wasser_session.query(WASSER.absperrorgan):
 
-        # AVAILABLE FIELDS IN absperrorgan
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitungsknoten ---
-        # bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
+        # leitungsknoten --- bemerkung, druckzone, eigentuemer, einbaujahr, geometrie, hoehe, hoehenbestimmung, knotenref, lagebestimmung, symbolori
 
-        # --- absperrorgan ---
-        # art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
+        # absperrorgan --- art, hersteller, material, name_nummer, nennweite, schaltantrieb, schaltzustand, schliessrichtung, t_id, typ, zulaessiger_bauteil_betriebsdruck, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, muffen__BWREL_t_id, rohrleitungsteil__BWREL_t_id, sia405_symbolpos__BWREL_objekt, sia405_textpos__BWREL_leitungsknotenref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id, uebrige__BWREL_t_id
 
-        # --- _rel_ ---
-        # knotenref__REL
+        # _rel_ --- knotenref__REL
 
         valve = QWAT.valve(
-            # FIELDS TO MAP TO QWAT.valve
 
             # --- valve ---
             # _geometry_alt1_used=row.REPLACE_ME,
@@ -776,42 +706,29 @@ def import_():
     print("Importing WASSER.hydraulischer_strang, WASSER.leitung -> QWAT.pipe")
     for row, leitung in wasser_session.query(WASSER.hydraulischer_strang, WASSER.leitung).join(WASSER.leitung):
 
-        # AVAILABLE FIELDS IN hydraulischer_strang
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- hydraulischer_strang ---
-        # bemerkung, bisknotenref, durchfluss, fliessgeschwindigkeit, name_nummer, referenz_durchmesser, referenz_laenge, referenz_rauheit, t_id, verbrauch, vonknotenref, zustand
+        # hydraulischer_strang --- bemerkung, bisknotenref, durchfluss, fliessgeschwindigkeit, name_nummer, referenz_durchmesser, referenz_laenge, referenz_rauheit, t_id, verbrauch, vonknotenref, zustand
 
-        # --- _bwrel_ ---
-        # leitung__BWREL_strangref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_strangref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # _bwrel_ --- leitung__BWREL_strangref, metaattribute__BWREL_sia405_baseclass_metaattribute, sia405_textpos__BWREL_hydraulischer_strangref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
-        # --- _rel_ ---
-        # bisknotenref__REL, vonknotenref__REL
+        # _rel_ --- bisknotenref__REL, vonknotenref__REL
 
-        # AVAILABLE FIELDS IN leitung
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- leitung ---
-        # astatus, aussenbeschichtung, baujahr, bemerkung, betreiber, betriebsdruck, bettung, druckzone, durchmesser, durchmesseraussen, durchmesserinnen, eigentuemer, funktion, geometrie, hydraulische_rauheit, innenbeschichtung, kathodischer_schutz, konzessionaer, laenge, lagebestimmung, material, name_nummer, nennweite, sanierung_erneuerung, schubsicherung, strangref, t_id, ueberdeckung, unterhalt, unterhaltspflichtiger, verbindungsart, verlegeart, wasserqualitaet, zulaessiger_bauteil_betriebsdruck, zustand
+        # leitung --- astatus, aussenbeschichtung, baujahr, bemerkung, betreiber, betriebsdruck, bettung, druckzone, durchmesser, durchmesseraussen, durchmesserinnen, eigentuemer, funktion, geometrie, hydraulische_rauheit, innenbeschichtung, kathodischer_schutz, konzessionaer, laenge, lagebestimmung, material, name_nummer, nennweite, sanierung_erneuerung, schubsicherung, strangref, t_id, ueberdeckung, unterhalt, unterhaltspflichtiger, verbindungsart, verlegeart, wasserqualitaet, zulaessiger_bauteil_betriebsdruck, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, schadenstelle__BWREL_leitungref, sia405_textpos__BWREL_leitungref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, schadenstelle__BWREL_leitungref, sia405_textpos__BWREL_leitungref, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
-        # --- _rel_ ---
-        # strangref__REL
+        # _rel_ --- strangref__REL
 
         pipe = QWAT.pipe(
-            # FIELDS TO MAP TO QWAT.pipe
 
             # --- pipe ---
             # _diff_elevation=row.REPLACE_ME,
@@ -865,25 +782,18 @@ def import_():
     print("Importing WASSER.schadenstelle -> QWAT.leak")
     for row in wasser_session.query(WASSER.schadenstelle):
 
-        # AVAILABLE FIELDS IN schadenstelle
 
-        # --- baseclass ---
-        # t_ili_tid, t_type
+        # baseclass --- t_ili_tid, t_type
 
-        # --- sia405_baseclass ---
-        # obj_id
+        # sia405_baseclass --- obj_id
 
-        # --- schadenstelle ---
-        # art, ausloeser, behebungsdatum, bemerkung, erhebungsdatum, geometrie, leitungref, name_nummer, t_id, ursache, zustand
+        # schadenstelle --- art, ausloeser, behebungsdatum, bemerkung, erhebungsdatum, geometrie, leitungref, name_nummer, t_id, ursache, zustand
 
-        # --- _bwrel_ ---
-        # metaattribute__BWREL_sia405_baseclass_metaattribute, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
+        # _bwrel_ --- metaattribute__BWREL_sia405_baseclass_metaattribute, spezialbauwerk__BWREL_t_id, symbolpos__BWREL_t_id, textpos__BWREL_t_id
 
-        # --- _rel_ ---
-        # leitungref__REL
+        # _rel_ --- leitungref__REL
 
         leak = QWAT.leak(
-            # FIELDS TO MAP TO QWAT.leak
 
             # --- leak ---
             # _repaired=row.REPLACE_ME,
