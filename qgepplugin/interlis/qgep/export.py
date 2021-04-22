@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
+from sqlalchemy import or_
 from geoalchemy2.functions import ST_Transform, ST_Force2D, ST_CurveToLine
 import warnings
 
@@ -279,9 +280,8 @@ def qgep_export(downstream_of=None, upstream_of=None):
     logger.info("done")
     abwasser_session.flush()
 
-    """
     logger.info("Exporting QGEP.discharge_point -> ABWASSER.einleitstelle, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.discharge_point):
+    for row in qgep_session.query(QGEP.discharge_point).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
         einleitstelle = ABWASSER.einleitstelle(
 
             # --- baseclass ---
@@ -304,7 +304,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.special_structure -> ABWASSER.spezialbauwerk, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.special_structure):
+    for row in qgep_session.query(QGEP.special_structure).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.special_structure
 
@@ -344,7 +344,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.infiltration_installation -> ABWASSER.versickerungsanlage, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.infiltration_installation):
+    for row in qgep_session.query(QGEP.infiltration_installation).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.infiltration_installation
 
@@ -393,7 +393,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.pipe_profile -> ABWASSER.rohrprofil, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.pipe_profile):
+    for row in qgep_session.query(QGEP.pipe_profile).join(QGEP.reach).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.pipe_profile
 
@@ -426,7 +426,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.reach_point -> ABWASSER.haltungspunkt, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.reach_point):
+    for row in qgep_session.query(QGEP.reach_point).join(QGEP.reach, or_(QGEP.reach_point.obj_id == QGEP.reach.fk_reach_point_from, QGEP.reach_point.obj_id == QGEP.reach.fk_reach_point_to)).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.reach_point
 
@@ -463,7 +463,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.wastewater_node -> ABWASSER.abwasserknoten, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.wastewater_node):
+    for row in qgep_session.query(QGEP.wastewater_node).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.wastewater_node
 
@@ -502,7 +502,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.reach -> ABWASSER.haltung, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.reach):
+    for row in qgep_session.query(QGEP.reach).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.reach
 
@@ -555,7 +555,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.dryweather_downspout -> ABWASSER.trockenwetterfallrohr, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.dryweather_downspout):
+    for row in qgep_session.query(QGEP.dryweather_downspout).join(QGEP.wastewater_structure, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.dryweather_downspout
 
@@ -591,7 +591,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.access_aid -> ABWASSER.einstiegshilfe, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.access_aid):
+    for row in qgep_session.query(QGEP.access_aid).join(QGEP.wastewater_structure, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.access_aid
 
@@ -627,7 +627,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.dryweather_flume -> ABWASSER.trockenwetterrinne, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.dryweather_flume):
+    for row in qgep_session.query(QGEP.dryweather_flume).join(QGEP.wastewater_structure, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.dryweather_flume
 
@@ -663,7 +663,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.cover -> ABWASSER.deckel, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.cover):
+    for row in qgep_session.query(QGEP.cover).join(QGEP.wastewater_structure, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.cover
 
@@ -708,7 +708,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.benching -> ABWASSER.bankett, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.benching):
+    for row in qgep_session.query(QGEP.benching).join(QGEP.wastewater_structure, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.benching
 
@@ -747,7 +747,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.examination -> ABWASSER.untersuchung, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.examination):
+    for row in qgep_session.query(QGEP.examination).join(QGEP.reach_point).join(QGEP.reach, QGEP.reach_point.fk_wastewater_networkelement == QGEP.reach.obj_id).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.examination
 
@@ -803,7 +803,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.damage_manhole -> ABWASSER.normschachtschaden, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.damage_manhole):
+    for row in qgep_session.query(QGEP.damage_manhole).join(QGEP.examination, QGEP.reach_point, QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.damage_manhole
 
@@ -850,7 +850,7 @@ def qgep_export(downstream_of=None, upstream_of=None):
     abwasser_session.flush()
 
     logger.info("Exporting QGEP.damage_channel -> ABWASSER.kanalschaden, ABWASSER.metaattribute")
-    for row in qgep_session.query(QGEP.damage_channel):
+    for row in qgep_session.query(QGEP.damage_channel).join(QGEP.examination).join(QGEP.reach_point).join(QGEP.wastewater_networkelement).filter(QGEP.wastewater_networkelement.obj_id.in_(subset_ids)):
 
         # AVAILABLE FIELDS IN QGEP.damage_channel
 
@@ -962,7 +962,6 @@ def qgep_export(downstream_of=None, upstream_of=None):
         print(".", end="")
     logger.info("done")
     abwasser_session.flush()
-    """
 
     abwasser_session.commit()
 
