@@ -15,11 +15,11 @@ from .editors.base import Editor
 from ..qgep.model_qgep import get_qgep_model
 
 
-class Gui(QDialog):
+class GuiImport(QDialog):
 
     def __init__(self, parent):
         super().__init__(parent)
-        loadUi(os.path.join(os.path.dirname(__file__), 'gui.ui'), self)
+        loadUi(os.path.join(os.path.dirname(__file__), 'gui_import.ui'), self)
 
         self.accepted.connect(self.commit_session)
         self.rejected.connect(self.rollback_session)

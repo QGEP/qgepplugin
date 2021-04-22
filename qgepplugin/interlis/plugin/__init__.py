@@ -6,6 +6,7 @@ from qgis.core import Qgis
 
 import os
 
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QProgressDialog, QMessageBox
 
 from qgis.core import QgsProject, QgsSettings
@@ -14,7 +15,8 @@ from QgisModelBaker.libili2db import ili2dbutils, ili2dbconfig, globals
 
 from ..qgep.import_ import qgep_import
 from ..qgep.export import qgep_export
-from .gui import Gui
+from .gui_export import GuiExport
+from .gui_import import GuiImport
 
 from .. import config
 from ..utils.various import logger
@@ -71,7 +73,7 @@ def action_import(plugin):
     # Export to the temporary ili2pg model
     progress_dialog.setLabelText("Converting to QGEP...")
     QApplication.processEvents()
-    import_dialog = Gui(plugin.iface.mainWindow())
+    import_dialog = GuiImport(plugin.iface.mainWindow())
     progress_dialog.setValue(100)
     qgep_import(precommit_callback=import_dialog.init_with_session)
 
@@ -80,42 +82,60 @@ def action_export(plugin):
     """
     Is executed when the user clicks the exportAction tool
     """
+
     if not configure_from_modelbaker(plugin.iface):
         return
 
-    default_folder = QgsSettings().value('qgep_pluging/last_interlis_path', QgsProject.instance().absolutePath())
-    file_name, _ = QFileDialog.getSaveFileName(
-        None, plugin.tr("Export to file"), os.path.join(default_folder, 'qgep-export.xtf'), plugin.tr("Interlis transfer files (*.xtf)")
-    )
-    if not file_name:
-        # Operation canceled
-        return
-    QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
+    export_dialog = GuiExport(plugin.iface.mainWindow())
 
-    progress_dialog = QProgressDialog("", "", 0, 100, plugin.iface.mainWindow())
-    progress_dialog.setCancelButton(None)
-    progress_dialog.setModal(True)
-    progress_dialog.show()
+    def action_do_export():
 
-    # Prepare the temporary ili2pg model
-    progress_dialog.setLabelText("Creating ili schema...")
-    QApplication.processEvents()
-    create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
-    progress_dialog.setValue(33)
+        default_folder = QgsSettings().value('qgep_pluging/last_interlis_path', QgsProject.instance().absolutePath())
+        file_name, _ = QFileDialog.getSaveFileName(
+            None, plugin.tr("Export to file"), os.path.join(default_folder, 'qgep-export.xtf'), plugin.tr("Interlis transfer files (*.xtf)")
+        )
+        if not file_name:
+            # Operation canceled
+            return
+        QgsSettings().setValue('qgep_pluging/last_interlis_path', os.path.dirname(file_name))
 
-    # Export to the temporary ili2pg model
-    progress_dialog.setLabelText("Converting from QGEP...")
-    QApplication.processEvents()
-    qgep_export()
-    progress_dialog.setValue(66)
+        progress_dialog = QProgressDialog("", "", 0, 100, plugin.iface.mainWindow())
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setModal(True)
+        progress_dialog.show()
 
-    # Export from ili2pg model to file
-    progress_dialog.setLabelText("Saving XTF file...")
-    QApplication.processEvents()
-    export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, file_name)
-    progress_dialog.setValue(100)
+        # Prepare the temporary ili2pg model
+        progress_dialog.setLabelText("Creating ili schema...")
+        QApplication.processEvents()
+        create_ili_schema(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL, recreate_schema=True)
+        progress_dialog.setValue(25)
 
-    plugin.iface.messageBar().pushMessage("Sucess", f"Data successfully exported to {file_name}", level=Qgis.Success)
+        # Export to the temporary ili2pg model
+        progress_dialog.setLabelText("Converting from QGEP...")
+        QApplication.processEvents()
+        qgep_export(downstream_of=export_dialog.downstream_id, upstream_of=export_dialog.upstream_id)
+        progress_dialog.setValue(50)
+
+        # Export from ili2pg model to file
+        progress_dialog.setLabelText("Saving XTF file...")
+        QApplication.processEvents()
+        export_xtf_data(config.ABWASSER_SCHEMA, config.ABWASSER_ILI_MODEL_NAME, file_name)
+        progress_dialog.setValue(75)
+
+        progress_dialog.setLabelText("Validating the output file...")
+        QApplication.processEvents()
+        try:
+            validate_xtf_data(file_name)
+        except Exception:
+            progress_dialog.close()
+            QMessageBox.critical(None, "Invalid file", "The created file is not a valid XTF file. Open the logs for more details on the error.")
+            return
+        progress_dialog.setValue(100)
+
+        plugin.iface.messageBar().pushMessage("Sucess", f"Data successfully exported to {file_name}", level=Qgis.Success)
+
+    export_dialog.accepted.connect(action_do_export)
+    export_dialog.show()
 
 
 def configure_from_modelbaker(iface):
