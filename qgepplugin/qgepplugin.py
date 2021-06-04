@@ -281,6 +281,7 @@ class QgepPlugin(object):
         self.toolbar.deleteLater()
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
+        self.iface.removePluginMenu("&QGEP", self.settingsAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
 
         QgsApplication.processingRegistry().removeProvider(self.processing_provider)
