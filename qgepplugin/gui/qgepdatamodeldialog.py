@@ -229,7 +229,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
     def _show_progress(self, message):
         if self.progress_dialog is None:
-            self.progress_dialog = QProgressDialog(self.tr("Starting..."), self.tr("Cancel"), 0, 0)
+            self.progress_dialog = QProgressDialog(
+                self.tr("Starting..."), self.tr("Cancel"), 0, 0
+            )
             cancel_button = QPushButton(self.tr("Cancel"))
             cancel_button.setEnabled(False)
             self.progress_dialog.setCancelButton(cancel_button)
