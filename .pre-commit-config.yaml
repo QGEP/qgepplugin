@@ -13,7 +13,7 @@ repos:
           - '--fix=lf'
 
   # Remove unused imports/variables
-  - repo: git@github.com:myint/autoflake.git
+  - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
       - id: autoflake
