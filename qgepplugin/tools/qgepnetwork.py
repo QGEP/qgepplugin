@@ -29,33 +29,25 @@ Manages a graph of a wastewater network
 from __future__ import print_function
 
 import copyreg
+import re
+import time
 
 # pylint: disable=no-name-in-module
-from builtins import str, zip, object
+from builtins import object, str, zip
 from collections import defaultdict
-import time
-import re
-from qgis.PyQt.QtCore import (
-    pyqtSignal,
-    QObject,
-    Qt
-)
 
-from qgis.core import (
-    Qgis,
-    QgsMessageLog,
-    QgsGeometry,
-    QgsPointXY,
-    NULL
-)
-from qgepplugin.utils.qt_utils import OverrideCursor
 import networkx as nx
+from qgis.core import NULL, Qgis, QgsGeometry, QgsMessageLog, QgsPointXY
+from qgis.PyQt.QtCore import QObject, Qt, pyqtSignal
+
+from qgepplugin.utils.qt_utils import OverrideCursor
 
 
 class QgepGraphManager(QObject):
     """
     Manages a graph
     """
+
     edge_layer = None
     edge_layer_id = -1
     nodeLayer = None
@@ -116,8 +108,8 @@ class QgepGraphManager(QObject):
         for feat in features:
             fid = feat.id()
 
-            obj_id = feat['obj_id']
-            obj_type = feat['type']
+            obj_id = feat["obj_id"]
+            obj_type = feat["type"]
 
             try:
                 vertex = feat.geometry().asPoint()
@@ -142,19 +134,24 @@ class QgepGraphManager(QObject):
         # Loop through all reaches
         for feat in features:
             try:
-                obj_id = feat['obj_id']
-                obj_type = feat['type']
-                from_obj_id = feat['from_obj_id']
-                to_obj_id = feat['to_obj_id']
+                obj_id = feat["obj_id"]
+                obj_type = feat["type"]
+                from_obj_id = feat["from_obj_id"]
+                to_obj_id = feat["to_obj_id"]
 
-                length = feat['length_calc']
+                length = feat["length_calc"]
 
                 pt_id1 = self.vertexIds[from_obj_id]
                 pt_id2 = self.vertexIds[to_obj_id]
 
-                self.graph.add_edge(pt_id1, pt_id2,
-                                    weight=length, feature=feat.id(),
-                                    baseFeature=obj_id, objType=obj_type)
+                self.graph.add_edge(
+                    pt_id1,
+                    pt_id2,
+                    weight=length,
+                    feature=feat.id(),
+                    baseFeature=obj_id,
+                    objType=obj_type,
+                )
             except KeyError as e:
                 print(e)
 
@@ -174,8 +171,11 @@ class QgepGraphManager(QObject):
                 transaction = self.nodeLayer.dataProvider().transaction()
 
                 if not transaction:
-                    self.message_emitted.emit(self.tr("Error"), self.tr(
-                        "Could not initialize transaction"), Qgis.Critical)
+                    self.message_emitted.emit(
+                        self.tr("Error"),
+                        self.tr("Could not initialize transaction"),
+                        Qgis.Critical,
+                    )
                     return
 
             query_template = "SELECT qgep_network.refresh_network_simple();"
@@ -183,7 +183,11 @@ class QgepGraphManager(QObject):
             if not res:
                 self.message_emitted.emit(self.tr("Error"), error, Qgis.Critical)
             else:
-                self.message_emitted.emit(self.tr("Success"), self.tr("Network successfully updated"), Qgis.Success)
+                self.message_emitted.emit(
+                    self.tr("Success"),
+                    self.tr("Network successfully updated"),
+                    Qgis.Success,
+                )
 
             if temporary_edit_session:
                 self.nodeLayer.commitChanges()
@@ -259,7 +263,9 @@ class QgepGraphManager(QObject):
 
         try:
             path = nx.algorithms.dijkstra_path(self.graph, start_point, end_point)
-            edges = [(u, v, self.graph.edges[u, v]) for (u, v) in zip(path[0:], path[1:])]
+            edges = [
+                (u, v, self.graph.edges[u, v]) for (u, v) in zip(path[0:], path[1:])
+            ]
 
             p = (path, edges)
 
@@ -281,7 +287,11 @@ class QgepGraphManager(QObject):
 
         # fix point pickle
         def pickle_point(p):
-            return QgsPointXY, (p.x(), p.y(),)
+            return QgsPointXY, (
+                p.x(),
+                p.y(),
+            )
+
         copyreg.pickle(QgsPointXY, pickle_point)
 
         if upstream:
@@ -291,9 +301,14 @@ class QgepGraphManager(QObject):
 
         # Returns pred, weight
         pred, _ = nx.bellman_ford_predecessor_and_distance(my_graph, node)
-        edges = [(v[0], u, my_graph.edges[v[0], u]) for (u, v) in list(pred.items()) if v]
-        nodes = [my_graph.nodes[n] for n in set(list(pred.keys()) + [v[0]
-                                                                     for v in list(pred.values()) if v]) if n is not None]
+        edges = [
+            (v[0], u, my_graph.edges[v[0], u]) for (u, v) in list(pred.items()) if v
+        ]
+        nodes = [
+            my_graph.nodes[n]
+            for n in set(list(pred.keys()) + [v[0] for v in list(pred.values()) if v])
+            if n is not None
+        ]
 
         return nodes, edges
 
@@ -304,7 +319,9 @@ class QgepGraphManager(QObject):
         :return:       A list of polylines
         """
         cache = self.getFeaturesById(self.edge_layer, edges)
-        polylines = [feat.geometry().asPolyline() for feat in list(cache.asDict().values())]
+        polylines = [
+            feat.geometry().asPolyline() for feat in list(cache.asDict().values())
+        ]
         return polylines
 
     # pylint: disable=no-self-use
@@ -356,12 +373,13 @@ class QgepFeatureCache(object):
     There is no check done for maximum size. You have to care for your memory
     yourself, when using this class!
     """
+
     _featuresById = None
     _featuresByObjId = None
     objIdField = None
     layer = None
 
-    def __init__(self, layer, obj_id_field='obj_id'):
+    def __init__(self, layer, obj_id_field="obj_id"):
         self._featuresById = {}
         self._featuresByObjId = {}
         self.objIdField = obj_id_field
@@ -415,7 +433,9 @@ class QgepFeatureCache(object):
             else:
                 return feat[attr]
         except KeyError:
-            QgsMessageLog.logMessage('Unknown field {}'.format(attr), 'qgep', Qgis.Critical)
+            QgsMessageLog.logMessage(
+                "Unknown field {}".format(attr), "qgep", Qgis.Critical
+            )
             return None
 
     def attrAsGeometry(self, feat, attr):
@@ -424,7 +444,7 @@ class QgepFeatureCache(object):
         """
         ewktstring = self.attrAsUnicode(feat, attr)
         # Strip SRID=21781; token, TODO: Fix this upstream
-        m = re.search('(.*;)?(.*)', ewktstring)
+        m = re.search("(.*;)?(.*)", ewktstring)
         return QgsGeometry.fromWkt(m.group(2))
 
     def asDict(self) -> dict:

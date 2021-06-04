@@ -19,30 +19,30 @@
  ***************************************************************************/
 """
 
-from qgis.core import QgsProcessingProvider
-from processing.core.ProcessingConfig import ProcessingConfig, Setting
-from .snap_reach import SnapReachAlgorithm
-from .flow_times import FlowTimesAlgorithm
-from .sum_up_upstream import SumUpUpstreamAlgorithm
-from .change_reach_direction import ChangeReachDirection
-from .swmm_create_input import SwmmCreateInputAlgorithm
-from .swmm_extract_results import SwmmExtractResultsAlgorithm
-from .swmm_execute import SwmmExecuteAlgorithm
-
-from PyQt5.QtGui import QIcon
 import os
 
-__author__ = 'Matthias Kuhn'
-__date__ = '2017-11-18'
-__copyright__ = '(C) 2017 by OPENGIS.ch'
+from processing.core.ProcessingConfig import ProcessingConfig, Setting
+from PyQt5.QtGui import QIcon
+from qgis.core import QgsProcessingProvider
+
+from .change_reach_direction import ChangeReachDirection
+from .flow_times import FlowTimesAlgorithm
+from .snap_reach import SnapReachAlgorithm
+from .sum_up_upstream import SumUpUpstreamAlgorithm
+from .swmm_create_input import SwmmCreateInputAlgorithm
+from .swmm_execute import SwmmExecuteAlgorithm
+from .swmm_extract_results import SwmmExtractResultsAlgorithm
+
+__author__ = "Matthias Kuhn"
+__date__ = "2017-11-18"
+__copyright__ = "(C) 2017 by OPENGIS.ch"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 class QgepProcessingProvider(QgsProcessingProvider):
-
     def __init__(self):
         QgsProcessingProvider.__init__(self)
         # AlgorithmProvider.__init__(self)
@@ -50,18 +50,32 @@ class QgepProcessingProvider(QgsProcessingProvider):
         self.activate = True
 
         # Load algorithms
-        self.alglist = [SnapReachAlgorithm(), FlowTimesAlgorithm(), ChangeReachDirection(), SumUpUpstreamAlgorithm(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        self.alglist = [
+            SnapReachAlgorithm(),
+            FlowTimesAlgorithm(),
+            ChangeReachDirection(),
+            SumUpUpstreamAlgorithm(),
+            SwmmCreateInputAlgorithm(),
+            SwmmExtractResultsAlgorithm(),
+            SwmmExecuteAlgorithm(),
+        ]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
-        algs = [SnapReachAlgorithm(), FlowTimesAlgorithm(), SumUpUpstreamAlgorithm(), ChangeReachDirection(
-        ), SwmmCreateInputAlgorithm(), SwmmExtractResultsAlgorithm(), SwmmExecuteAlgorithm()]
+        algs = [
+            SnapReachAlgorithm(),
+            FlowTimesAlgorithm(),
+            SumUpUpstreamAlgorithm(),
+            ChangeReachDirection(),
+            SwmmCreateInputAlgorithm(),
+            SwmmExtractResultsAlgorithm(),
+            SwmmExecuteAlgorithm(),
+        ]
         return algs
 
     def id(self):
-        return 'qgep'
+        return "qgep"
 
     def name(self):
         """This is the name that will appear on the toolbox group.
@@ -69,14 +83,14 @@ class QgepProcessingProvider(QgsProcessingProvider):
         It is also used to create the command line name of all the
         algorithms from this provider.
         """
-        return 'QGEP'
+        return "QGEP"
 
     def icon(self):
         return QIcon(self.svgIconPath())
 
     def svgIconPath(self):
         basepath = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(basepath, '..', 'icons', 'qgepIcon.svg')
+        return os.path.join(basepath, "..", "icons", "qgepIcon.svg")
 
     def loadAlgorithms(self):
         self.algs = self.getAlgs()
@@ -85,15 +99,21 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
     def load(self):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
-        ProcessingConfig.addSetting(Setting(self.name(),
-                                            'SWMM_PATH',
-                                            self.tr(r'SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)'),
-                                            None,
-                                            valuetype=Setting.FILE))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(),
+                "SWMM_PATH",
+                self.tr(
+                    r"SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)"
+                ),
+                None,
+                valuetype=Setting.FILE,
+            )
+        )
 
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()
         return True
 
     def unload(self):
-        ProcessingConfig.removeSetting('SWMM_PATH')
+        ProcessingConfig.removeSetting("SWMM_PATH")

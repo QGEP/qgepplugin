@@ -2,15 +2,16 @@
 This module helps managing the QGEP project layers.
 """
 from builtins import object
-from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 from qgis.core import QgsProject
+from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
 class QgepLayerNotifier(QObject):
     """
     This class sends out notification when a given set of layers is available or unavailable.
     """
+
     layersAvailable = pyqtSignal([dict])
     layersUnavailable = pyqtSignal()
 
@@ -34,9 +35,11 @@ class QgepLayerNotifier(QObject):
 
         if self.available:
             for qgep_id in self.layers:
-                lyrs = [lyr for (lyr_id, lyr)
-                        in list(QgsProject.instance().mapLayers().items())
-                        if lyr_id.startswith(qgep_id)]
+                lyrs = [
+                    lyr
+                    for (lyr_id, lyr) in list(QgsProject.instance().mapLayers().items())
+                    if lyr_id.startswith(qgep_id)
+                ]
                 if not lyrs:
                     self.layersUnavailable.emit()
                     self.layersAvailableChanged.emit(False)
@@ -50,9 +53,11 @@ class QgepLayerNotifier(QObject):
         if not self.available:
             lyrlist = dict()
             for qgep_id in self.layers:
-                lyr = [lyr for (lyr_id, lyr)
-                       in list(QgsProject.instance().mapLayers().items())
-                       if lyr_id.startswith(qgep_id)]
+                lyr = [
+                    lyr
+                    for (lyr_id, lyr) in list(QgsProject.instance().mapLayers().items())
+                    if lyr_id.startswith(qgep_id)
+                ]
                 if not lyr:
                     return
                 lyrlist[qgep_id] = lyr[0]
@@ -78,9 +83,11 @@ class QgepLayerManager(object):
         :param qgep_id:  The id of the layer to look for
         :return:         A layer matching this id or None
         """
-        lyr = [lyr for (lyr_id, lyr)
-               in list(QgsProject.instance().mapLayers().items())
-               if lyr_id.startswith(qgep_id)]
+        lyr = [
+            lyr
+            for (lyr_id, lyr) in list(QgsProject.instance().mapLayers().items())
+            if lyr_id.startswith(qgep_id)
+        ]
         if lyr:
             return lyr[0]
         else:
