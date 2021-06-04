@@ -36,7 +36,7 @@ from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
 from qgis.PyQt.QtGui import QIcon
 
 from qgis.utils import qgsfunction
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, QgsSettings
 
 from .tools.qgepmaptools import (
     QgepProfileMapTool,
@@ -224,9 +224,10 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.connectNetworkElementsAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
-        self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
+        if QSettings().value("/QGEP/AdminMode", False):
+            self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
 
         self.iface.addToolBar(self.toolbar)
 
@@ -283,6 +284,7 @@ class QgepPlugin(object):
         self.iface.removePluginMenu("&QGEP", self.profileAction)
         self.iface.removePluginMenu("&QGEP", self.settingsAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
+        self.iface.removePluginMenu("&QGEP", self.datamodelInitToolAction)
 
         QgsApplication.processingRegistry().removeProvider(self.processing_provider)
 

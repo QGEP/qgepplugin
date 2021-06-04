@@ -55,6 +55,9 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         develmode = self.settings.value("/QGEP/DeveloperMode", False, type=bool)
         self.mCbDevelMode.setChecked(develmode)
 
+        adminmode = self.settings.value("/QGEP/AdminMode", False, type=bool)
+        self.mCbAdminMode.setChecked(adminmode)
+
         lyr_special_structures, _ = project.readEntry('QGEP', 'SpecialStructureLayer')
         lyr_graph_edges, _ = project.readEntry('QGEP', 'GraphEdgeLayer')
         lyr_graph_nodes, _ = project.readEntry('QGEP', 'GraphNodeLayer')
@@ -103,6 +106,7 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
             self.settings.remove("/QGEP/SvgProfilePath")
 
         self.settings.setValue("/QGEP/DeveloperMode", self.mCbDevelMode.checkState())
+        self.settings.setValue("/QGEP/AdminMode", self.mCbAdminMode.checkState())
 
         # Logging
         if hasattr(qgeplogger, 'qgepFileHandler'):
