@@ -23,28 +23,33 @@
 #
 # ---------------------------------------------------------------------
 
-import os
-import sys
 import configparser
 import functools
-import zipfile
-import tempfile
-import pkg_resources
+import os
 import subprocess
+import sys
+import tempfile
+import zipfile
+
+import pkg_resources
 import psycopg2
-
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QProgressDialog, QApplication, QPushButton
-from qgis.PyQt.QtCore import QUrl, QFile, QIODevice
-from qgis.PyQt.QtNetwork import QNetworkRequest, QNetworkReply
-
-from qgis.core import QgsMessageLog, QgsNetworkAccessManager, Qgis, QgsProject
+from qgis.core import Qgis, QgsMessageLog, QgsNetworkAccessManager, QgsProject
+from qgis.PyQt.QtCore import QFile, QIODevice, QUrl
+from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
+from qgis.PyQt.QtWidgets import (
+    QApplication,
+    QDialog,
+    QMessageBox,
+    QProgressDialog,
+    QPushButton,
+)
 
 from ..utils import get_ui_class
 
 # Currently, the latest release is hard-coded in the plugin, meaning we need
 # to publish a plugin update for each datamodel update.
 # In the future, once plugin/datamodel versionning scheme clearly reflects
-# compatibility, we could retrieve this dynamically, so datamodel bugfix 
+# compatibility, we could retrieve this dynamically, so datamodel bugfix
 # releases don't require a plugin upgrade.
 LATEST_RELEASE = "1.5.4"
 
@@ -52,34 +57,34 @@ LATEST_RELEASE = "1.5.4"
 # (not so useful... but may want allow picking master for pre-releases)
 AVAILABLE_RELEASES = {
     # 'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
-    LATEST_RELEASE: f'https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip',
+    LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    '1.5.0': 'v8.0',
-    '1.4.0': 'v7.0',
-    '0': 'v6.2',
+    "1.5.0": "v8.0",
+    "1.4.0": "v7.0",
+    "0": "v6.2",
 }
-TEMP_DIR = os.path.join(tempfile.gettempdir(), 'QGEP', 'datamodel-init')
+TEMP_DIR = os.path.join(tempfile.gettempdir(), "QGEP", "datamodel-init")
 
 # Path for pg_service.conf
-if os.environ.get('PGSERVICEFILE'):
-    PG_CONFIG_PATH = os.environ.get('PGSERVICEFILE')
-elif os.environ.get('PGSYSCONFDIR'):
-    PG_CONFIG_PATH = os.path.join(os.environ.get('PGSYSCONFDIR'), 'pg_service.conf')
+if os.environ.get("PGSERVICEFILE"):
+    PG_CONFIG_PATH = os.environ.get("PGSERVICEFILE")
+elif os.environ.get("PGSYSCONFDIR"):
+    PG_CONFIG_PATH = os.path.join(os.environ.get("PGSYSCONFDIR"), "pg_service.conf")
 else:
-    PG_CONFIG_PATH = ' ~/.pg_service.conf'
+    PG_CONFIG_PATH = " ~/.pg_service.conf"
 
-MAIN_DATAMODEL_RELEASE = '1.5.2'
-QGEP_RELEASE = '8.0'
+MAIN_DATAMODEL_RELEASE = "1.5.2"
+QGEP_RELEASE = "8.0"
 
 # Derived urls/paths, may require adaptations if release structure changes
-DATAMODEL_URL_TEMPLATE = 'https://github.com/QGEP/datamodel/archive/{}.zip'
-REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", 'requirements.txt')
-DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", 'delta')
+DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
+REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "requirements.txt")
+DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "delta")
 INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
-QGEP_PROJECT_URL_TEMPLATE = 'https://github.com/QGEP/QGEP/releases/download/{}/qgep.zip'
-QGEP_PROJECT_PATH_TEMPLATE = os.path.join(TEMP_DIR, "project", 'qgep.qgs')
+QGEP_PROJECT_URL_TEMPLATE = "https://github.com/QGEP/QGEP/releases/download/{}/qgep.zip"
+QGEP_PROJECT_PATH_TEMPLATE = os.path.join(TEMP_DIR, "project", "qgep.qgs")
 
 
 def qgep_datamodel_error_catcher(func):
@@ -91,21 +96,24 @@ def qgep_datamodel_error_catcher(func):
             return func(*args, **kwargs)
         except QGEPDatamodelError as e:
             args[0]._show_error(str(e))
+
     return wrapper
 
 
 class QGEPDatamodelError(Exception):
     pass
 
-class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog.ui')):
 
+class QgepPgserviceEditorDialog(QDialog, get_ui_class("qgeppgserviceeditordialog.ui")):
     def __init__(self, cur_name, cur_config, taken_names):
         super().__init__()
         self.setupUi(self)
         self.taken_names = taken_names
         self.nameLineEdit.textChanged.connect(self.check_name)
         self.pgconfigUserCheckBox.toggled.connect(self.pgconfigUserLineEdit.setEnabled)
-        self.pgconfigPasswordCheckBox.toggled.connect(self.pgconfigPasswordLineEdit.setEnabled)
+        self.pgconfigPasswordCheckBox.toggled.connect(
+            self.pgconfigPasswordLineEdit.setEnabled
+        )
 
         self.nameLineEdit.setText(cur_name)
         self.pgconfigHostLineEdit.setText(cur_config.get("host", ""))
@@ -123,11 +131,15 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
 
     def check_name(self, new_text):
         if new_text in self.taken_names:
-            self.nameCheckLabel.setText('will overwrite')
-            self.nameCheckLabel.setStyleSheet('color: rgb(170, 95, 0);\nfont-weight: bold;')
+            self.nameCheckLabel.setText("will overwrite")
+            self.nameCheckLabel.setStyleSheet(
+                "color: rgb(170, 95, 0);\nfont-weight: bold;"
+            )
         else:
-            self.nameCheckLabel.setText('will be created')
-            self.nameCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.nameCheckLabel.setText("will be created")
+            self.nameCheckLabel.setStyleSheet(
+                "color: rgb(0, 170, 0);\nfont-weight: bold;"
+            )
 
     def conf_name(self):
         return self.nameLineEdit.text()
@@ -139,18 +151,21 @@ class QgepPgserviceEditorDialog(QDialog, get_ui_class('qgeppgserviceeditordialog
             "dbname": self.pgconfigDbLineEdit.text(),
         }
         if self.pgconfigUserCheckBox.isChecked():
-            retval.update({
-                "user": self.pgconfigUserLineEdit.text(),
-            })
+            retval.update(
+                {
+                    "user": self.pgconfigUserLineEdit.text(),
+                }
+            )
         if self.pgconfigPasswordCheckBox.isChecked():
-            retval.update({
-                "password": self.pgconfigPasswordLineEdit.text(),
-            })
+            retval.update(
+                {
+                    "password": self.pgconfigPasswordLineEdit.text(),
+                }
+            )
         return retval
 
 
-class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui')):
-
+class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui")):
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -160,7 +175,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         # Populate the versions
         self.releaseVersionComboBox.clear()
         if len(AVAILABLE_RELEASES) > 1:
-            self.releaseVersionComboBox.addItem('- SELECT RELEASE VERSION -')
+            self.releaseVersionComboBox.addItem("- SELECT RELEASE VERSION -")
             self.releaseVersionComboBox.model().item(0).setEnabled(False)
         for version in sorted(list(AVAILABLE_RELEASES.keys()), reverse=True):
             self.releaseVersionComboBox.addItem(version)
@@ -186,11 +201,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         # Initialize the checks
         self.checks = {
-            'datamodel': False,
-            'requirements': False,
-            'pgconfig': False,
-            'current_version': False,
-            'project': False,
+            "datamodel": False,
+            "requirements": False,
+            "pgconfig": False,
+            "current_version": False,
+            "project": False,
         }
 
         if len(AVAILABLE_RELEASES) == 1:
@@ -237,8 +252,16 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
     # Actions helpers
 
-    def _run_sql(self, connection_string, sql_command, autocommit=False, error_message='Psycopg error, see logs for more information'):
-        QgsMessageLog.logMessage(f"Running query against {connection_string}: {sql_command}", "QGEP")
+    def _run_sql(
+        self,
+        connection_string,
+        sql_command,
+        autocommit=False,
+        error_message="Psycopg error, see logs for more information",
+    ):
+        QgsMessageLog.logMessage(
+            f"Running query against {connection_string}: {sql_command}", "QGEP"
+        )
         try:
             conn = psycopg2.connect(connection_string)
             if autocommit:
@@ -252,22 +275,40 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             message = f"{error_message}\nCommand :\n{sql_command}\n{e}"
             raise QGEPDatamodelError(message)
 
-    def _run_cmd(self, shell_command, cwd=None, error_message='Subprocess error, see logs for more information', timeout=10):
+    def _run_cmd(
+        self,
+        shell_command,
+        cwd=None,
+        error_message="Subprocess error, see logs for more information",
+        timeout=10,
+    ):
         """
         Helper to run commands through subprocess
         """
         QgsMessageLog.logMessage(f"Running command : {shell_command}", "QGEP")
-        result = subprocess.run(shell_command, cwd=cwd, shell=True, capture_output=True, timeout=timeout)
+        result = subprocess.run(
+            shell_command, cwd=cwd, shell=True, capture_output=True, timeout=timeout
+        )
         if result.stdout:
-            QgsMessageLog.logMessage(result.stdout.decode(sys.getdefaultencoding()), "QGEP")
+            QgsMessageLog.logMessage(
+                result.stdout.decode(sys.getdefaultencoding()), "QGEP"
+            )
         if result.stderr:
-            QgsMessageLog.logMessage(result.stderr.decode(sys.getdefaultencoding()), "QGEP", level=Qgis.Critical)
+            QgsMessageLog.logMessage(
+                result.stderr.decode(sys.getdefaultencoding()),
+                "QGEP",
+                level=Qgis.Critical,
+            )
         if result.returncode:
             message = f"{error_message}\nCommand :\n{shell_command}"
             if result.stdout:
-                message += f"\n\nOutput :\n{result.stdout.decode(sys.getdefaultencoding())}"
+                message += (
+                    f"\n\nOutput :\n{result.stdout.decode(sys.getdefaultencoding())}"
+                )
             if result.stderr:
-                message += f"\n\nError :\n{result.stderr.decode(sys.getdefaultencoding())}"
+                message += (
+                    f"\n\nError :\n{result.stderr.decode(sys.getdefaultencoding())}"
+                )
             raise QGEPDatamodelError(message)
         return result.stdout.decode(sys.getdefaultencoding())
 
@@ -309,9 +350,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
             def write(self, content):
                 content = content.replace(" = ", "=", 1)
-                self.output_file.write(content.encode('utf-8'))
+                self.output_file.write(content.encode("utf-8"))
 
-        config.write(EqualsSpaceRemover(open(PG_CONFIG_PATH, 'wb')))
+        config.write(EqualsSpaceRemover(open(PG_CONFIG_PATH, "wb")))
 
     def _get_current_version(self):
         # Dirty parsing of pum info
@@ -320,15 +361,15 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             return None
 
         pum_info = self._run_cmd(
-            f'python -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}',
-            error_message='Could not get current version, are you sure the database is accessible ?'
+            f"python -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
+            error_message="Could not get current version, are you sure the database is accessible ?",
         )
         version = None
         for line in pum_info.splitlines():
             line = line.strip()
             if not line:
                 continue
-            parts = line.split('|')
+            parts = line.split("|")
             if len(parts) > 1:
                 version = parts[1].strip()
         return version
@@ -345,26 +386,34 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         super().showEvent(event)
 
     def enable_buttons_if_ready(self):
-        self.installDepsButton.setEnabled(self.checks['datamodel'] and not self.checks['requirements'])
+        self.installDepsButton.setEnabled(
+            self.checks["datamodel"] and not self.checks["requirements"]
+        )
         self.versionUpgradeButton.setEnabled(all(self.checks.values()))
-        self.loadProjectButton.setEnabled(self.checks['project'])
+        self.loadProjectButton.setEnabled(self.checks["project"])
 
     # Datamodel
 
     def check_datamodel(self):
-        requirements_exists = os.path.exists(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
+        requirements_exists = os.path.exists(
+            REQUIREMENTS_PATH_TEMPLATE.format(self.version)
+        )
         deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE.format(self.version))
 
         check = requirements_exists and deltas_exists
 
         if check:
-            self.releaseCheckLabel.setText('ok')
-            self.releaseCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.releaseCheckLabel.setText("ok")
+            self.releaseCheckLabel.setStyleSheet(
+                "color: rgb(0, 170, 0);\nfont-weight: bold;"
+            )
         else:
-            self.releaseCheckLabel.setText('not found')
-            self.releaseCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.releaseCheckLabel.setText("not found")
+            self.releaseCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
-        self.checks['datamodel'] = check
+        self.checks["datamodel"] = check
         self.enable_buttons_if_ready()
 
         return check
@@ -378,7 +427,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             self._show_progress("Downloading the release")
 
             # Download files
-            datamodel_path = self._download(AVAILABLE_RELEASES[self.version], 'datamodel.zip')
+            datamodel_path = self._download(
+                AVAILABLE_RELEASES[self.version], "datamodel.zip"
+            )
 
             # Unzip
             datamodel_zip = zipfile.ZipFile(datamodel_path)
@@ -401,27 +452,35 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         missing = []
         if not self.check_datamodel():
-            missing.append(('unknown', 'no datamodel'))
+            missing.append(("unknown", "no datamodel"))
         else:
-            requirements = pkg_resources.parse_requirements(open(REQUIREMENTS_PATH_TEMPLATE.format(self.version)))
+            requirements = pkg_resources.parse_requirements(
+                open(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
+            )
             for requirement in requirements:
                 try:
                     pkg_resources.require(str(requirement))
                 except pkg_resources.DistributionNotFound:
-                    missing.append((requirement, 'missing'))
+                    missing.append((requirement, "missing"))
                 except pkg_resources.VersionConflict:
-                    missing.append((requirement, 'conflict'))
+                    missing.append((requirement, "conflict"))
 
         check = len(missing) == 0
 
         if check:
-            self.pythonCheckLabel.setText('ok')
-            self.pythonCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.pythonCheckLabel.setText("ok")
+            self.pythonCheckLabel.setStyleSheet(
+                "color: rgb(0, 170, 0);\nfont-weight: bold;"
+            )
         else:
-            self.pythonCheckLabel.setText('\n'.join(f'{dep}: {err}' for dep, err in missing))
-            self.pythonCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.pythonCheckLabel.setText(
+                "\n".join(f"{dep}: {err}" for dep, err in missing)
+            )
+            self.pythonCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
-        self.checks['requirements'] = check
+        self.checks["requirements"] = check
         self.enable_buttons_if_ready()
 
         return check
@@ -445,12 +504,20 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         # Install dependencies
         requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
-        QgsMessageLog.logMessage(f"Installing python dependencies from {requirements_file_path}", "QGEP")
-        dependencies = " ".join([f'"{l.strip()}"' for l in open(requirements_file_path, 'r').read().splitlines() if l.strip()])
-        command_line = 'the OSGeo4W shell' if os.name == 'nt' else 'the terminal'
+        QgsMessageLog.logMessage(
+            f"Installing python dependencies from {requirements_file_path}", "QGEP"
+        )
+        dependencies = " ".join(
+            [
+                f'"{l.strip()}"'
+                for l in open(requirements_file_path, "r").read().splitlines()
+                if l.strip()
+            ]
+        )
+        command_line = "the OSGeo4W shell" if os.name == "nt" else "the terminal"
         self._run_cmd(
-            f'python -m pip install --user {dependencies}',
-            error_message=f'Could not install python dependencies. You can try to run the command manually from {command_line}.',
+            f"python -m pip install --user {dependencies}",
+            error_message=f"Could not install python dependencies. You can try to run the command manually from {command_line}.",
             timeout=None,
         )
 
@@ -465,13 +532,17 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         check = bool(self.pgserviceComboBox.currentData())
         if check:
-            self.pgconfigCheckLabel.setText('ok')
-            self.pgconfigCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.pgconfigCheckLabel.setText("ok")
+            self.pgconfigCheckLabel.setStyleSheet(
+                "color: rgb(0, 170, 0);\nfont-weight: bold;"
+            )
         else:
-            self.pgconfigCheckLabel.setText('not set')
-            self.pgconfigCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.pgconfigCheckLabel.setText("not set")
+            self.pgconfigCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
-        self.checks['pgconfig'] = check
+        self.checks["pgconfig"] = check
         self.enable_buttons_if_ready()
 
         return check
@@ -485,7 +556,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             conf = add_dialog.conf_dict()
             self._write_pgservice_conf(name, conf)
             self.update_pgconfig_combobox()
-            self.pgserviceComboBox.setCurrentIndex(self.pgserviceComboBox.findData(name))
+            self.pgserviceComboBox.setCurrentIndex(
+                self.pgserviceComboBox.findData(name)
+            )
             self.select_pgconfig()
 
     def update_pgconfig_combobox(self):
@@ -497,14 +570,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     def select_pgconfig(self, _=None):
         config = self._read_pgservice()
         if self.conf in config.sections():
-            host = config.get(self.conf, 'host', fallback='-')
-            port = config.get(self.conf, 'port', fallback='-')
-            dbname = config.get(self.conf, 'dbname', fallback='-')
-            user = config.get(self.conf, 'user', fallback='-')
-            password = (len(config.get(self.conf, 'password', fallback='')) * '*') or '-'
-            self.pgserviceCurrentLabel.setText(f"host: {host}:{port}\ndbname: {dbname}\nuser: {user}\npassword: {password}")
+            host = config.get(self.conf, "host", fallback="-")
+            port = config.get(self.conf, "port", fallback="-")
+            dbname = config.get(self.conf, "dbname", fallback="-")
+            user = config.get(self.conf, "user", fallback="-")
+            password = (
+                len(config.get(self.conf, "password", fallback="")) * "*"
+            ) or "-"
+            self.pgserviceCurrentLabel.setText(
+                f"host: {host}:{port}\ndbname: {dbname}\nuser: {user}\npassword: {password}"
+            )
         else:
-            self.pgserviceCurrentLabel.setText('-')
+            self.pgserviceCurrentLabel.setText("-")
         self.check_pgconfig()
         self.check_version()
         self.check_project()
@@ -524,8 +601,8 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
         if os.path.exists(deltas_dir):
             for f in os.listdir(deltas_dir):
-                if f.startswith('delta_'):
-                    available_versions.add(f.split('_')[1])
+                if f.startswith("delta_"):
+                    available_versions.add(f.split("_")[1])
         for available_version in sorted(list(available_versions), reverse=True):
             self.targetVersionComboBox.addItem(available_version)
         self.targetVersionComboBox.setCurrentText(prev)  # restore
@@ -540,12 +617,16 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
 
         pgservice = self.pgserviceComboBox.currentData()
         if not pgservice:
-            self.versionCheckLabel.setText('service not selected')
-            self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.versionCheckLabel.setText("service not selected")
+            self.versionCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
         elif not available_versions:
-            self.versionCheckLabel.setText('no delta in datamodel')
-            self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.versionCheckLabel.setText("no delta in datamodel")
+            self.versionCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
         else:
 
@@ -560,51 +641,63 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 # determine if this is a connection error or if PUM is not initailized
                 # see https://github.com/opengisch/pum/issues/96
                 # We'll try to connect to see if it's a connection error
-                error = 'qgep not initialized'
+                error = "qgep not initialized"
                 try:
                     self._run_sql(
                         f"service={self.conf}",
-                        'SELECT 1;',
-                        error_message='Errors when initializing the database.'
+                        "SELECT 1;",
+                        error_message="Errors when initializing the database.",
                     )
                 except QGEPDatamodelError:
-                    error = 'database does not exist'
+                    error = "database does not exist"
                     try:
                         self._run_sql(
                             f"service={self.conf} dbname=postgres",
-                            'SELECT 1;',
-                            error_message='Errors when initializing the database.'
+                            "SELECT 1;",
+                            error_message="Errors when initializing the database.",
                         )
                     except QGEPDatamodelError:
-                        error = 'could not connect to database'
+                        error = "could not connect to database"
                         connection_works = False
 
             if not connection_works:
                 check = False
                 self.versionCheckLabel.setText(error)
-                self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+                self.versionCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
             elif error is not None:
                 check = False
                 self.versionCheckLabel.setText(error)
-                self.versionCheckLabel.setStyleSheet('color: rgb(170, 95, 0);\nfont-weight: bold;')
+                self.versionCheckLabel.setStyleSheet(
+                    "color: rgb(170, 95, 0);\nfont-weight: bold;"
+                )
             elif current_version <= target_version:
                 check = True
                 self.versionCheckLabel.setText(current_version)
-                self.versionCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+                self.versionCheckLabel.setStyleSheet(
+                    "color: rgb(0, 170, 0);\nfont-weight: bold;"
+                )
             elif current_version > target_version:
                 check = False
                 self.versionCheckLabel.setText(f"{current_version} (cannot downgrade)")
-                self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+                self.versionCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
             else:
                 check = False
                 self.versionCheckLabel.setText(f"{current_version} (invalid version)")
-                self.versionCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+                self.versionCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
 
-            self.initializeButton.setVisible(current_version is None and connection_works)
+            self.initializeButton.setVisible(
+                current_version is None and connection_works
+            )
             self.targetVersionComboBox.setVisible(current_version is not None)
             self.versionUpgradeButton.setVisible(current_version is not None)
 
-        self.checks['current_version'] = check
+        self.checks["current_version"] = check
         self.enable_buttons_if_ready()
 
         return check
@@ -613,7 +706,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     def initialize_version(self):
 
         confirm = QMessageBox()
-        confirm.setText(f"You are about to initialize the datamodel on {self.conf} to version {self.version}. ")
+        confirm.setText(
+            f"You are about to initialize the datamodel on {self.conf} to version {self.version}. "
+        )
         confirm.setInformativeText(
             "Please confirm that you have a backup of your data as this operation can result in data loss."
         )
@@ -636,14 +731,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             try:
                 self._show_progress("Downloading the structure script")
                 url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
-                sql_path = self._download(url, f"structure_with_value_lists-{self.version}-{srid}.sql", error_message=f"Initialization release file not found for version {self.version}")
+                sql_path = self._download(
+                    url,
+                    f"structure_with_value_lists-{self.version}-{srid}.sql",
+                    error_message=f"Initialization release file not found for version {self.version}",
+                )
 
                 # Dirty hack to customize SRID in a dump
-                if srid != '2056':
-                    with open(sql_path, 'r') as file:
+                if srid != "2056":
+                    with open(sql_path, "r") as file:
                         contents = file.read()
-                    contents = contents.replace('2056', srid)
-                    with open(sql_path, 'w') as file:
+                    contents = contents.replace("2056", srid)
+                    with open(sql_path, "w") as file:
                         file.write(contents)
 
                 try:
@@ -652,32 +751,33 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                     # It may be that the database doesn't exist yet
                     # in that case, we try to connect to the postgres database and to create it from there
                     self._show_progress("Creating the database")
-                    dbname = self._read_pgservice()[self.conf]['dbname']
+                    dbname = self._read_pgservice()[self.conf]["dbname"]
                     self._run_sql(
                         f"service={self.conf} dbname=postgres",
-                        f'CREATE DATABASE {dbname};', autocommit=True,
-                        error_message='Could not create a new database.'
+                        f"CREATE DATABASE {dbname};",
+                        autocommit=True,
+                        error_message="Could not create a new database.",
                     )
 
                 self._show_progress("Running the initialization scripts")
                 self._run_sql(
                     f"service={self.conf}",
-                    'CREATE EXTENSION IF NOT EXISTS postgis;',
-                    error_message='Errors when initializing the database.'
+                    "CREATE EXTENSION IF NOT EXISTS postgis;",
+                    error_message="Errors when initializing the database.",
                 )
                 # we cannot use this, as it doesn't support COPY statements
                 # this means we'll run through psql without transaction :-/
                 # cur.execute(open(sql_path, "r").read())
                 self._run_cmd(
                     f'psql -f {sql_path} "service={self.conf}"',
-                    error_message='Errors when initializing the database.',
+                    error_message="Errors when initializing the database.",
                     timeout=300,
                 )
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
                 self._run_sql(
                     f"service={self.conf}",
-                    'SELECT qgep_network.refresh_network_simple();',
-                    error_message='Errors when initializing the database.'
+                    "SELECT qgep_network.refresh_network_simple();",
+                    error_message="Errors when initializing the database.",
                 )
 
             except psycopg2.Error as e:
@@ -697,7 +797,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
     def upgrade_version(self):
 
         confirm = QMessageBox()
-        confirm.setText(f"You are about to update the datamodel on {self.conf} to version {self.target_version}. ")
+        confirm.setText(
+            f"You are about to update the datamodel on {self.conf} to version {self.target_version}. "
+        )
         confirm.setInformativeText(
             "Please confirm that you have a backup of your data as this operation can result in data loss."
         )
@@ -713,9 +815,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
             return self._run_cmd(
-                f'python -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}',
+                f"python -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
-                error_message='Errors when upgrading the database.',
+                error_message="Errors when upgrading the database.",
                 timeout=300,
             )
 
@@ -744,13 +846,17 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
         check = current_version is not None
 
         if check:
-            self.projectCheckLabel.setText('ok')
-            self.projectCheckLabel.setStyleSheet('color: rgb(0, 170, 0);\nfont-weight: bold;')
+            self.projectCheckLabel.setText("ok")
+            self.projectCheckLabel.setStyleSheet(
+                "color: rgb(0, 170, 0);\nfont-weight: bold;"
+            )
         else:
-            self.projectCheckLabel.setText('version not found')
-            self.projectCheckLabel.setStyleSheet('color: rgb(170, 0, 0);\nfont-weight: bold;')
+            self.projectCheckLabel.setText("version not found")
+            self.projectCheckLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-weight: bold;"
+            )
 
-        self.checks['project'] = check
+        self.checks["project"] = check
         self.enable_buttons_if_ready()
 
         return check
@@ -766,17 +872,17 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
                 qgis_vers = DATAMODEL_QGEP_VERSIONS[dm_vers]
 
         url = QGEP_PROJECT_URL_TEMPLATE.format(qgis_vers)
-        qgep_path = self._download(url, 'qgep.zip')
+        qgep_path = self._download(url, "qgep.zip")
         qgep_zip = zipfile.ZipFile(qgep_path)
         qgep_zip.extractall(TEMP_DIR)
 
-        with open(QGEP_PROJECT_PATH_TEMPLATE, 'r') as original_project:
+        with open(QGEP_PROJECT_PATH_TEMPLATE, "r") as original_project:
             contents = original_project.read()
 
         # replace the service name
         contents = contents.replace("service='pg_qgep'", f"service='{self.conf}'")
 
-        output_file = tempfile.NamedTemporaryFile(suffix='.qgs', delete=False)
-        output_file.write(contents.encode('utf8'))
+        output_file = tempfile.NamedTemporaryFile(suffix=".qgs", delete=False)
+        output_file.write(contents.encode("utf8"))
 
         QgsProject.instance().read(output_file.name)
