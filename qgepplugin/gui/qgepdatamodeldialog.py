@@ -2,7 +2,7 @@
 # -----------------------------------------------------------
 #
 # Profile
-# Copyright (C) 2012  Matthias Kuhn
+# Copyright (C) 2021  Olivier Dalang
 # -----------------------------------------------------------
 #
 # licensed under the terms of GNU GPL 2
