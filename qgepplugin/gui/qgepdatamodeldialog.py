@@ -41,10 +41,18 @@ from qgis.core import QgsMessageLog, QgsNetworkAccessManager, Qgis, QgsProject
 
 from ..utils import get_ui_class
 
-# TODO : get latest dynamically ?
+# Currently, the latest release is hard-coded in the plugin, meaning we need
+# to publish a plugin update for each datamodel update.
+# In the future, once plugin/datamodel versionning scheme clearly reflects
+# compatibility, we could retrieve this dynamically, so datamodel bugfix 
+# releases don't require a plugin upgrade.
+LATEST_RELEASE = "1.5.4"
+
+# Allow to choose which releases can be installed
+# (not so useful... but may want allow picking master for pre-releases)
 AVAILABLE_RELEASES = {
     # 'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
-    '1.5.3': 'https://github.com/QGEP/datamodel/archive/1.5.3.zip',
+    LATEST_RELEASE: f'https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip',
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
@@ -156,6 +164,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class('qgepdatamodeldialog.ui'
             self.releaseVersionComboBox.model().item(0).setEnabled(False)
         for version in sorted(list(AVAILABLE_RELEASES.keys()), reverse=True):
             self.releaseVersionComboBox.addItem(version)
+        self.releaseVersionComboBox.setEnabled(len(AVAILABLE_RELEASES) > 1)
 
         # Show the pgconfig path
         self.pgservicePathLabel.setText(PG_CONFIG_PATH)
