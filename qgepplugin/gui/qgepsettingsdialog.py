@@ -23,17 +23,19 @@
 #
 # ---------------------------------------------------------------------
 
-from builtins import str
-from qgis.PyQt.QtCore import QSettings, pyqtSlot
-from qgis.PyQt.QtWidgets import QDialog, QFileDialog
-from qgis.PyQt.QtGui import QColor
-from qgis.core import QgsProject
 import logging
+from builtins import str
+
+from qgis.core import QgsProject
+from qgis.PyQt.QtCore import QSettings, pyqtSlot
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog
 
 from ..utils import get_ui_class
-DIALOG_UI = get_ui_class('qgepsettingsdialog.ui')
 
-LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
+DIALOG_UI = get_ui_class("qgepsettingsdialog.ui")
+
+LOGFORMAT = "%(asctime)s:%(levelname)s:%(module)s:%(message)s"
 
 
 class QgepSettingsDialog(QDialog, DIALOG_UI):
@@ -58,24 +60,32 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         adminmode = self.settings.value("/QGEP/AdminMode", False, type=bool)
         self.mCbAdminMode.setChecked(adminmode)
 
-        lyr_special_structures, _ = project.readEntry('QGEP', 'SpecialStructureLayer')
-        lyr_graph_edges, _ = project.readEntry('QGEP', 'GraphEdgeLayer')
-        lyr_graph_nodes, _ = project.readEntry('QGEP', 'GraphNodeLayer')
+        lyr_special_structures, _ = project.readEntry("QGEP", "SpecialStructureLayer")
+        lyr_graph_edges, _ = project.readEntry("QGEP", "GraphEdgeLayer")
+        lyr_graph_nodes, _ = project.readEntry("QGEP", "GraphNodeLayer")
 
         self.initLayerCombobox(self.mCbSpecialStructures, lyr_special_structures)
         self.initLayerCombobox(self.mCbGraphEdges, lyr_graph_edges)
         self.initLayerCombobox(self.mCbGraphNodes, lyr_graph_nodes)
 
-        self.mCurrentProfileColorButton.setColor(QColor(self.settings.value("/QGEP/CurrentProfileColor", u'#FF9500')))
-        self.mHelperLineColorButton.setColor(QColor(self.settings.value("/QGEP/HelperLineColor", u'#FFD900')))
-        self.mHighlightColorButton.setColor(QColor(self.settings.value("/QGEP/HighlightColor", u'#40FF40')))
+        self.mCurrentProfileColorButton.setColor(
+            QColor(self.settings.value("/QGEP/CurrentProfileColor", u"#FF9500"))
+        )
+        self.mHelperLineColorButton.setColor(
+            QColor(self.settings.value("/QGEP/HelperLineColor", u"#FFD900"))
+        )
+        self.mHighlightColorButton.setColor(
+            QColor(self.settings.value("/QGEP/HighlightColor", u"#40FF40"))
+        )
 
-        self.mPbnChooseProfileTemplateFile.clicked.connect(self.onChooseProfileTemplateFileClicked)
+        self.mPbnChooseProfileTemplateFile.clicked.connect(
+            self.onChooseProfileTemplateFileClicked
+        )
         self.mPbnChooseLogFile.clicked.connect(self.onChooseLogFileClicked)
 
         self.accepted.connect(self.onAccept)
 
-        loglevel = self.settings.value("/QGEP/LogLevel", 'Warning')
+        loglevel = self.settings.value("/QGEP/LogLevel", "Warning")
         self.mCbLogLevel.setCurrentIndex(self.mCbLogLevel.findText(self.tr(loglevel)))
 
         logfile = self.settings.value("/QGEP/LogFile", None)
@@ -97,11 +107,15 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
 
     @pyqtSlot()
     def onAccept(self):
-        qgeplogger = logging.getLogger('qgep')
+        qgeplogger = logging.getLogger("qgep")
         # General settings
-        if self.mGbOverrideDefaultProfileTemplate.isChecked() \
-                and self.mProfileTemplateFile.text():
-            self.settings.setValue("/QGEP/SvgProfilePath", self.mProfileTemplateFile.text())
+        if (
+            self.mGbOverrideDefaultProfileTemplate.isChecked()
+            and self.mProfileTemplateFile.text()
+        ):
+            self.settings.setValue(
+                "/QGEP/SvgProfilePath", self.mProfileTemplateFile.text()
+            )
         else:
             self.settings.remove("/QGEP/SvgProfilePath")
 
@@ -109,7 +123,7 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         self.settings.setValue("/QGEP/AdminMode", self.mCbAdminMode.checkState())
 
         # Logging
-        if hasattr(qgeplogger, 'qgepFileHandler'):
+        if hasattr(qgeplogger, "qgepFileHandler"):
             qgeplogger.removeHandler(qgeplogger.qgepFileHandler)
             del qgeplogger.qgepFileHandler
 
@@ -124,23 +138,29 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         else:
             self.settings.setValue("/QGEP/LogFile", None)
 
-        if self.tr('Debug') == self.mCbLogLevel.currentText():
+        if self.tr("Debug") == self.mCbLogLevel.currentText():
             qgeplogger.setLevel(logging.DEBUG)
-            self.settings.setValue("/QGEP/LogLevel", 'Debug')
-        elif self.tr('Info') == self.mCbLogLevel.currentText():
+            self.settings.setValue("/QGEP/LogLevel", "Debug")
+        elif self.tr("Info") == self.mCbLogLevel.currentText():
             qgeplogger.setLevel(logging.INFO)
-            self.settings.setValue("/QGEP/LogLevel", 'Info')
-        elif self.tr('Warning') == self.mCbLogLevel.currentText():
+            self.settings.setValue("/QGEP/LogLevel", "Info")
+        elif self.tr("Warning") == self.mCbLogLevel.currentText():
             qgeplogger.setLevel(logging.WARNING)
-            self.settings.setValue("/QGEP/LogLevel", 'Warning')
-        elif self.tr('Error') == self.mCbLogLevel.currentText():
+            self.settings.setValue("/QGEP/LogLevel", "Warning")
+        elif self.tr("Error") == self.mCbLogLevel.currentText():
             qgeplogger.setLevel(logging.ERROR)
-            self.settings.setValue("/QGEP/LogLevel", 'Error')
+            self.settings.setValue("/QGEP/LogLevel", "Error")
 
         # Save colors
-        self.settings.setValue("/QGEP/HelperLineColor", self.mHelperLineColorButton.color().name())
-        self.settings.setValue("/QGEP/HighlightColor", self.mHighlightColorButton.color().name())
-        self.settings.setValue("/QGEP/CurrentProfileColor", self.mCurrentProfileColorButton.color().name())
+        self.settings.setValue(
+            "/QGEP/HelperLineColor", self.mHelperLineColorButton.color().name()
+        )
+        self.settings.setValue(
+            "/QGEP/HighlightColor", self.mHighlightColorButton.color().name()
+        )
+        self.settings.setValue(
+            "/QGEP/CurrentProfileColor", self.mCurrentProfileColorButton.color().name()
+        )
 
         # Project specific settings
         project = QgsProject.instance()
@@ -149,17 +169,31 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         graph_edgelayer_idx = self.mCbGraphEdges.currentIndex()
         graph_nodelayer_idx = self.mCbGraphNodes.currentIndex()
 
-        project.writeEntry('QGEP', 'SpecialStructureLayer', self.mCbSpecialStructures.itemData(specialstructure_idx))
-        project.writeEntry('QGEP', 'GraphEdgeLayer', self.mCbGraphEdges.itemData(graph_edgelayer_idx))
-        project.writeEntry('QGEP', 'GraphNodeLayer', self.mCbGraphNodes.itemData(graph_nodelayer_idx))
+        project.writeEntry(
+            "QGEP",
+            "SpecialStructureLayer",
+            self.mCbSpecialStructures.itemData(specialstructure_idx),
+        )
+        project.writeEntry(
+            "QGEP", "GraphEdgeLayer", self.mCbGraphEdges.itemData(graph_edgelayer_idx)
+        )
+        project.writeEntry(
+            "QGEP", "GraphNodeLayer", self.mCbGraphNodes.itemData(graph_nodelayer_idx)
+        )
 
     @pyqtSlot()
     def onChooseProfileTemplateFileClicked(self):
-        filename, __ = QFileDialog.getOpenFileName(self, self.tr('Select profile template'), '',
-                                                   self.tr('HTML files(*.htm *.html)'))
+        filename, __ = QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select profile template"),
+            "",
+            self.tr("HTML files(*.htm *.html)"),
+        )
         self.mProfileTemplateFile.setText(filename)
 
     @pyqtSlot()
     def onChooseLogFileClicked(self):
-        filename, __ = QFileDialog.getSaveFileName(self, self.tr('Select log file'), '', self.tr('Log files(*.log)'))
+        filename, __ = QFileDialog.getSaveFileName(
+            self, self.tr("Select log file"), "", self.tr("Log files(*.log)")
+        )
         self.mLogFile.setText(filename)

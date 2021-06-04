@@ -19,17 +19,16 @@
  ***************************************************************************/
 """
 
+from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsProcessingAlgorithm
 
-from PyQt5.QtCore import QCoreApplication
-
-__author__ = 'Matthias Kuhn'
-__date__ = '2018-08-15'
-__copyright__ = '(C) 2018 by OPENGIS.ch'
+__author__ = "Matthias Kuhn"
+__date__ = "2018-08-15"
+__copyright__ = "(C) 2018 by OPENGIS.ch"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 class QgepAlgorithm(QgsProcessingAlgorithm):
@@ -38,13 +37,13 @@ class QgepAlgorithm(QgsProcessingAlgorithm):
     """
 
     def group(self):
-        return 'QGEP'
+        return "QGEP"
 
     def groupId(self):
-        return 'qgep'
+        return "qgep"
 
-    def tr(self, string, context=''):
-        if context == '':
+    def tr(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 

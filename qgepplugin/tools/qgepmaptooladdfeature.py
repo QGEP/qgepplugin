@@ -27,36 +27,45 @@
 Some map tools for digitizing features
 """
 
+import math
 from builtins import next
-from qgis.gui import (
-    QgsAttributeEditorContext,
-    QgsMapToolAdvancedDigitizing,
-    QgsMapTool,
-    QgsRubberBand,
-    QgsMessageBar,
-    QgsMapCanvasSnappingUtils,
-    QgsVertexMarker,
-    QgsMapCanvas,
-    QgisInterface
-)
+
 from qgis.core import (
-    QgsSnappingConfig,
-    QgsPoint,
-    QgsPointXY,
+    NULL,
+    Qgis,
     QgsFeature,
-    QgsTolerance,
     QgsFeatureRequest,
     QgsGeometry,
-    QgsWkbTypes,
+    QgsPoint,
+    QgsPointXY,
     QgsSettings,
-    Qgis,
-    NULL
+    QgsSnappingConfig,
+    QgsTolerance,
+    QgsWkbTypes,
 )
-from qgis.PyQt.QtGui import QCursor, QColor
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QGridLayout, QLabel, QLineEdit, QDialogButtonBox
+from qgis.gui import (
+    QgisInterface,
+    QgsAttributeEditorContext,
+    QgsMapCanvas,
+    QgsMapCanvasSnappingUtils,
+    QgsMapTool,
+    QgsMapToolAdvancedDigitizing,
+    QgsMessageBar,
+    QgsRubberBand,
+    QgsVertexMarker,
+)
 from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtGui import QColor, QCursor
+from qgis.PyQt.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QLabel,
+    QLineEdit,
+)
+
 from ..utils.qgeplayermanager import QgepLayerManager
-import math
 
 
 class QgepRubberBand3D(QgsRubberBand):
@@ -68,7 +77,9 @@ class QgepRubberBand3D(QgsRubberBand):
         assert type(point) == QgsPoint
         QgsRubberBand.addPoint(self, QgsPointXY(point.x(), point.y()))
         # Workaround crash with QGIS 3.10.2 (https://github.com/qgis/QGIS/issues/34557)
-        new_point = QgsPoint(point.x(), point.y(), point.z(), point.m(), point.wkbType())
+        new_point = QgsPoint(
+            point.x(), point.y(), point.z(), point.m(), point.wkbType()
+        )
         self.points.append(new_point)
 
     def reset3D(self):
@@ -78,11 +89,18 @@ class QgepRubberBand3D(QgsRubberBand):
     def asGeometry3D(self):
         def ensure_z(z):
             if math.isnan(z):
-                return QgsSettings().value("/qgis/digitizing/default_z_value", Qgis.DEFAULT_Z_COORDINATE)
+                return QgsSettings().value(
+                    "/qgis/digitizing/default_z_value", Qgis.DEFAULT_Z_COORDINATE
+                )
             return z
-        wkt = 'LineStringZ('\
-              + ', '.join(['{} {} {}'.format(p.x(), p.y(), ensure_z(p.z())) for p in self.points])\
-              + ')'
+
+        wkt = (
+            "LineStringZ("
+            + ", ".join(
+                ["{} {} {}".format(p.x(), p.y(), ensure_z(p.z())) for p in self.points]
+            )
+            + ")"
+        )
         return QgsGeometry.fromWkt(wkt)
 
 
@@ -92,7 +110,9 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
     """
 
     def __init__(self, iface: QgisInterface, layer):
-        QgsMapToolAdvancedDigitizing.__init__(self, iface.mapCanvas(), iface.cadDockWidget())
+        QgsMapToolAdvancedDigitizing.__init__(
+            self, iface.mapCanvas(), iface.cadDockWidget()
+        )
         self.iface = iface
         self.canvas = iface.mapCanvas()
         self.layer = layer
@@ -145,8 +165,9 @@ class QgepMapToolAddFeature(QgsMapToolAdvancedDigitizing):
         When the canvas is left clicked we add a new point to the rubberband.
         :type event: QMouseEvent
         """
-        mousepos = self.canvas.getCoordinateTransform()\
-            .toMapCoordinates(event.pos().x(), event.pos().y())
+        mousepos = self.canvas.getCoordinateTransform().toMapCoordinates(
+            event.pos().x(), event.pos().y()
+        )
         self.rubberband.addPoint(mousepos)
         self.temp_rubberband.reset()
 
@@ -189,6 +210,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     Will snap to wastewater nodes for the first and last point and auto-connect
     these.
     """
+
     first_snapping_match = None
     last_snapping_match = None
     last_feature_attributes = None
@@ -196,15 +218,17 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
     def __init__(self, iface: QgisInterface, layer):
         QgepMapToolAddFeature.__init__(self, iface, layer)
         self.snapping_marker = None
-        self.node_layer = QgepLayerManager.layer('vw_wastewater_node')
+        self.node_layer = QgepLayerManager.layer("vw_wastewater_node")
         assert self.node_layer is not None
-        self.reach_layer = QgepLayerManager.layer('vw_qgep_reach')
+        self.reach_layer = QgepLayerManager.layer("vw_qgep_reach")
         assert self.reach_layer is not None
         self.setAdvancedDigitizingAllowed(True)
         self.setAutoSnapEnabled(True)
 
-        layer_snapping_configs = [{'layer': self.node_layer, 'mode': QgsSnappingConfig.Vertex},
-                                  {'layer': self.reach_layer, 'mode': QgsSnappingConfig.VertexAndSegment}]
+        layer_snapping_configs = [
+            {"layer": self.node_layer, "mode": QgsSnappingConfig.Vertex},
+            {"layer": self.reach_layer, "mode": QgsSnappingConfig.VertexAndSegment},
+        ]
         self.snapping_configs = []
         self.snapping_utils = QgsMapCanvasSnappingUtils(self.iface.mapCanvas())
 
@@ -212,9 +236,10 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             config = QgsSnappingConfig()
             config.setMode(QgsSnappingConfig.AdvancedConfiguration)
             config.setEnabled(True)
-            settings = QgsSnappingConfig.IndividualLayerSettings(True, lsc['mode'],
-                                                                 10, QgsTolerance.Pixels)
-            config.setIndividualLayerSettings(lsc['layer'], settings)
+            settings = QgsSnappingConfig.IndividualLayerSettings(
+                True, lsc["mode"], 10, QgsTolerance.Pixels
+            )
+            config.setIndividualLayerSettings(lsc["layer"], settings)
             self.snapping_configs.append(config)
 
     def left_clicked(self, event):
@@ -277,7 +302,11 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
                 return QgsPoint(match.point()), match
 
         # if no match, snap to all layers (according to map settings) and try to grab Z
-        match = self.iface.mapCanvas().snappingUtils().snapToMap(QgsPointXY(event.originalMapPoint()))
+        match = (
+            self.iface.mapCanvas()
+            .snappingUtils()
+            .snapToMap(QgsPointXY(event.originalMapPoint()))
+        )
         if match.isValid() and match.hasVertex():
             if match.layer():
                 req = QgsFeatureRequest(match.featureId())
@@ -311,7 +340,21 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
             if not self.last_feature_attributes:
                 self.last_feature_attributes = [None] * fields.count()
             for idx, field in enumerate(fields):
-                if field.name() in ['clear_height', 'material', 'ch_usage_current', 'ch_function_hierarchic', 'ch_function_hydraulic', 'horizontal_positioning', 'ws_status', 'ws_year_of_construction', 'ws_fk_owner', 'ws_fk_operator', 'inside_coating', 'fk_pipe_profile', 'remark']:
+                if field.name() in [
+                    "clear_height",
+                    "material",
+                    "ch_usage_current",
+                    "ch_function_hierarchic",
+                    "ch_function_hydraulic",
+                    "horizontal_positioning",
+                    "ws_status",
+                    "ws_year_of_construction",
+                    "ws_fk_owner",
+                    "ws_fk_operator",
+                    "inside_coating",
+                    "fk_pipe_profile",
+                    "remark",
+                ]:
                     f.setAttribute(idx, self.last_feature_attributes[idx])
                 else:
                     # try client side default value first
@@ -323,22 +366,30 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
             f.setGeometry(self.rubberband.asGeometry3D())
 
-            snapping_results = {'from': self.first_snapping_match,
-                                'to': self.last_snapping_match}
+            snapping_results = {
+                "from": self.first_snapping_match,
+                "to": self.last_snapping_match,
+            }
             for dest, match in list(snapping_results.items()):
-                level_field_index = self.layer.fields().indexFromName('rp_{dest}_level'.format(dest=dest))
-                pt_idx = 0 if dest == 'from' else -1
-                if match.isValid() and match.layer() in (self.node_layer, self.reach_layer):
+                level_field_index = self.layer.fields().indexFromName(
+                    "rp_{dest}_level".format(dest=dest)
+                )
+                pt_idx = 0 if dest == "from" else -1
+                if match.isValid() and match.layer() in (
+                    self.node_layer,
+                    self.reach_layer,
+                ):
                     request = QgsFeatureRequest(match.featureId())
                     network_element = next(match.layer().getFeatures(request))
                     assert network_element.isValid()
                     # set the related network element
                     field = self.layer.fields().indexFromName(
-                        'rp_{dest}_fk_wastewater_networkelement'.format(dest=dest))
-                    f.setAttribute(field, network_element.attribute('obj_id'))
+                        "rp_{dest}_fk_wastewater_networkelement".format(dest=dest)
+                    )
+                    f.setAttribute(field, network_element.attribute("obj_id"))
                     # assign level if the match is a node or if we have 3D from snapping
                     if match.layer() == self.node_layer:
-                        level = network_element['bottom_level']
+                        level = network_element["bottom_level"]
                         f.setAttribute(level_field_index, level)
                 elif self.rubberband.points[pt_idx].z() != 0:
                     level = self.rubberband.points[pt_idx].z()
@@ -354,7 +405,7 @@ class QgepMapToolAddReach(QgepMapToolAddFeature):
 
 
 class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
-    '''
+    """
     This is used to digitize a drainage channel.
 
     It lets you digitize two points and then creates a polygon based on these two points
@@ -375,7 +426,7 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
       If geometryDigitized() is called you can use the member variable geometry
       which will contain a rectangle polygon
       deactivated() will be emited after a right click
-    '''
+    """
 
     geometryDigitized = pyqtSignal()
 
@@ -397,10 +448,9 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         """
         QgsMapTool.activate(self)
         self.canvas.setCursor(QCursor(Qt.CrossCursor))
-        msgtitle = self.tr('Digitizing Drainage Channel')
-        msg = self.tr('Digitize start and end point. Rightclick to abort.')
-        self.messageBarItem = QgsMessageBar.createMessage(msgtitle,
-                                                          msg)
+        msgtitle = self.tr("Digitizing Drainage Channel")
+        msg = self.tr("Digitize start and end point. Rightclick to abort.")
+        self.messageBarItem = QgsMessageBar.createMessage(msgtitle, msg)
         self.iface.messageBar().pushItem(self.messageBarItem)
 
     def deactivate(self):
@@ -436,18 +486,21 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
         if event.button() == Qt.RightButton:
             self.deactivate()
         else:
-            mousepos = self.canvas.getCoordinateTransform()\
-                .toMapCoordinates(event.pos().x(), event.pos().y())
+            mousepos = self.canvas.getCoordinateTransform().toMapCoordinates(
+                event.pos().x(), event.pos().y()
+            )
             self.rubberband.addPoint(mousepos)
-            if self.firstPoint:  # If the first point was set before, we are doing the second one
+            if (
+                self.firstPoint
+            ):  # If the first point was set before, we are doing the second one
                 lp1 = self.rubberband.asGeometry().asPolyline()[0]
                 lp2 = self.rubberband.asGeometry().asPolyline()[1]
                 width = 0.2
                 if QApplication.keyboardModifiers() & Qt.ControlModifier:
                     dlg = QDialog()
                     dlg.setLayout(QGridLayout())
-                    dlg.layout().addWidget(QLabel(self.tr('Enter width')))
-                    txt = QLineEdit('0.2')
+                    dlg.layout().addWidget(QLabel(self.tr("Enter width")))
+                    txt = QLineEdit("0.2")
                     dlg.layout().addWidget(txt)
                     bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
                     dlg.layout().addWidget(bb)
@@ -459,14 +512,24 @@ class QgepMapToolDigitizeDrainageChannel(QgsMapTool):
                         except ValueError:
                             width = 0.2
 
-                length = math.sqrt(math.pow(lp1.x() - lp2.x(), 2) + math.pow(lp1.y() - lp2.y(), 2))
+                length = math.sqrt(
+                    math.pow(lp1.x() - lp2.x(), 2) + math.pow(lp1.y() - lp2.y(), 2)
+                )
                 xd = lp2.x() - lp1.x()
                 yd = lp2.y() - lp1.y()
 
-                pt1 = QgsPointXY(lp1.x() + width * (yd / length), lp1.y() - width * (xd / length))
-                pt2 = QgsPointXY(lp1.x() - width * (yd / length), lp1.y() + width * (xd / length))
-                pt3 = QgsPointXY(lp2.x() - width * (yd / length), lp2.y() + width * (xd / length))
-                pt4 = QgsPointXY(lp2.x() + width * (yd / length), lp2.y() - width * (xd / length))
+                pt1 = QgsPointXY(
+                    lp1.x() + width * (yd / length), lp1.y() - width * (xd / length)
+                )
+                pt2 = QgsPointXY(
+                    lp1.x() - width * (yd / length), lp1.y() + width * (xd / length)
+                )
+                pt3 = QgsPointXY(
+                    lp2.x() - width * (yd / length), lp2.y() + width * (xd / length)
+                )
+                pt4 = QgsPointXY(
+                    lp2.x() + width * (yd / length), lp2.y() - width * (xd / length)
+                )
 
                 self.geometry = QgsGeometry.fromPolygonXY([[pt1, pt2, pt3, pt4, pt1]])
 

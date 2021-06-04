@@ -1,4 +1,4 @@
-Add the INTERLIS 2.3 modell files in this folder. 
+Add the INTERLIS 2.3 modell files in this folder.
 
 You need to have the necessary model files in this subfolder ili:
 
@@ -19,5 +19,5 @@ For schema SIA405_Abwasser_2015_2:
 
 
 License for use needed from VSA or sia:
-You can get it by purchasing Norm SIA405 2016 (http://www.webnorm.ch/null/null/sia%202016/d/2012/D/Product) 
+You can get it by purchasing Norm SIA405 2016 (http://www.webnorm.ch/null/null/sia%202016/d/2012/D/Product)
 or VSA-DSS CD (https://dss.vsa.ch)

@@ -18,14 +18,24 @@
  ***************************************************************************/
 """
 
-import psycopg2
 import codecs
 import subprocess
 
+import psycopg2
+
 
 class QgepSwmm:
-
-    def __init__(self, title, service, state, inpfile, inptemplate, outfile, binfile, db_model_path):
+    def __init__(
+        self,
+        title,
+        service,
+        state,
+        inpfile,
+        inptemplate,
+        outfile,
+        binfile,
+        db_model_path,
+    ):
         """
         Initiate QgepSwmm
 
@@ -67,18 +77,24 @@ class QgepSwmm:
         # Connects to service and get data and attributes from tableName
         con = psycopg2.connect(service=self.service)
         cur = con.cursor()
-        if (state == 'planned' and ws is True) or (state is None):
-            sql = 'select * from qgep_swmm.vw_{table_name}'.format(table_name=table_name)
+        if (state == "planned" and ws is True) or (state is None):
+            sql = "select * from qgep_swmm.vw_{table_name}".format(
+                table_name=table_name
+            )
         else:
             sql = """
             select * from qgep_swmm.vw_{table_name}
             where state = '{state}'
-            """.format(table_name=table_name, state=state)
+            """.format(
+                table_name=table_name, state=state
+            )
 
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedbacks.append('Table vw_{table_name} doesnt exists'.format(table_name=table_name))
+            self.feedbacks.append(
+                "Table vw_{table_name} doesnt exists".format(table_name=table_name)
+            )
             return None, None
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
@@ -107,32 +123,31 @@ class QgepSwmm:
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ('description', 'tag', 'geom', 'state'):
+                if field not in ("description", "tag", "geom", "state"):
                     fields += field + "\t"
 
             # Create input paragraph
-            tbl = u'[' + table_name + ']\n'\
-                ';;' + fields + '\n'
+            tbl = u"[" + table_name + "]\n" ";;" + fields + "\n"
             for feature in data:
                 for i, v in enumerate(feature):
                     # Write description
-                    if attributes[i] == 'description' and v is not None:
-                        tbl += ';'
+                    if attributes[i] == "description" and v is not None:
+                        tbl += ";"
                         tbl += str(v)
-                        tbl += '\n'
+                        tbl += "\n"
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ('description', 'tag', 'geom', 'state'):
+                    if attributes[i] not in ("description", "tag", "geom", "state"):
                         if v is not None:
-                            tbl += str(v) + '\t'
+                            tbl += str(v) + "\t"
                         else:
-                            tbl += '\t'
-                tbl += '\n'
-            tbl += '\n'
+                            tbl += "\t"
+                tbl += "\n"
+            tbl += "\n"
             return tbl
         else:
-            return '\n'
+            return "\n"
 
     def copy_parameters_from_template(self, parameter_name):
         """
@@ -146,20 +161,26 @@ class QgepSwmm:
 
         """
         # Read template
-        options_template = open(self.options_template_file, 'r').read()
+        options_template = open(self.options_template_file, "r").read()
         # Find and extract options
-        index_start = options_template.find('[{parameter_name}]'.format(parameter_name=parameter_name))
+        index_start = options_template.find(
+            "[{parameter_name}]".format(parameter_name=parameter_name)
+        )
         if index_start == -1:
             # The balise options is not found
-            self.feedbacks.append('There is no {parameter_name} in the template file'.format(parameter_name=parameter_name))
-            return ''
+            self.feedbacks.append(
+                "There is no {parameter_name} in the template file".format(
+                    parameter_name=parameter_name
+                )
+            )
+            return ""
         else:
             # Search for the next opening bracket
-            index_stop = options_template[index_start + 1:].find('[')
+            index_stop = options_template[index_start + 1 :].find("[")
             if index_stop == -1:
                 # Copies text until the end of the file
                 index_stop = len(options_template)
-                option_text = options_template[index_start:index_stop] + '\n\n'
+                option_text = options_template[index_start:index_stop] + "\n\n"
             else:
                 index_stop = index_start + 1 + index_stop
                 option_text = options_template[index_start:index_stop]
@@ -175,98 +196,98 @@ class QgepSwmm:
         filename = self.input_file
         state = self.state
 
-        with codecs.open(filename, 'w', encoding='utf-8') as f:
+        with codecs.open(filename, "w", encoding="utf-8") as f:
 
             # Title / Notes
             # --------------
-            f.write('[TITLE]\n')
-            f.write(self.title + '\n\n')
+            f.write("[TITLE]\n")
+            f.write(self.title + "\n\n")
 
             # Options
             # --------
-            f.write(self.copy_parameters_from_template('OPTIONS'))
-            f.write(self.copy_parameters_from_template('REPORT'))
-            f.write(self.copy_parameters_from_template('FILES'))
-            f.write(self.copy_parameters_from_template('EVENTS'))
+            f.write(self.copy_parameters_from_template("OPTIONS"))
+            f.write(self.copy_parameters_from_template("REPORT"))
+            f.write(self.copy_parameters_from_template("FILES"))
+            f.write(self.copy_parameters_from_template("EVENTS"))
 
             # Climatology
             # ------------
-            f.write(self.copy_parameters_from_template('HYDROGRAPHS'))
-            f.write(self.copy_parameters_from_template('EVAPORATION'))
-            f.write(self.copy_parameters_from_template('TEMPERATURE'))
+            f.write(self.copy_parameters_from_template("HYDROGRAPHS"))
+            f.write(self.copy_parameters_from_template("EVAPORATION"))
+            f.write(self.copy_parameters_from_template("TEMPERATURE"))
 
             # Hydrology
             # ----------
-            f.write(self.swmm_table('RAINGAGES', state))
-            f.write(self.swmm_table('SUBCATCHMENTS', state))
-            f.write(self.swmm_table('SUBAREAS', state))
-            f.write(self.swmm_table('AQUIFERS'))
-            f.write(self.swmm_table('INFILTRATION', state))
-            f.write(self.swmm_table('POLYGONS'))
+            f.write(self.swmm_table("RAINGAGES", state))
+            f.write(self.swmm_table("SUBCATCHMENTS", state))
+            f.write(self.swmm_table("SUBAREAS", state))
+            f.write(self.swmm_table("AQUIFERS"))
+            f.write(self.swmm_table("INFILTRATION", state))
+            f.write(self.swmm_table("POLYGONS"))
 
-            f.write(self.copy_parameters_from_template('GROUNDWATER'))
-            f.write(self.copy_parameters_from_template('SNOWPACKS'))
-            f.write(self.copy_parameters_from_template('HYDROGAPHS'))
-            f.write(self.copy_parameters_from_template('LID_CONTROLS'))
-            f.write(self.copy_parameters_from_template('LID_USAGE'))
+            f.write(self.copy_parameters_from_template("GROUNDWATER"))
+            f.write(self.copy_parameters_from_template("SNOWPACKS"))
+            f.write(self.copy_parameters_from_template("HYDROGAPHS"))
+            f.write(self.copy_parameters_from_template("LID_CONTROLS"))
+            f.write(self.copy_parameters_from_template("LID_USAGE"))
 
             # Hydraulics: nodes
             # ------------------
-            f.write(self.swmm_table('JUNCTIONS', state, ws=True))
+            f.write(self.swmm_table("JUNCTIONS", state, ws=True))
             # Create default junction to avoid errors
-            f.write('default_qgep_node\t0\t0\n\n')
-            f.write(self.swmm_table('OUTFALLS', state, ws=True))
-            f.write(self.swmm_table('STORAGES', state, ws=True))
-            f.write(self.swmm_table('COORDINATES'))
-            f.write(self.swmm_table('DWF', state))
+            f.write("default_qgep_node\t0\t0\n\n")
+            f.write(self.swmm_table("OUTFALLS", state, ws=True))
+            f.write(self.swmm_table("STORAGES", state, ws=True))
+            f.write(self.swmm_table("COORDINATES"))
+            f.write(self.swmm_table("DWF", state))
 
-            f.write(self.copy_parameters_from_template('INFLOWS'))
-            f.write(self.copy_parameters_from_template('DIVIDERS'))
+            f.write(self.copy_parameters_from_template("INFLOWS"))
+            f.write(self.copy_parameters_from_template("DIVIDERS"))
 
             # Hydraulics: links
             # ------------------
-            f.write(self.swmm_table('CONDUITS', state, ws=True))
-            f.write(self.swmm_table('LOSSES', state, ws=True))
-            f.write(self.swmm_table('PUMPS', state, ws=True))
-            f.write(self.copy_parameters_from_template('ORIFICES'))
-            f.write(self.copy_parameters_from_template('WEIRS'))
-            f.write(self.copy_parameters_from_template('OUTLETS'))
-            f.write(self.swmm_table('XSECTIONS', state, ws=True))
-            f.write(self.swmm_table('LOSSES', state, ws=True))
-            f.write(self.swmm_table('VERTICES'))
+            f.write(self.swmm_table("CONDUITS", state, ws=True))
+            f.write(self.swmm_table("LOSSES", state, ws=True))
+            f.write(self.swmm_table("PUMPS", state, ws=True))
+            f.write(self.copy_parameters_from_template("ORIFICES"))
+            f.write(self.copy_parameters_from_template("WEIRS"))
+            f.write(self.copy_parameters_from_template("OUTLETS"))
+            f.write(self.swmm_table("XSECTIONS", state, ws=True))
+            f.write(self.swmm_table("LOSSES", state, ws=True))
+            f.write(self.swmm_table("VERTICES"))
 
-            f.write(self.copy_parameters_from_template('TRANSECTS'))
-            f.write(self.copy_parameters_from_template('CONTROLS'))
+            f.write(self.copy_parameters_from_template("TRANSECTS"))
+            f.write(self.copy_parameters_from_template("CONTROLS"))
 
             # Quality
             # --------
-            f.write(self.swmm_table('LANDUSES'))
-            f.write(self.swmm_table('COVERAGES'))
+            f.write(self.swmm_table("LANDUSES"))
+            f.write(self.swmm_table("COVERAGES"))
 
-            f.write(self.copy_parameters_from_template('POLLUTANTS'))
-            f.write(self.copy_parameters_from_template('BUILDUP'))
-            f.write(self.copy_parameters_from_template('WASHOFF'))
-            f.write(self.copy_parameters_from_template('TREATMENT'))
-            f.write(self.copy_parameters_from_template('RDII'))
-            f.write(self.copy_parameters_from_template('LOADINGS'))
+            f.write(self.copy_parameters_from_template("POLLUTANTS"))
+            f.write(self.copy_parameters_from_template("BUILDUP"))
+            f.write(self.copy_parameters_from_template("WASHOFF"))
+            f.write(self.copy_parameters_from_template("TREATMENT"))
+            f.write(self.copy_parameters_from_template("RDII"))
+            f.write(self.copy_parameters_from_template("LOADINGS"))
 
             # Curves
             # -------
-            f.write(self.copy_parameters_from_template('CURVES'))
+            f.write(self.copy_parameters_from_template("CURVES"))
 
             # Time series
             # ------------
-            f.write(self.copy_parameters_from_template('TIMESERIES'))
+            f.write(self.copy_parameters_from_template("TIMESERIES"))
 
             # Time patterns
             # --------------
-            f.write(self.copy_parameters_from_template('PATTERNS'))
+            f.write(self.copy_parameters_from_template("PATTERNS"))
 
             # Map labels
             # -----------
-            f.write(self.copy_parameters_from_template('LABELS'))
+            f.write(self.copy_parameters_from_template("LABELS"))
 
-            f.write(self.swmm_table('TAGS'))
+            f.write(self.swmm_table("TAGS"))
 
         return
 
@@ -282,7 +303,7 @@ class QgepSwmm:
 
         """
 
-        o = codecs.open(self.output_file, 'r', encoding='utf-8')
+        o = codecs.open(self.output_file, "r", encoding="utf-8")
         line = o.readline()
         no_line = 0
         lines = []
@@ -295,7 +316,7 @@ class QgepSwmm:
                 title_found = True
                 line_after_title = 0
 
-            if title_found and line_after_title > 7 and line == '':
+            if title_found and line_after_title > 7 and line == "":
                 end_table_found = True
 
             if title_found and end_table_found is False and line_after_title > 7:
@@ -318,18 +339,18 @@ class QgepSwmm:
 
         """
 
-        data = self.extract_result_lines('Node Depth Summary')
+        data = self.extract_result_lines("Node Depth Summary")
         result = []
         for d in data:
             curres = {}
-            curres['id'] = d[0]
-            curres['type'] = d[1]
-            curres['average_depth'] = d[2]
-            curres['maximum_depth'] = d[3]
-            curres['maximum_hgl'] = d[4]
-            curres['time_max_day'] = d[5]
-            curres['time_max_time'] = d[6]
-            curres['reported_max_depth'] = d[7]
+            curres["id"] = d[0]
+            curres["type"] = d[1]
+            curres["average_depth"] = d[2]
+            curres["maximum_depth"] = d[3]
+            curres["maximum_hgl"] = d[4]
+            curres["time_max_day"] = d[5]
+            curres["time_max_time"] = d[6]
+            curres["reported_max_depth"] = d[7]
             result.append(curres)
         return result
 
@@ -342,24 +363,24 @@ class QgepSwmm:
 
         """
 
-        data = self.extract_result_lines('Link Flow Summary')
+        data = self.extract_result_lines("Link Flow Summary")
         result = []
         for d in data:
 
             curres = {}
-            curres['id'] = d[0]
-            curres['type'] = d[1]
-            curres['maximum_flow'] = d[2]
-            curres['time_max_day'] = d[3]
-            curres['time_max_time'] = d[4]
-            if d[1] == 'CONDUIT':
-                curres['maximum_velocity'] = d[5]
-                curres['max_over_full_flow'] = d[6]
-                curres['max_over_full_depth'] = d[7]
-            elif d[1] == 'PUMP':
-                curres['max_over_full_flow'] = d[5]
-                curres['maximum_velocity'] = None
-                curres['max_over_full_depth'] = None
+            curres["id"] = d[0]
+            curres["type"] = d[1]
+            curres["maximum_flow"] = d[2]
+            curres["time_max_day"] = d[3]
+            curres["time_max_time"] = d[4]
+            if d[1] == "CONDUIT":
+                curres["maximum_velocity"] = d[5]
+                curres["max_over_full_flow"] = d[6]
+                curres["max_over_full_depth"] = d[7]
+            elif d[1] == "PUMP":
+                curres["max_over_full_flow"] = d[5]
+                curres["maximum_velocity"] = None
+                curres["max_over_full_depth"] = None
 
             result.append(curres)
         return result
@@ -374,7 +395,7 @@ class QgepSwmm:
         """
 
         command = [self.bin_file, self.input_file, self.output_file]
-        print('command', command)
+        print("command", command)
         proc = subprocess.run(
             command,
             shell=True,
