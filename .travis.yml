@@ -27,11 +27,6 @@ install:
 
 jobs:
   include:
-    - stage: static tests
-      script:
-        - python3 -m flake8 --jobs=1
-        #- docker run -v $TRAVIS_BUILD_DIR:/root/qgissettingmanager "qgis/qgis:${QGIS_DOCKER_TAG}" /root/qgissettingmanager/test/run_in_qgis_docker.sh
-
     - stage: deploy
       if: tag IS present
       script: plugin_ci/release/release.sh
