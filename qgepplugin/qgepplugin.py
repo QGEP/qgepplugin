@@ -36,6 +36,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
 from qgis.utils import qgsfunction
 
+from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
 from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
 from .gui.qgepprofiledockwidget import QgepProfileDockWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
@@ -230,6 +231,11 @@ class QgepPlugin(object):
         self.settingsAction = QAction(self.tr("Settings"), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
+        self.datamodelInitToolAction = QAction(
+            self.tr("Datamodel tool"), self.iface.mainWindow()
+        )
+        self.datamodelInitToolAction.triggered.connect(self.showDatamodelInitTool)
+
         # Add toolbar button and menu item
         self.toolbar = QToolBar(QApplication.translate("qgepplugin", "QGEP"))
         self.toolbar.addAction(self.profileAction)
@@ -242,6 +248,8 @@ class QgepPlugin(object):
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
+        if QSettings().value("/QGEP/AdminMode", False):
+            self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
 
         self.iface.addToolBar(self.toolbar)
 
@@ -304,7 +312,9 @@ class QgepPlugin(object):
         self.toolbar.deleteLater()
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
+        self.iface.removePluginMenu("&QGEP", self.settingsAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
+        self.iface.removePluginMenu("&QGEP", self.datamodelInitToolAction)
 
         QgsApplication.processingRegistry().removeProvider(self.processing_provider)
 
@@ -425,3 +435,8 @@ class QgepPlugin(object):
     def showSettings(self):
         settings_dlg = QgepSettingsDialog(self.iface.mainWindow())
         settings_dlg.exec_()
+
+    def showDatamodelInitTool(self):
+        if not hasattr(self, "_datamodel_dlg"):
+            self.datamodel_dlg = QgepDatamodelInitToolDialog(self.iface.mainWindow())
+        self.datamodel_dlg.show()
