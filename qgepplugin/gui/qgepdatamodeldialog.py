@@ -51,7 +51,7 @@ from ..utils import get_ui_class
 # In the future, once plugin/datamodel versionning scheme clearly reflects
 # compatibility, we could retrieve this dynamically, so datamodel bugfix
 # releases don't require a plugin upgrade.
-LATEST_RELEASE = "1.5.4"
+LATEST_RELEASE = "1.5.5"
 
 # Allow to choose which releases can be installed
 # (not so useful... but may want allow picking master for pre-releases)
@@ -61,6 +61,7 @@ AVAILABLE_RELEASES = {
 }
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
+    "1.5.5": "v9.0",
     "1.5.0": "v8.0",
     "1.4.0": "v7.0",
     "0": "v6.2",
