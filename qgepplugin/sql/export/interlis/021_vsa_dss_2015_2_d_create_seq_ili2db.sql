@@ -11,6 +11,6 @@ maxValue 9223372036854775807
 start 1
 cache 1;
 
-  
+
 ALTER TABLE vsa_dss_2015_2_d.t_ili2db_seq
   OWNER TO postgres;

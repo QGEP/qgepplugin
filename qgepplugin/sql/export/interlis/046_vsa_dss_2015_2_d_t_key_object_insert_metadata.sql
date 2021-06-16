@@ -19,7 +19,7 @@ WITH (
 );
 ALTER TABLE vsa_dss_2015_2_d.t_key_object
   OWNER TO postgres;
-  
+
 -- erster Eintrag in t_key_object
-  
+
 INSERT INTO vsa_dss_2015_2_d.t_key_object (t_key, t_lastuniqueid, t_lastchange,  t_createdate, t_user) VALUES ( 't_id',   0, current_timestamp, current_timestamp,  'postgres');
