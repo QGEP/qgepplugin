@@ -237,7 +237,7 @@ class QgepPlugin(object):
         self.importAction.setEnabled(False)
         self.importAction.setCheckable(False)
         self.importAction.triggered.connect(
-            lambda _clicked, plugin=self: action_import(plugin)
+            lambda _clicked, plugin=self: action_import(plugin, "pg_qgep")
         )
 
         self.exportAction = QAction(self.tr("Export"), self.iface.mainWindow())
@@ -245,7 +245,7 @@ class QgepPlugin(object):
         self.exportAction.setEnabled(False)
         self.exportAction.setCheckable(False)
         self.exportAction.triggered.connect(
-            lambda _clicked, plugin=self: action_export(plugin)
+            lambda _clicked, plugin=self: action_export(plugin, "pg_qgep")
         )
 
         self.datamodelInitToolAction = QAction(
