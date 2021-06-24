@@ -16,7 +16,7 @@ jobs:
   release:
     runs-on: ubuntu-20.04
     env:
-      OSGEO_USERNAME: mkuhn
+      OSGEO_USERNAME: ${{ secrets.OSGEO_USERNAME }}
       OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TX_TOKEN: ${{ secrets.TX_TOKEN }}
@@ -33,7 +33,7 @@ jobs:
           sudo pip install qgis-plugin-ci==2.0.1
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
+          qgis-plugin-ci release ${GITHUB_REF##*/v} --transifex-token ${TX_TOKEN} --github-token ${GITHUB_TOKEN} --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
 
   translations:
     runs-on: ubuntu-20.04
