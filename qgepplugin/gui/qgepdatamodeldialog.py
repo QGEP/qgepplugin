@@ -34,7 +34,7 @@ import zipfile
 import pkg_resources
 import psycopg2
 from qgis.core import Qgis, QgsMessageLog, QgsNetworkAccessManager, QgsProject
-from qgis.PyQt.QtCore import QFile, QIODevice, QUrl
+from qgis.PyQt.QtCore import QFile, QIODevice, QSettings, QUrl
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
 from qgis.PyQt.QtWidgets import (
     QApplication,
@@ -54,11 +54,16 @@ from ..utils import get_ui_class
 LATEST_RELEASE = "1.5.5"
 
 # Allow to choose which releases can be installed
-# (not so useful... but may want allow picking master for pre-releases)
 AVAILABLE_RELEASES = {
-    # 'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
     LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
 }
+if QSettings().value("/QGEP/DeveloperMode", False):
+    AVAILABLE_RELEASES.update(
+        {
+            "master": "https://github.com/QGEP/datamodel/archive/master.zip",
+        }
+    )
+
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
     "1.5.5": "v9.0",
@@ -406,10 +411,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         check = requirements_exists and deltas_exists
 
         if check:
-            self.releaseCheckLabel.setText("ok")
-            self.releaseCheckLabel.setStyleSheet(
-                "color: rgb(0, 170, 0);\nfont-weight: bold;"
-            )
+            if self.version == "master":
+                self.releaseCheckLabel.setText(
+                    "DEV RELEASE - DO NOT USE FOR PRODUCTION"
+                )
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
+            else:
+                self.releaseCheckLabel.setText("ok")
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(0, 170, 0);\nfont-weight: bold;"
+                )
         else:
             self.releaseCheckLabel.setText("not found")
             self.releaseCheckLabel.setStyleSheet(
