@@ -261,8 +261,9 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.wizardAction)
         self.toolbar.addAction(self.refreshNetworkTopologyAction)
         self.toolbar.addAction(self.connectNetworkElementsAction)
-        self.toolbar.addAction(self.importAction)
-        self.toolbar.addAction(self.exportAction)
+        if QSettings().value("/QGEP/DeveloperMode", False):
+            self.toolbar.addAction(self.importAction)
+            self.toolbar.addAction(self.exportAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
@@ -329,8 +330,11 @@ class QgepPlugin(object):
         self.toolbar.removeAction(self.wizardAction)
         self.toolbar.removeAction(self.refreshNetworkTopologyAction)
         self.toolbar.removeAction(self.connectNetworkElementsAction)
-        self.toolbar.removeAction(self.importAction)
-        self.toolbar.removeAction(self.exportAction)
+
+        if self.importAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.importAction)
+        if self.exportAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.exportAction)
 
         self.toolbar.deleteLater()
 
