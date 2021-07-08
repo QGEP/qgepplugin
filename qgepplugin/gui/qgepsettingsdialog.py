@@ -119,8 +119,8 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         else:
             self.settings.remove("/QGEP/SvgProfilePath")
 
-        self.settings.setValue("/QGEP/DeveloperMode", self.mCbDevelMode.checkState())
-        self.settings.setValue("/QGEP/AdminMode", self.mCbAdminMode.checkState())
+        self.settings.setValue("/QGEP/DeveloperMode", self.mCbDevelMode.isChecked())
+        self.settings.setValue("/QGEP/AdminMode", self.mCbAdminMode.isChecked())
 
         # Logging
         if hasattr(qgeplogger, "qgepFileHandler"):
