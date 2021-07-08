@@ -299,24 +299,23 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             shell=True,
             capture_output=True,
             timeout=timeout,
-            encoding="cp437" if os.name == "nt" else "utf-8",
         )
         if result.stdout:
-            QgsMessageLog.logMessage(result.stdout, "QGEP")
+            stdout = result.stdout.decode("utf-8", errors="replace")
+            QgsMessageLog.logMessage(stdout, "QGEP")
+        else:
+            stdout = None
         if result.stderr:
-            QgsMessageLog.logMessage(
-                result.stderr,
-                "QGEP",
-                level=Qgis.Critical,
-            )
+            stderr = result.stderr.decode("utf-8", errors="replace")
+            QgsMessageLog.logMessage(stderr, "QGEP", level=Qgis.Critical)
+        else:
+            stderr = None
         if result.returncode:
             message = f"{error_message}\nCommand :\n{shell_command}"
-            if result.stdout:
-                message += f"\n\nOutput :\n{result.stdout}"
-            if result.stderr:
-                message += f"\n\nError :\n{result.stderr}"
+            message += f"\n\nOutput :\n{stdout}"
+            message += f"\n\nError :\n{stderr}"
             raise QGEPDatamodelError(message)
-        return result.stdout
+        return stdout
 
     def _download(self, url, filename, error_message=None):
         os.makedirs(TEMP_DIR, exist_ok=True)
