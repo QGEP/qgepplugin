@@ -1,0 +1,45 @@
+name: Continuous integration
+
+on:
+  push:
+    branches:
+      - master
+      - release-**
+  pull_request:
+    branches:
+      - '**'
+  release:
+    types: [published]
+
+jobs:
+
+  release:
+    runs-on: ubuntu-20.04
+    env:
+      GITHUB_REF: ${{ github.ref }}
+    if: ${{ github.event_name == 'release' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt install qttools5-dev-tools qt5-default
+          sudo pip install qgis-plugin-ci==2.0.1
+      - name: Release
+        run: |
+          qgis-plugin-ci release ${GITHUB_REF##*/v} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
+
+  translations:
+    runs-on: ubuntu-20.04
+    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: sudo pip install qgis-plugin-ci
+      - name: 🌍 Push translations
+        run: qgis-plugin-ci push-translation ${{ secrets.TX_TOKEN }}
