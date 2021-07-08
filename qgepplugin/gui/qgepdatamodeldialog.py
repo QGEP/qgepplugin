@@ -299,7 +299,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             shell=True,
             capture_output=True,
             timeout=timeout,
-            encoding="utf-8",
+            encoding="cp437" if os.name == "nt" else "utf-8",
         )
         if result.stdout:
             QgsMessageLog.logMessage(result.stdout, "QGEP")
