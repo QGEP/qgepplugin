@@ -18,4 +18,4 @@ pre-commit install
 releases
 --------
 
-To make realeses, create a github release with tag name of format `vX.Y.Z` (optionally `vX.Y.Z-R`)
+To make realeses, create a github release with tag name of format `X.Y.Z` (optionally `X.Y.Z-R`)
