@@ -366,7 +366,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             return None
 
         pum_info = self._run_cmd(
-            f"python -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
+            f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
             error_message="Could not get current version, are you sure the database is accessible ?",
         )
         version = None
@@ -529,7 +529,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         )
         command_line = "the OSGeo4W shell" if os.name == "nt" else "the terminal"
         self._run_cmd(
-            f"python -m pip install --user {dependencies}",
+            f"python3 -m pip install --user {dependencies}",
             error_message=f"Could not install python dependencies. You can try to run the command manually from {command_line}.",
             timeout=None,
         )
@@ -828,7 +828,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
             return self._run_cmd(
-                f"python -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+                f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
                 error_message="Errors when upgrading the database.",
                 timeout=300,
