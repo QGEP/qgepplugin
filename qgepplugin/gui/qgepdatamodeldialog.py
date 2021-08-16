@@ -65,10 +65,10 @@ if QSettings().value("/QGEP/DeveloperMode", False):
 
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    "1.5.5": "v9.0",
-    "1.5.0": "v8.0",
-    "1.4.0": "v7.0",
-    "0": "v6.2",
+    "1.5.5": "https://github.com/QGEP/QGEP/releases/download/v9.0.3/qgep-v9.0.3.zip",
+    "1.5.0": "https://github.com/QGEP/QGEP/releases/download/v8.0/qgep.zip",
+    "1.4.0": "https://github.com/QGEP/QGEP/releases/download/v7.0/qgep.zip",
+    "0": "https://github.com/QGEP/QGEP/releases/download/v6.2/qgep.zip",
 }
 TEMP_DIR = os.path.join(tempfile.gettempdir(), "QGEP", "datamodel-init")
 
@@ -80,15 +80,11 @@ elif os.environ.get("PGSYSCONFDIR"):
 else:
     PG_CONFIG_PATH = " ~/.pg_service.conf"
 
-MAIN_DATAMODEL_RELEASE = "1.5.2"
-QGEP_RELEASE = "8.0"
-
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
 REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "requirements.txt")
 DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "delta")
 INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
-QGEP_PROJECT_URL_TEMPLATE = "https://github.com/QGEP/QGEP/releases/download/{}/qgep.zip"
 QGEP_PROJECT_PATH_TEMPLATE = os.path.join(TEMP_DIR, "project", "qgep.qgs")
 
 
@@ -879,12 +875,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
         current_version = self._get_current_version()
 
-        qgis_vers = None
+        url = None
         for dm_vers in sorted(DATAMODEL_QGEP_VERSIONS):
             if dm_vers <= current_version:
-                qgis_vers = DATAMODEL_QGEP_VERSIONS[dm_vers]
+                url = DATAMODEL_QGEP_VERSIONS[dm_vers]
 
-        url = QGEP_PROJECT_URL_TEMPLATE.format(qgis_vers)
         qgep_path = self._download(url, "qgep.zip")
         qgep_zip = zipfile.ZipFile(qgep_path)
         qgep_zip.extractall(TEMP_DIR)
