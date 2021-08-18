@@ -171,7 +171,7 @@
           <string>Enables developer tools on the profile widget. Reload and Inspect options are shown. The dock needs to be reopened.</string>
          </property>
          <property name="text">
-          <string>Developer mode</string>
+          <string>Developer mode (restart required)</string>
          </property>
         </widget>
        </item>
@@ -181,7 +181,7 @@
           <string>Enables the datamodel tool. The plugin needs to be reloaded.</string>
          </property>
          <property name="text">
-          <string>Admin mode</string>
+          <string>Admin mode (restart required)</string>
          </property>
         </widget>
        </item>

@@ -1,6 +1,3 @@
-[submodule "plugin_ci"]
-	path = plugin_ci
-	url = git@github.com:opengisch/plugin_ci.git
 [submodule "qgepplugin/qgepqwat2ili"]
 	path = qgepplugin/qgepqwat2ili
 	url = https://github.com/QGEP/qgepqwat2ili.git

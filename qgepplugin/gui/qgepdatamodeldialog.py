@@ -27,14 +27,13 @@ import configparser
 import functools
 import os
 import subprocess
-import sys
 import tempfile
 import zipfile
 
 import pkg_resources
 import psycopg2
 from qgis.core import Qgis, QgsMessageLog, QgsNetworkAccessManager, QgsProject
-from qgis.PyQt.QtCore import QFile, QIODevice, QUrl
+from qgis.PyQt.QtCore import QFile, QIODevice, QSettings, QUrl
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
 from qgis.PyQt.QtWidgets import (
     QApplication,
@@ -54,17 +53,22 @@ from ..utils import get_ui_class
 LATEST_RELEASE = "1.5.5"
 
 # Allow to choose which releases can be installed
-# (not so useful... but may want allow picking master for pre-releases)
 AVAILABLE_RELEASES = {
-    # 'master': 'https://github.com/QGEP/datamodel/archive/master.zip',  # TODO : if we expose this here, we should put a big red warning and not take it default
     LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
 }
+if QSettings().value("/QGEP/DeveloperMode", False):
+    AVAILABLE_RELEASES.update(
+        {
+            "master": "https://github.com/QGEP/datamodel/archive/master.zip",
+        }
+    )
+
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    "1.5.5": "v9.0",
-    "1.5.0": "v8.0",
-    "1.4.0": "v7.0",
-    "0": "v6.2",
+    "1.5.5": "https://github.com/QGEP/QGEP/releases/download/v9.0.3/qgep-v9.0.3.zip",
+    "1.5.0": "https://github.com/QGEP/QGEP/releases/download/v8.0/qgep.zip",
+    "1.4.0": "https://github.com/QGEP/QGEP/releases/download/v7.0/qgep.zip",
+    "0": "https://github.com/QGEP/QGEP/releases/download/v6.2/qgep.zip",
 }
 TEMP_DIR = os.path.join(tempfile.gettempdir(), "QGEP", "datamodel-init")
 
@@ -76,15 +80,11 @@ elif os.environ.get("PGSYSCONFDIR"):
 else:
     PG_CONFIG_PATH = " ~/.pg_service.conf"
 
-MAIN_DATAMODEL_RELEASE = "1.5.2"
-QGEP_RELEASE = "8.0"
-
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
 REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "requirements.txt")
 DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "delta")
 INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
-QGEP_PROJECT_URL_TEMPLATE = "https://github.com/QGEP/QGEP/releases/download/{}/qgep.zip"
 QGEP_PROJECT_PATH_TEMPLATE = os.path.join(TEMP_DIR, "project", "qgep.qgs")
 
 
@@ -290,30 +290,28 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         """
         QgsMessageLog.logMessage(f"Running command : {shell_command}", "QGEP")
         result = subprocess.run(
-            shell_command, cwd=cwd, shell=True, capture_output=True, timeout=timeout
+            shell_command,
+            cwd=cwd,
+            shell=True,
+            capture_output=True,
+            timeout=timeout,
         )
         if result.stdout:
-            QgsMessageLog.logMessage(
-                result.stdout.decode(sys.getdefaultencoding()), "QGEP"
-            )
+            stdout = result.stdout.decode("utf-8", errors="replace")
+            QgsMessageLog.logMessage(stdout, "QGEP")
+        else:
+            stdout = None
         if result.stderr:
-            QgsMessageLog.logMessage(
-                result.stderr.decode(sys.getdefaultencoding()),
-                "QGEP",
-                level=Qgis.Critical,
-            )
+            stderr = result.stderr.decode("utf-8", errors="replace")
+            QgsMessageLog.logMessage(stderr, "QGEP", level=Qgis.Critical)
+        else:
+            stderr = None
         if result.returncode:
             message = f"{error_message}\nCommand :\n{shell_command}"
-            if result.stdout:
-                message += (
-                    f"\n\nOutput :\n{result.stdout.decode(sys.getdefaultencoding())}"
-                )
-            if result.stderr:
-                message += (
-                    f"\n\nError :\n{result.stderr.decode(sys.getdefaultencoding())}"
-                )
+            message += f"\n\nOutput :\n{stdout}"
+            message += f"\n\nError :\n{stderr}"
             raise QGEPDatamodelError(message)
-        return result.stdout.decode(sys.getdefaultencoding())
+        return stdout
 
     def _download(self, url, filename, error_message=None):
         os.makedirs(TEMP_DIR, exist_ok=True)
@@ -364,7 +362,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             return None
 
         pum_info = self._run_cmd(
-            f"python -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
+            f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
             error_message="Could not get current version, are you sure the database is accessible ?",
         )
         version = None
@@ -406,10 +404,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         check = requirements_exists and deltas_exists
 
         if check:
-            self.releaseCheckLabel.setText("ok")
-            self.releaseCheckLabel.setStyleSheet(
-                "color: rgb(0, 170, 0);\nfont-weight: bold;"
-            )
+            if self.version == "master":
+                self.releaseCheckLabel.setText(
+                    "DEV RELEASE - DO NOT USE FOR PRODUCTION"
+                )
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
+            else:
+                self.releaseCheckLabel.setText("ok")
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(0, 170, 0);\nfont-weight: bold;"
+                )
         else:
             self.releaseCheckLabel.setText("not found")
             self.releaseCheckLabel.setStyleSheet(
@@ -519,7 +525,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         )
         command_line = "the OSGeo4W shell" if os.name == "nt" else "the terminal"
         self._run_cmd(
-            f"python -m pip install --user {dependencies}",
+            f"python3 -m pip install --user {dependencies}",
             error_message=f"Could not install python dependencies. You can try to run the command manually from {command_line}.",
             timeout=None,
         )
@@ -818,7 +824,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
             return self._run_cmd(
-                f"python -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+                f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
                 error_message="Errors when upgrading the database.",
                 timeout=300,
@@ -869,12 +875,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
         current_version = self._get_current_version()
 
-        qgis_vers = None
+        url = None
         for dm_vers in sorted(DATAMODEL_QGEP_VERSIONS):
             if dm_vers <= current_version:
-                qgis_vers = DATAMODEL_QGEP_VERSIONS[dm_vers]
+                url = DATAMODEL_QGEP_VERSIONS[dm_vers]
 
-        url = QGEP_PROJECT_URL_TEMPLATE.format(qgis_vers)
         qgep_path = self._download(url, "qgep.zip")
         qgep_zip = zipfile.ZipFile(qgep_path)
         qgep_zip.extractall(TEMP_DIR)
