@@ -264,14 +264,16 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.wizardAction)
         self.toolbar.addAction(self.refreshNetworkTopologyAction)
         self.toolbar.addAction(self.connectNetworkElementsAction)
-        if QSettings().value("/QGEP/AdminMode", False):
-            self.toolbar.addAction(self.importAction)
-            self.toolbar.addAction(self.exportAction)
 
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
-        if QSettings().value("/QGEP/AdminMode", False):
+
+        admin_mode = QSettings().value("/QGEP/AdminMode", False)
+        # seems QGIS loads True as "true" on restart ?!
+        if admin_mode and admin_mode != "false":
+            self.toolbar.addAction(self.importAction)
+            self.toolbar.addAction(self.exportAction)
             self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
 
         self.iface.addToolBar(self.toolbar)
