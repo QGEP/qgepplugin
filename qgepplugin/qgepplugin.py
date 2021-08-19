@@ -30,7 +30,7 @@ import logging
 import os
 from builtins import object, str
 
-from qgis.core import QgsApplication
+from qgis.core import Qgis, QgsApplication
 from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
@@ -42,7 +42,6 @@ from .gui.qgepprofiledockwidget import QgepProfileDockWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
 from .gui.qgepwizard import QgepWizard
 from .processing_provider.provider import QgepProcessingProvider
-from .qgepqwat2ili.qgepqwat2ili.gui import action_export, action_import
 from .tools.qgepmaptools import (
     QgepMapToolConnectNetworkElements,
     QgepProfileMapTool,
@@ -232,21 +231,25 @@ class QgepPlugin(object):
         self.settingsAction = QAction(self.tr("Settings"), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
-        self.importAction = QAction(self.tr("Import"), self.iface.mainWindow())
+        self.importAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_import.svg")),
+            self.tr("Import from interlis"),
+            self.iface.mainWindow(),
+        )
         self.importAction.setWhatsThis(self.tr("Import from interlis"))
         self.importAction.setEnabled(False)
         self.importAction.setCheckable(False)
-        self.importAction.triggered.connect(
-            lambda _clicked, plugin=self: action_import(plugin, "pg_qgep")
-        )
+        self.importAction.triggered.connect(self.actionImportClicked)
 
-        self.exportAction = QAction(self.tr("Export"), self.iface.mainWindow())
+        self.exportAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_export.svg")),
+            self.tr("Export to interlis"),
+            self.iface.mainWindow(),
+        )
         self.exportAction.setWhatsThis(self.tr("Export from interlis"))
         self.exportAction.setEnabled(False)
         self.exportAction.setCheckable(False)
-        self.exportAction.triggered.connect(
-            lambda _clicked, plugin=self: action_export(plugin, "pg_qgep")
-        )
+        self.exportAction.triggered.connect(self.actionExportClicked)
 
         self.datamodelInitToolAction = QAction(
             self.tr("Datamodel tool"), self.iface.mainWindow()
@@ -467,3 +470,31 @@ class QgepPlugin(object):
         if not hasattr(self, "_datamodel_dlg"):
             self.datamodel_dlg = QgepDatamodelInitToolDialog(self.iface.mainWindow())
         self.datamodel_dlg.show()
+
+    def actionExportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_export
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_export(self, "pg_qgep")
+
+    def actionImportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_import
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_import(self, "pg_qgep")
