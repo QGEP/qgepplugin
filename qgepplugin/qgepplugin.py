@@ -261,7 +261,7 @@ class QgepPlugin(object):
         self.toolbar.addAction(self.wizardAction)
         self.toolbar.addAction(self.refreshNetworkTopologyAction)
         self.toolbar.addAction(self.connectNetworkElementsAction)
-        if QSettings().value("/QGEP/DeveloperMode", False):
+        if QSettings().value("/QGEP/AdminMode", False):
             self.toolbar.addAction(self.importAction)
             self.toolbar.addAction(self.exportAction)
 
