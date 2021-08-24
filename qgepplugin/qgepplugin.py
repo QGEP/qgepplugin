@@ -30,7 +30,7 @@ import logging
 import os
 from builtins import object, str
 
-from qgis.core import QgsApplication
+from qgis.core import Qgis, QgsApplication
 from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
@@ -231,6 +231,26 @@ class QgepPlugin(object):
         self.settingsAction = QAction(self.tr("Settings"), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
+        self.importAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_import.svg")),
+            self.tr("Import from interlis"),
+            self.iface.mainWindow(),
+        )
+        self.importAction.setWhatsThis(self.tr("Import from interlis"))
+        self.importAction.setEnabled(False)
+        self.importAction.setCheckable(False)
+        self.importAction.triggered.connect(self.actionImportClicked)
+
+        self.exportAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_export.svg")),
+            self.tr("Export to interlis"),
+            self.iface.mainWindow(),
+        )
+        self.exportAction.setWhatsThis(self.tr("Export from interlis"))
+        self.exportAction.setEnabled(False)
+        self.exportAction.setCheckable(False)
+        self.exportAction.triggered.connect(self.actionExportClicked)
+
         self.datamodelInitToolAction = QAction(
             self.tr("Datamodel tool"), self.iface.mainWindow()
         )
@@ -248,7 +268,12 @@ class QgepPlugin(object):
         self.iface.addPluginToMenu("&QGEP", self.profileAction)
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
-        if QSettings().value("/QGEP/AdminMode", False):
+
+        admin_mode = QSettings().value("/QGEP/AdminMode", False)
+        # seems QGIS loads True as "true" on restart ?!
+        if admin_mode and admin_mode != "false":
+            self.toolbar.addAction(self.importAction)
+            self.toolbar.addAction(self.exportAction)
             self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
 
         self.iface.addToolBar(self.toolbar)
@@ -259,6 +284,8 @@ class QgepPlugin(object):
         self.toolbarButtons.append(self.downstreamAction)
         self.toolbarButtons.append(self.wizardAction)
         self.toolbarButtons.append(self.refreshNetworkTopologyAction)
+        self.toolbarButtons.append(self.importAction)
+        self.toolbarButtons.append(self.exportAction)
 
         self.network_layer_notifier.layersAvailable.connect(self.onLayersAvailable)
         self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
@@ -308,6 +335,11 @@ class QgepPlugin(object):
         self.toolbar.removeAction(self.wizardAction)
         self.toolbar.removeAction(self.refreshNetworkTopologyAction)
         self.toolbar.removeAction(self.connectNetworkElementsAction)
+
+        if self.importAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.importAction)
+        if self.exportAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.exportAction)
 
         self.toolbar.deleteLater()
 
@@ -440,3 +472,31 @@ class QgepPlugin(object):
         if not hasattr(self, "_datamodel_dlg"):
             self.datamodel_dlg = QgepDatamodelInitToolDialog(self.iface.mainWindow())
         self.datamodel_dlg.show()
+
+    def actionExportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_export
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_export(self, "pg_qgep")
+
+    def actionImportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_import
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_import(self, "pg_qgep")

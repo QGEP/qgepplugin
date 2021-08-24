@@ -23,3 +23,6 @@ icon=icons/qgepIcon.svg
 
 experimental=True
 deprecated=False
+
+# unfortunately this doesn't support >= yet...
+plugin_dependencies=QGIS Model Baker==v6.4.0
