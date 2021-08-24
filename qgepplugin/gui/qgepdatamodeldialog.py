@@ -50,7 +50,7 @@ from ..utils import get_ui_class
 # In the future, once plugin/datamodel versionning scheme clearly reflects
 # compatibility, we could retrieve this dynamically, so datamodel bugfix
 # releases don't require a plugin upgrade.
-LATEST_RELEASE = "1.5.5"
+LATEST_RELEASE = "1.5.6-1"
 
 # Allow to choose which releases can be installed
 AVAILABLE_RELEASES = {
