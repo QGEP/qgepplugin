@@ -23,6 +23,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+
+      # Seems we're above the QGIS plugin registry if we don't remove this :-/
+      - name: Cleanup qgepqwat2ili
+        run: rm -rf qgepplugin/qgepqwat2ili/qgepqwat2ili/data
+
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt install qttools5-dev-tools qt5-default
