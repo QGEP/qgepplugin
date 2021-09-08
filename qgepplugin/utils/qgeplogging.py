@@ -27,6 +27,7 @@
 This module is used for logging in QGEP.
 """
 import logging
+
 from qgis.core import QgsApplication, QgsMessageLog
 
 
@@ -35,15 +36,16 @@ class QgepQgsLogHandler(logging.Handler):
     A class acting as a translator between pythons log system and the QGIS log
     system.
     """
+
     qgsMessageLog = QgsApplication.messageLog()
 
     def emit(self, record):
-        '''
+        """
         Will be called by pythons logging and is the actual bridge
         @param record: The record to be logged
-        '''
+        """
 
         # Should be adjusted to translate the levelno to QGIS debug levels once
         # QGIS agreed on standards.
         # See http://hub.qgis.org/issues/6965
-        QgsMessageLog.logMessage(record.name + ':' + record.msg, 'qgep', record.levelno)
+        QgsMessageLog.logMessage(record.name + ":" + record.msg, "qgep", record.levelno)

@@ -24,37 +24,36 @@
 #
 # ---------------------------------------------------------------------
 
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import str
-from builtins import object
+from __future__ import absolute_import, print_function
+
 import logging
 import os
+from builtins import object, str
 
-from qgis.PyQt.QtCore import QSettings, Qt, QLocale
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
+from qgis.core import Qgis, QgsApplication
+from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtGui import QIcon
-
+from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
 from qgis.utils import qgsfunction
-from qgis.core import QgsApplication
 
-from .tools.qgepmaptools import (
-    QgepProfileMapTool,
-    QgepTreeMapTool,
-    QgepMapToolConnectNetworkElements
-)
-from .tools.qgepnetwork import QgepGraphManager
-from .gui.qgepprofiledockwidget import QgepProfileDockWidget
+from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
 from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
+from .gui.qgepprofiledockwidget import QgepProfileDockWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
 from .gui.qgepwizard import QgepWizard
+from .processing_provider.provider import QgepProcessingProvider
+from .tools.qgepmaptools import (
+    QgepMapToolConnectNetworkElements,
+    QgepProfileMapTool,
+    QgepTreeMapTool,
+)
+from .tools.qgepnetwork import QgepGraphManager
+from .utils.plugin_utils import plugin_root_path
+from .utils.qgeplayermanager import QgepLayerNotifier
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
-from .utils.qgeplayermanager import QgepLayerNotifier
-from .utils.plugin_utils import plugin_root_path
-from .processing_provider.provider import QgepProcessingProvider
 
-LOGFORMAT = '%(asctime)s:%(levelname)s:%(module)s:%(message)s'
+LOGFORMAT = "%(asctime)s:%(levelname)s:%(module)s:%(message)s"
 
 
 @qgsfunction(0, "System")
@@ -67,6 +66,7 @@ class QgepPlugin(object):
     A plugin for wastewater management
     http://www.github.com/qgep/QGEP
     """
+
     # The networkAnalyzer will manage the networklayers and pathfinding
     network_analyzer = None
 
@@ -101,7 +101,7 @@ class QgepPlugin(object):
         :param source_text: The text to translate
         :return: The translated text
         """
-        return QApplication.translate('QgepPlugin', source_text)
+        return QApplication.translate("QgepPlugin", source_text)
 
     def initLogger(self):
         """
@@ -111,10 +111,10 @@ class QgepPlugin(object):
 
         settings = QSettings()
 
-        loglevel = settings.value("/QGEP/LogLevel", 'Warning')
+        loglevel = settings.value("/QGEP/LogLevel", "Warning")
         logfile = settings.value("/QGEP/LogFile", None)
 
-        if hasattr(self.logger, 'qgepFileHandler'):
+        if hasattr(self.logger, "qgepFileHandler"):
             self.logger.removeHandler(self.logger.qgepFileHandler)
             del self.logger.qgepFileHandler
 
@@ -129,88 +129,135 @@ class QgepPlugin(object):
             self.logger.addHandler(log_handler)
             self.logger.fileHandler = log_handler
 
-        if 'Debug' == loglevel:
+        if "Debug" == loglevel:
             self.logger.setLevel(logging.DEBUG)
-        elif 'Info' == loglevel:
+        elif "Info" == loglevel:
             self.logger.setLevel(logging.INFO)
-        elif 'Warning' == loglevel:
+        elif "Warning" == loglevel:
             self.logger.setLevel(logging.WARNING)
-        elif 'Error' == loglevel:
+        elif "Error" == loglevel:
             self.logger.setLevel(logging.ERROR)
 
-        fp = os.path.join(os.path.abspath(
-            os.path.dirname(__file__)), "metadata.txt")
+        fp = os.path.join(os.path.abspath(os.path.dirname(__file__)), "metadata.txt")
 
         ini_text = QSettings(fp, QSettings.IniFormat)
         verno = ini_text.value("version")
 
-        self.logger.info('QGEP plugin version ' + verno + ' started')
+        self.logger.info("QGEP plugin version " + verno + " started")
 
     def initGui(self):
         """
         Called to setup the plugin GUI
         """
-        self.network_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
-                                                        ['vw_network_node', 'vw_network_segment'])
-        self.wastewater_networkelement_layer_notifier = QgepLayerNotifier(self.iface.mainWindow(),
-                                                                          ['vw_wastewater_node', 'vw_qgep_reach'])
+        self.network_layer_notifier = QgepLayerNotifier(
+            self.iface.mainWindow(), ["vw_network_node", "vw_network_segment"]
+        )
+        self.wastewater_networkelement_layer_notifier = QgepLayerNotifier(
+            self.iface.mainWindow(), ["vw_wastewater_node", "vw_qgep_reach"]
+        )
         self.toolbarButtons = []
 
         # Create toolbar button
-        self.profileAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-profile.svg")), self.tr("Profile"),
-                                     self.iface.mainWindow())
+        self.profileAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/wastewater-profile.svg")),
+            self.tr("Profile"),
+            self.iface.mainWindow(),
+        )
         self.profileAction.setWhatsThis(self.tr("Reach trace"))
         self.profileAction.setEnabled(False)
         self.profileAction.setCheckable(True)
         self.profileAction.triggered.connect(self.profileToolClicked)
 
-        self.downstreamAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-downstream.svg")),
-                                        self.tr("Downstream"), self.iface.mainWindow())
+        self.downstreamAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/wastewater-downstream.svg")),
+            self.tr("Downstream"),
+            self.iface.mainWindow(),
+        )
         self.downstreamAction.setWhatsThis(self.tr("Downstream reaches"))
         self.downstreamAction.setEnabled(False)
         self.downstreamAction.setCheckable(True)
         self.downstreamAction.triggered.connect(self.downstreamToolClicked)
 
-        self.upstreamAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wastewater-upstream.svg")), self.tr("Upstream"),
-                                      self.iface.mainWindow())
+        self.upstreamAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/wastewater-upstream.svg")),
+            self.tr("Upstream"),
+            self.iface.mainWindow(),
+        )
         self.upstreamAction.setWhatsThis(self.tr("Upstream reaches"))
         self.upstreamAction.setEnabled(False)
         self.upstreamAction.setCheckable(True)
         self.upstreamAction.triggered.connect(self.upstreamToolClicked)
 
-        self.wizardAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")),
-                                    "Wizard", self.iface.mainWindow())
-        self.wizardAction.setWhatsThis(
-            self.tr("Create new manholes and reaches"))
+        self.wizardAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/wizard.svg")),
+            "Wizard",
+            self.iface.mainWindow(),
+        )
+        self.wizardAction.setWhatsThis(self.tr("Create new manholes and reaches"))
         self.wizardAction.setEnabled(False)
         self.wizardAction.setCheckable(True)
         self.wizardAction.triggered.connect(self.wizard)
 
         self.connectNetworkElementsAction = QAction(
-            QIcon(os.path.join(plugin_root_path(), "icons/link-wastewater-networkelement.svg")),
-            QApplication.translate('qgepplugin', 'Connect wastewater networkelements'), self.iface.mainWindow())
+            QIcon(
+                os.path.join(
+                    plugin_root_path(), "icons/link-wastewater-networkelement.svg"
+                )
+            ),
+            QApplication.translate("qgepplugin", "Connect wastewater networkelements"),
+            self.iface.mainWindow(),
+        )
         self.connectNetworkElementsAction.setEnabled(False)
         self.connectNetworkElementsAction.setCheckable(True)
         self.connectNetworkElementsAction.triggered.connect(self.connectNetworkElements)
 
-        self.refreshNetworkTopologyAction = QAction(QIcon(os.path.join(plugin_root_path(), "icons/refresh-network.svg")),
-                                                    "Refresh network topology", self.iface.mainWindow())
+        self.refreshNetworkTopologyAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/refresh-network.svg")),
+            "Refresh network topology",
+            self.iface.mainWindow(),
+        )
         self.refreshNetworkTopologyAction.setWhatsThis(
-            self.tr("Refresh network topology"))
+            self.tr("Refresh network topology")
+        )
         self.refreshNetworkTopologyAction.setEnabled(False)
         self.refreshNetworkTopologyAction.setCheckable(False)
         self.refreshNetworkTopologyAction.triggered.connect(
-            self.refreshNetworkTopologyActionClicked)
+            self.refreshNetworkTopologyActionClicked
+        )
 
-        self.aboutAction = QAction(self.tr('About'), self.iface.mainWindow())
+        self.aboutAction = QAction(self.tr("About"), self.iface.mainWindow())
         self.aboutAction.triggered.connect(self.about)
 
-        self.settingsAction = QAction(
-            self.tr('Settings'), self.iface.mainWindow())
+        self.settingsAction = QAction(self.tr("Settings"), self.iface.mainWindow())
         self.settingsAction.triggered.connect(self.showSettings)
 
+        self.importAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_import.svg")),
+            self.tr("Import from interlis"),
+            self.iface.mainWindow(),
+        )
+        self.importAction.setWhatsThis(self.tr("Import from interlis"))
+        self.importAction.setEnabled(False)
+        self.importAction.setCheckable(False)
+        self.importAction.triggered.connect(self.actionImportClicked)
+
+        self.exportAction = QAction(
+            QIcon(os.path.join(plugin_root_path(), "icons/interlis_export.svg")),
+            self.tr("Export to interlis"),
+            self.iface.mainWindow(),
+        )
+        self.exportAction.setWhatsThis(self.tr("Export from interlis"))
+        self.exportAction.setEnabled(False)
+        self.exportAction.setCheckable(False)
+        self.exportAction.triggered.connect(self.actionExportClicked)
+
+        self.datamodelInitToolAction = QAction(
+            self.tr("Datamodel tool"), self.iface.mainWindow()
+        )
+        self.datamodelInitToolAction.triggered.connect(self.showDatamodelInitTool)
+
         # Add toolbar button and menu item
-        self.toolbar = QToolBar(QApplication.translate('qgepplugin', 'QGEP'))
+        self.toolbar = QToolBar(QApplication.translate("qgepplugin", "QGEP"))
         self.toolbar.addAction(self.profileAction)
         self.toolbar.addAction(self.upstreamAction)
         self.toolbar.addAction(self.downstreamAction)
@@ -222,6 +269,13 @@ class QgepPlugin(object):
         self.iface.addPluginToMenu("&QGEP", self.settingsAction)
         self.iface.addPluginToMenu("&QGEP", self.aboutAction)
 
+        admin_mode = QSettings().value("/QGEP/AdminMode", False)
+        # seems QGIS loads True as "true" on restart ?!
+        if admin_mode and admin_mode != "false":
+            self.toolbar.addAction(self.importAction)
+            self.toolbar.addAction(self.exportAction)
+            self.iface.addPluginToMenu("&QGEP", self.datamodelInitToolAction)
+
         self.iface.addToolBar(self.toolbar)
 
         # Local array of buttons to enable / disable based on context
@@ -230,31 +284,41 @@ class QgepPlugin(object):
         self.toolbarButtons.append(self.downstreamAction)
         self.toolbarButtons.append(self.wizardAction)
         self.toolbarButtons.append(self.refreshNetworkTopologyAction)
+        self.toolbarButtons.append(self.importAction)
+        self.toolbarButtons.append(self.exportAction)
 
         self.network_layer_notifier.layersAvailable.connect(self.onLayersAvailable)
         self.network_layer_notifier.layersUnavailable.connect(self.onLayersUnavailable)
 
         # Init the object maintaining the network
         self.network_analyzer = QgepGraphManager()
-        self.network_analyzer.message_emitted.connect(self.iface.messageBar().pushMessage)
+        self.network_analyzer.message_emitted.connect(
+            self.iface.messageBar().pushMessage
+        )
         # Create the map tool for profile selection
-        self.profile_tool = QgepProfileMapTool(self.iface, self.profileAction, self.network_analyzer)
+        self.profile_tool = QgepProfileMapTool(
+            self.iface, self.profileAction, self.network_analyzer
+        )
         self.profile_tool.profileChanged.connect(self.onProfileChanged)
 
         self.upstream_tree_tool = QgepTreeMapTool(
-            self.iface, self.upstreamAction, self.network_analyzer)
+            self.iface, self.upstreamAction, self.network_analyzer
+        )
         self.upstream_tree_tool.setDirection("upstream")
         self.upstream_tree_tool.treeChanged.connect(self.onTreeChanged)
         self.downstream_tree_tool = QgepTreeMapTool(
-            self.iface, self.downstreamAction, self.network_analyzer)
+            self.iface, self.downstreamAction, self.network_analyzer
+        )
         self.downstream_tree_tool.setDirection("downstream")
         self.downstream_tree_tool.treeChanged.connect(self.onTreeChanged)
 
         self.maptool_connect_networkelements = QgepMapToolConnectNetworkElements(
-            self.iface, self.connectNetworkElementsAction)
+            self.iface, self.connectNetworkElementsAction
+        )
 
         self.wastewater_networkelement_layer_notifier.layersAvailableChanged.connect(
-            self.connectNetworkElementsAction.setEnabled)
+            self.connectNetworkElementsAction.setEnabled
+        )
 
         self.processing_provider = QgepProcessingProvider()
         QgsApplication.processingRegistry().addProvider(self.processing_provider)
@@ -272,10 +336,17 @@ class QgepPlugin(object):
         self.toolbar.removeAction(self.refreshNetworkTopologyAction)
         self.toolbar.removeAction(self.connectNetworkElementsAction)
 
+        if self.importAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.importAction)
+        if self.exportAction in self.toolbar.actions():
+            self.toolbar.removeAction(self.exportAction)
+
         self.toolbar.deleteLater()
 
         self.iface.removePluginMenu("&QGEP", self.profileAction)
+        self.iface.removePluginMenu("&QGEP", self.settingsAction)
         self.iface.removePluginMenu("&QGEP", self.aboutAction)
+        self.iface.removePluginMenu("&QGEP", self.datamodelInitToolAction)
 
         QgsApplication.processingRegistry().removeProvider(self.processing_provider)
 
@@ -283,8 +354,8 @@ class QgepPlugin(object):
         for b in self.toolbarButtons:
             b.setEnabled(True)
 
-        self.network_analyzer.setReachLayer(layers['vw_network_segment'])
-        self.network_analyzer.setNodeLayer(layers['vw_network_node'])
+        self.network_analyzer.setReachLayer(layers["vw_network_segment"])
+        self.network_analyzer.setNodeLayer(layers["vw_network_node"])
 
     def onLayersUnavailable(self):
         for b in self.toolbarButtons:
@@ -319,11 +390,10 @@ class QgepPlugin(object):
         self.network_analyzer.refresh()
 
     def wizard(self):
-        """
-        """
+        """"""
         if not self.wizarddock:
             self.wizarddock = QgepWizard(self.iface.mainWindow(), self.iface)
-        self.logger.debug('Opening Wizard')
+        self.logger.debug("Opening Wizard")
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.wizarddock)
         self.wizarddock.show()
 
@@ -335,15 +405,24 @@ class QgepPlugin(object):
         Opens the dock
         """
         if self.profile_dock is None:
-            self.logger.debug('Open dock')
-            self.profile_dock = QgepProfileDockWidget(self.iface.mainWindow(), self.iface.mapCanvas(),
-                                                      self.iface.addDockWidget)
+            self.logger.debug("Open dock")
+            self.profile_dock = QgepProfileDockWidget(
+                self.iface.mainWindow(),
+                self.iface.mapCanvas(),
+                self.iface.addDockWidget,
+            )
             self.profile_dock.closed.connect(self.onDockClosed)
             self.profile_dock.showIt()
 
-            self.plotWidget = QgepPlotSVGWidget(self.profile_dock, self.network_analyzer)
-            self.plotWidget.specialStructureMouseOver.connect(self.highlightProfileElement)
-            self.plotWidget.specialStructureMouseOut.connect(self.unhighlightProfileElement)
+            self.plotWidget = QgepPlotSVGWidget(
+                self.profile_dock, self.network_analyzer
+            )
+            self.plotWidget.specialStructureMouseOver.connect(
+                self.highlightProfileElement
+            )
+            self.plotWidget.specialStructureMouseOut.connect(
+                self.unhighlightProfileElement
+            )
             self.plotWidget.reachMouseOver.connect(self.highlightProfileElement)
             self.plotWidget.reachMouseOut.connect(self.unhighlightProfileElement)
             self.profile_dock.addPlotWidget(self.plotWidget)
@@ -388,3 +467,36 @@ class QgepPlugin(object):
     def showSettings(self):
         settings_dlg = QgepSettingsDialog(self.iface.mainWindow())
         settings_dlg.exec_()
+
+    def showDatamodelInitTool(self):
+        if not hasattr(self, "_datamodel_dlg"):
+            self.datamodel_dlg = QgepDatamodelInitToolDialog(self.iface.mainWindow())
+        self.datamodel_dlg.show()
+
+    def actionExportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_export
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_export(self, "pg_qgep")
+
+    def actionImportClicked(self):
+        # We only import now to avoid useless exception if dependencies aren't met
+        try:
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_import
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        action_import(self, "pg_qgep")

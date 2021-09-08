@@ -23,16 +23,17 @@
 #
 # ---------------------------------------------------------------------
 
-from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
-from qgis.PyQt.QtPrintSupport import QPrintPreviewDialog, QPrinter
+import logging
+
+from qgis.PyQt.QtCore import QSettings, Qt, QUrl, pyqtSignal, pyqtSlot
+from qgis.PyQt.QtPrintSupport import QPrinter, QPrintPreviewDialog
 from qgis.PyQt.QtWebKit import QWebSettings
-from qgis.PyQt.QtWebKitWidgets import QWebView, QWebPage
-from qgis.PyQt.QtCore import QUrl, pyqtSignal, pyqtSlot, QSettings, Qt
+from qgis.PyQt.QtWebKitWidgets import QWebPage, QWebView
+from qgis.PyQt.QtWidgets import QVBoxLayout, QWidget
+
+from ..tools.qgepnetwork import QgepGraphManager
 from ..utils.translation import QgepJsTranslator
 from ..utils.ui import plugin_root_path
-from ..tools.qgepnetwork import QgepGraphManager
-
-import logging
 
 
 class QgepWebPage(QWebPage):
@@ -42,7 +43,7 @@ class QgepWebPage(QWebPage):
         QWebPage.__init__(self, parent)
 
     def javaScriptConsoleMessage(self, msg, line, source):
-        self.logger.debug('{} line {}: {}'.format(source, line, msg))
+        self.logger.debug("{} line {}: {}".format(source, line, msg))
 
 
 class QgepPlotSVGWidget(QWidget):
@@ -54,19 +55,19 @@ class QgepPlotSVGWidget(QWidget):
     jsTranslator = QgepJsTranslator()
 
     # Signals emitted triggered by javascript actions
-    reachClicked = pyqtSignal([str], name='reachClicked')
-    reachMouseOver = pyqtSignal([str], name='reachMouseOver')
-    reachMouseOut = pyqtSignal([str], name='reachMouseOut')
-    reachPointClicked = pyqtSignal([str, str], name='reachPointClicked')
-    reachPointMouseOver = pyqtSignal([str, str], name='reachPointMouseOver')
-    reachPointMouseOut = pyqtSignal([str, str], name='reachPointMouseOut')
-    specialStructureClicked = pyqtSignal([str], name='specialStructureClicked')
-    specialStructureMouseOver = pyqtSignal([str], name='specialStructureMouseOver')
-    specialStructureMouseOut = pyqtSignal([str], name='specialStructureMouseOut')
+    reachClicked = pyqtSignal([str], name="reachClicked")
+    reachMouseOver = pyqtSignal([str], name="reachMouseOver")
+    reachMouseOut = pyqtSignal([str], name="reachMouseOut")
+    reachPointClicked = pyqtSignal([str, str], name="reachPointClicked")
+    reachPointMouseOver = pyqtSignal([str, str], name="reachPointMouseOver")
+    reachPointMouseOut = pyqtSignal([str, str], name="reachPointMouseOut")
+    specialStructureClicked = pyqtSignal([str], name="specialStructureClicked")
+    specialStructureMouseOver = pyqtSignal([str], name="specialStructureMouseOver")
+    specialStructureMouseOut = pyqtSignal([str], name="specialStructureMouseOut")
 
     # Signals emitted for javascript
-    profileChanged = pyqtSignal([str], name='profileChanged')
-    verticalExaggerationChanged = pyqtSignal([int], name='verticalExaggerationChanged')
+    profileChanged = pyqtSignal([str], name="profileChanged")
+    verticalExaggerationChanged = pyqtSignal([int], name="verticalExaggerationChanged")
 
     def __init__(self, parent, network_analyzer: QgepGraphManager, url: str = None):
         QWidget.__init__(self, parent)
@@ -81,14 +82,18 @@ class QgepPlotSVGWidget(QWidget):
         layout = QVBoxLayout(self)
         if url is None:
             # Starting with QGIS 3.4, QWebView requires paths with / even on windows.
-            default_url = plugin_root_path().replace('\\', '/') + '/svgprofile/index.html'
+            default_url = (
+                plugin_root_path().replace("\\", "/") + "/svgprofile/index.html"
+            )
             url = settings.value("/QGEP/SvgProfilePath", default_url)
-            url = 'file:///' + url
+            url = "file:///" + url
 
         developer_mode = settings.value("/QGEP/DeveloperMode", False, type=bool)
 
         if developer_mode is True:
-            self.webView.page().settings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+            self.webView.page().settings().setAttribute(
+                QWebSettings.DeveloperExtrasEnabled, True
+            )
         else:
             self.webView.setContextMenuPolicy(Qt.NoContextMenu)
 

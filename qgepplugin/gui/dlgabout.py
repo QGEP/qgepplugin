@@ -24,12 +24,13 @@
 # ---------------------------------------------------------------------
 
 import os
+
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QDialog
 
 from ..utils import get_ui_class
 
-DIALOG_UI = get_ui_class('dlgabout.ui')
+DIALOG_UI = get_ui_class("dlgabout.ui")
 
 
 class DlgAbout(QDialog, DIALOG_UI):
@@ -37,7 +38,10 @@ class DlgAbout(QDialog, DIALOG_UI):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        fp = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "metadata.txt")
+        fp = os.path.join(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..")),
+            "metadata.txt",
+        )
 
         ini_text = QSettings(fp, QSettings.IniFormat)
         verno = ini_text.value("version")

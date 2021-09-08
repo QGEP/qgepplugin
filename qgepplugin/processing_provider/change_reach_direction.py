@@ -19,34 +19,31 @@
  ***************************************************************************/
 """
 
-from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer
-)
+from qgis.core import QgsProcessingAlgorithm, QgsProcessingParameterVectorLayer
 
 from .qgep_algorithm import QgepAlgorithm
 
-__author__ = 'Matthias Kuhn & Maxime Trolliet'
-__date__ = '2018-08-07'
-__copyright__ = '(C) 2018 by OPENGIS.ch'
+__author__ = "Matthias Kuhn & Maxime Trolliet"
+__date__ = "2018-08-07"
+__copyright__ = "(C) 2018 by OPENGIS.ch"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 class ChangeReachDirection(QgepAlgorithm):
     """
-        Change the direction of the selected reaches
+    Change the direction of the selected reaches
     """
 
-    REACH_LAYER = 'REACH_LAYER'
+    REACH_LAYER = "REACH_LAYER"
 
     def name(self):
-        return 'change_direction'
+        return "change_direction"
 
     def displayName(self):
-        return self.tr('Change reach direction')
+        return self.tr("Change reach direction")
 
     def flags(self):
         return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
@@ -56,8 +53,14 @@ class ChangeReachDirection(QgepAlgorithm):
         with some other properties.
         """
 
-        self.addParameter(QgsProcessingParameterVectorLayer(self.REACH_LAYER, description=self.tr(
-            'Selected features only - Reach layer, will be modified in place and its direction will be inverted')))
+        self.addParameter(
+            QgsProcessingParameterVectorLayer(
+                self.REACH_LAYER,
+                description=self.tr(
+                    "Selected features only - Reach layer, will be modified in place and its direction will be inverted"
+                ),
+            )
+        )
 
     def processAlgorithm(self, parameters, context, feedback):
         """Here is where the processing itself takes place."""
@@ -71,13 +74,17 @@ class ChangeReachDirection(QgepAlgorithm):
         # feature_count = reach_layer.selectedFeatureCount()
 
         # Loop through relevant reaches
-        reach_layer.beginEditCommand('change directions')
+        reach_layer.beginEditCommand("change directions")
         transaction = reach_layer.dataProvider().transaction()
         # if not transaction:
         #    raise Exception: if there is no transaction, complain to the user!
-        selected_obj_ids = [feature['obj_id'] for feature in iterator]
-        transaction.executeSql('SELECT qgep_od.reach_direction_change(\'{{{obj_ids}}}\');'.format(
-            obj_ids=','.join(selected_obj_ids)), True)
+        selected_obj_ids = [feature["obj_id"] for feature in iterator]
+        transaction.executeSql(
+            "SELECT qgep_od.reach_direction_change('{{{obj_ids}}}');".format(
+                obj_ids=",".join(selected_obj_ids)
+            ),
+            True,
+        )
         reach_layer.endEditCommand()
         feedback.setProgress(100)
 
