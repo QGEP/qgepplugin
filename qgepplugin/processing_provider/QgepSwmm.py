@@ -110,7 +110,6 @@ import psycopg2
 
 
 class QgepSwmm:
-
     def __init__(
         self, title, service, state, inpfile, inptemplate, rptfile, binfile, feedback
     ):
