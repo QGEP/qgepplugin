@@ -646,7 +646,8 @@ class QgepSwmm:
                                 self.create_measurement_result(
                                     ms_obj_id,
                                     SWMM_RESULTS_PARAMETERS[k]["qgep_measurement_type"],
-                                    measuring_duration, time,
+                                    measuring_duration,
+                                    time,
                                     m[k],
                                 )
         return
@@ -769,7 +770,8 @@ class QgepSwmm:
                             self.create_measurement_result(
                                 ms_obj_id,
                                 SWMM_SUMMARY_PARAMETERS[k]["qgep_measurement_type"],
-                                measuring_duration, time,
+                                measuring_duration,
+                                time,
                                 ws[k],
                             )
         return
