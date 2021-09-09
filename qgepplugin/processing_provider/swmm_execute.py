@@ -70,9 +70,9 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
 
         description = self.tr("RPT File")
         self.addParameter(
-          QgsProcessingParameterFileDestination(
-            self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
-          )
+            QgsProcessingParameterFileDestination(
+                self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
+            )
         )
 
     def processAlgorithm(
@@ -95,7 +95,9 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                 )
             )
 
-        with QgepSwmm(None, None, None, inp_file, None, rpt_file, swmm_cli, feedback) as qs:
+        with QgepSwmm(
+            None, None, None, inp_file, None, rpt_file, swmm_cli, feedback
+        ) as qs:
             prompt = qs.execute_swmm()
 
         feedback.pushInfo(prompt)

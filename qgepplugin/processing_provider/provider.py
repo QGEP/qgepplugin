@@ -52,28 +52,28 @@ class QgepProcessingProvider(QgsProcessingProvider):
 
         # Load algorithms
         self.alglist = [
-            SnapReachAlgorithm(), 
-            FlowTimesAlgorithm(), 
-            ChangeReachDirection(), 
+            SnapReachAlgorithm(),
+            FlowTimesAlgorithm(),
+            ChangeReachDirection(),
             SumUpUpstreamAlgorithm(),
             SwmmCreateInputAlgorithm(),
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
-            SwmmExecuteAlgorithm()
+            SwmmExecuteAlgorithm(),
         ]
         for alg in self.alglist:
             alg.provider = self
 
     def getAlgs(self):
         algs = [
-            SnapReachAlgorithm(), 
-            FlowTimesAlgorithm(), 
-            SumUpUpstreamAlgorithm(), 
+            SnapReachAlgorithm(),
+            FlowTimesAlgorithm(),
+            SumUpUpstreamAlgorithm(),
             ChangeReachDirection(),
-            SwmmCreateInputAlgorithm(), 
-            SwmmExtractResultsAlgorithm(), 
+            SwmmCreateInputAlgorithm(),
+            SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
-            SwmmExecuteAlgorithm()
+            SwmmExecuteAlgorithm(),
         ]
         return algs
 
@@ -107,10 +107,10 @@ class QgepProcessingProvider(QgsProcessingProvider):
                 self.name(),
                 "SWMM_PATH",
                 self.tr(
-                  r"SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)"
+                    r"SWMM executable (e.g. C:\Program Files (x86)\EPA SWMM 5.1.013\swmm55.exe)"
                 ),
                 None,
-                valuetype=Setting.FILE
+                valuetype=Setting.FILE,
             )
         )
 
