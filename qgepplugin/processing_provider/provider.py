@@ -30,9 +30,10 @@ from .flow_times import FlowTimesAlgorithm
 from .snap_reach import SnapReachAlgorithm
 from .sum_up_upstream import SumUpUpstreamAlgorithm
 from .swmm_create_input import SwmmCreateInputAlgorithm
+from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_import_results import SwmmImportResultsAlgorithm
-from .swmm_execute import SwmmExecuteAlgorithm
+
 
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"

@@ -40,8 +40,7 @@ __revision__ = "$Format:%H$"
 
 
 class SwmmImportResultsAlgorithm(QgepAlgorithm):
-    """
-    """
+    """"""
 
     RPT_FILE = "RPT_FILE"
     DATABASE = "DATABASE"

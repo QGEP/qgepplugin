@@ -63,21 +63,23 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('INP File')
+        description = self.tr("INP File")
         self.addParameter(
             QgsProcessingParameterFile(
                 self.INP_FILE, description=description, extension="inp"
             )
         )
 
-        description = self.tr('RPT File')
+        description = self.tr("RPT File")
         self.addParameter(
             QgsProcessingParameterFileDestination(
                 self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
             )
         )
 
-    def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
+    def processAlgorithm(
+        self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback
+    ):
         """Here is where the processing itself takes place."""
 
         feedback.setProgress(1)

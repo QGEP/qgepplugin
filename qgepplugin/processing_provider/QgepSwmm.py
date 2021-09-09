@@ -37,8 +37,8 @@ SWMM_SUMMARY_PARAMETERS["maximum_depth"] = {
     "qgep_measurement_type": 5734,
 }
 SWMM_SUMMARY_PARAMETERS["maximum_hgl"] = {
-    "recorded": True, 
-    "dimension": "m", 
+    "recorded": True,
+    "dimension": "m",
     "qgep_measurement_type": 5732,
 }
 SWMM_SUMMARY_PARAMETERS["reported_max_depth"] = {
@@ -639,14 +639,14 @@ class QgepSwmm:
                         if k in SWMM_RESULTS_PARAMETERS.keys():
                             if SWMM_RESULTS_PARAMETERS[k]["recorded"]:
                                 ms_obj_id = self.create_measurement_series(
-                                    mp_obj_id, 
-                                    k, 
+                                    mp_obj_id,
+                                    k,
                                     SWMM_RESULTS_PARAMETERS[k]["dimension"],
                                 )
                                 self.create_measurement_result(
-                                    ms_obj_id, 
+                                    ms_obj_id,
                                     SWMM_RESULTS_PARAMETERS[k]["qgep_measurement_type"],
-                                    measuring_duration, time, 
+                                    measuring_duration, time,
                                     m[k],
                                 )
         return
@@ -757,7 +757,7 @@ class QgepSwmm:
                 delta = timedelta(
                     days=int(ws["time_max_day"]),
                     hours=int(ws["time_max_time"].split(":")[0]),
-                    minutes=int(ws["time_max_time"].split(":")[1])
+                    minutes=int(ws["time_max_time"].split(":")[1]),
                 )
                 for k in ws.keys():
                     if k in SWMM_SUMMARY_PARAMETERS.keys():
@@ -768,8 +768,7 @@ class QgepSwmm:
                             time = (simulation_start_date + delta).isoformat()
                             self.create_measurement_result(
                                 ms_obj_id,
-                                SWMM_SUMMARY_PARAMETERS[k]
-                                ["qgep_measurement_type"],
+                                SWMM_SUMMARY_PARAMETERS[k]["qgep_measurement_type"],
                                 measuring_duration, time,
                                 ws[k],
                             )
@@ -883,7 +882,7 @@ class QgepSwmm:
             RETURNING obj_id
             """.format(
                 MEASURING_POINT_KIND=MEASURING_POINT_KIND,
-                sim_description=sim_description, 
+                sim_description=sim_description,
                 reach_obj_id=reach_obj_id,
             )
             try:
@@ -996,7 +995,7 @@ class QgepSwmm:
             RETURNING obj_id
             """.format(
                 parameter_dimension=parameter_dimension,
-                parameter_name=parameter_name, 
+                parameter_name=parameter_name,
                 mp_obj_id=mp_obj_id,
             )
 
