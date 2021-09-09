@@ -27,9 +27,4 @@ def plugin_root_path():
     """
     Returns the root path of the plugin
     """
-    return os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            os.pardir
-        )
-    )
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))

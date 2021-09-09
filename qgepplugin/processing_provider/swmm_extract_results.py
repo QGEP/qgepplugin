@@ -19,6 +19,7 @@
  ***************************************************************************/
 """
 
+from PyQt5.QtCore import QVariant
 from qgis.core import (
     QgsFeature,
     QgsFeatureSink,
@@ -27,38 +28,35 @@ from qgis.core import (
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
+    QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFile,
-    QgsProcessingParameterFeatureSink
 )
 
 from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
-from PyQt5.QtCore import QVariant
-
-__author__ = 'Timothée Produit'
-__date__ = '2019-08-01'
-__copyright__ = '(C) 2019 by IG-Group.ch'
+__author__ = "Timothée Produit"
+__date__ = "2019-08-01"
+__copyright__ = "(C) 2019 by IG-Group.ch"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 class SwmmExtractResultsAlgorithm(QgepAlgorithm):
-    """
-    """
+    """"""
 
-    RPT_FILE = 'RPT_FILE'
-    NODE_SUMMARY = 'NODE_SUMMARY'
-    LINK_SUMMARY = 'LINK_SUMMARY'
-    XSECTION_SUMMARY = 'XSECTION_SUMMARY'
+    RPT_FILE = "RPT_FILE"
+    NODE_SUMMARY = "NODE_SUMMARY"
+    LINK_SUMMARY = "LINK_SUMMARY"
+    XSECTION_SUMMARY = "XSECTION_SUMMARY"
 
     def name(self):
-        return 'swmm_extract_results'
+        return "swmm_extract_results"
 
     def displayName(self):
-        return self.tr('SWMM Extract Results')
+        return self.tr("SWMM Extract Results")
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
@@ -66,11 +64,12 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr('RPT File')
-        self.addParameter(QgsProcessingParameterFile(self.RPT_FILE, description=description))
+        description = self.tr('INP File')
+        self.addParameter(QgsProcessingParameterFile(self.INP_FILE, description=description, extension="inp"))
 
-        self.addParameter(QgsProcessingParameterFeatureSink(self.NODE_SUMMARY, self.tr('Node summary')))
-        self.addParameter(QgsProcessingParameterFeatureSink(self.LINK_SUMMARY, self.tr('Link summary')))
+        description = self.tr('RPT File')
+        self.addParameter(QgsProcessingParameterFileDestination(
+            self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"))
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback):
         """Here is where the processing itself takes place."""
@@ -83,17 +82,21 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         # create feature sink for node summary
         fields = QgsFields()
 
-        fields.append(QgsField('id', QVariant.String))
-        fields.append(QgsField('type', QVariant.String))
-        fields.append(QgsField('average_depth', QVariant.Double))
-        fields.append(QgsField('maximum_depth', QVariant.Double))
-        fields.append(QgsField('maximum_hgl', QVariant.Double))
-        fields.append(QgsField('time_max_day', QVariant.Int))
-        fields.append(QgsField('time_max_time', QVariant.Double))
-        fields.append(QgsField('reported_max_depth', QVariant.Double))
-        (sink_node, dest_id) = self.parameterAsSink(parameters, self.NODE_SUMMARY, context, fields)
+        fields.append(QgsField("id", QVariant.String))
+        fields.append(QgsField("type", QVariant.String))
+        fields.append(QgsField("average_depth", QVariant.Double))
+        fields.append(QgsField("maximum_depth", QVariant.Double))
+        fields.append(QgsField("maximum_hgl", QVariant.Double))
+        fields.append(QgsField("time_max_day", QVariant.Int))
+        fields.append(QgsField("time_max_time", QVariant.Double))
+        fields.append(QgsField("reported_max_depth", QVariant.Double))
+        (sink_node, dest_id) = self.parameterAsSink(
+            parameters, self.NODE_SUMMARY, context, fields
+        )
         if sink_node is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.NODE_SUMMARY))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.NODE_SUMMARY)
+            )
 
         # Get node summary from output file
         qs = QgepSwmm(None, None, None, None, None, rpt_file, None, feedback)
@@ -112,17 +115,21 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
 
         # create feature sink for link summary
         fields = QgsFields()
-        fields.append(QgsField('id', QVariant.String))
-        fields.append(QgsField('type', QVariant.String))
-        fields.append(QgsField('maximum_flow', QVariant.Double))
-        fields.append(QgsField('time_max_day', QVariant.Int))
-        fields.append(QgsField('time_max_time', QVariant.String))
-        fields.append(QgsField('maximum_velocity', QVariant.Double))
-        fields.append(QgsField('max_over_full_flow', QVariant.Double))
-        fields.append(QgsField('max_over_full_depth', QVariant.Double))
-        (sink_link, dest_id) = self.parameterAsSink(parameters, self.LINK_SUMMARY, context, fields)
+        fields.append(QgsField("id", QVariant.String))
+        fields.append(QgsField("type", QVariant.String))
+        fields.append(QgsField("maximum_flow", QVariant.Double))
+        fields.append(QgsField("time_max_day", QVariant.Int))
+        fields.append(QgsField("time_max_time", QVariant.String))
+        fields.append(QgsField("maximum_velocity", QVariant.Double))
+        fields.append(QgsField("max_over_full_flow", QVariant.Double))
+        fields.append(QgsField("max_over_full_depth", QVariant.Double))
+        (sink_link, dest_id) = self.parameterAsSink(
+            parameters, self.LINK_SUMMARY, context, fields
+        )
         if sink_link is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.LINK_SUMMARY))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.LINK_SUMMARY)
+            )
 
         # Get link summary from output file
         link_summary = qs.extract_link_flow_summary()

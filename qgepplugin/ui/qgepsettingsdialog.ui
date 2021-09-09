@@ -171,11 +171,21 @@
           <string>Enables developer tools on the profile widget. Reload and Inspect options are shown. The dock needs to be reopened.</string>
          </property>
          <property name="text">
-          <string>Developer mode</string>
+          <string>Developer mode (restart required)</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="mCbAdminMode">
+         <property name="toolTip">
+          <string>Enables the datamodel tool. The plugin needs to be reloaded.</string>
+         </property>
+         <property name="text">
+          <string>Admin mode (restart required)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
         <widget class="QGroupBox" name="mGbLayout">
          <property name="title">
           <string>Layout</string>
@@ -212,7 +222,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Logging</string>

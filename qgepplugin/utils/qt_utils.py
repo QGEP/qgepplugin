@@ -21,8 +21,7 @@
 from PyQt5.QtWidgets import QApplication
 
 
-class OverrideCursor():
-
+class OverrideCursor:
     def __init__(self, cursor):
         self.cursor = cursor
 
