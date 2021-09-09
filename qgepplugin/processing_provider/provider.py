@@ -34,7 +34,6 @@ from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_import_results import SwmmImportResultsAlgorithm
 
-
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"
 __copyright__ = "(C) 2017 by OPENGIS.ch"
