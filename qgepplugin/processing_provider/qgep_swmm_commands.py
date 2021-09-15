@@ -1,4 +1,4 @@
-# This template file can be used to run the qgep-swmm functionalities 
+# This template file can be used to run the qgep-swmm functionalities
 # outside from QGIS
 
 from QgepSwmm import QgepSwmm
@@ -7,7 +7,7 @@ from QgepSwmm import QgepSwmm
 TITLE = "titre"
 # Name of the service used to connect to the database
 PGSERVICE = "pg_qgep"
-#State of the simulation [current, planned]
+# State of the simulation [current, planned]
 STATE = "current"
 # Path of the input INP file
 INPUT = "C:/temp/input.inp"
@@ -28,7 +28,7 @@ with QgepSwmm(
     SWMM,
     None,
 ) as qs:
-    #Commands examples
+    # Commands examples
     # Run SWMM
     qs.execute_swmm()
     # Import summary
