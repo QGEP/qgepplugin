@@ -12,9 +12,9 @@ STATE = "current"
 # Path of the input INP file
 INPUT = "C:/temp/input.inp"
 # Path of the input template INP file
-TEMPLATEINP = "C:/temp/gruner/out/swmm_template.inp"
+TEMPLATEINP = "C:/temp/swmm_template.inp"
 # Path of the output report file
-REPORT = "C:/temp/gruner/out/summary.rpt"
+REPORT = "C:/temp/summary.rpt"
 # Path of SWMM executable
 SWMM = "C:/Program Files (x86)/EPA SWMM 5.1.013/swmm5.exe"
 
