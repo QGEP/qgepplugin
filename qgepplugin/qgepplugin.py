@@ -49,7 +49,7 @@ from .tools.qgepmaptools import (
 )
 from .tools.qgepnetwork import QgepGraphManager
 from .utils.plugin_utils import plugin_root_path
-from .utils.qgeplayermanager import QgepLayerNotifier
+from .utils.qgeplayermanager import QgepLayerManager, QgepLayerNotifier
 from .utils.qgeplogging import QgepQgsLogHandler
 from .utils.translation import setup_i18n
 
@@ -485,7 +485,18 @@ class QgepPlugin(object):
             )
             self.logger.error(str(e))
             return
-        action_export(self, "pg_qgep")
+
+        # Retrieve the pg_service
+        pg_layer = QgepLayerManager.layer("vw_qgep_wastewater_structure")
+        if not pg_layer or not pg_layer.dataProvider().uri().service():
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not determine the current pg_service from the loaded QGEP layers.",
+                level=Qgis.Critical,
+            )
+            return
+
+        action_export(self, pg_layer.dataProvider().uri().service())
 
     def actionImportClicked(self):
         # We only import now to avoid useless exception if dependencies aren't met
@@ -499,4 +510,15 @@ class QgepPlugin(object):
             )
             self.logger.error(str(e))
             return
-        action_import(self, "pg_qgep")
+
+        # Retrieve the pg_service
+        pg_layer = QgepLayerManager.layer("vw_qgep_wastewater_structure")
+        if not pg_layer or not pg_layer.dataProvider().uri().service():
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not determine the current pg_service from the loaded QGEP layers.",
+                level=Qgis.Critical,
+            )
+            return
+
+        action_import(self, pg_layer.dataProvider().uri().service())
