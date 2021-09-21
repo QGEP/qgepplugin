@@ -28,8 +28,8 @@ from qgis.core import (
     QgsProcessingContext,
     QgsProcessingException,
     QgsProcessingFeedback,
-    QgsProcessingParameterFile,
     QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFile,
 )
 
 from .qgep_algorithm import QgepAlgorithm
