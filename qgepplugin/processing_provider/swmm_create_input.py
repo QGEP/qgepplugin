@@ -66,7 +66,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         description = self.tr("Database")
         self.addParameter(
             QgsProcessingParameterString(
-                self.DATABASE, description=description, defaultValue="pg_qgep_demo_data"
+                self.DATABASE, description=description, defaultValue="pg_qgep"
             )
         )
 

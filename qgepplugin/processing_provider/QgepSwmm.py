@@ -178,13 +178,15 @@ class QgepSwmm:
         # Connects to service and get data and attributes from tableName
         cur = self.con.cursor()
         if (state == "planned" and ws is True) or (state is None):
-            sql = "select * from qgep_swmm.vw_{table_name}".format(
+            sql = """
+            select * from qgep_swmm.vw_{table_name}
+            """.format(
                 table_name=table_name
             )
         else:
             sql = """
             select * from qgep_swmm.vw_{table_name}
-            where state = "{state}"
+            where state = '{state}'
             """.format(
                 table_name=table_name, state=state
             )
@@ -407,7 +409,7 @@ class QgepSwmm:
             f.write(self.copy_parameters_from_template("LABELS"))
             self.feedback_set_progress(96)
             f.write(self.swmm_table("TAGS"))
-
+        f.close()
         return
 
     def extract_time_series_indexes(self):
@@ -452,7 +454,7 @@ class QgepSwmm:
                 line_after_title += 1
 
             line = o.readline()
-
+        o.close()
         return data_indexes
 
     def extract_summary_lines(self, table_title):
@@ -492,6 +494,7 @@ class QgepSwmm:
 
             no_line += 1
             line = o.readline()
+        o.close()
 
         return lines
 
@@ -560,7 +563,7 @@ class QgepSwmm:
         """
 
         command = [self.bin_file, self.input_file, self.rpt_file]
-        self.feedback_push_info("command: " + command)
+        self.feedback_push_info("command: " + " ".join(map(str, command)))
         proc = subprocess.run(
             command,
             shell=True,
@@ -581,6 +584,7 @@ class QgepSwmm:
             if line.find(parameter) != -1:
                 value = line.split(".")[-1].strip()
             line = o.readline()
+        o.close()
         return value
 
     def convert_to_datetime(self, str_date):
@@ -686,6 +690,7 @@ class QgepSwmm:
                         data["capacity"] = values[5]
                     datas.append(data)
             line = o.readline()
+        o.close()
         return datas
 
     def import_summary(self, sim_description):
@@ -797,8 +802,8 @@ class QgepSwmm:
         SELECT mp.obj_id
         FROM qgep_od.measuring_point mp
         JOIN qgep_od.wastewater_structure ws on mp.fk_wastewater_structure = ws.obj_id
-        WHERE ws.fk_main_wastewater_node = "{node_obj_id}"
-        AND mp.remark = "{sim_description}"
+        WHERE ws.fk_main_wastewater_node = '{node_obj_id}'
+        AND mp.remark = '{sim_description}'
         """.format(
             sim_description=sim_description, node_obj_id=node_obj_id
         )
@@ -812,10 +817,10 @@ class QgepSwmm:
             INSERT INTO qgep_od.measuring_point
             (damming_device, identifier, kind,
             purpose, remark, fk_wastewater_structure)
-            SELECT 5721, NULL, "{MEASURING_POINT_KIND}", 4594,
-            "{sim_description}", ws.obj_id
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594,
+            '{sim_description}', ws.obj_id
             FROM qgep_od.wastewater_structure ws
-            WHERE fk_main_wastewater_node = "{node_obj_id}"
+            WHERE fk_main_wastewater_node = '{node_obj_id}'
             RETURNING obj_id
             """.format(
                 MEASURING_POINT_KIND=MEASURING_POINT_KIND,
@@ -861,8 +866,8 @@ class QgepSwmm:
         FROM qgep_od.measuring_point mp
         JOIN qgep_od.wastewater_networkelement ne ON
         ne.fk_wastewater_structure = mp.fk_wastewater_structure
-        WHERE ne.obj_id = "{reach_obj_id}"
-        AND mp.remark = "{sim_description}"
+        WHERE ne.obj_id = '{reach_obj_id}'
+        AND mp.remark = '{sim_description}'
         """.format(
             sim_description=sim_description, reach_obj_id=reach_obj_id
         )
@@ -876,10 +881,10 @@ class QgepSwmm:
             INSERT INTO qgep_od.measuring_point
             (damming_device, identifier, kind, purpose, remark,
             fk_wastewater_structure)
-            SELECT 5721, NULL, "{MEASURING_POINT_KIND}", 4594,
-            "{sim_description}", ne.fk_wastewater_structure
+            SELECT 5721, NULL, '{MEASURING_POINT_KIND}', 4594,
+            '{sim_description}', ne.fk_wastewater_structure
             FROM qgep_od.wastewater_networkelement ne
-            WHERE ne.obj_id = "{reach_obj_id}"
+            WHERE ne.obj_id = '{reach_obj_id}'
             RETURNING obj_id
             """.format(
                 MEASURING_POINT_KIND=MEASURING_POINT_KIND,
@@ -918,8 +923,8 @@ class QgepSwmm:
         sql = """
         SELECT md.obj_id
         FROM qgep_od.measuring_device md
-        WHERE md.fk_measuring_point = "{mp_obj_id}"
-        AND remark = "{MEASURING_DEVICE_REMARK}"
+        WHERE md.fk_measuring_point = '{mp_obj_id}'
+        AND remark = '{MEASURING_DEVICE_REMARK}'
         """.format(
             MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id
         )
@@ -932,7 +937,7 @@ class QgepSwmm:
             INSERT INTO qgep_od.measuring_device
             (kind, remark, fk_measuring_point)
             VALUES
-            (5702, "{MEASURING_DEVICE_REMARK}","{mp_obj_id}")
+            (5702, '{MEASURING_DEVICE_REMARK}','{mp_obj_id}')
             RETURNING obj_id
             """.format(
                 MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id
@@ -974,8 +979,8 @@ class QgepSwmm:
         # Test if the measurement serie exists
         sql = """
         SELECT obj_id FROM qgep_od.measurement_series
-        WHERE remark = "{parameter_name}"
-        AND fk_measuring_point = "{mp_obj_id}"
+        WHERE remark = '{parameter_name}'
+        AND fk_measuring_point = '{mp_obj_id}'
         """.format(
             parameter_name=parameter_name, mp_obj_id=mp_obj_id
         )
@@ -991,8 +996,8 @@ class QgepSwmm:
             INSERT INTO qgep_od.measurement_series
             (identifier, dimension, kind, remark, fk_measuring_point)
             VALUES
-            (null, "{parameter_dimension}", 3217,
-            "{parameter_name}", "{mp_obj_id}")
+            (null, '{parameter_dimension}', 3217,
+            '{parameter_name}', '{mp_obj_id}')
             RETURNING obj_id
             """.format(
                 parameter_dimension=parameter_dimension,
@@ -1037,8 +1042,8 @@ class QgepSwmm:
         # Test if the measurement result exists (same measurement serie, same time, same type)
         sql = """
         SELECT obj_id FROM qgep_od.measurement_result
-        WHERE fk_measurement_series = "{ms_obj_id}"
-        AND time = "{time}"
+        WHERE fk_measurement_series = '{ms_obj_id}'
+        AND time = '{time}'
         AND measurement_type = {measurement_type}
         """.format(
             ms_obj_id=ms_obj_id, time=time, measurement_type=measurement_type
@@ -1054,7 +1059,7 @@ class QgepSwmm:
             (identifier, measurement_type, measuring_duration,
             time, value, fk_measurement_series)
             VALUES
-            (null, {measurement_type}, {measuring_duration}, "{time}", {value}, "{ms_obj_id}")
+            (null, {measurement_type}, {measuring_duration}, '{time}', {value}, '{ms_obj_id}')
             RETURNING obj_id
             """.format(
                 measurement_type=measurement_type,
@@ -1077,7 +1082,7 @@ class QgepSwmm:
             sql = """
             UPDATE qgep_od.measurement_result
             SET measuring_duration={measuring_duration}, value={value}
-            WHERE obj_id = "{mr_obj_id}"
+            WHERE obj_id = '{mr_obj_id}'
             RETURNING obj_id
             """.format(
                 measuring_duration=measuring_duration, value=value, mr_obj_id=mr_obj_id

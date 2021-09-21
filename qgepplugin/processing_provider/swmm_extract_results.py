@@ -29,6 +29,7 @@ from qgis.core import (
     QgsProcessingException,
     QgsProcessingFeedback,
     QgsProcessingParameterFile,
+    QgsProcessingParameterFeatureSink,
 )
 
 from .qgep_algorithm import QgepAlgorithm
@@ -63,17 +64,22 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr("INP File")
+        description = self.tr("RPT File")
         self.addParameter(
             QgsProcessingParameterFile(
-                self.INP_FILE, description=description, extension="inp"
+                self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
             )
         )
 
-        description = self.tr("RPT File")
         self.addParameter(
-            QgsProcessingParameterFileDestination(
-                self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
+            QgsProcessingParameterFeatureSink(
+                self.NODE_SUMMARY, self.tr("Node summary")
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                self.LINK_SUMMARY, self.tr("Link summary")
             )
         )
 
@@ -96,7 +102,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         fields.append(QgsField("maximum_depth", QVariant.Double))
         fields.append(QgsField("maximum_hgl", QVariant.Double))
         fields.append(QgsField("time_max_day", QVariant.Int))
-        fields.append(QgsField("time_max_time", QVariant.Double))
+        fields.append(QgsField("time_max_time", QVariant.String))
         fields.append(QgsField("reported_max_depth", QVariant.Double))
         (sink_node, dest_id) = self.parameterAsSink(
             parameters, self.NODE_SUMMARY, context, fields
