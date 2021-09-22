@@ -29,6 +29,9 @@ with QgepSwmm(
     None,
 ) as qs:
     # Commands examples
+
+    # Export INP file
+    qs.write_input()
     # Run SWMM
     qs.execute_swmm()
     # Import summary
