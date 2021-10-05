@@ -47,7 +47,7 @@ __revision__ = "$Format:%H$"
 class SwmmExtractResultsAlgorithm(QgepAlgorithm):
     """"""
 
-    OUT_FILE = "OUT_FILE"
+    RPT_FILE = "RPT_FILE"
     NODE_SUMMARY = "NODE_SUMMARY"
     LINK_SUMMARY = "LINK_SUMMARY"
     XSECTION_SUMMARY = "XSECTION_SUMMARY"
@@ -64,9 +64,11 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         """
 
         # The parameters
-        description = self.tr("OUT File")
+        description = self.tr("RPT File")
         self.addParameter(
-            QgsProcessingParameterFile(self.OUT_FILE, description=description)
+            QgsProcessingParameterFile(
+                self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
+            )
         )
 
         self.addParameter(
@@ -74,6 +76,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
                 self.NODE_SUMMARY, self.tr("Node summary")
             )
         )
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.LINK_SUMMARY, self.tr("Link summary")
@@ -85,10 +88,10 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
     ):
         """Here is where the processing itself takes place."""
 
-        feedback.setProgress(0)
+        feedback.setProgress(1)
 
         # init params
-        out_file = self.parameterAsFileOutput(parameters, self.OUT_FILE, context)
+        rpt_file = self.parameterAsFileOutput(parameters, self.RPT_FILE, context)
 
         # create feature sink for node summary
         fields = QgsFields()
@@ -99,7 +102,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
         fields.append(QgsField("maximum_depth", QVariant.Double))
         fields.append(QgsField("maximum_hgl", QVariant.Double))
         fields.append(QgsField("time_max_day", QVariant.Int))
-        fields.append(QgsField("time_max_time", QVariant.Double))
+        fields.append(QgsField("time_max_time", QVariant.String))
         fields.append(QgsField("reported_max_depth", QVariant.Double))
         (sink_node, dest_id) = self.parameterAsSink(
             parameters, self.NODE_SUMMARY, context, fields
@@ -110,10 +113,7 @@ class SwmmExtractResultsAlgorithm(QgepAlgorithm):
             )
 
         # Get node summary from output file
-        qs = QgepSwmm(None, None, None, None, None, out_file, None, None)
-        if qs.feedbacks is not None:
-            for i in range(len(qs.feedbacks)):
-                feedback.reportError(qs.feedbacks[i])
+        qs = QgepSwmm(None, None, None, None, None, rpt_file, None, feedback)
         node_summary = qs.extract_node_depth_summary()
 
         # Fill node summary with data

@@ -47,8 +47,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
     """"""
 
     INP_FILE = "INP_FILE"
-    OUT_FILE = "OUT_FILE"
-    # LOG_FILE = 'LOG_FILE'
+    RPT_FILE = "RPT_FILE"
 
     def name(self):
         return "swmm_execute"
@@ -69,16 +68,12 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             )
         )
 
-        description = self.tr("OUT File")
+        description = self.tr("RPT File")
         self.addParameter(
             QgsProcessingParameterFileDestination(
-                self.OUT_FILE, description=description, fileFilter="out (*.out)"
+                self.RPT_FILE, description=description, fileFilter="rpt (*.rpt)"
             )
         )
-
-        # description = self.tr('LOG File')
-        # self.addParameter(QgsProcessingParameterFileDestination(
-        #     self.LOG_FILE, description=description, fileFilter="log (*.log)"))
 
     def processAlgorithm(
         self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback
@@ -86,7 +81,7 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         """Here is where the processing itself takes place."""
 
         # init params
-        output_file = self.parameterAsFile(parameters, self.OUT_FILE, context)
+        rpt_file = self.parameterAsFile(parameters, self.RPT_FILE, context)
         inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
         swmm_cli = os.path.abspath(ProcessingConfig.getSetting("SWMM_PATH"))
         if not swmm_cli:
@@ -100,11 +95,10 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
                 )
             )
 
-        qs = QgepSwmm(None, None, None, inp_file, None, output_file, swmm_cli, None)
-        prompt = qs.execute_swmm()
-        if qs.feedbacks is not None:
-            for i in range(len(qs.feedbacks)):
-                feedback.reportError(qs.feedbacks[i])
+        with QgepSwmm(
+            None, None, None, inp_file, None, rpt_file, swmm_cli, feedback
+        ) as qs:
+            prompt = qs.execute_swmm()
 
         feedback.pushInfo(prompt)
 

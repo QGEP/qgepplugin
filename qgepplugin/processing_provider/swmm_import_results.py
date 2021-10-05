@@ -19,15 +19,11 @@
  ***************************************************************************/
 """
 
-
-import datetime
-
 from qgis.core import (
     QgsProcessingContext,
     QgsProcessingFeedback,
-    QgsProcessingParameterEnum,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterFile,
-    QgsProcessingParameterFileDestination,
     QgsProcessingParameterString,
 )
 
@@ -35,34 +31,39 @@ from .qgep_algorithm import QgepAlgorithm
 from .QgepSwmm import QgepSwmm
 
 __author__ = "Timothée Produit"
-__date__ = "2019-08-01"
-__copyright__ = "(C) 2019 by IG-Group.ch"
+__date__ = "2021-04-30"
+__copyright__ = "(C) 2021 by map.ig-group.ch"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
 __revision__ = "$Format:%H$"
 
 
-class SwmmCreateInputAlgorithm(QgepAlgorithm):
+class SwmmImportResultsAlgorithm(QgepAlgorithm):
     """"""
 
+    RPT_FILE = "RPT_FILE"
     DATABASE = "DATABASE"
-    TEMPLATE_INP_FILE = "TEMPLATE_INP_FILE"
-    INP_FILE = "INP_FILE"
-    STATE = "STATE"
+    SIM_DESCRIPTION = "SIM_DESCRIPTION"
+    IMPORT_FULL_RESULTS = "IMPORT_FULL_RESULTS"
 
     def name(self):
-        return "swmm_create_input"
+        return "swmm_import_results"
 
     def displayName(self):
-        return self.tr("SWMM Create Input")
+        return self.tr("SWMM Import Results")
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
         """
-        self.stateOptions = ["current", "planned"]
+
         # The parameters
+        description = self.tr("SWMM report file (.rpt)")
+        self.addParameter(
+            QgsProcessingParameterFile(self.RPT_FILE, description=description)
+        )
+
         description = self.tr("Database")
         self.addParameter(
             QgsProcessingParameterString(
@@ -70,27 +71,19 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             )
         )
 
-        description = self.tr("State (current or planned)")
+        description = self.tr("Simulation name")
         self.addParameter(
-            QgsProcessingParameterEnum(
-                self.STATE,
+            QgsProcessingParameterString(
+                self.SIM_DESCRIPTION,
                 description=description,
-                options=self.stateOptions,
-                defaultValue=self.stateOptions[0],
+                defaultValue="SWMM simulation, rain T100, current",
             )
         )
 
-        description = self.tr("Template INP File")
+        description = self.tr("Import full results in addition to summary")
         self.addParameter(
-            QgsProcessingParameterFile(
-                self.TEMPLATE_INP_FILE, description=description, extension="inp"
-            )
-        )
-
-        description = self.tr("Destination INP File")
-        self.addParameter(
-            QgsProcessingParameterFileDestination(
-                self.INP_FILE, description=description, fileFilter="inp (*.inp)"
+            QgsProcessingParameterBoolean(
+                self.IMPORT_FULL_RESULTS, description=description, defaultValue=False
             )
         )
 
@@ -99,33 +92,27 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
     ):
         """Here is where the processing itself takes place."""
 
-        feedback.setProgress(0)
+        feedback.pushInfo("The import started, it can take a few minutes.")
+        feedback.setProgress(1)
 
         # init params
+        rpt_file = self.parameterAsFileOutput(parameters, self.RPT_FILE, context)
         database = self.parameterAsString(parameters, self.DATABASE, context)
-        state = self.parameterAsString(parameters, self.STATE, context)
-        template_inp_file = self.parameterAsFile(
-            parameters, self.TEMPLATE_INP_FILE, context
+        sim_description = self.parameterAsString(
+            parameters, self.SIM_DESCRIPTION, context
         )
-        inp_file = self.parameterAsFileOutput(parameters, self.INP_FILE, context)
-        state = self.stateOptions[int(state)]
-        if state not in ["current", "planned"]:
-            feedback.reportError(
-                'State must be "planned" or "current", state was set to "current"'
-            )
-            state = "current"
-        # Connect to QGEP database and perform translation
+        import_full_result = self.parameterAsBoolean(
+            parameters, self.IMPORT_FULL_RESULTS, context
+        )
+
+        # Get node summary from output file
         with QgepSwmm(
-            datetime.datetime.today().isoformat(),
-            database,
-            state,
-            inp_file,
-            template_inp_file,
-            None,
-            None,
-            feedback,
+            sim_description, database, None, None, None, rpt_file, None, feedback
         ) as qs:
-            qs.write_input()
+            qs.import_summary(sim_description)
+            if import_full_result:
+                qs.import_full_results(sim_description)
+
         feedback.setProgress(100)
 
-        return {self.INP_FILE: inp_file}
+        return {}

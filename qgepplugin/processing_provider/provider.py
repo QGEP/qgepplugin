@@ -32,6 +32,7 @@ from .sum_up_upstream import SumUpUpstreamAlgorithm
 from .swmm_create_input import SwmmCreateInputAlgorithm
 from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
+from .swmm_import_results import SwmmImportResultsAlgorithm
 
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"
@@ -57,6 +58,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SumUpUpstreamAlgorithm(),
             SwmmCreateInputAlgorithm(),
             SwmmExtractResultsAlgorithm(),
+            SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
         ]
         for alg in self.alglist:
@@ -70,6 +72,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             ChangeReachDirection(),
             SwmmCreateInputAlgorithm(),
             SwmmExtractResultsAlgorithm(),
+            SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
         ]
         return algs

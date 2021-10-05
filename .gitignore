@@ -8,3 +8,5 @@ __pycache__
 .project
 .settings
 .idea
+.vscode
+env
