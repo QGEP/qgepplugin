@@ -823,7 +823,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
-            return self._run_cmd(
+            self._run_cmd(
                 f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
                 error_message="Errors when upgrading the database.",
