@@ -56,7 +56,7 @@ LATEST_RELEASE = "1.5.6-1"
 AVAILABLE_RELEASES = {
     LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
 }
-if QSettings().value("/QGEP/DeveloperMode", False):
+if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
         {
             "master": "https://github.com/QGEP/datamodel/archive/master.zip",
