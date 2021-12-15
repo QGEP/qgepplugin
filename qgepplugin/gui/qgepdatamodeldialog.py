@@ -56,7 +56,7 @@ LATEST_RELEASE = "1.5.6-1"
 AVAILABLE_RELEASES = {
     LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
 }
-if QSettings().value("/QGEP/DeveloperMode", False):
+if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
         {
             "master": "https://github.com/QGEP/datamodel/archive/master.zip",
@@ -823,7 +823,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
             self._show_progress("Running pum upgrade")
             deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
-            return self._run_cmd(
+            self._run_cmd(
                 f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
                 error_message="Errors when upgrading the database.",
