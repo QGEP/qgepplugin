@@ -69,13 +69,13 @@ class QgepSettingsDialog(QDialog, DIALOG_UI):
         self.initLayerCombobox(self.mCbGraphNodes, lyr_graph_nodes)
 
         self.mCurrentProfileColorButton.setColor(
-            QColor(self.settings.value("/QGEP/CurrentProfileColor", u"#FF9500"))
+            QColor(self.settings.value("/QGEP/CurrentProfileColor", "#FF9500"))
         )
         self.mHelperLineColorButton.setColor(
-            QColor(self.settings.value("/QGEP/HelperLineColor", u"#FFD900"))
+            QColor(self.settings.value("/QGEP/HelperLineColor", "#FFD900"))
         )
         self.mHighlightColorButton.setColor(
-            QColor(self.settings.value("/QGEP/HighlightColor", u"#40FF40"))
+            QColor(self.settings.value("/QGEP/HighlightColor", "#40FF40"))
         )
 
         self.mPbnChooseProfileTemplateFile.clicked.connect(

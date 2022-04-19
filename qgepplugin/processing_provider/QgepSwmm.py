@@ -231,7 +231,7 @@ class QgepSwmm:
                     fields += field + "\t"
 
             # Create input paragraph
-            tbl = u"[" + table_name + "]\n" ";;" + fields + "\n"
+            tbl = "[" + table_name + "]\n" ";;" + fields + "\n"
             for feature in data:
                 for i, v in enumerate(feature):
                     # Write description
