@@ -25,6 +25,9 @@ from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from PyQt5.QtGui import QIcon
 from qgis.core import QgsProcessingProvider
 
+from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
+    ExtractlabelsInterlisAlgorithm,
+)
 from .change_reach_direction import ChangeReachDirection
 from .flow_times import FlowTimesAlgorithm
 from .snap_reach import SnapReachAlgorithm
@@ -60,7 +63,9 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
+            ExtractlabelsInterlisAlgorithm(),
         ]
+
         for alg in self.alglist:
             alg.provider = self
 
@@ -74,6 +79,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
+            ExtractlabelsInterlisAlgorithm(),
         ]
         return algs
 
