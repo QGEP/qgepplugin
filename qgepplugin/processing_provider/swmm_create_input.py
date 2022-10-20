@@ -29,6 +29,8 @@ from qgis.core import (
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterString,
+    QgsProcessingParameterBoolean,
+    QgsProject
 )
 
 from .qgep_algorithm import QgepAlgorithm
@@ -50,12 +52,19 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
     TEMPLATE_INP_FILE = "TEMPLATE_INP_FILE"
     INP_FILE = "INP_FILE"
     STATE = "STATE"
+    ONLY_SELECTED = "ONLY_SELECTED"
 
     def name(self):
         return "swmm_create_input"
 
     def displayName(self):
         return self.tr("SWMM Create Input")
+
+    def shortHelpString(self):
+        return self.tr("If \"Export only selected network\" is not selected. This tool will export the entire PRIMARY network as an input file for SWMM.")
+
+    def helpUrl(self):
+        return "https://qgep.github.io/docs/qgep_swmm/Create-Input.html"
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
@@ -94,6 +103,13 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             )
         )
 
+        description = self.tr("Export only selected network (including the secondary network if selected)")
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.ONLY_SELECTED, description=description, defaultValue=False
+            )
+        )
+
     def processAlgorithm(
         self, parameters, context: QgsProcessingContext, feedback: QgsProcessingFeedback
     ):
@@ -114,6 +130,31 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
                 'State must be "planned" or "current", state was set to "current"'
             )
             state = "current"
+        only_selected = self.parameterAsBoolean(parameters, self.ONLY_SELECTED, context)
+
+        # Get selection
+        if only_selected:
+            structures_layers = QgsProject.instance().mapLayersByName("vw_qgep_wastewater_structure")
+            if structures_layers:
+                structures = structures_layers[0].selectedFeatures()
+                selected_structures = []
+                for struct in structures:
+                    selected_structures.append(str(struct["wn_obj_id"]))
+            else:
+                self.structures = []
+
+            reaches_layers = QgsProject.instance().mapLayersByName("vw_qgep_reach")
+            print (reaches_layers)
+            if reaches_layers:
+                reaches = reaches_layers[0].selectedFeatures()
+                selected_reaches = []
+                for reach in reaches:
+                    selected_reaches.append(str(reach["obj_id"]))
+                    #selected_reaches.append(str(reach["rp_from_fk_wastewater_networkelement"]))
+                    #selected_reaches.append(str(reach["rp_to_fk_wastewater_networkelement"]))
+        else:
+            selected_structures = None
+            selected_reaches = None
         # Connect to QGEP database and perform translation
         with QgepSwmm(
             datetime.datetime.today().isoformat(),
@@ -125,7 +166,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             None,
             feedback,
         ) as qs:
-            qs.write_input()
+            qs.write_input(selected_structures, selected_reaches)
         feedback.setProgress(100)
 
         return {self.INP_FILE: inp_file}
