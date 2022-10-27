@@ -5,21 +5,19 @@
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 48 48"
 	 style="enable-background:new 0 0 48 48;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#004489;}
-	.st1{fill:#DA2520;}
-	.st2{fill:none;}
-	.st3{fill:#231F20;}
+	.st0{fill:#264AA1;}
+	.st1{fill:#FFFFFF;}
+	.st2{fill:#004489;}
+	.st3{fill:#DA2520;}
+	.st4{fill:#231F20;}
 </style>
-<g>
-	<path class="st0" d="M9.9,20.8c-0.2-0.2-0.2-0.5,0-0.7L20.3,9.7c0.2-0.2,0.5-0.2,0.7,0l7,6.9c2.2-4.1,3.5-8.7,3.5-13.7
-		c0-1-0.1-1.9-0.2-2.8c0.1,0-31.5-0.2-31.3,0v31.2c1,0.1,1.9,0.2,2.9,0.2c5.1,0,9.9-1.3,14-3.7L9.9,20.8z"/>
-</g>
 <sodipodi:namedview  bordercolor="#666666" borderopacity="1.0" id="base" inkscape:current-layer="layer1" inkscape:cx="14.355561" inkscape:cy="14.075651" inkscape:document-units="px" inkscape:grid-bbox="true" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:window-height="1014" inkscape:window-maximized="1" inkscape:window-width="1920" inkscape:window-x="0" inkscape:window-y="27" inkscape:zoom="11.313709" pagecolor="#ffffff" showgrid="true">
 	</sodipodi:namedview>
-<path class="st1" d="M2.5,15.2c7,0,12.8-5.7,12.8-12.8c0-0.9-0.1-1.7-0.3-2.4H0v14.9C0.8,15.1,1.7,15.2,2.5,15.2z"/>
-<g>
-
-		<rect x="14" y="11.2" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -11.6654 28.5562)" class="st2" width="29.3" height="34.3"/>
-</g>
-<polygon class="st3" points="10.3,20.4 22.9,33 17.4,38.6 40.8,40.4 38.9,17 33.4,22.6 20.7,10 "/>
+<path id="path5095" inkscape:connector-curvature="0" class="st0" d="M37,15.9c-3.7,11.6-8.5,10.2-8.4,20.5c0,4.6,3.5,9.4,7.5,9.5
+	c5.6,0.2,9.4-5.7,9.4-9.2C45.6,29,40.8,27.6,37,15.9z"/>
+<path id="path3134" inkscape:connector-curvature="0" class="st1" d="M30.1,38.2c-1.3-5,1.2-7.7,3.5-10.3c0.6,4.2-4.4,6.8,0.4,13.4
+	S31,41.7,30.1,38.2z"/>
+<path class="st2" d="M0,10.5v11.1c11.9,0,21.6-9.7,21.6-21.6H10.5C10.5,5.8,5.8,10.5,0,10.5z"/>
+<path class="st3" d="M10.5,0H0v10.5C5.8,10.5,10.5,5.8,10.5,0z"/>
+<polygon class="st4" points="16.4,18.2 20.7,22.5 18.9,24.4 26.8,25.1 26.2,17.1 24.3,19 20,14.7 "/>
 </svg>
