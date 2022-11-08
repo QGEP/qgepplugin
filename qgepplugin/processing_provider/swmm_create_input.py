@@ -134,6 +134,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
 
         # Get selection
         if only_selected:
+            hierarchy = None
             structures_layers = QgsProject.instance().mapLayersByName("vw_qgep_wastewater_structure")
             if structures_layers:
                 structures = structures_layers[0].selectedFeatures()
@@ -144,7 +145,6 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
                 self.structures = []
 
             reaches_layers = QgsProject.instance().mapLayersByName("vw_qgep_reach")
-            print (reaches_layers)
             if reaches_layers:
                 reaches = reaches_layers[0].selectedFeatures()
                 selected_reaches = []
@@ -153,6 +153,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
                     #selected_reaches.append(str(reach["rp_from_fk_wastewater_networkelement"]))
                     #selected_reaches.append(str(reach["rp_to_fk_wastewater_networkelement"]))
         else:
+            hierarchy = 'primary'
             selected_structures = None
             selected_reaches = None
         # Connect to QGEP database and perform translation
@@ -166,7 +167,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             None,
             feedback,
         ) as qs:
-            qs.write_input(selected_structures, selected_reaches)
+            qs.write_input(hierarchy, selected_structures, selected_reaches)
         feedback.setProgress(100)
 
         return {self.INP_FILE: inp_file}
