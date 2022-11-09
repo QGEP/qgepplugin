@@ -241,7 +241,7 @@ class QgepSwmm:
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy"):
+                if field not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
                     fields += field + "\t"
 
             # Create input paragraph
@@ -256,7 +256,7 @@ class QgepSwmm:
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy"):
+                    if attributes[i] not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
                         if v is not None:
                             tbl += str(v) + "\t"
                         else:
@@ -314,6 +314,9 @@ class QgepSwmm:
         filename = self.input_file
         state = self.state
 
+        if selected_structures and selected_reaches:
+            selected_ws_re = selected_structures + selected_reaches
+
         with codecs.open(filename, "w", encoding="utf-8") as f:
 
             # Title / Notes
@@ -358,13 +361,13 @@ class QgepSwmm:
             # Hydraulics: nodes
             # ------------------
             self.feedback_set_progress(35)
-            f.write(self.swmm_table("JUNCTIONS", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("JUNCTIONS", hierarchy, state, selected_ws_re))
             self.feedback_set_progress(40)
             f.write(self.swmm_table("OUTFALLS", hierarchy, state, selected_structures))
             self.feedback_set_progress(45)
             f.write(self.swmm_table("STORAGES", hierarchy, state, selected_structures))
             self.feedback_set_progress(50)
-            f.write(self.swmm_table("COORDINATES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("COORDINATES", hierarchy, state, selected_ws_re))
             self.feedback_set_progress(55)
             f.write(self.swmm_table("DWF", hierarchy, state, selected_structures))
 
@@ -425,9 +428,7 @@ class QgepSwmm:
 
             # Tags
             # ----
-            if selected_structures and selected_reaches:
-                selected_structures = selected_structures + selected_reaches
-            f.write(self.swmm_table("TAGS", state, selected_structures))
+            f.write(self.swmm_table("TAGS", state, selected_ws_re))
         f.close()
         return
 

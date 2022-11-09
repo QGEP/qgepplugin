@@ -150,8 +150,6 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
                 selected_reaches = []
                 for reach in reaches:
                     selected_reaches.append(str(reach["obj_id"]))
-                    #selected_reaches.append(str(reach["rp_from_fk_wastewater_networkelement"]))
-                    #selected_reaches.append(str(reach["rp_to_fk_wastewater_networkelement"]))
         else:
             hierarchy = 'primary'
             selected_structures = None
