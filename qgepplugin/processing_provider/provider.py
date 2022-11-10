@@ -19,15 +19,15 @@
  ***************************************************************************/
 """
 
-import os
+import os, logging
 
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from PyQt5.QtGui import QIcon
-from qgis.core import QgsProcessingProvider
+from qgis.core import QgsProcessingProvider, Qgis
 
-from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
-    ExtractlabelsInterlisAlgorithm,
-)
+from qgis.utils import iface
+
+
 from .change_reach_direction import ChangeReachDirection
 from .flow_times import FlowTimesAlgorithm
 from .snap_reach import SnapReachAlgorithm
@@ -37,6 +37,7 @@ from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_import_results import SwmmImportResultsAlgorithm
 
+
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"
 __copyright__ = "(C) 2017 by OPENGIS.ch"
@@ -44,6 +45,8 @@ __copyright__ = "(C) 2017 by OPENGIS.ch"
 # This will get replaced with a git SHA1 when you do a git archive
 
 __revision__ = "$Format:%H$"
+
+logger = logging.getLogger(__package__)
 
 
 class QgepProcessingProvider(QgsProcessingProvider):
@@ -63,8 +66,15 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
-            ExtractlabelsInterlisAlgorithm(),
         ]
+        try:
+            from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
+                ExtractlabelsInterlisAlgorithm,
+            )
+            self.alglist.append(
+            ExtractlabelsInterlisAlgorithm())
+        except ImportError:
+            pass
 
         for alg in self.alglist:
             alg.provider = self
@@ -79,8 +89,21 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
-            ExtractlabelsInterlisAlgorithm(),
         ]
+        try:
+            from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
+                ExtractlabelsInterlisAlgorithm
+            )
+            algs.append(
+            ExtractlabelsInterlisAlgorithm())
+
+        except ImportError as e:
+            iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            logger.error(str(e))
         return algs
 
     def id(self):
