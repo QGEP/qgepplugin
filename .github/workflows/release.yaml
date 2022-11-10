@@ -1,4 +1,4 @@
-name: Continuous integration
+name: release
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt install qttools5-dev-tools qt5-default
-          sudo pip install qgis-plugin-ci==2.0.1
+          sudo pip install qgis-plugin-ci==2.5.2
       - name: Release
         run: |
           qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} --allow-uncommitted-changes
@@ -41,6 +41,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install dependencies
-        run: sudo pip install qgis-plugin-ci
+        run: sudo pip install qgis-plugin-ci==2.5.2
       - name: 🌍 Push translations
         run: qgis-plugin-ci push-translation ${{ secrets.TX_TOKEN }}
