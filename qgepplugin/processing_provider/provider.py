@@ -19,14 +19,13 @@
  ***************************************************************************/
 """
 
-import os, logging
+import logging
+import os
 
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from PyQt5.QtGui import QIcon
-from qgis.core import QgsProcessingProvider, Qgis
-
+from qgis.core import Qgis, QgsProcessingProvider
 from qgis.utils import iface
-
 
 from .change_reach_direction import ChangeReachDirection
 from .flow_times import FlowTimesAlgorithm
@@ -36,7 +35,6 @@ from .swmm_create_input import SwmmCreateInputAlgorithm
 from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_import_results import SwmmImportResultsAlgorithm
-
 
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"
@@ -71,8 +69,8 @@ class QgepProcessingProvider(QgsProcessingProvider):
             from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
                 ExtractlabelsInterlisAlgorithm,
             )
-            self.alglist.append(
-            ExtractlabelsInterlisAlgorithm())
+
+            self.alglist.append(ExtractlabelsInterlisAlgorithm())
         except ImportError:
             pass
 
@@ -92,10 +90,10 @@ class QgepProcessingProvider(QgsProcessingProvider):
         ]
         try:
             from ..qgepqwat2ili.qgepqwat2ili.processing_algs.extractlabels_interlis import (
-                ExtractlabelsInterlisAlgorithm
+                ExtractlabelsInterlisAlgorithm,
             )
-            algs.append(
-            ExtractlabelsInterlisAlgorithm())
+
+            algs.append(ExtractlabelsInterlisAlgorithm())
 
         except ImportError as e:
             iface.messageBar().pushMessage(
