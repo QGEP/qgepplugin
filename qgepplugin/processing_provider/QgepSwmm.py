@@ -1206,3 +1206,89 @@ class QgepSwmm:
             self.con.commit()
         del cur
         return mr_obj_id
+    
+    def drop_trigger(self):
+
+        cur = self.con.cursor()
+
+        # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
+        sql = """
+        DROP TRIGGER IF EXISTS calculate_reach_length ON qgep_od.reach;
+        DROP TRIGGER IF EXISTS on_reach_1_delete ON qgep_od.reach;
+        DROP TRIGGER IF EXISTS on_reach_2_change ON qgep_od.reach;
+        DROP TRIGGER IF EXISTS update_last_modified_reach ON qgep_od.reach;
+        DROP TRIGGER IF EXISTS ws_symbology_update_by_reach ON qgep_od.reach;
+        """
+        cur.execute(sql)
+        self.con.commit()
+        del cur
+        return
+    
+    def recreate_trigger(self):
+
+        cur = self.con.cursor()
+
+        # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
+        sql = """
+        CREATE TRIGGER calculate_reach_length
+        BEFORE INSERT OR UPDATE 
+        ON qgep_od.reach
+        FOR EACH ROW
+        EXECUTE FUNCTION qgep_od.calculate_reach_length();
+        CREATE TRIGGER on_reach_1_delete
+        AFTER DELETE
+        ON qgep_od.reach
+        FOR EACH ROW
+        EXECUTE FUNCTION qgep_od.on_reach_delete();
+        CREATE TRIGGER on_reach_2_change
+        AFTER INSERT OR DELETE OR UPDATE 
+        ON qgep_od.reach
+        FOR EACH ROW
+        EXECUTE FUNCTION qgep_od.on_reach_change();
+        CREATE TRIGGER update_last_modified_reach
+        BEFORE INSERT OR UPDATE 
+        ON qgep_od.reach
+        FOR EACH ROW
+        EXECUTE FUNCTION qgep_sys.update_last_modified_parent('qgep_od.wastewater_networkelement');
+        CREATE TRIGGER ws_symbology_update_by_reach
+        AFTER INSERT OR DELETE OR UPDATE 
+        ON qgep_od.reach
+        FOR EACH ROW
+        EXECUTE FUNCTION qgep_od.ws_symbology_update_by_reach();
+        """
+        cur.execute(sql)
+        self.con.commit()
+        del cur
+        return
+
+    def set_friction(self):
+
+        cur = self.con.cursor()
+
+        # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
+        sql = """
+        UPDATE qgep_od.reach r
+        SET default_coefficient_of_friction = f.coefficient_of_friction
+        FROM qgep_swmm.reach_coefficient_of_friction f
+        WHERE r.default_coefficient_of_friction isnull AND f.fk_material = r.material;
+        """
+        cur.execute(sql)
+        self.con.commit()
+        del cur
+        return
+
+    def overwrite_friction(self):
+
+        cur = self.con.cursor()
+
+        # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
+        sql = """
+        UPDATE qgep_od.reach r
+        SET default_coefficient_of_friction = f.coefficient_of_friction
+        FROM qgep_swmm.reach_coefficient_of_friction f
+        WHERE f.fk_material = r.material;
+        """
+        cur.execute(sql)
+        self.con.commit()
+        del cur
+        return
