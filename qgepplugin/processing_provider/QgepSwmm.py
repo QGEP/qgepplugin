@@ -227,7 +227,7 @@ class QgepSwmm:
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ("description", "tag", "geom", "state"):
+                if field not in ("description", "tag", "geom", "state", "message"):
                     fields += field + "\t"
 
             # Create input paragraph
@@ -242,7 +242,7 @@ class QgepSwmm:
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ("description", "tag", "geom", "state"):
+                    if attributes[i] not in ("description", "tag", "geom", "state", "message"):
                         if v is not None:
                             tbl += str(v) + "\t"
                         else:
@@ -356,26 +356,24 @@ class QgepSwmm:
             f.write(self.swmm_table("DWF", state))
 
             f.write(self.copy_parameters_from_template("INFLOWS"))
-            f.write(self.copy_parameters_from_template("DIVIDERS"))
+            f.write(self.swmm_table("DIVIDERS"))
 
             # Hydraulics: links
             # ------------------
             self.feedback_set_progress(60)
             f.write(self.swmm_table("CONDUITS", state, ws=True))
+            f.write(self.swmm_table("WEIRS"))
             self.feedback_set_progress(65)
+            f.write(self.swmm_table("XSECTIONS", state, ws=True))
             f.write(self.swmm_table("LOSSES", state, ws=True))
             self.feedback_set_progress(70)
             f.write(self.swmm_table("PUMPS", state, ws=True))
-            f.write(self.copy_parameters_from_template("ORIFICES"))
-            f.write(self.copy_parameters_from_template("WEIRS"))
-            f.write(self.copy_parameters_from_template("OUTLETS"))
             self.feedback_set_progress(75)
-            f.write(self.swmm_table("XSECTIONS", state, ws=True))
+            f.write(self.swmm_table("ORIFICES"))
             self.feedback_set_progress(80)
-            f.write(self.swmm_table("LOSSES", state, ws=True))
+            f.write(self.swmm_table("OUTLETS"))
             self.feedback_set_progress(85)
             f.write(self.swmm_table("VERTICES"))
-
             f.write(self.copy_parameters_from_template("TRANSECTS"))
             f.write(self.copy_parameters_from_template("CONTROLS"))
 
@@ -395,7 +393,7 @@ class QgepSwmm:
 
             # Curves
             # -------
-            f.write(self.copy_parameters_from_template("CURVES"))
+            f.write(self.swmm_table("CURVES"))
 
             # Time series
             # ------------
