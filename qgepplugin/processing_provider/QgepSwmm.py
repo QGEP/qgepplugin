@@ -341,6 +341,7 @@ class QgepSwmm:
             # ----------
             self.feedback_set_progress(5)
             f.write(self.swmm_table("RAINGAGES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("SYMBOLS", hierarchy, state, selected_structures))
             self.feedback_set_progress(10)
             f.write(self.swmm_table("SUBCATCHMENTS", hierarchy, state, selected_structures))
             self.feedback_set_progress(15)
@@ -372,7 +373,7 @@ class QgepSwmm:
             f.write(self.swmm_table("DWF", hierarchy, state, selected_structures))
 
             f.write(self.copy_parameters_from_template("INFLOWS"))
-            f.write(self.copy_parameters_from_template("DIVIDERS"))
+            f.write(self.swmm_table("DIVIDERS"))
 
             # Hydraulics: links
             # ------------------
@@ -382,16 +383,16 @@ class QgepSwmm:
             f.write(self.swmm_table("LOSSES", hierarchy, state, selected_structures))
             self.feedback_set_progress(70)
             f.write(self.swmm_table("PUMPS", hierarchy, state, selected_structures))
-            f.write(self.copy_parameters_from_template("ORIFICES"))
-            f.write(self.copy_parameters_from_template("WEIRS"))
+            f.write(self.swmm_table("ORIFICES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("WEIRS", hierarchy, state, selected_structures))
             f.write(self.copy_parameters_from_template("OUTLETS"))
             self.feedback_set_progress(75)
             f.write(self.swmm_table("XSECTIONS", hierarchy, state, selected_reaches))
             self.feedback_set_progress(80)
             f.write(self.swmm_table("LOSSES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("OUTLETS"))
             self.feedback_set_progress(85)
             f.write(self.swmm_table("VERTICES", hierarchy, state, selected_reaches))
-
             f.write(self.copy_parameters_from_template("TRANSECTS"))
             f.write(self.copy_parameters_from_template("CONTROLS"))
 
@@ -411,7 +412,7 @@ class QgepSwmm:
 
             # Curves
             # -------
-            f.write(self.copy_parameters_from_template("CURVES"))
+            f.write(self.swmm_table("CURVES"))
 
             # Time series
             # ------------
@@ -750,6 +751,53 @@ class QgepSwmm:
 
         return
 
+    def convert_max_over_full_flow(self, link_summary):
+        
+        """
+        Convert max_over_full_flow in percent
+
+        Parameters:
+        link_summary (array): data extracted from the summary
+
+        Returns:
+        link_summary (array)
+        """
+
+        for ws in link_summary:
+
+            ws['max_over_full_flow'] = float(ws['max_over_full_flow'])*100
+        
+        return link_summary
+
+
+    def import_backflow_level(self):
+
+        """
+        Import the backflow level from an SWMM report file
+        """
+        self.feedback_push_info("Import backflow level")
+        print ('1')
+        node_summary = self.extract_node_depth_summary()
+        print ('2')
+        self.populate_attribute(node_summary, 'wastewater_node', 'backflow_level','maximum_hgl')
+
+        return
+
+    def import_hydraulic_load(self):
+
+        """
+        Import the hydraulic load from an SWMM report file
+        """
+        self.feedback_push_info("Import hydraulic load")
+        print ('3')
+        link_summary = self.extract_link_flow_summary()
+        print ('4')
+        link_summary = self.convert_max_over_full_flow(link_summary)
+        print ('5')
+        self.populate_attribute(link_summary, 'reach', 'hydraulic_load','max_over_full_flow')
+
+        return
+
     def record_summary(
         self, data, simulation_start_date, sim_description, measuring_duration, obj_type
     ):
@@ -798,6 +846,52 @@ class QgepSwmm:
                                 time,
                                 ws[k],
                             )
+        return
+
+    def populate_attribute(self, data, table_name, attribute_name, swmm_attribute):
+
+        """
+        Update an attribute of a qgep_od table according to a swmm result
+
+        Parameters:
+        data (array): data extracted from the node summary
+        table_name (string): name of the destination table
+        attribute_name (string): name of the destination attribute
+        swmm_attribute (string): name of the swmm attribute (ie. maximum_hgl, max_over_full_flow)
+        """
+
+        ndata = len(data)
+        cur = self.con.cursor()
+        # Loop over each line of the node summary
+        counter = 0
+        for ws in data:
+            counter += 1
+            bf_level = ws[swmm_attribute]
+            obj_id = ws["id"]
+            sql = """
+            UPDATE qgep_od.{table_name}
+            SET {attribute_name} = {bf_level}
+            WHERE obj_id = '{obj_id}'
+            RETURNING obj_id;
+            """.format(
+                table_name=table_name,
+                attribute_name=attribute_name,
+                bf_level=bf_level,
+                obj_id=obj_id
+            )
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                return None, None
+            res = cur.fetchone()
+            if res is None:
+                self.feedback_push_info(
+                    """{obj_id} in the output file has no correspondance in qgep_od.{table_name}."""
+                    .format(obj_id=obj_id, table_name=table_name))
+            self.feedback_set_progress(counter / ndata)
+        self.con.commit()
+
         return
 
     def create_measuring_point_node(self, node_obj_id, sim_description):
