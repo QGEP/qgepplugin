@@ -33,6 +33,7 @@ from .swmm_create_input import SwmmCreateInputAlgorithm
 from .swmm_execute import SwmmExecuteAlgorithm
 from .swmm_extract_results import SwmmExtractResultsAlgorithm
 from .swmm_import_results import SwmmImportResultsAlgorithm
+from .swmm_set_friction import SwmmSetFrictionAlgorithm
 
 __author__ = "Matthias Kuhn"
 __date__ = "2017-11-18"
@@ -60,6 +61,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
+            SwmmSetFrictionAlgorithm(),
         ]
         for alg in self.alglist:
             alg.provider = self
@@ -74,6 +76,7 @@ class QgepProcessingProvider(QgsProcessingProvider):
             SwmmExtractResultsAlgorithm(),
             SwmmImportResultsAlgorithm(),
             SwmmExecuteAlgorithm(),
+            SwmmSetFrictionAlgorithm(),
         ]
         return algs
 
