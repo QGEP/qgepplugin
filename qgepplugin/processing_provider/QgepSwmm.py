@@ -234,14 +234,14 @@ class QgepSwmm:
         String: table content
 
         """
-
+        notPrintedFields = ["description", "tag", "geom", "state",  "ws_obj_id", "hierarchy", "message]
         # Create commented line which contains the field names
         fields = ""
         data, attributes = self.get_swmm_table(table_name, state, selected_structures, hierarchy)
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
+                if field not in notPrintedFields:
                     fields += field + "\t"
 
             # Create input paragraph
@@ -256,11 +256,16 @@ class QgepSwmm:
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
+                    if attributes[i] not in notPrintedFields:
                         if v is not None:
                             tbl += str(v) + "\t"
                         else:
                             tbl += "\t"
+                    if attributes[i] == "message" and v != '':
+                        self.feedback_push_info(
+                           #"{obj_id}: {message}".format(obj_id=feature[0], message=v)
+                           v
+                        )
                 tbl += "\n"
             tbl += "\n"
             return tbl
