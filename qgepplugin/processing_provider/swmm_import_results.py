@@ -25,6 +25,7 @@ from qgis.core import (
     QgsProcessingParameterBoolean,
     QgsProcessingParameterFile,
     QgsProcessingParameterString,
+    QgsProject
 )
 
 from .qgep_algorithm import QgepAlgorithm

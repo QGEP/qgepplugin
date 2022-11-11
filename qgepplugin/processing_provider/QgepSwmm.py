@@ -160,14 +160,14 @@ class QgepSwmm:
             self.feedback.setProgress(progress)
         return
 
-    def get_swmm_table(self, table_name, state, ws):
+    def get_swmm_table(self, table_name, state, selected_structures, hierarchy):
         """
         Extract data from the swmm views in the database
 
         Parameters:
         table_name (string): Name of the view or table
         state (string): current or planned
-        ws (boolean): if the origin table is a wastewater structure
+        selected_structures ([string]): List of obj_id of the selected structures
 
         Returns:
         dic: table content
@@ -177,21 +177,34 @@ class QgepSwmm:
 
         # Connects to service and get data and attributes from tableName
         cur = self.con.cursor()
-        if (state == "planned" and ws is True) or (state is None):
-            sql = """
-            select * from qgep_swmm.vw_{table_name}
-            """.format(
-                table_name=table_name
-            )
-        else:
-            sql = """
-            select * from qgep_swmm.vw_{table_name}
-            where state = '{state}'
-            """.format(
-                table_name=table_name, state=state
-            )
 
+        # Configure the filters
+        print ('selected structures', selected_structures)
+        where_clauses = []
+        if state == 'planned':
+            where_clauses.append('(state = \'planned\' OR state = \'current\')')
+        elif state == 'current':
+            where_clauses.append('state = \'current\'')
+        if selected_structures:
+            where_clauses.append("""
+                obj_id in ('{ids}')
+                """.format(ids='\',\''.join(selected_structures)))
+        if hierarchy:
+            where_clauses.append("""hierarchy = '{hierarchy}'""".format(hierarchy=hierarchy))
+            
+        
+        sql = """
+        select * from qgep_swmm.vw_{table_name}
+        """.format(
+            table_name=table_name
+        )
+        # Add the filters to the sql
+        if len(where_clauses) > 0:
+                sql = """
+                {sql} where {where_clauses}
+                """.format(sql=sql, where_clauses=' AND '.join(where_clauses))
         try:
+            print (sql)
             cur.execute(sql)
         except psycopg2.ProgrammingError:
             self.feedback_report_error(
@@ -205,7 +218,7 @@ class QgepSwmm:
 
         return data, attributes
 
-    def swmm_table(self, table_name, state=None, ws=False):
+    def swmm_table(self, table_name, hierarchy=None, state=None, selected_structures = []):
         """
         Write swmm objects extracted from QGEP in swmm input file. Selects according
         to the state planned or current. If the object is a qgep wastewater structure
@@ -214,6 +227,7 @@ class QgepSwmm:
         Parameters:
         table_name (string): Name of the swmm section
         state (string): current or planned
+        selected_structre ([string]). List of obj_id of the selected wastewater structures
         ws (boolean): if the origin table is a wastewater structure
 
         Returns:
@@ -223,11 +237,11 @@ class QgepSwmm:
 
         # Create commented line which contains the field names
         fields = ""
-        data, attributes = self.get_swmm_table(table_name, state, ws)
+        data, attributes = self.get_swmm_table(table_name, state, selected_structures, hierarchy)
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
-                if field not in ("description", "tag", "geom", "state", "message"):
+                if field not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
                     fields += field + "\t"
 
             # Create input paragraph
@@ -242,7 +256,7 @@ class QgepSwmm:
 
                 for i, v in enumerate(feature):
                     # Does not write values stored in columns descriptions, tags and geom
-                    if attributes[i] not in ("description", "tag", "geom", "state", "message"):
+                    if attributes[i] not in ("description", "tag", "geom", "state", "ws_obj_id", "hierarchy", "message"):
                         if v is not None:
                             tbl += str(v) + "\t"
                         else:
@@ -290,7 +304,7 @@ class QgepSwmm:
                 option_text = options_template[index_start:index_stop]
             return option_text
 
-    def write_input(self):
+    def write_input(self, hierarchy, selected_structures, selected_reaches):
         """
         Write the swmm input file
 
@@ -299,6 +313,9 @@ class QgepSwmm:
         # From qgis swmm
         filename = self.input_file
         state = self.state
+
+        if selected_structures and selected_reaches:
+            selected_ws_re = selected_structures + selected_reaches
 
         with codecs.open(filename, "w", encoding="utf-8") as f:
 
@@ -323,16 +340,16 @@ class QgepSwmm:
             # Hydrology
             # ----------
             self.feedback_set_progress(5)
-            f.write(self.swmm_table("RAINGAGES", state))
-            f.write(self.swmm_table("SYMBOLS", state))
+            f.write(self.swmm_table("RAINGAGES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("SYMBOLS", hierarchy, state, selected_structures))
             self.feedback_set_progress(10)
-            f.write(self.swmm_table("SUBCATCHMENTS", state))
+            f.write(self.swmm_table("SUBCATCHMENTS", hierarchy, state, selected_structures))
             self.feedback_set_progress(15)
-            f.write(self.swmm_table("SUBAREAS", state))
+            f.write(self.swmm_table("SUBAREAS", hierarchy, state, selected_structures))
             self.feedback_set_progress(20)
             f.write(self.swmm_table("AQUIFERS"))
             self.feedback_set_progress(25)
-            f.write(self.swmm_table("INFILTRATION", state))
+            f.write(self.swmm_table("INFILTRATION", hierarchy, state, selected_structures))
             self.feedback_set_progress(30)
             f.write(self.swmm_table("POLYGONS"))
 
@@ -345,15 +362,15 @@ class QgepSwmm:
             # Hydraulics: nodes
             # ------------------
             self.feedback_set_progress(35)
-            f.write(self.swmm_table("JUNCTIONS", state, ws=True))
+            f.write(self.swmm_table("JUNCTIONS", hierarchy, state, selected_ws_re))
             self.feedback_set_progress(40)
-            f.write(self.swmm_table("OUTFALLS", state, ws=True))
+            f.write(self.swmm_table("OUTFALLS", hierarchy, state, selected_structures))
             self.feedback_set_progress(45)
-            f.write(self.swmm_table("STORAGES", state, ws=True))
+            f.write(self.swmm_table("STORAGES", hierarchy, state, selected_structures))
             self.feedback_set_progress(50)
-            f.write(self.swmm_table("COORDINATES"))
+            f.write(self.swmm_table("COORDINATES", hierarchy, state, selected_ws_re))
             self.feedback_set_progress(55)
-            f.write(self.swmm_table("DWF", state))
+            f.write(self.swmm_table("DWF", hierarchy, state, selected_structures))
 
             f.write(self.copy_parameters_from_template("INFLOWS"))
             f.write(self.swmm_table("DIVIDERS"))
@@ -361,19 +378,21 @@ class QgepSwmm:
             # Hydraulics: links
             # ------------------
             self.feedback_set_progress(60)
-            f.write(self.swmm_table("CONDUITS", state, ws=True))
-            f.write(self.swmm_table("WEIRS"))
+            f.write(self.swmm_table("CONDUITS", hierarchy, state, selected_reaches))
             self.feedback_set_progress(65)
-            f.write(self.swmm_table("XSECTIONS", state, ws=True))
-            f.write(self.swmm_table("LOSSES", state, ws=True))
+            f.write(self.swmm_table("LOSSES", hierarchy, state, selected_structures))
             self.feedback_set_progress(70)
-            f.write(self.swmm_table("PUMPS", state, ws=True))
+            f.write(self.swmm_table("PUMPS", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("ORIFICES", hierarchy, state, selected_structures))
+            f.write(self.swmm_table("WEIRS", hierarchy, state, selected_structures))
+            f.write(self.copy_parameters_from_template("OUTLETS"))
             self.feedback_set_progress(75)
-            f.write(self.swmm_table("ORIFICES"))
+            f.write(self.swmm_table("XSECTIONS", hierarchy, state, selected_reaches))
             self.feedback_set_progress(80)
+            f.write(self.swmm_table("LOSSES", hierarchy, state, selected_structures))
             f.write(self.swmm_table("OUTLETS"))
             self.feedback_set_progress(85)
-            f.write(self.swmm_table("VERTICES"))
+            f.write(self.swmm_table("VERTICES", hierarchy, state, selected_reaches))
             f.write(self.copy_parameters_from_template("TRANSECTS"))
             f.write(self.copy_parameters_from_template("CONTROLS"))
 
@@ -407,7 +426,10 @@ class QgepSwmm:
             # -----------
             f.write(self.copy_parameters_from_template("LABELS"))
             self.feedback_set_progress(96)
-            f.write(self.swmm_table("TAGS"))
+
+            # Tags
+            # ----
+            f.write(self.swmm_table("TAGS", state, selected_ws_re))
         f.close()
         return
 
