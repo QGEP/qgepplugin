@@ -324,6 +324,7 @@ class QgepSwmm:
             # ----------
             self.feedback_set_progress(5)
             f.write(self.swmm_table("RAINGAGES", state))
+            f.write(self.swmm_table("SYMBOLS", state))
             self.feedback_set_progress(10)
             f.write(self.swmm_table("SUBCATCHMENTS", state))
             self.feedback_set_progress(15)
