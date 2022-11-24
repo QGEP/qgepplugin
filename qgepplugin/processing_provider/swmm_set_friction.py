@@ -53,6 +53,16 @@ class SwmmSetFrictionAlgorithm(QgepAlgorithm):
     def displayName(self):
         return self.tr("SWMM Set default coefficient of friction")
 
+    def shortHelpString(self):
+        return self.tr("""
+        Fill the attribute qgep_od.reach.default_coefficient_of_friction where it is not filled. 
+        If \"Overwrite existing default values\" is selected, all the default_coefficient_of_friction will be reseted.
+        See: https://qgep.github.io/docs/qgep_swmm/coefficient_of_friction.html
+        """)
+
+    def helpUrl(self):
+        return "https://qgep.github.io/docs/qgep_swmm/coefficient_of_friction.html"
+
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
@@ -87,12 +97,12 @@ class SwmmSetFrictionAlgorithm(QgepAlgorithm):
         )
         # Connect to QGEP database and perform translation
         with QgepSwmm(None,database,None,None,None,None,None,feedback) as qs:
-            qs.drop_trigger()
+            qs.disable_reach_trigger()
             if overwrite_values:
-                qs.overwrite_friction()
+                qs.overwrite_reach_default_friction()
             else:
-                qs.set_friction()
-            qs.recreate_trigger()
+                qs.set_reach_default_friction()
+            qs.enable_reach_trigger()
 
         feedback.setProgress(100)
 

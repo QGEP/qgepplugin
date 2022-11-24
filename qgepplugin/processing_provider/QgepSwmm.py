@@ -145,14 +145,16 @@ class QgepSwmm:
         if self.service is not None:
             del self.con
 
-    def feedback_report_error(self, message):
-        if self.feedback is not None:
-            self.feedback.reportError(message)
-        return
-
-    def feedback_push_info(self, message):
-        if self.feedback is not None:
-            self.feedback.pushInfo(message)
+    def feedback_push(self, level, message):
+        if self.feedback is not None and message != '' and message is not None:
+            if level == 'info':
+                self.feedback.pushInfo(message)
+            elif level == 'warning':
+                self.feedback.pushWarning(message)
+            elif level == 'error':
+                self.feedback.reportError(message)
+            else:
+                self.feedback.pushInfo(message)
         return
 
     def feedback_set_progress(self, progress):
@@ -179,7 +181,6 @@ class QgepSwmm:
         cur = self.con.cursor()
 
         # Configure the filters
-        print ('selected structures', selected_structures)
         where_clauses = []
         if state == 'planned':
             where_clauses.append('(state = \'planned\' OR state = \'current\')')
@@ -204,14 +205,13 @@ class QgepSwmm:
                 {sql} where {where_clauses}
                 """.format(sql=sql, where_clauses=' AND '.join(where_clauses))
         try:
-            print (sql)
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_report_error(
-                "Table vw_{table_name} doesnt exists".format(table_name=table_name)
+            self.feedback_push('error',
+                "Error while executing: {sql}".format(sql=sql)
             )
             return None, None
-        self.feedback_push_info("Process vw_{table_name}".format(table_name=table_name))
+        self.feedback_push('info', "Process vw_{table_name}".format(table_name=table_name))
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
         del cur
@@ -234,7 +234,7 @@ class QgepSwmm:
         String: table content
 
         """
-        notPrintedFields = ["description", "tag", "geom", "state",  "ws_obj_id", "hierarchy", "message]
+        notPrintedFields = ["description", "tag", "geom", "state",  "ws_obj_id", "hierarchy", "message"]
         # Create commented line which contains the field names
         fields = ""
         data, attributes = self.get_swmm_table(table_name, state, selected_structures, hierarchy)
@@ -262,10 +262,7 @@ class QgepSwmm:
                         else:
                             tbl += "\t"
                     if attributes[i] == "message" and v != '':
-                        self.feedback_push_info(
-                           #"{obj_id}: {message}".format(obj_id=feature[0], message=v)
-                           v
-                        )
+                        self.feedback_push('warning', v)
                 tbl += "\n"
             tbl += "\n"
             return tbl
@@ -291,7 +288,7 @@ class QgepSwmm:
         )
         if index_start == -1:
             # The balise options is not found
-            self.feedback_push_info(
+            self.feedback_push('info',
                 "There is no {parameter_name} in the template file".format(
                     parameter_name=parameter_name
                 )
@@ -319,6 +316,7 @@ class QgepSwmm:
         filename = self.input_file
         state = self.state
 
+        selected_ws_re = None
         if selected_structures and selected_reaches:
             selected_ws_re = selected_structures + selected_reaches
 
@@ -390,7 +388,6 @@ class QgepSwmm:
             f.write(self.swmm_table("PUMPS", hierarchy, state, selected_structures))
             f.write(self.swmm_table("ORIFICES", hierarchy, state, selected_structures))
             f.write(self.swmm_table("WEIRS", hierarchy, state, selected_structures))
-            f.write(self.copy_parameters_from_template("OUTLETS"))
             self.feedback_set_progress(75)
             f.write(self.swmm_table("XSECTIONS", hierarchy, state, selected_reaches))
             self.feedback_set_progress(80)
@@ -406,7 +403,7 @@ class QgepSwmm:
             self.feedback_set_progress(90)
             f.write(self.swmm_table("LANDUSES"))
             self.feedback_set_progress(93)
-            f.write(self.swmm_table("COVERAGES"))
+            f.write(self.swmm_table("COVERAGES", None, None, selected_structures))
 
             f.write(self.copy_parameters_from_template("POLLUTANTS"))
             f.write(self.copy_parameters_from_template("BUILDUP"))
@@ -589,7 +586,7 @@ class QgepSwmm:
         """
 
         command = [self.bin_file, self.input_file, self.rpt_file]
-        self.feedback_push_info("command: " + " ".join(map(str, command)))
+        self.feedback_push('info',"command: " + " ".join(map(str, command)))
         proc = subprocess.run(
             command,
             shell=True,
@@ -638,7 +635,7 @@ class QgepSwmm:
         data_indexes = self.extract_time_series_indexes()
 
         ndata = len(data_indexes.keys())
-        self.feedback_push_info("Import full results")
+        self.feedback_push('info',"Import full results")
         counter = 0
         for obj_id in data_indexes.keys():
             counter += 1
@@ -735,7 +732,7 @@ class QgepSwmm:
         )
         simulation_duration = simulation_end_date - simulation_start_date
         measuring_duration = simulation_duration.total_seconds()
-        self.feedback_push_info("Import nodes summary")
+        self.feedback_push('info',"Import nodes summary")
         node_summary = self.extract_node_depth_summary()
         self.record_summary(
             node_summary,
@@ -744,7 +741,7 @@ class QgepSwmm:
             measuring_duration,
             "node",
         )
-        self.feedback_push_info("Import links summary")
+        self.feedback_push('info',"Import links summary")
         link_summary = self.extract_link_flow_summary()
         self.record_summary(
             link_summary,
@@ -780,7 +777,7 @@ class QgepSwmm:
         """
         Import the backflow level from an SWMM report file
         """
-        self.feedback_push_info("Import backflow level")
+        self.feedback_push('info',"Import backflow level")
         print ('1')
         node_summary = self.extract_node_depth_summary()
         print ('2')
@@ -793,7 +790,7 @@ class QgepSwmm:
         """
         Import the hydraulic load from an SWMM report file
         """
-        self.feedback_push_info("Import hydraulic load")
+        self.feedback_push('info',"Import hydraulic load")
         print ('3')
         link_summary = self.extract_link_flow_summary()
         print ('4')
@@ -887,11 +884,12 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
-                self.feedback_push_info(
+                self.feedback_push('info',
                     """{obj_id} in the output file has no correspondance in qgep_od.{table_name}."""
                     .format(obj_id=obj_id, table_name=table_name))
             self.feedback_set_progress(counter / ndata)
@@ -949,7 +947,8 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
@@ -1013,7 +1012,8 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', str(psycopg2.ProgrammingError))
                 return None
             res = cur.fetchone()
             mp_obj_id = res[0]
@@ -1064,7 +1064,8 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
@@ -1127,7 +1128,8 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', str(psycopg2.ProgrammingError))
                 return None
             ms_obj_id = cur.fetchone()[0]
             self.con.commit()
@@ -1167,7 +1169,12 @@ class QgepSwmm:
         """.format(
             ms_obj_id=ms_obj_id, time=time, measurement_type=measurement_type
         )
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except psycopg2.ProgrammingError:
+            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            return None
         res = cur.fetchone()
 
         if res is None:
@@ -1191,7 +1198,8 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_report_error(str(psycopg2.ProgrammingError))
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', (str(psycopg2.ProgrammingError)))
                 return None
             mr_obj_id = cur.fetchone()[0]
             self.con.commit()
@@ -1206,67 +1214,66 @@ class QgepSwmm:
             """.format(
                 measuring_duration=measuring_duration, value=value, mr_obj_id=mr_obj_id
             )
-            cur.execute(sql)
+            try:
+                cur.execute(sql)
+            except psycopg2.ProgrammingError:
+                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+                self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+                return None
             mr_obj_id = cur.fetchone()[0]
             self.con.commit()
         del cur
         return mr_obj_id
     
-    def drop_trigger(self):
+    def disable_reach_trigger(self):
+
+        """
+        Disable triggers on the table qgep_od.reach
+        """
 
         cur = self.con.cursor()
 
         # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
         sql = """
-        DROP TRIGGER IF EXISTS calculate_reach_length ON qgep_od.reach;
-        DROP TRIGGER IF EXISTS on_reach_1_delete ON qgep_od.reach;
-        DROP TRIGGER IF EXISTS on_reach_2_change ON qgep_od.reach;
-        DROP TRIGGER IF EXISTS update_last_modified_reach ON qgep_od.reach;
-        DROP TRIGGER IF EXISTS ws_symbology_update_by_reach ON qgep_od.reach;
+        ALTER TABLE qgep_od.reach DISABLE TRIGGER ALL;
         """
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except psycopg2.ProgrammingError:
+            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            return None
         self.con.commit()
         del cur
         return
     
-    def recreate_trigger(self):
+    def enable_reach_trigger(self):
+
+        """
+        Enable triggers on the table qgep_od.reach
+        """
 
         cur = self.con.cursor()
 
         # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
         sql = """
-        CREATE TRIGGER calculate_reach_length
-        BEFORE INSERT OR UPDATE 
-        ON qgep_od.reach
-        FOR EACH ROW
-        EXECUTE FUNCTION qgep_od.calculate_reach_length();
-        CREATE TRIGGER on_reach_1_delete
-        AFTER DELETE
-        ON qgep_od.reach
-        FOR EACH ROW
-        EXECUTE FUNCTION qgep_od.on_reach_delete();
-        CREATE TRIGGER on_reach_2_change
-        AFTER INSERT OR DELETE OR UPDATE 
-        ON qgep_od.reach
-        FOR EACH ROW
-        EXECUTE FUNCTION qgep_od.on_reach_change();
-        CREATE TRIGGER update_last_modified_reach
-        BEFORE INSERT OR UPDATE 
-        ON qgep_od.reach
-        FOR EACH ROW
-        EXECUTE FUNCTION qgep_sys.update_last_modified_parent('qgep_od.wastewater_networkelement');
-        CREATE TRIGGER ws_symbology_update_by_reach
-        AFTER INSERT OR DELETE OR UPDATE 
-        ON qgep_od.reach
-        FOR EACH ROW
-        EXECUTE FUNCTION qgep_od.ws_symbology_update_by_reach();
+        ALTER TABLE qgep_od.reach ENABLE TRIGGER ALL;
         """
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except psycopg2.ProgrammingError:
+            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            return None
         self.con.commit()
         del cur
         return
 
-    def set_friction(self):
+    def set_reach_default_friction(self):
+
+        """
+        Set default friction in qgep_od.reach where default friction is not set
+        """
 
         cur = self.con.cursor()
 
@@ -1277,12 +1284,21 @@ class QgepSwmm:
         FROM qgep_swmm.reach_coefficient_of_friction f
         WHERE r.default_coefficient_of_friction isnull AND f.fk_material = r.material;
         """
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except psycopg2.ProgrammingError:
+            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            return None
         self.con.commit()
         del cur
         return
 
-    def overwrite_friction(self):
+    def overwrite_reach_default_friction(self):
+
+        """
+        Reset default friction in qgep_od.reach where default friction
+        """
 
         cur = self.con.cursor()
 
@@ -1293,7 +1309,12 @@ class QgepSwmm:
         FROM qgep_swmm.reach_coefficient_of_friction f
         WHERE f.fk_material = r.material;
         """
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except psycopg2.ProgrammingError:
+            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            return None
         self.con.commit()
         del cur
         return

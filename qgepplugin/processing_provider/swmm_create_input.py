@@ -61,7 +61,13 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         return self.tr("SWMM Create Input")
 
     def shortHelpString(self):
-        return self.tr("If \"Export only selected network\" is not selected. This tool will export the entire PRIMARY network as an input file for SWMM.")
+        return self.tr("""
+        This tool will export the entire PRIMARY network as an input file for SWMM.
+        If \"Export only selected network\" is selected, the entire selected network is exported, including the secondary network.
+        Note that at this stage of the development, export of special structures (pumps, weirs, dividers) and related curves must be checked.
+        Advices to improve the export can be submited as github issues.
+        See: https://qgep.github.io/docs/qgep_swmm/Create-Input.html
+        """)
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/Create-Input.html"
