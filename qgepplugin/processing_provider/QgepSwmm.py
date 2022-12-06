@@ -146,12 +146,12 @@ class QgepSwmm:
             del self.con
 
     def feedback_push(self, level, message):
-        if self.feedback is not None and message != '' and message is not None:
-            if level == 'info':
+        if self.feedback is not None and message != "" and message is not None:
+            if level == "info":
                 self.feedback.pushInfo(message)
-            elif level == 'warning':
+            elif level == "warning":
                 self.feedback.pushWarning(message)
-            elif level == 'error':
+            elif level == "error":
                 self.feedback.reportError(message)
             else:
                 self.feedback.pushInfo(message)
@@ -182,18 +182,23 @@ class QgepSwmm:
 
         # Configure the filters
         where_clauses = []
-        if state == 'planned':
-            where_clauses.append('(state = \'planned\' OR state = \'current\')')
-        elif state == 'current':
-            where_clauses.append('state = \'current\'')
+        if state == "planned":
+            where_clauses.append("(state = 'planned' OR state = 'current')")
+        elif state == "current":
+            where_clauses.append("state = 'current'")
         if selected_structures:
-            where_clauses.append("""
+            where_clauses.append(
+                """
                 obj_id in ('{ids}')
-                """.format(ids='\',\''.join(selected_structures)))
+                """.format(
+                    ids="','".join(selected_structures)
+                )
+            )
         if hierarchy:
-            where_clauses.append("""hierarchy = '{hierarchy}'""".format(hierarchy=hierarchy))
-            
-        
+            where_clauses.append(
+                """hierarchy = '{hierarchy}'""".format(hierarchy=hierarchy)
+            )
+
         sql = """
         select * from qgep_swmm.vw_{table_name}
         """.format(
@@ -201,24 +206,28 @@ class QgepSwmm:
         )
         # Add the filters to the sql
         if len(where_clauses) > 0:
-                sql = """
+            sql = """
                 {sql} where {where_clauses}
-                """.format(sql=sql, where_clauses=' AND '.join(where_clauses))
+                """.format(
+                sql=sql, where_clauses=" AND ".join(where_clauses)
+            )
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error',
-                "Error while executing: {sql}".format(sql=sql)
-            )
+            self.feedback_push("error", "Error while executing: {sql}".format(sql=sql))
             return None, None
-        self.feedback_push('info', "Process vw_{table_name}".format(table_name=table_name))
+        self.feedback_push(
+            "info", "Process vw_{table_name}".format(table_name=table_name)
+        )
         data = cur.fetchall()
         attributes = [desc[0] for desc in cur.description]
         del cur
 
         return data, attributes
 
-    def swmm_table(self, table_name, hierarchy=None, state=None, selected_structures = []):
+    def swmm_table(
+        self, table_name, hierarchy=None, state=None, selected_structures=[]
+    ):
         """
         Write swmm objects extracted from QGEP in swmm input file. Selects according
         to the state planned or current. If the object is a qgep wastewater structure
@@ -234,10 +243,20 @@ class QgepSwmm:
         String: table content
 
         """
-        notPrintedFields = ["description", "tag", "geom", "state",  "ws_obj_id", "hierarchy", "message"]
+        notPrintedFields = [
+            "description",
+            "tag",
+            "geom",
+            "state",
+            "ws_obj_id",
+            "hierarchy",
+            "message",
+        ]
         # Create commented line which contains the field names
         fields = ""
-        data, attributes = self.get_swmm_table(table_name, state, selected_structures, hierarchy)
+        data, attributes = self.get_swmm_table(
+            table_name, state, selected_structures, hierarchy
+        )
         if data is not None:
             for i, field in enumerate(attributes):
                 # Does not write values stored in columns descriptions, tags and geom
@@ -261,8 +280,8 @@ class QgepSwmm:
                             tbl += str(v) + "\t"
                         else:
                             tbl += "\t"
-                    if attributes[i] == "message" and v != '':
-                        self.feedback_push('warning', v)
+                    if attributes[i] == "message" and v != "":
+                        self.feedback_push("warning", v)
                 tbl += "\n"
             tbl += "\n"
             return tbl
@@ -288,10 +307,11 @@ class QgepSwmm:
         )
         if index_start == -1:
             # The balise options is not found
-            self.feedback_push('info',
+            self.feedback_push(
+                "info",
                 "There is no {parameter_name} in the template file".format(
                     parameter_name=parameter_name
-                )
+                ),
             )
             return ""
         else:
@@ -346,13 +366,17 @@ class QgepSwmm:
             f.write(self.swmm_table("RAINGAGES", hierarchy, state, selected_structures))
             f.write(self.swmm_table("SYMBOLS", hierarchy, state, selected_structures))
             self.feedback_set_progress(10)
-            f.write(self.swmm_table("SUBCATCHMENTS", hierarchy, state, selected_structures))
+            f.write(
+                self.swmm_table("SUBCATCHMENTS", hierarchy, state, selected_structures)
+            )
             self.feedback_set_progress(15)
             f.write(self.swmm_table("SUBAREAS", hierarchy, state, selected_structures))
             self.feedback_set_progress(20)
             f.write(self.swmm_table("AQUIFERS"))
             self.feedback_set_progress(25)
-            f.write(self.swmm_table("INFILTRATION", hierarchy, state, selected_structures))
+            f.write(
+                self.swmm_table("INFILTRATION", hierarchy, state, selected_structures)
+            )
             self.feedback_set_progress(30)
             f.write(self.swmm_table("POLYGONS"))
 
@@ -586,7 +610,7 @@ class QgepSwmm:
         """
 
         command = [self.bin_file, self.input_file, self.rpt_file]
-        self.feedback_push('info',"command: " + " ".join(map(str, command)))
+        self.feedback_push("info", "command: " + " ".join(map(str, command)))
         proc = subprocess.run(
             command,
             shell=True,
@@ -635,7 +659,7 @@ class QgepSwmm:
         data_indexes = self.extract_time_series_indexes()
 
         ndata = len(data_indexes.keys())
-        self.feedback_push('info',"Import full results")
+        self.feedback_push("info", "Import full results")
         counter = 0
         for obj_id in data_indexes.keys():
             counter += 1
@@ -732,7 +756,7 @@ class QgepSwmm:
         )
         simulation_duration = simulation_end_date - simulation_start_date
         measuring_duration = simulation_duration.total_seconds()
-        self.feedback_push('info',"Import nodes summary")
+        self.feedback_push("info", "Import nodes summary")
         node_summary = self.extract_node_depth_summary()
         self.record_summary(
             node_summary,
@@ -741,7 +765,7 @@ class QgepSwmm:
             measuring_duration,
             "node",
         )
-        self.feedback_push('info',"Import links summary")
+        self.feedback_push("info", "Import links summary")
         link_summary = self.extract_link_flow_summary()
         self.record_summary(
             link_summary,
@@ -754,7 +778,7 @@ class QgepSwmm:
         return
 
     def convert_max_over_full_flow(self, link_summary):
-        
+
         """
         Convert max_over_full_flow in percent
 
@@ -767,21 +791,22 @@ class QgepSwmm:
 
         for ws in link_summary:
 
-            ws['max_over_full_flow'] = float(ws['max_over_full_flow'])*100
-        
-        return link_summary
+            ws["max_over_full_flow"] = float(ws["max_over_full_flow"]) * 100
 
+        return link_summary
 
     def import_backflow_level(self):
 
         """
         Import the backflow level from an SWMM report file
         """
-        self.feedback_push('info',"Import backflow level")
-        print ('1')
+        self.feedback_push("info", "Import backflow level")
+        print("1")
         node_summary = self.extract_node_depth_summary()
-        print ('2')
-        self.populate_attribute(node_summary, 'wastewater_node', 'backflow_level','maximum_hgl')
+        print("2")
+        self.populate_attribute(
+            node_summary, "wastewater_node", "backflow_level", "maximum_hgl"
+        )
 
         return
 
@@ -790,13 +815,15 @@ class QgepSwmm:
         """
         Import the hydraulic load from an SWMM report file
         """
-        self.feedback_push('info',"Import hydraulic load")
-        print ('3')
+        self.feedback_push("info", "Import hydraulic load")
+        print("3")
         link_summary = self.extract_link_flow_summary()
-        print ('4')
+        print("4")
         link_summary = self.convert_max_over_full_flow(link_summary)
-        print ('5')
-        self.populate_attribute(link_summary, 'reach', 'hydraulic_load','max_over_full_flow')
+        print("5")
+        self.populate_attribute(
+            link_summary, "reach", "hydraulic_load", "max_over_full_flow"
+        )
 
         return
 
@@ -879,19 +906,24 @@ class QgepSwmm:
                 table_name=table_name,
                 attribute_name=attribute_name,
                 bf_level=bf_level,
-                obj_id=obj_id
+                obj_id=obj_id,
             )
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', str(psycopg2.ProgrammingError))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
-                self.feedback_push('info',
-                    """{obj_id} in the output file has no correspondance in qgep_od.{table_name}."""
-                    .format(obj_id=obj_id, table_name=table_name))
+                self.feedback_push(
+                    "info",
+                    """{obj_id} in the output file has no correspondance in qgep_od.{table_name}.""".format(
+                        obj_id=obj_id, table_name=table_name
+                    ),
+                )
             self.feedback_set_progress(counter / ndata)
         self.con.commit()
 
@@ -947,8 +979,10 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', str(psycopg2.ProgrammingError))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
@@ -1012,8 +1046,10 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', str(psycopg2.ProgrammingError))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", str(psycopg2.ProgrammingError))
                 return None
             res = cur.fetchone()
             mp_obj_id = res[0]
@@ -1064,8 +1100,10 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', str(psycopg2.ProgrammingError))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", str(psycopg2.ProgrammingError))
                 return None, None
             res = cur.fetchone()
             if res is None:
@@ -1128,8 +1166,10 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', str(psycopg2.ProgrammingError))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", str(psycopg2.ProgrammingError))
                 return None
             ms_obj_id = cur.fetchone()[0]
             self.con.commit()
@@ -1172,8 +1212,8 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            self.feedback_push("error", "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push("error", (str(psycopg2.ProgrammingError)))
             return None
         res = cur.fetchone()
 
@@ -1198,8 +1238,10 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", (str(psycopg2.ProgrammingError)))
                 return None
             mr_obj_id = cur.fetchone()[0]
             self.con.commit()
@@ -1217,14 +1259,16 @@ class QgepSwmm:
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
-                self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-                self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+                self.feedback_push(
+                    "error", "Error while excecuting: {sql}".format(sql=sql)
+                )
+                self.feedback_push("error", (str(psycopg2.ProgrammingError)))
                 return None
             mr_obj_id = cur.fetchone()[0]
             self.con.commit()
         del cur
         return mr_obj_id
-    
+
     def disable_reach_trigger(self):
 
         """
@@ -1240,13 +1284,13 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            self.feedback_push("error", "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push("error", (str(psycopg2.ProgrammingError)))
             return None
         self.con.commit()
         del cur
         return
-    
+
     def enable_reach_trigger(self):
 
         """
@@ -1262,8 +1306,8 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            self.feedback_push("error", "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push("error", (str(psycopg2.ProgrammingError)))
             return None
         self.con.commit()
         del cur
@@ -1287,8 +1331,8 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            self.feedback_push("error", "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push("error", (str(psycopg2.ProgrammingError)))
             return None
         self.con.commit()
         del cur
@@ -1312,8 +1356,8 @@ class QgepSwmm:
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
-            self.feedback_push('error', "Error while excecuting: {sql}".format(sql=sql))
-            self.feedback_push('error', (str(psycopg2.ProgrammingError)))
+            self.feedback_push("error", "Error while excecuting: {sql}".format(sql=sql))
+            self.feedback_push("error", (str(psycopg2.ProgrammingError)))
             return None
         self.con.commit()
         del cur

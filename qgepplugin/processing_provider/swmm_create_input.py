@@ -25,12 +25,12 @@ import datetime
 from qgis.core import (
     QgsProcessingContext,
     QgsProcessingFeedback,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
     QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterString,
-    QgsProcessingParameterBoolean,
-    QgsProject
+    QgsProject,
 )
 
 from .qgep_algorithm import QgepAlgorithm
@@ -61,13 +61,15 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         return self.tr("SWMM Create Input")
 
     def shortHelpString(self):
-        return self.tr("""
+        return self.tr(
+            """
         This tool will export the entire PRIMARY network as an input file for SWMM.
         If \"Export only selected network\" is selected, the entire selected network is exported, including the secondary network.
         Note that at this stage of the development, export of special structures (pumps, weirs, dividers) and related curves must be checked.
         Advices to improve the export can be submited as github issues.
         See: https://qgep.github.io/docs/qgep_swmm/Create-Input.html
-        """)
+        """
+        )
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/Create-Input.html"
@@ -109,7 +111,9 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
             )
         )
 
-        description = self.tr("Export only selected network (including the secondary network if selected)")
+        description = self.tr(
+            "Export only selected network (including the secondary network if selected)"
+        )
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.ONLY_SELECTED, description=description, defaultValue=False
@@ -141,7 +145,9 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
         # Get selection
         if only_selected:
             hierarchy = None
-            structures_layers = QgsProject.instance().mapLayersByName("vw_qgep_wastewater_structure")
+            structures_layers = QgsProject.instance().mapLayersByName(
+                "vw_qgep_wastewater_structure"
+            )
             if structures_layers:
                 structures = structures_layers[0].selectedFeatures()
                 selected_structures = []
@@ -157,7 +163,7 @@ class SwmmCreateInputAlgorithm(QgepAlgorithm):
                 for reach in reaches:
                     selected_reaches.append(str(reach["obj_id"]))
         else:
-            hierarchy = 'primary'
+            hierarchy = "primary"
             selected_structures = None
             selected_reaches = None
         # Connect to QGEP database and perform translation

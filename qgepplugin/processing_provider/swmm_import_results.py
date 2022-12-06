@@ -25,7 +25,6 @@ from qgis.core import (
     QgsProcessingParameterBoolean,
     QgsProcessingParameterFile,
     QgsProcessingParameterString,
-    QgsProject
 )
 
 from .qgep_algorithm import QgepAlgorithm
@@ -62,7 +61,8 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
             """
             Import SWMM results in QGEP database.
             See: https://qgep.github.io/docs/qgep_swmm/Extract-Results.html
-            """)
+            """
+        )
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/Import-Results.html"
@@ -108,19 +108,23 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
             )
         )
 
-        
-        description = self.tr("Import Max HGL in qgep_od.wastewater_node.backflow_level")
+        description = self.tr(
+            "Import Max HGL in qgep_od.wastewater_node.backflow_level"
+        )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.POPULATE_BACKFLOW_LEVEL, description=description, defaultValue=False
+                self.POPULATE_BACKFLOW_LEVEL,
+                description=description,
+                defaultValue=False,
             )
         )
 
-        
         description = self.tr("Import Max/Full Flow in qgep_od.reach.hydraulic_load")
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.POPULATE_HYDRAULIC_LOAD, description=description, defaultValue=False
+                self.POPULATE_HYDRAULIC_LOAD,
+                description=description,
+                defaultValue=False,
             )
         )
 
