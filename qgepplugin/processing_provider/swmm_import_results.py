@@ -119,7 +119,9 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
             )
         )
 
-        description = self.tr("Import Max/Full Flow in qgep_od.reach.hydraulic_load")
+        description = self.tr(
+            "Import Max/Full Flow in qgep_od.reach.dss2020_hydraulic_load_current"
+        )
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.POPULATE_HYDRAULIC_LOAD,
