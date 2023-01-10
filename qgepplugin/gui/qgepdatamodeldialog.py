@@ -32,7 +32,13 @@ import zipfile
 
 import pkg_resources
 import psycopg2
-from qgis.core import Qgis, QgsMessageLog, QgsNetworkAccessManager, QgsProject
+from qgis.core import (
+    Qgis,
+    QgsApplication,
+    QgsMessageLog,
+    QgsNetworkAccessManager,
+    QgsProject,
+)
 from qgis.PyQt.QtCore import QFile, QIODevice, QSettings, QUrl
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
 from qgis.PyQt.QtWidgets import (
@@ -77,8 +83,12 @@ if os.environ.get("PGSERVICEFILE"):
     PG_CONFIG_PATH = os.environ.get("PGSERVICEFILE")
 elif os.environ.get("PGSYSCONFDIR"):
     PG_CONFIG_PATH = os.path.join(os.environ.get("PGSYSCONFDIR"), "pg_service.conf")
+elif os.path.exists("~/.pg_service.conf"):
+    PG_CONFIG_PATH = "~/.pg_service.conf"
 else:
-    PG_CONFIG_PATH = " ~/.pg_service.conf"
+    PG_CONFIG_PATH = os.path.join(
+        QgsApplication.qgisSettingsDirPath(), "pg_service.conf"
+    )
 
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
