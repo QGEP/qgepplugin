@@ -39,7 +39,7 @@ from qgis.core import (
     QgsNetworkAccessManager,
     QgsProject,
 )
-from qgis.PyQt.QtCore import QFile, QIODevice, QSettings, QUrl
+from qgis.PyQt.QtCore import QFile, QIODevice, QSettings, Qt, QUrl
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
 from qgis.PyQt.QtWidgets import (
     QApplication,
@@ -79,6 +79,7 @@ DATAMODEL_QGEP_VERSIONS = {
 TEMP_DIR = os.path.join(tempfile.gettempdir(), "QGEP", "datamodel-init")
 
 # Path for pg_service.conf
+PG_CONFIG_PATH_KNOWN = True
 if os.environ.get("PGSERVICEFILE"):
     PG_CONFIG_PATH = os.environ.get("PGSERVICEFILE")
 elif os.environ.get("PGSYSCONFDIR"):
@@ -86,6 +87,7 @@ elif os.environ.get("PGSYSCONFDIR"):
 elif os.path.exists("~/.pg_service.conf"):
     PG_CONFIG_PATH = "~/.pg_service.conf"
 else:
+    PG_CONFIG_PATH_KNOWN = False
     PG_CONFIG_PATH = os.path.join(
         QgsApplication.qgisSettingsDirPath(), "pg_service.conf"
     )
@@ -193,7 +195,16 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         self.releaseVersionComboBox.setEnabled(len(AVAILABLE_RELEASES) > 1)
 
         # Show the pgconfig path
-        self.pgservicePathLabel.setText(PG_CONFIG_PATH)
+        path_label = PG_CONFIG_PATH
+        if not PG_CONFIG_PATH_KNOWN:
+            self.pgservicePathLabel.setStyleSheet(
+                "color: rgb(170, 0, 0);\nfont-style: italic;"
+            )
+            path_label += f"<br/>Note: you must create a PGSYSCONFDIR variable for this configuration to work.</span>More info <a href='https://gis.stackexchange.com/a/393494'>here</a>."
+            self.pgservicePathLabel.setTextFormat(Qt.RichText)
+            self.pgservicePathLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            self.pgservicePathLabel.setWordWrap(True)
+        self.pgservicePathLabel.setText(path_label)
 
         # Connect some signals
 
