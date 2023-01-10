@@ -558,7 +558,11 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
     def add_pgconfig(self):
         taken_names = self._read_pgservice().sections()
-        cur_config = self._read_pgservice()[self.conf]
+        if self.conf in self._read_pgservice():
+            cur_config = self._read_pgservice()[self.conf]
+        else:
+            cur_config = {}
+
         add_dialog = QgepPgserviceEditorDialog(self.conf, cur_config, taken_names)
         if add_dialog.exec_() == QDialog.Accepted:
             name = add_dialog.conf_name()
