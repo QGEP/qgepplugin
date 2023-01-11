@@ -30,7 +30,7 @@ import logging
 import os
 from builtins import object, str
 
-from qgis.core import Qgis, QgsApplication, QgsMessageLog
+from qgis.core import Qgis, QgsApplication
 from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
@@ -526,10 +526,3 @@ class QgepPlugin(object):
         config.PGDATABASE = pg_layer.dataProvider().uri().database()
         config.PGUSER = pg_layer.dataProvider().uri().username()
         config.PGPASS = pg_layer.dataProvider().uri().password()
-
-        QgsMessageLog.logMessage(f"{config.PGSERVICE=}")
-        QgsMessageLog.logMessage(f"{config.PGHOST=}")
-        QgsMessageLog.logMessage(f"{config.PGPORT=}")
-        QgsMessageLog.logMessage(f"{config.PGDATABASE=}")
-        QgsMessageLog.logMessage(f"{config.PGUSER=}")
-        QgsMessageLog.logMessage(f"{config.PGPASS=}")
