@@ -56,11 +56,11 @@ from ..utils import get_ui_class
 # In the future, once plugin/datamodel versionning scheme clearly reflects
 # compatibility, we could retrieve this dynamically, so datamodel bugfix
 # releases don't require a plugin upgrade.
-LATEST_RELEASE = "1.5.6-1"
 
 # Allow to choose which releases can be installed
 AVAILABLE_RELEASES = {
-    LATEST_RELEASE: f"https://github.com/QGEP/datamodel/archive/{LATEST_RELEASE}.zip",
+    "1.6.0": f"https://github.com/QGEP/datamodel/archive/1.6.0.zip",
+    "1.5.6": f"https://github.com/QGEP/datamodel/archive/1.5.6.zip",
 }
 if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
@@ -71,6 +71,7 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
 
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
+    "1.6.0": "https://github.com/QGEP/QGEP/releases/download/v10.0.0/qgep-v10.0.0.zip",
     "1.5.5": "https://github.com/QGEP/QGEP/releases/download/v9.0.3/qgep-v9.0.3.zip",
     "1.5.0": "https://github.com/QGEP/QGEP/releases/download/v8.0/qgep.zip",
     "1.4.0": "https://github.com/QGEP/QGEP/releases/download/v7.0/qgep.zip",
