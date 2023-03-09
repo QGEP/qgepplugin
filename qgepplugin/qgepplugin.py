@@ -486,17 +486,9 @@ class QgepPlugin(object):
             self.logger.error(str(e))
             return
 
-        # Retrieve the pg_service
-        pg_layer = QgepLayerManager.layer("vw_qgep_wastewater_structure")
-        if not pg_layer or not pg_layer.dataProvider().uri().service():
-            self.iface.messageBar().pushMessage(
-                "Error",
-                "Could not determine the current pg_service from the loaded QGEP layers.",
-                level=Qgis.Critical,
-            )
-            return
+        self._configure_qgepqwat2ili_from_qgep_layer()
 
-        action_export(self, pg_layer.dataProvider().uri().service())
+        action_export(self)
 
     def actionImportClicked(self):
         # We only import now to avoid useless exception if dependencies aren't met
@@ -511,14 +503,26 @@ class QgepPlugin(object):
             self.logger.error(str(e))
             return
 
-        # Retrieve the pg_service
+        self._configure_qgepqwat2ili_from_qgep_layer()
+
+        action_import(self)
+
+    def _configure_qgepqwat2ili_from_qgep_layer(self) -> dict:
+        """Configures qgepqwat2ili using the currently loaded QGEP project layer"""
+
         pg_layer = QgepLayerManager.layer("vw_qgep_wastewater_structure")
-        if not pg_layer or not pg_layer.dataProvider().uri().service():
+        if not pg_layer:
             self.iface.messageBar().pushMessage(
                 "Error",
-                "Could not determine the current pg_service from the loaded QGEP layers.",
+                "Could not determine the Postgres connection information. Make sure the QGEP project is loaded.",
                 level=Qgis.Critical,
             )
-            return
 
-        action_import(self, pg_layer.dataProvider().uri().service())
+        from .qgepqwat2ili.qgepqwat2ili import config
+
+        config.PGSERVICE = pg_layer.dataProvider().uri().service()
+        config.PGHOST = pg_layer.dataProvider().uri().host()
+        config.PGPORT = pg_layer.dataProvider().uri().port()
+        config.PGDATABASE = pg_layer.dataProvider().uri().database()
+        config.PGUSER = pg_layer.dataProvider().uri().username()
+        config.PGPASS = pg_layer.dataProvider().uri().password()

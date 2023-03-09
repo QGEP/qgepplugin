@@ -45,13 +45,27 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
     RPT_FILE = "RPT_FILE"
     DATABASE = "DATABASE"
     SIM_DESCRIPTION = "SIM_DESCRIPTION"
+    IMPORT_SUMMARY = "IMPORT_SUMMARY"
     IMPORT_FULL_RESULTS = "IMPORT_FULL_RESULTS"
+    POPULATE_BACKFLOW_LEVEL = "POPULATE_BACKFLOW_LEVEL"
+    POPULATE_HYDRAULIC_LOAD = "POPULATE_HYDRAULIC_LOAD"
 
     def name(self):
         return "swmm_import_results"
 
     def displayName(self):
         return self.tr("SWMM Import Results")
+
+    def shortHelpString(self):
+        return self.tr(
+            """
+            Import SWMM results in QGEP database.
+            See: https://qgep.github.io/docs/qgep_swmm/Extract-Results.html
+            """
+        )
+
+    def helpUrl(self):
+        return "https://qgep.github.io/docs/qgep_swmm/Import-Results.html"
 
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
@@ -80,10 +94,39 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
             )
         )
 
-        description = self.tr("Import full results in addition to summary")
+        description = self.tr("Import summary")
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.IMPORT_SUMMARY, description=description, defaultValue=True
+            )
+        )
+
+        description = self.tr("Import full results")
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.IMPORT_FULL_RESULTS, description=description, defaultValue=False
+            )
+        )
+
+        description = self.tr(
+            "Import Max HGL in qgep_od.wastewater_node.backflow_level"
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.POPULATE_BACKFLOW_LEVEL,
+                description=description,
+                defaultValue=False,
+            )
+        )
+
+        description = self.tr(
+            "Import Max/Full Flow in qgep_od.reach.dss2020_hydraulic_load_current"
+        )
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.POPULATE_HYDRAULIC_LOAD,
+                description=description,
+                defaultValue=False,
             )
         )
 
@@ -101,17 +144,31 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         sim_description = self.parameterAsString(
             parameters, self.SIM_DESCRIPTION, context
         )
+        import_summary = self.parameterAsBoolean(
+            parameters, self.IMPORT_SUMMARY, context
+        )
         import_full_result = self.parameterAsBoolean(
             parameters, self.IMPORT_FULL_RESULTS, context
+        )
+        import_backflow_level = self.parameterAsBoolean(
+            parameters, self.POPULATE_BACKFLOW_LEVEL, context
+        )
+        import_hydraulic_load = self.parameterAsBoolean(
+            parameters, self.POPULATE_HYDRAULIC_LOAD, context
         )
 
         # Get node summary from output file
         with QgepSwmm(
             sim_description, database, None, None, None, rpt_file, None, feedback
         ) as qs:
-            qs.import_summary(sim_description)
+            if import_summary:
+                qs.import_summary(sim_description)
             if import_full_result:
                 qs.import_full_results(sim_description)
+            if import_backflow_level:
+                qs.import_backflow_level()
+            if import_hydraulic_load:
+                qs.import_hydraulic_load()
 
         feedback.setProgress(100)
 

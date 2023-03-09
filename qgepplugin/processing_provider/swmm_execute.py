@@ -55,6 +55,18 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
     def displayName(self):
         return self.tr("SWMM Execute")
 
+    def shortHelpString(self):
+        return self.tr(
+            """
+        Launch a swmm simulation.
+         Note that usually a .inp file exported with QGEP is not directly launchable. It must be checked and edited with a SWMM interface.
+         See: https://qgep.github.io/docs/qgep_swmm/Execute.html
+         """
+        )
+
+    def helpUrl(self):
+        return "https://qgep.github.io/docs/qgep_swmm/Execute.html"
+
     def initAlgorithm(self, config=None):
         """Here we define the inputs and output of the algorithm, along
         with some other properties.
