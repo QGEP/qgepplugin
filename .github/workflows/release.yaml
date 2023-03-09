@@ -14,7 +14,7 @@ on:
 jobs:
 
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       GITHUB_REF: ${{ github.ref }}
     if: ${{ github.event_name == 'release' }}
@@ -37,7 +37,7 @@ jobs:
           qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} --allow-uncommitted-changes
 
   translations:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
     steps:
       - name: Checkout
