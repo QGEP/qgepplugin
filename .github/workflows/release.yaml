@@ -24,10 +24,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install dependencies
+      - name: Install Qt lrelease
         run: |
-          sudo apt update && sudo apt install qttools5-dev-tools qt5-default
-          sudo pip install qgis-plugin-ci==2.5.2
+          sudo apt-get update
+          sudo apt-get install qt5-default qttools5-dev-tools
+
+      - name: Install qgis-plugin-ci
+        run: pip3 install qgis-plugin-ci==2.7.*
+
       - name: Release
         run: |
           qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} --allow-uncommitted-changes
