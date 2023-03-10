@@ -478,6 +478,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
         self.check_requirements()
         self.check_version()
+        self.check_project()
 
     # Requirements
 
@@ -859,6 +860,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             )
 
             self.check_version()
+            self.check_project()
 
             self._done_progress()
 
