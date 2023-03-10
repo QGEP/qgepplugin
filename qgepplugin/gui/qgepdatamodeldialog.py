@@ -59,7 +59,8 @@ from ..utils import get_ui_class
 
 # Allow to choose which releases can be installed
 AVAILABLE_RELEASES = {
-    "1.6.0": f"https://github.com/QGEP/datamodel/archive/1.6.0.zip",
+    # TODO: change to final
+    "1.6.0-rc.2": f"https://github.com/QGEP/datamodel/archive/1.6.0-rc.2.zip",
     "1.5.6": f"https://github.com/QGEP/datamodel/archive/1.5.6.zip",
 }
 if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
@@ -71,7 +72,8 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
 
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    "1.6.0": "https://github.com/QGEP/QGEP/releases/download/v10.0.0/qgep-v10.0.0.zip",
+    # TODO: change to final
+    "1.6.0-rc.1": "https://github.com/QGEP/QGEP/releases/download/v10.0.0/qgep-v10.0.0-rc.1.zip",
     "1.5.5": "https://github.com/QGEP/QGEP/releases/download/v9.0.3/qgep-v9.0.3.zip",
     "1.5.0": "https://github.com/QGEP/QGEP/releases/download/v8.0/qgep.zip",
     "1.4.0": "https://github.com/QGEP/QGEP/releases/download/v7.0/qgep.zip",
