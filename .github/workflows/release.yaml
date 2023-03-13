@@ -35,7 +35,7 @@ jobs:
       - name: Release
         run: |
           VERSION=${GITHUB_REF##*/}
-          VERSION=$(echo "${VERSION}" | cut -d- f-1)
+          VERSION=$(echo "${VERSION}" | cut -d\- f-1)
           qgis-plugin-ci release ${VERSION} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} --allow-uncommitted-changes
 
   translations:
