@@ -17,7 +17,7 @@ tracker=https://github.com/qgep/qgepplugin/issues
 repository=http://github.com/QGEP/qgepplugin
 icon=icons/qgepIcon.svg
 
-experimental=True
+experimental=False
 deprecated=False
 
 # DISABLED: under QGIS 3.22, this throws `KeyError: 'use_stable_version' (qgsplugindependenciesdialog.py", line 63)`
