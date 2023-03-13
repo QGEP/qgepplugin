@@ -34,7 +34,7 @@ jobs:
 
       - name: Release
         run: |
-          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d- -f1)
+          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d+ -f1)
           qgis-plugin-ci -v release ${VERSION} \
             --release-tag ${GITHUB_REF_NAME} \
             --transifex-token ${{ secrets.TX_TOKEN }} \
