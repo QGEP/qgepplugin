@@ -1324,9 +1324,9 @@ class QgepSwmm:
         # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
         sql = """
         UPDATE qgep_od.reach r
-        SET default_coefficient_of_friction = f.coefficient_of_friction
+        SET swmm_default_coefficient_of_friction = f.coefficient_of_friction
         FROM qgep_swmm.reach_coefficient_of_friction f
-        WHERE r.default_coefficient_of_friction isnull AND f.fk_material = r.material;
+        WHERE r.swmm_default_coefficient_of_friction isnull AND f.fk_material = r.material;
         """
         try:
             cur.execute(sql)
@@ -1349,7 +1349,7 @@ class QgepSwmm:
         # Set value for qgep_od.reach.default_coefficient_friction where reach_material is known
         sql = """
         UPDATE qgep_od.reach r
-        SET default_coefficient_of_friction = f.coefficient_of_friction
+        SET swmm_default_coefficient_of_friction = f.coefficient_of_friction
         FROM qgep_swmm.reach_coefficient_of_friction f
         WHERE f.fk_material = r.material;
         """
