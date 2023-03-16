@@ -4,7 +4,6 @@ name=QGEP
 description=Plugin to manage wastewater networks
 qgisMinimumVersion=3.2
 category=Vector
-# TODO: should be "dev" once plugin-ci is fixed
 version=dev
 
 changelog=See repository for full changelog
