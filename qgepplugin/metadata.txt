@@ -10,13 +10,13 @@ changelog=See repository for full changelog
 tags=gep, abwasser, wastewater
 author=QGEP group
 email=qgep@qgis.ch
-about=The QGEP plugin adds functionality to manage wastewater newtworks in QGIS. It requires a QGEP compatible database and project file.
+about=The QGEP plugin adds functionality to manage wastewater networks in QGIS. It requires a QGEP compatible database and project file.
 homepage=https://github.com/qgep/qgepplugin
 tracker=https://github.com/qgep/qgepplugin/issues
 repository=http://github.com/QGEP/qgepplugin
 icon=icons/qgepIcon.svg
 
-experimental=True
+experimental=False
 deprecated=False
 
 # DISABLED: under QGIS 3.22, this throws `KeyError: 'use_stable_version' (qgsplugindependenciesdialog.py", line 63)`

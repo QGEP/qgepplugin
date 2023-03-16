@@ -20,7 +20,7 @@ jobs:
     if: ${{ github.event_name == 'release' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -34,14 +34,20 @@ jobs:
 
       - name: Release
         run: |
-          qgis-plugin-ci release ${GITHUB_REF##*/} --transifex-token ${{ secrets.TX_TOKEN }} --github-token ${{ secrets.GITHUB_TOKEN }} --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} --allow-uncommitted-changes
+          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d+ -f1)
+          qgis-plugin-ci -v release ${VERSION} \
+            --release-tag ${GITHUB_REF_NAME} \
+            --transifex-token ${{ secrets.TX_TOKEN }} \
+            --github-token ${{ secrets.GITHUB_TOKEN }} \
+            --osgeo-username ${{ secrets.OSGEO_USERNAME }} --osgeo-password ${{ secrets.OSGEO_PASSWORD }} \
+            --allow-uncommitted-changes
 
   translations:
     runs-on: ubuntu-22.04
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
