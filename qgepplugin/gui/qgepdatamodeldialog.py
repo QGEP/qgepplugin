@@ -60,7 +60,6 @@ from ..utils import get_ui_class
 # Allow to choose which releases can be installed
 AVAILABLE_RELEASES = {
     "1.6.0": f"https://github.com/QGEP/datamodel/archive/1.6.0.zip",
-    "1.5.6": f"https://github.com/QGEP/datamodel/archive/1.5.6.zip",
 }
 if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
