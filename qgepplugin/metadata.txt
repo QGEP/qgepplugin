@@ -8,8 +8,8 @@ version=dev
 
 changelog=See repository for full changelog
 tags=gep, abwasser, wastewater
-author=QGEP group
-email=qgep@qgis.ch
+author=TEKSI
+email=info@teksi.ch
 about=The QGEP plugin adds functionality to manage wastewater networks in QGIS. It requires a QGEP compatible database and project file.
 homepage=https://github.com/qgep/qgepplugin
 tracker=https://github.com/qgep/qgepplugin/issues
