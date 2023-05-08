@@ -494,6 +494,14 @@ class QgepPlugin(object):
         # We only import now to avoid useless exception if dependencies aren't met
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
+            
+            # 8.5.2023
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_importc
+            self.iface.messageBar().pushMessage(
+                "Success",
+                "action_importc loaded",
+                level=Qgis.Success,
+            )
         except ImportError as e:
             self.iface.messageBar().pushMessage(
                 "Error",
@@ -505,6 +513,9 @@ class QgepPlugin(object):
 
         self._configure_qgepqwat2ili_from_qgep_layer()
 
+        #8.5.2023
+        action_importc(self)
+        
         action_import(self)
 
     def _configure_qgepqwat2ili_from_qgep_layer(self) -> dict:
