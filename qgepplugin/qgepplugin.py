@@ -515,7 +515,7 @@ class QgepPlugin(object):
             
 
         action_importc(self)
-        breakpoint()
+        #breakpoint()
         
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
