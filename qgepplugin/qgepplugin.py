@@ -492,16 +492,34 @@ class QgepPlugin(object):
 
     def actionImportClicked(self):
         # We only import now to avoid useless exception if dependencies aren't met
+
+        # 8.5.2023
+        try:
+
+            from .qgepqwat2ili.qgepqwat2ili.gui import action_importc
+
+        except ImportError as e:
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details.",
+                level=Qgis.Critical,
+            )
+            self.logger.error(str(e))
+            return
+        #8.5.2023
+        self.iface.messageBar().pushMessage(
+                "Info",
+                "action_importc loaded",
+                level=Qgis.Info,
+            )
+            
+
+        action_importc(self)
+        breakpoint()
+        
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
-            
-            # 8.5.2023
-            from .qgepqwat2ili.qgepqwat2ili.gui import action_importc
-            self.iface.messageBar().pushMessage(
-                "Success",
-                "action_importc loaded",
-                level=Qgis.Success,
-            )
+
         except ImportError as e:
             self.iface.messageBar().pushMessage(
                 "Error",
@@ -513,8 +531,7 @@ class QgepPlugin(object):
 
         self._configure_qgepqwat2ili_from_qgep_layer()
 
-        #8.5.2023
-        action_importc(self)
+
         
         action_import(self)
 
