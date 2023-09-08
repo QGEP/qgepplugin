@@ -921,7 +921,12 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             srid = self.sridLineEdit.text()
 
             self._show_progress("Running pum upgrade")
-            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+            # 8.9.2023
+            if self.version == "datamodel2020":
+                deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
+            else:
+                deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+
             self._run_cmd(
                 f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
