@@ -878,12 +878,15 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
                     error_message="Errors when initializing the database.",
                     timeout=300,
                 )
+                
+                #98.9.2023 
+                self._show_progress("Skip refresh_network_simple")
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
-                self._run_sql(
-                    f"service={self.conf}",
-                    "SELECT qgep_network.refresh_network_simple();",
-                    error_message="Errors when initializing the database.",
-                )
+#                self._run_sql(
+#                    f"service={self.conf}",
+#                    "SELECT qgep_network.refresh_network_simple();",
+#                    error_message="Errors when initializing the database.",
+#                )
 
             except psycopg2.Error as e:
                 raise QGEPDatamodelError(str(e))
