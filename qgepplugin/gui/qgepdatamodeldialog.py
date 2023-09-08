@@ -65,6 +65,7 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
         {
             "master": "https://github.com/QGEP/datamodel/archive/master.zip",
+            "development2020": "https://github.com/teksi/wastewater/archive/refs/heads/master.zip",
         }
     )
 
