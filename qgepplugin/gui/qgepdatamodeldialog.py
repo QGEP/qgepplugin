@@ -65,7 +65,7 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
         {
             "master": "https://github.com/QGEP/datamodel/archive/master.zip",
-            "development2020": "https://github.com/teksi/wastewater/archive/refs/heads/master.zip",
+            "datamodel2020": "https://github.com/teksi/wastewater/archive/refs/heads/datamodel2020.zip",
         }
     )
 
@@ -95,6 +95,15 @@ else:
 
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
+
+# add other path structure for datamodel2020
+REQUIREMENTS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\\requirements.txt")
+DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
+#https://raw.githubusercontent.com/teksi/wastewater/datamodel2020/datamodel/qgep_datamodel2020_structure_with_value_lists.sql
+INIT_SCRIPT_URL_TEMPLATE2 = "https://raw.githubusercontent.com/teksi/wastewater/{}/datamodel/qgep_{}_structure_with_value_lists.sql"
+
+
+# qgep paths
 REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "requirements.txt")
 DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "delta")
 INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
@@ -379,8 +388,15 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
     def _get_current_version(self):
         # Dirty parsing of pum info
-        deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+        # 8.9.2023
+        if self.version == "datamodel2020":
+            deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
+            QgsMessageLog.logMessage(f"DELTAS_PATH_TEMPLATE2 {deltas_dir} does match with downloaded version {format(self.version)} !", "QGEP")
+        else:
+            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
         if not os.path.exists(deltas_dir):
+            # 9.8.2023
+            QgsMessageLog.logMessage(f"DELTAS_PATH_TEMPLATE {deltas_dir} does not match with downloaded version {format(self.version)} !", "QGEP")
             return None
 
         pum_info = self._run_cmd(
@@ -418,17 +434,51 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
     # Datamodel
 
     def check_datamodel(self):
-        requirements_exists = os.path.exists(
+    
+        if self.version == "datamodel2020":
+            requirements_exists = os.path.exists(
+                REQUIREMENTS_PATH_TEMPLATE2.format(self.version)
+            )
+        else:
+            requirements_exists = os.path.exists(
             REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         )
-        deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE.format(self.version))
+        if not requirements_exists:
+            QgsMessageLog.logMessage(f"requirements_exists not true {REQUIREMENTS_PATH_TEMPLATE} / {REQUIREMENTS_PATH_TEMPLATE2}", "QGEP")
 
+        if self.version == "datamodel2020":
+            deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE2.format(self.version))
+        else:
+            deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE.format(self.version))
+        
+        if not deltas_exists:
+            QgsMessageLog.logMessage(f"deltas_exists not true {DELTAS_PATH_TEMPLATE} / {DELTAS_PATH_TEMPLATE2}", "QGEP")
+        
         check = requirements_exists and deltas_exists
+
+        if check:
+            QgsMessageLog.logMessage(f"check OK {self.version}", "QGEP")
+        else:
+            QgsMessageLog.logMessage(f"check not ok {self.version} / requirements_exists {requirements_exists} / deltas_exists {deltas_exists}", "QGEP")
 
         if check:
             if self.version == "master":
                 self.releaseCheckLabel.setText(
                     "DEV RELEASE - DO NOT USE FOR PRODUCTION"
+                )
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
+            elif self.version == "datamodel2020":
+                self.releaseCheckLabel.setText(
+                    "DEV 2020 RELEASE - DO NOT USE FOR PRODUCTION"
+                )
+                self.releaseCheckLabel.setStyleSheet(
+                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
+                )
+            elif self.version == "1.7.0":
+                self.releaseCheckLabel.setText(
+                    "DEV 2020 RELEASE - DO NOT USE FOR PRODUCTION"
                 )
                 self.releaseCheckLabel.setStyleSheet(
                     "color: rgb(170, 0, 0);\nfont-weight: bold;"
@@ -486,9 +536,16 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         if not self.check_datamodel():
             missing.append(("unknown", "no datamodel"))
         else:
-            requirements = pkg_resources.parse_requirements(
-                open(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
-            )
+            #8.9.2023
+            if self.version == "datamodel2020":
+                requirements = pkg_resources.parse_requirements(
+                    open(REQUIREMENTS_PATH_TEMPLATE2.format(self.version))
+                )
+            else:
+                requirements = pkg_resources.parse_requirements(
+                    open(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
+                )
+
             for requirement in requirements:
                 try:
                     pkg_resources.require(str(requirement))
@@ -634,7 +691,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         prev = self.targetVersionComboBox.currentText()
         self.targetVersionComboBox.clear()
         available_versions = set()
-        deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+        
+        # 9.8.2023
+        if self.version == "datamodel2020":
+            deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
+        else:
+            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+
         if os.path.exists(deltas_dir):
             for f in os.listdir(deltas_dir):
                 if f.startswith("delta_"):
@@ -766,7 +829,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             # also currently SRID doesn't work
             try:
                 self._show_progress("Downloading the structure script")
-                url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
+                
+                # 9.8.2023 
+                if self.version == "datamodel2020":
+                    url = INIT_SCRIPT_URL_TEMPLATE2.format(self.version, self.version)
+                else:
+                    url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
+
                 sql_path = self._download(
                     url,
                     f"structure_with_value_lists-{self.version}-{srid}.sql",
