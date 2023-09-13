@@ -592,7 +592,12 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         self._show_progress("Installing python dependencies with pip")
 
         # Install dependencies
-        requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
+        # 13.9.2023 also add self.version 
+        if self.version == "datamodel2020":
+            requirements_file_path = REQUIREMENTS_PATH_TEMPLATE2.format(self.version)
+        else
+            requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
+            
         QgsMessageLog.logMessage(
             f"Installing python dependencies from {requirements_file_path}", "QGEP"
         )
