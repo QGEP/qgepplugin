@@ -595,7 +595,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         # 13.9.2023 also add self.version 
         if self.version == "datamodel2020":
             requirements_file_path = REQUIREMENTS_PATH_TEMPLATE2.format(self.version)
-        else
+        else:
             requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
             
         QgsMessageLog.logMessage(
@@ -893,6 +893,19 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 #                    error_message="Errors when initializing the database.",
 #                )
 
+                #13.9.2023 new set baseline: pum baseline -p qgep_prod -t qgep_sys.pum_info -d ./delta/ -b 1.0.0
+                
+                if self.version == "datamodel2020":
+                    self._show_progress("Setting baseline with pum")
+                    deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
+                    
+                    self._run_cmd(
+                    #f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+                    f"python3 -m pum baseline -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -b 1.0.0",
+                    cwd=os.path.dirname(deltas_dir),
+                    error_message="Errors when setting baseline with pum in the database.",
+                    timeout=300,
+                    )
             except psycopg2.Error as e:
                 raise QGEPDatamodelError(str(e))
 
