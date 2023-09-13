@@ -884,7 +884,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
                     timeout=300,
                 )
                 
-                #98.9.2023 
+                #8.9.2023 
                 self._show_progress("Skip refresh_network_simple")
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
 #                self._run_sql(
