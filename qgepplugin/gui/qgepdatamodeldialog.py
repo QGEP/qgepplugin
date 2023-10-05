@@ -399,10 +399,18 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             QgsMessageLog.logMessage(f"DELTAS_PATH_TEMPLATE {deltas_dir} does not match with downloaded version {format(self.version)} !", "QGEP")
             return None
 
-        pum_info = self._run_cmd(
-            f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
-            error_message="Could not get current version, are you sure the database is accessible ?",
-        )
+        # 5.10.2023 adapt qgep_sys with tww_sys
+        if self.version == "datamodel2020":
+            pum_info = self._run_cmd(
+                f"python3 -m pum info -p {self.conf} -t tww_sys.pum_info -d {deltas_dir}",
+                error_message="Could not get current version, are you sure the database tww is accessible ?",
+            )
+        else:
+            pum_info = self._run_cmd(
+                f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
+                error_message="Could not get current version, are you sure the database qgep is accessible ?",
+            )
+        
         version = None
         for line in pum_info.splitlines():
             line = line.strip()
@@ -893,7 +901,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 #                    error_message="Errors when initializing the database.",
 #                )
 
-                #13.9.2023 new set baseline: pum baseline -p qgep_prod -t qgep_sys.pum_info -d ./delta/ -b 1.0.0
+                # 13.9.2023 new set baseline: pum baseline -p qgep_prod -t qgep_sys.pum_info -d ./delta/ -b 1.0.0
                 
                 if self.version == "datamodel2020":
                     self._show_progress("Setting baseline with pum")
@@ -901,11 +909,15 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
                     
                     self._run_cmd(
                     #f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
-                    f"python3 -m pum baseline -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -b 1.0.0",
+                    # 5.10.2023 adapt to tww_sys
+                    #f"python3 -m pum baseline -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -b 1.0.0",
+                    f"python3 -m pum baseline -p {self.conf} -t tww_sys.pum_info -d {deltas_dir} -b 1.0.0",
                     cwd=os.path.dirname(deltas_dir),
-                    error_message="Errors when setting baseline with pum in the database.",
+                    error_message="Errors when setting baseline with pum in the database tww.",
                     timeout=300,
                     )
+                 
+                 
             except psycopg2.Error as e:
                 raise QGEPDatamodelError(str(e))
 
@@ -942,15 +954,24 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             # 8.9.2023
             if self.version == "datamodel2020":
                 deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
+                
+                # 5.10.2023 adapt qgep_sys to tww_sys
+                self._run_cmd(
+                f"python3 -m pum upgrade -p {self.conf} -t tww_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+                cwd=os.path.dirname(deltas_dir),
+                error_message="Errors when upgrading the database tww.",
+                timeout=300,
+            )
             else:
                 deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
 
-            self._run_cmd(
-                f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
-                cwd=os.path.dirname(deltas_dir),
-                error_message="Errors when upgrading the database.",
-                timeout=300,
-            )
+                # 5.10.2023 moved into else clause
+                self._run_cmd(
+                    f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+                    cwd=os.path.dirname(deltas_dir),
+                    error_message="Errors when upgrading the database qgep.",
+                    timeout=300,
+                )
 
             self.check_version()
             self.check_project()
