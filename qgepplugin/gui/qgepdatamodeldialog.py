@@ -98,7 +98,12 @@ DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
 
 # add other path structure for datamodel2020
 REQUIREMENTS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\\requirements.txt")
-DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
+
+# 5.10.2023 neu \\delta warning:C:\Users/Stefan/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\qgepplugin\gui\qgepdatamodeldialog.py:101: DeprecationWarning: invalid escape sequence \d
+# DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
+
+#DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
+DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\\delta")
 #https://raw.githubusercontent.com/teksi/wastewater/datamodel2020/datamodel/qgep_datamodel2020_structure_with_value_lists.sql
 INIT_SCRIPT_URL_TEMPLATE2 = "https://raw.githubusercontent.com/teksi/wastewater/{}/datamodel/qgep_{}_structure_with_value_lists.sql"
 
