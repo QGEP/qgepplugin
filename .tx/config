@@ -27,3 +27,4 @@ trans.de = i18n/qgepplugin-js_de.ts
 trans.fr = i18n/qgepplugin-js_fr.ts
 trans.it = i18n/qgepplugin-js_it.ts
 type = QT
+
