@@ -65,7 +65,6 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
         {
             "master": "https://github.com/QGEP/datamodel/archive/master.zip",
-            "datamodel2020": "https://github.com/teksi/wastewater/archive/refs/heads/datamodel2020.zip",
         }
     )
 
@@ -95,20 +94,6 @@ else:
 
 # Derived urls/paths, may require adaptations if release structure changes
 DATAMODEL_URL_TEMPLATE = "https://github.com/QGEP/datamodel/archive/{}.zip"
-
-# add other path structure for datamodel2020
-REQUIREMENTS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\\requirements.txt")
-
-# 5.10.2023 neu \\delta warning:C:\Users/Stefan/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\qgepplugin\gui\qgepdatamodeldialog.py:101: DeprecationWarning: invalid escape sequence \d
-# DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
-
-#DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\delta")
-DELTAS_PATH_TEMPLATE2 = os.path.join(TEMP_DIR, "wastewater-{}", "datamodel\\delta")
-#https://raw.githubusercontent.com/teksi/wastewater/datamodel2020/datamodel/qgep_datamodel2020_structure_with_value_lists.sql
-INIT_SCRIPT_URL_TEMPLATE2 = "https://raw.githubusercontent.com/teksi/wastewater/{}/datamodel/qgep_{}_structure_with_value_lists.sql"
-
-
-# qgep paths
 REQUIREMENTS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "requirements.txt")
 DELTAS_PATH_TEMPLATE = os.path.join(TEMP_DIR, "datamodel-{}", "delta")
 INIT_SCRIPT_URL_TEMPLATE = "https://github.com/QGEP/datamodel/releases/download/{}/qgep_{}_structure_with_value_lists.sql"
@@ -393,29 +378,14 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
 
     def _get_current_version(self):
         # Dirty parsing of pum info
-        # 8.9.2023
-        if self.version == "datamodel2020":
-            deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
-            QgsMessageLog.logMessage(f"DELTAS_PATH_TEMPLATE2 {deltas_dir} does match with downloaded version {format(self.version)} !", "QGEP")
-        else:
-            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+        deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
         if not os.path.exists(deltas_dir):
-            # 9.8.2023
-            QgsMessageLog.logMessage(f"DELTAS_PATH_TEMPLATE {deltas_dir} does not match with downloaded version {format(self.version)} !", "QGEP")
             return None
 
-        # 5.10.2023 adapt qgep_sys with tww_sys
-        if self.version == "datamodel2020":
-            pum_info = self._run_cmd(
-                f"python3 -m pum info -p {self.conf} -t tww_sys.pum_info -d {deltas_dir}",
-                error_message="Could not get current version, are you sure the database tww is accessible ?",
-            )
-        else:
-            pum_info = self._run_cmd(
-                f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
-                error_message="Could not get current version, are you sure the database qgep is accessible ?",
-            )
-        
+        pum_info = self._run_cmd(
+            f"python3 -m pum info -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir}",
+            error_message="Could not get current version, are you sure the database is accessible ?",
+        )
         version = None
         for line in pum_info.splitlines():
             line = line.strip()
@@ -447,51 +417,17 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
     # Datamodel
 
     def check_datamodel(self):
-    
-        if self.version == "datamodel2020":
-            requirements_exists = os.path.exists(
-                REQUIREMENTS_PATH_TEMPLATE2.format(self.version)
-            )
-        else:
-            requirements_exists = os.path.exists(
+        requirements_exists = os.path.exists(
             REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         )
-        if not requirements_exists:
-            QgsMessageLog.logMessage(f"requirements_exists not true {REQUIREMENTS_PATH_TEMPLATE} / {REQUIREMENTS_PATH_TEMPLATE2}", "QGEP")
+        deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE.format(self.version))
 
-        if self.version == "datamodel2020":
-            deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE2.format(self.version))
-        else:
-            deltas_exists = os.path.exists(DELTAS_PATH_TEMPLATE.format(self.version))
-        
-        if not deltas_exists:
-            QgsMessageLog.logMessage(f"deltas_exists not true {DELTAS_PATH_TEMPLATE} / {DELTAS_PATH_TEMPLATE2}", "QGEP")
-        
         check = requirements_exists and deltas_exists
-
-        if check:
-            QgsMessageLog.logMessage(f"check OK {self.version}", "QGEP")
-        else:
-            QgsMessageLog.logMessage(f"check not ok {self.version} / requirements_exists {requirements_exists} / deltas_exists {deltas_exists}", "QGEP")
 
         if check:
             if self.version == "master":
                 self.releaseCheckLabel.setText(
                     "DEV RELEASE - DO NOT USE FOR PRODUCTION"
-                )
-                self.releaseCheckLabel.setStyleSheet(
-                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
-                )
-            elif self.version == "datamodel2020":
-                self.releaseCheckLabel.setText(
-                    "DEV 2020 RELEASE - DO NOT USE FOR PRODUCTION"
-                )
-                self.releaseCheckLabel.setStyleSheet(
-                    "color: rgb(170, 0, 0);\nfont-weight: bold;"
-                )
-            elif self.version == "1.7.0":
-                self.releaseCheckLabel.setText(
-                    "DEV 2020 RELEASE - DO NOT USE FOR PRODUCTION"
                 )
                 self.releaseCheckLabel.setStyleSheet(
                     "color: rgb(170, 0, 0);\nfont-weight: bold;"
@@ -549,16 +485,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         if not self.check_datamodel():
             missing.append(("unknown", "no datamodel"))
         else:
-            #8.9.2023
-            if self.version == "datamodel2020":
-                requirements = pkg_resources.parse_requirements(
-                    open(REQUIREMENTS_PATH_TEMPLATE2.format(self.version))
-                )
-            else:
-                requirements = pkg_resources.parse_requirements(
-                    open(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
-                )
-
+            requirements = pkg_resources.parse_requirements(
+                open(REQUIREMENTS_PATH_TEMPLATE.format(self.version))
+            )
             for requirement in requirements:
                 try:
                     pkg_resources.require(str(requirement))
@@ -605,12 +534,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         self._show_progress("Installing python dependencies with pip")
 
         # Install dependencies
-        # 13.9.2023 also add self.version 
-        if self.version == "datamodel2020":
-            requirements_file_path = REQUIREMENTS_PATH_TEMPLATE2.format(self.version)
-        else:
-            requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
-            
+        requirements_file_path = REQUIREMENTS_PATH_TEMPLATE.format(self.version)
         QgsMessageLog.logMessage(
             f"Installing python dependencies from {requirements_file_path}", "QGEP"
         )
@@ -709,13 +633,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         prev = self.targetVersionComboBox.currentText()
         self.targetVersionComboBox.clear()
         available_versions = set()
-        
-        # 9.8.2023
-        if self.version == "datamodel2020":
-            deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
-        else:
-            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
-
+        deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
         if os.path.exists(deltas_dir):
             for f in os.listdir(deltas_dir):
                 if f.startswith("delta_"):
@@ -847,13 +765,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             # also currently SRID doesn't work
             try:
                 self._show_progress("Downloading the structure script")
-                
-                # 9.8.2023 
-                if self.version == "datamodel2020":
-                    url = INIT_SCRIPT_URL_TEMPLATE2.format(self.version, self.version)
-                else:
-                    url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
-
+                url = INIT_SCRIPT_URL_TEMPLATE.format(self.version, self.version)
                 sql_path = self._download(
                     url,
                     f"structure_with_value_lists-{self.version}-{srid}.sql",
@@ -896,33 +808,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
                     error_message="Errors when initializing the database.",
                     timeout=300,
                 )
-                
-                #8.9.2023 
-                self._show_progress("Skip refresh_network_simple")
                 # workaround until https://github.com/QGEP/QGEP/issues/612 is fixed
-#                self._run_sql(
-#                    f"service={self.conf}",
-#                    "SELECT qgep_network.refresh_network_simple();",
-#                    error_message="Errors when initializing the database.",
-#                )
+                self._run_sql(
+                    f"service={self.conf}",
+                    "SELECT qgep_network.refresh_network_simple();",
+                    error_message="Errors when initializing the database.",
+                )
 
-                # 13.9.2023 new set baseline: pum baseline -p qgep_prod -t qgep_sys.pum_info -d ./delta/ -b 1.0.0
-                
-                if self.version == "datamodel2020":
-                    self._show_progress("Setting baseline with pum")
-                    deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
-                    
-                    self._run_cmd(
-                    #f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
-                    # 5.10.2023 adapt to tww_sys
-                    #f"python3 -m pum baseline -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -b 1.0.0",
-                    f"python3 -m pum baseline -p {self.conf} -t tww_sys.pum_info -d {deltas_dir} -b 1.0.0",
-                    cwd=os.path.dirname(deltas_dir),
-                    error_message="Errors when setting baseline with pum in the database tww.",
-                    timeout=300,
-                    )
-                 
-                 
             except psycopg2.Error as e:
                 raise QGEPDatamodelError(str(e))
 
@@ -956,27 +848,13 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             srid = self.sridLineEdit.text()
 
             self._show_progress("Running pum upgrade")
-            # 8.9.2023
-            if self.version == "datamodel2020":
-                deltas_dir = DELTAS_PATH_TEMPLATE2.format(self.version)
-                
-                # 5.10.2023 adapt qgep_sys to tww_sys
-                self._run_cmd(
-                f"python3 -m pum upgrade -p {self.conf} -t tww_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
+            deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
+            self._run_cmd(
+                f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
                 cwd=os.path.dirname(deltas_dir),
-                error_message="Errors when upgrading the database tww.",
+                error_message="Errors when upgrading the database.",
                 timeout=300,
             )
-            else:
-                deltas_dir = DELTAS_PATH_TEMPLATE.format(self.version)
-
-                # 5.10.2023 moved into else clause
-                self._run_cmd(
-                    f"python3 -m pum upgrade -p {self.conf} -t qgep_sys.pum_info -d {deltas_dir} -u {self.target_version} -v int SRID {srid}",
-                    cwd=os.path.dirname(deltas_dir),
-                    error_message="Errors when upgrading the database qgep.",
-                    timeout=300,
-                )
 
             self.check_version()
             self.check_project()
