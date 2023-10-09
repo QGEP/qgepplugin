@@ -1,6 +1,6 @@
 plugin_path: qgepplugin
 github_organization_slug: QGEP
 project_slug: qgepplugin
-transifex_organization: teksi
-transifex_project: QGEP
+transifex_organization: qgep
+transifex_project: qgepplugin
 transifex_resource: qgep-plugin
