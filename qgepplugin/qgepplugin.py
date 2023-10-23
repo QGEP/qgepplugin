@@ -515,13 +515,13 @@ class QgepPlugin(object):
                 "action_importc loaded",
                 level=Qgis.Info,
             )
-                
+
             # breakpoint()
             self._configure_qgepqwat2ili_from_qgep_layer()
             action_importc(self)
 
         # end
-        
+
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
 
