@@ -509,18 +509,18 @@ class QgepPlugin(object):
                 )
                 self.logger.error(str(e))
                 return
-            #8.5.2023
+            # 8.5.2023
             self.iface.messageBar().pushMessage(
-                    "Info",
-                    "action_importc loaded",
-                    level=Qgis.Info,
-                )
+                "Info",
+                "action_importc loaded",
+                level=Qgis.Info,
+            )
                 
-            #breakpoint()
+            # breakpoint()
             self._configure_qgepqwat2ili_from_qgep_layer()
             action_importc(self)
 
-        #end
+        # end
         
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
@@ -536,8 +536,6 @@ class QgepPlugin(object):
 
         self._configure_qgepqwat2ili_from_qgep_layer()
 
-
-        
         action_import(self)
 
     def _configure_qgepqwat2ili_from_qgep_layer(self) -> dict:
