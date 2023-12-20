@@ -492,8 +492,39 @@ class QgepPlugin(object):
 
     def actionImportClicked(self):
         # We only import now to avoid useless exception if dependencies aren't met
+
+        # if b then additional import configuration dialog. But does crash when loading ui file - see gui_importc.py loadUi
+        b = False
+        if b:
+            # 8.5.2023
+            try:
+
+                from .qgepqwat2ili.qgepqwat2ili.gui import action_importc
+
+            except ImportError as e:
+                self.iface.messageBar().pushMessage(
+                    "Error",
+                    "Could not load qgepqwat2ili due to unmet dependencies. See logs for more details (actionImportClicked).",
+                    level=Qgis.Critical,
+                )
+                self.logger.error(str(e))
+                return
+            # 8.5.2023
+            self.iface.messageBar().pushMessage(
+                "Info",
+                "action_importc loaded",
+                level=Qgis.Info,
+            )
+
+            # breakpoint()
+            self._configure_qgepqwat2ili_from_qgep_layer()
+            action_importc(self)
+
+        # end
+
         try:
             from .qgepqwat2ili.qgepqwat2ili.gui import action_import
+
         except ImportError as e:
             self.iface.messageBar().pushMessage(
                 "Error",
