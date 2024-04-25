@@ -72,7 +72,7 @@ if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
 
 # Allows to pick which QGIS project matches the version (will take the biggest <= match)
 DATAMODEL_QGEP_VERSIONS = {
-    "1.6.1": "https://github.com/QGEP/QGEP/releases/download/v10.0.0/qgep-v11.0.0.zip",
+    "1.6.1": "https://github.com/QGEP/QGEP/releases/download/v11.0.0/qgep-v11.0.0.zip",
     "1.6.0": "https://github.com/QGEP/QGEP/releases/download/v10.0.0/qgep-v10.0.0.zip",
     "1.5.5": "https://github.com/QGEP/QGEP/releases/download/v9.0.3/qgep-v9.0.3.zip",
     "1.5.0": "https://github.com/QGEP/QGEP/releases/download/v8.0/qgep.zip",
