@@ -33,11 +33,18 @@ from builtins import object, str
 from qgis.core import Qgis, QgsApplication
 from qgis.PyQt.QtCore import QLocale, QSettings, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QApplication, QToolBar
+from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox, QToolBar
 from qgis.utils import qgsfunction
 
 from .gui.qgepdatamodeldialog import QgepDatamodelInitToolDialog
-from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
+
+qgepPlotSVGWidgetAvailable = False
+try:
+    from .gui.qgepplotsvgwidget import QgepPlotSVGWidget
+
+    qgepPlotSVGWidgetAvailable = True
+except ImportError:
+    print("QgepPlotSVGWidget not available")
 from .gui.qgepprofiledockwidget import QgepProfileDockWidget
 from .gui.qgepsettingsdialog import QgepSettingsDialog
 from .gui.qgepwizard import QgepWizard
@@ -413,6 +420,14 @@ class QgepPlugin(object):
             )
             self.profile_dock.closed.connect(self.onDockClosed)
             self.profile_dock.showIt()
+
+            if not qgepPlotSVGWidgetAvailable:
+                QMessageBox.warning(
+                    self,
+                    "Plot SVG widget not available",
+                    "Some functionality are not available due to missing QtWebkit dependency",
+                )
+                return
 
             self.plotWidget = QgepPlotSVGWidget(
                 self.profile_dock, self.network_analyzer
