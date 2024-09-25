@@ -211,16 +211,26 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         branch_behavior = self.parameterAsEnum(parameters, self.BRANCH_BEHAVIOR, context)
         create_loop_layer = self.parameterAsBool(parameters, self.CREATE_LOOP_LAYER, context)
 
+        def aggregate_min(values):
+            return min(values) if values else 0
+
+        def aggregate_max(values):
+            return max(values) if values else 0
+
+        def aggregate_mean(values):
+            return statistics.mean(values) if values else 0
+
+        def aggregate_error(values):
+            feedback.pushError("Aggregate method not implemented")
+
         if branch_behavior == 0:
-            aggregate_method = lambda values: min(values) if values else 0
+            aggregate_method = aggregate_min
         elif branch_behavior == 1:
-            aggregate_method = lambda values: max(values) if values else 0
+            aggregate_method = aggregate_max
         elif branch_behavior == 2:
-            aggregate_method = lambda values: statistics.mean(values) if values else 0
+            aggregate_method = aggregate_mean
         else:
-            aggregate_method = lambda values: feedback.pushError(
-                "Aggregate method not implemented"
-            )
+            aggregate_method = aggregate_error
 
         # create feature sink
         fields = wastewater_node_layer.fields()

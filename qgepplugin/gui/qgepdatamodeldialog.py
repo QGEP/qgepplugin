@@ -59,9 +59,9 @@ from ..utils import get_ui_class
 # Allow to choose which releases can be installed
 AVAILABLE_RELEASES = {
     # TODO: change to final
-    "1.6.2": f"https://github.com/QGEP/datamodel/archive/1.6.2.zip",
-    "1.6.1": f"https://github.com/QGEP/datamodel/archive/1.6.1.zip",
-    "1.6.0": f"https://github.com/QGEP/datamodel/archive/1.6.0.zip",
+    "1.6.2": "https://github.com/QGEP/datamodel/archive/1.6.2.zip",
+    "1.6.1": "https://github.com/QGEP/datamodel/archive/1.6.1.zip",
+    "1.6.0": "https://github.com/QGEP/datamodel/archive/1.6.0.zip",
 }
 if QSettings().value("/QGEP/DeveloperMode", False, type=bool):
     AVAILABLE_RELEASES.update(
@@ -196,7 +196,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         path_label = PG_CONFIG_PATH
         if not PG_CONFIG_PATH_KNOWN:
             self.pgservicePathLabel.setStyleSheet("color: rgb(170, 0, 0);\nfont-style: italic;")
-            path_label += f"<br/>Note: you must create a PGSYSCONFDIR variable for this configuration to work.</span>More info <a href='https://gis.stackexchange.com/a/393494'>here</a>."
+            path_label += "<br/>Note: you must create a PGSYSCONFDIR variable for this configuration to work.</span>More info <a href='https://gis.stackexchange.com/a/393494'>here</a>."
             self.pgservicePathLabel.setTextFormat(Qt.RichText)
             self.pgservicePathLabel.setTextInteractionFlags(Qt.TextBrowserInteraction)
             self.pgservicePathLabel.setWordWrap(True)
@@ -514,12 +514,9 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
         QgsMessageLog.logMessage(
             f"Installing python dependencies from {requirements_file_path}", "QGEP"
         )
-        dependencies = " ".join(
-            [
-                f'"{l.strip()}"'
-                for l in open(requirements_file_path).read().splitlines()
-                if l.strip()
-            ]
+        with open(requirements_file_path) as file:
+            dependencies = " ".join(
+                f'"{line.strip()}"' for line in file if line.strip()
         )
         command_line = "the OSGeo4W shell" if os.name == "nt" else "the terminal"
         self._run_cmd(
@@ -733,7 +730,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
                         file.write(contents)
 
                 try:
-                    conn = psycopg2.connect(f"service={self.conf}")
+                    psycopg2.connect(f"service={self.conf}")
                 except psycopg2.Error:
                     # It may be that the database doesn't exist yet
                     # in that case, we try to connect to the postgres database and to create it from there
