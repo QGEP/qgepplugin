@@ -19,8 +19,9 @@
 
 import codecs
 import subprocess
-import psycopg2
 from datetime import datetime, timedelta
+
+import psycopg2
 
 MEASURING_POINT_KIND = "Diverse kind of SWMM simulation parameters"
 MEASURING_DEVICE_REMARK = "SWMM Simulation"

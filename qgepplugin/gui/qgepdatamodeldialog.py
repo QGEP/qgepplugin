@@ -515,9 +515,7 @@ class QgepDatamodelInitToolDialog(QDialog, get_ui_class("qgepdatamodeldialog.ui"
             f"Installing python dependencies from {requirements_file_path}", "QGEP"
         )
         with open(requirements_file_path) as file:
-            dependencies = " ".join(
-                f'"{line.strip()}"' for line in file if line.strip()
-        )
+            dependencies = " ".join(f'"{line.strip()}"' for line in file if line.strip())
         command_line = "the OSGeo4W shell" if os.name == "nt" else "the terminal"
         self._run_cmd(
             f"python3 -m pip install --user {dependencies}",
