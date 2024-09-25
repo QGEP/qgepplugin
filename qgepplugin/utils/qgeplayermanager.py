@@ -2,7 +2,6 @@
 This module helps managing the QGEP project layers.
 """
 
-
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
