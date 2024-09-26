@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
  QGEP processing provider
@@ -18,7 +16,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-
 
 import statistics
 
@@ -113,9 +110,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
             )
         )
 
-        self.addParameter(
-            QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr("Summed up"))
-        )
+        self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr("Summed up")))
 
         description = self.tr("Create a layer with nodes in loops")
         self.addAdvancedParameter(
@@ -193,9 +188,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         )
 
     def addAdvancedParameter(self, parameter):
-        parameter.setFlags(
-            parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced
-        )
+        parameter.setFlags(parameter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(parameter)
 
     def processAlgorithm(
@@ -210,36 +203,34 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         wastewater_node_layer = self.parameterAsVectorLayer(
             parameters, self.WASTEWATER_NODE_LAYER, context
         )
-        value_expression = self.parameterAsExpression(
-            parameters, self.VALUE_EXPRESSION, context
-        )
-        reach_pk_name = self.parameterAsFields(parameters, self.REACH_PK_NAME, context)[
-            0
-        ]
+        value_expression = self.parameterAsExpression(parameters, self.VALUE_EXPRESSION, context)
+        reach_pk_name = self.parameterAsFields(parameters, self.REACH_PK_NAME, context)[0]
         node_pk_name = self.parameterAsFields(parameters, self.NODE_PK_NAME, context)[0]
-        node_from_fk_name = self.parameterAsFields(
-            parameters, self.NODE_FROM_FK_NAME, context
-        )[0]
-        node_to_fk_name = self.parameterAsFields(
-            parameters, self.NODE_TO_FK_NAME, context
-        )[0]
-        branch_behavior = self.parameterAsEnum(
-            parameters, self.BRANCH_BEHAVIOR, context
-        )
-        create_loop_layer = self.parameterAsBool(
-            parameters, self.CREATE_LOOP_LAYER, context
-        )
+        node_from_fk_name = self.parameterAsFields(parameters, self.NODE_FROM_FK_NAME, context)[0]
+        node_to_fk_name = self.parameterAsFields(parameters, self.NODE_TO_FK_NAME, context)[0]
+        branch_behavior = self.parameterAsEnum(parameters, self.BRANCH_BEHAVIOR, context)
+        create_loop_layer = self.parameterAsBool(parameters, self.CREATE_LOOP_LAYER, context)
+
+        def aggregate_min(values):
+            return min(values) if values else 0
+
+        def aggregate_max(values):
+            return max(values) if values else 0
+
+        def aggregate_mean(values):
+            return statistics.mean(values) if values else 0
+
+        def aggregate_error(values):
+            feedback.pushError("Aggregate method not implemented")
 
         if branch_behavior == 0:
-            aggregate_method = lambda values: min(values) if values else 0
+            aggregate_method = aggregate_min
         elif branch_behavior == 1:
-            aggregate_method = lambda values: max(values) if values else 0
+            aggregate_method = aggregate_max
         elif branch_behavior == 2:
-            aggregate_method = lambda values: statistics.mean(values) if values else 0
+            aggregate_method = aggregate_mean
         else:
-            aggregate_method = lambda values: feedback.pushError(
-                "Aggregate method not implemented"
-            )
+            aggregate_method = aggregate_error
 
         # create feature sink
         fields = wastewater_node_layer.fields()

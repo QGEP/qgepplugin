@@ -1,9 +1,9 @@
 """
 This module is used for translation of the QGEP project
 """
+
 import logging
 import os
-from builtins import str
 
 from qgis.PyQt.QtCore import (
     QCoreApplication,
