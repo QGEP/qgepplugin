@@ -1,0 +1,56 @@
+name: 🔌 Plugin | Package
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    paths:
+      - qgepplugin/**
+  workflow_dispatch:
+
+
+jobs:
+  plugin-package:
+    name: Packages plugin
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_REF: ${{ github.ref }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Qt lrelease
+        run: |
+          sudo apt-get update
+          sudo apt-get install qtbase5-dev qttools5-dev-tools
+
+      - name: Install qgis-plugin-ci
+        run: pip install qgis-plugin-ci>=2.8.6
+
+      - name: Package
+        run: |
+          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d+ -f1)
+          qgis-plugin-ci -v package ${VERSION} \
+            --allow-uncommitted-changes \
+            --transifex-token "${{ secrets.TX_TOKEN }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qgepplugin_dev
+          path: qgepplugin/qgepplugin.${VERSION}.zip
+          if-no-files-found: error
