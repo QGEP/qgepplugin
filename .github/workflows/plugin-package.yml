@@ -11,8 +11,6 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - qgepplugin/**
   workflow_dispatch:
 
 
@@ -44,13 +42,13 @@ jobs:
 
       - name: Package
         run: |
-          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d+ -f1)
-          qgis-plugin-ci -v package ${VERSION} \
+          VERSION=999.0
+          qgis-plugin-ci package ${VERSION} \
             --allow-uncommitted-changes \
             --transifex-token "${{ secrets.TX_TOKEN }}"
 
       - uses: actions/upload-artifact@v4
         with:
           name: qgepplugin_dev
-          path: qgepplugin/qgepplugin.${VERSION}.zip
+          path: qgepplugin.999.0.zip
           if-no-files-found: error
