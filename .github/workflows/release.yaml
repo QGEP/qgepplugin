@@ -14,9 +14,7 @@ on:
 jobs:
 
   release:
-    runs-on: ubuntu-22.04
-    env:
-      GITHUB_REF: ${{ github.ref }}
+    runs-on: ubuntu-latest
     if: ${{ github.event_name == 'release' }}
     steps:
       - name: Checkout
@@ -33,8 +31,7 @@ jobs:
         run: pip3 install qgis-plugin-ci
       - name: Release
         run: |
-          VERSION=$(echo "${GITHUB_REF_NAME}" | cut -d+ -f1)
-          qgis-plugin-ci -v release ${VERSION} \
+          qgis-plugin-ci -v release ${GITHUB_REF/refs\/tags\//} \
             --release-tag ${GITHUB_REF_NAME} \
             --transifex-token ${{ secrets.TX_TOKEN }} \
             --github-token ${{ secrets.GITHUB_TOKEN }} \
@@ -42,7 +39,7 @@ jobs:
             --allow-uncommitted-changes
 
   translations:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
     steps:
       - name: Checkout
@@ -56,7 +53,7 @@ jobs:
           sudo apt-get install qtbase5-dev qttools5-dev-tools
 
       - name: Install qgis-plugin-ci
-        run: pip3 install qgis-plugin-ci==2.7.*
+        run: pip3 install qgis-plugin-ci
 
       - name: 🌍 Push translations
         run: qgis-plugin-ci push-translation ${{ secrets.TX_TOKEN }}
