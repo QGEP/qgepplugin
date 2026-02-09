@@ -12,7 +12,13 @@ on:
     branches:
       - master
   workflow_dispatch:
-
+  workflow_call: # Allows this workflow to be called by other workflows
+    inputs:
+      release_tag:
+        required: false
+        description: 'Release tag to upload plugin as GitHub Release asset'
+        default: ''
+        type: string
 
 jobs:
   plugin-package:
@@ -42,7 +48,7 @@ jobs:
 
       - name: Package
         run: |
-          VERSION=999.0
+          VERSION=${{ inputs.release_tag || '0.0.0' }}
           qgis-plugin-ci package ${VERSION} \
             --allow-uncommitted-changes \
             --transifex-token "${{ secrets.TX_TOKEN }}"
@@ -50,5 +56,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: qgepplugin_dev
-          path: qgepplugin.999.0.zip
+          path: qgepplugin.${{ inputs.release_tag || '0.0.0' }}.zip
           if-no-files-found: error
