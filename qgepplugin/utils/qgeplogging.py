@@ -25,6 +25,7 @@
 """
 This module is used for logging in QGEP.
 """
+
 import logging
 
 from qgis.core import QgsApplication, QgsMessageLog

@@ -49,13 +49,11 @@ class SwmmSetFrictionAlgorithm(QgepAlgorithm):
         return self.tr("SWMM Set default coefficient of friction")
 
     def shortHelpString(self):
-        return self.tr(
-            """
+        return self.tr("""
         Fill the attribute qgep_od.reach.default_coefficient_of_friction where it is not filled.
         If \"Overwrite existing default values\" is selected, all the default_coefficient_of_friction will be reseted.
         See: https://qgep.github.io/docs/qgep_swmm/coefficient_of_friction.html
-        """
-        )
+        """)
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/coefficient_of_friction.html"

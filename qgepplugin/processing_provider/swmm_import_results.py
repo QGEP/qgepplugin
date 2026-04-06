@@ -55,12 +55,10 @@ class SwmmImportResultsAlgorithm(QgepAlgorithm):
         return self.tr("SWMM Import Results")
 
     def shortHelpString(self):
-        return self.tr(
-            """
+        return self.tr("""
             Import SWMM results in QGEP database.
             See: https://qgep.github.io/docs/qgep_swmm/Extract-Results.html
-            """
-        )
+            """)
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/Import-Results.html"
