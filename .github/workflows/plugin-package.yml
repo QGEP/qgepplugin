@@ -47,7 +47,7 @@ jobs:
             --allow-uncommitted-changes \
             --transifex-token "${{ secrets.TX_TOKEN }}"
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: qgepplugin_dev
           path: qgepplugin.999.0.zip
