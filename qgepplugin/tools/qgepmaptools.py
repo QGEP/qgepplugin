@@ -307,7 +307,7 @@ class QgepProfileMapTool(QgepMapTool):
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
         # try:
-        (vertices, edges) = self.network_analyzer.shortestPath(start_point, end_point)
+        vertices, edges = self.network_analyzer.shortestPath(start_point, end_point)
         self.appendProfile(vertices, edges)
         #        except:
         #            pass

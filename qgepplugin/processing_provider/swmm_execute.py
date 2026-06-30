@@ -54,13 +54,11 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
         return self.tr("SWMM Execute")
 
     def shortHelpString(self):
-        return self.tr(
-            """
+        return self.tr("""
         Launch a swmm simulation.
          Note that usually a .inp file exported with QGEP is not directly launchable. It must be checked and edited with a SWMM interface.
          See: https://qgep.github.io/docs/qgep_swmm/Execute.html
-         """
-        )
+         """)
 
     def helpUrl(self):
         return "https://qgep.github.io/docs/qgep_swmm/Execute.html"
@@ -96,12 +94,8 @@ class SwmmExecuteAlgorithm(QgepAlgorithm):
             # raise GeoAlgorithmExecutionException(
             # 'Swmm command line toom is not configured.\n\
             # Please configure it before running Swmm algorithms.')
-            raise QgsProcessingException(
-                self.tr(
-                    "Swmm command line tool is not configured.\n\
-                    Please configure it before running Swmm algorithms."
-                )
-            )
+            raise QgsProcessingException(self.tr("Swmm command line tool is not configured.\n\
+                    Please configure it before running Swmm algorithms."))
 
         with QgepSwmm(None, None, None, inp_file, None, rpt_file, swmm_cli, feedback) as qs:
             prompt = qs.execute_swmm()

@@ -183,28 +183,20 @@ class QgepSwmm:
         elif state == "current":
             where_clauses.append("state = 'current'")
         if selected_structures:
-            where_clauses.append(
-                """
+            where_clauses.append("""
                 obj_id in ('{ids}')
-                """.format(
-                    ids="','".join(selected_structures)
-                )
-            )
+                """.format(ids="','".join(selected_structures)))
         if hierarchy:
             where_clauses.append(f"""hierarchy = '{hierarchy}'""")
 
         sql = """
         select * from qgep_swmm.vw_{table_name}
-        """.format(
-            table_name=table_name
-        )
+        """.format(table_name=table_name)
         # Add the filters to the sql
         if len(where_clauses) > 0:
             sql = """
                 {sql} where {where_clauses}
-                """.format(
-                sql=sql, where_clauses=" AND ".join(where_clauses)
-            )
+                """.format(sql=sql, where_clauses=" AND ".join(where_clauses))
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
@@ -915,9 +907,7 @@ class QgepSwmm:
         JOIN qgep_od.wastewater_structure ws on mp.fk_wastewater_structure = ws.obj_id
         WHERE ws.fk_main_wastewater_node = '{node_obj_id}'
         AND mp.remark = '{sim_description}'
-        """.format(
-            sim_description=sim_description, node_obj_id=node_obj_id
-        )
+        """.format(sim_description=sim_description, node_obj_id=node_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -979,9 +969,7 @@ class QgepSwmm:
         ne.fk_wastewater_structure = mp.fk_wastewater_structure
         WHERE ne.obj_id = '{reach_obj_id}'
         AND mp.remark = '{sim_description}'
-        """.format(
-            sim_description=sim_description, reach_obj_id=reach_obj_id
-        )
+        """.format(sim_description=sim_description, reach_obj_id=reach_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -1036,9 +1024,7 @@ class QgepSwmm:
         FROM qgep_od.measuring_device md
         WHERE md.fk_measuring_point = '{mp_obj_id}'
         AND remark = '{MEASURING_DEVICE_REMARK}'
-        """.format(
-            MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id
-        )
+        """.format(MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -1050,9 +1036,7 @@ class QgepSwmm:
             VALUES
             (5702, '{MEASURING_DEVICE_REMARK}','{mp_obj_id}')
             RETURNING obj_id
-            """.format(
-                MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id
-            )
+            """.format(MEASURING_DEVICE_REMARK=MEASURING_DEVICE_REMARK, mp_obj_id=mp_obj_id)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:
@@ -1092,9 +1076,7 @@ class QgepSwmm:
         SELECT obj_id FROM qgep_od.measurement_series
         WHERE remark = '{parameter_name}'
         AND fk_measuring_point = '{mp_obj_id}'
-        """.format(
-            parameter_name=parameter_name, mp_obj_id=mp_obj_id
-        )
+        """.format(parameter_name=parameter_name, mp_obj_id=mp_obj_id)
         cur.execute(sql)
         res = cur.fetchone()
 
@@ -1156,9 +1138,7 @@ class QgepSwmm:
         WHERE fk_measurement_series = '{ms_obj_id}'
         AND time = '{time}'
         AND measurement_type = {measurement_type}
-        """.format(
-            ms_obj_id=ms_obj_id, time=time, measurement_type=measurement_type
-        )
+        """.format(ms_obj_id=ms_obj_id, time=time, measurement_type=measurement_type)
         try:
             cur.execute(sql)
         except psycopg2.ProgrammingError:
@@ -1201,9 +1181,7 @@ class QgepSwmm:
             SET measuring_duration={measuring_duration}, value={value}
             WHERE obj_id = '{mr_obj_id}'
             RETURNING obj_id
-            """.format(
-                measuring_duration=measuring_duration, value=value, mr_obj_id=mr_obj_id
-            )
+            """.format(measuring_duration=measuring_duration, value=value, mr_obj_id=mr_obj_id)
             try:
                 cur.execute(sql)
             except psycopg2.ProgrammingError:

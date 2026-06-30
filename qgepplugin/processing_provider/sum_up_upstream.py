@@ -235,7 +235,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         # create feature sink
         fields = wastewater_node_layer.fields()
         fields.append(QgsField("value", QVariant.Double))
-        (sink, dest_id) = self.parameterAsSink(
+        sink, dest_id = self.parameterAsSink(
             parameters,
             self.OUTPUT,
             context,
@@ -247,7 +247,7 @@ class SumUpUpstreamAlgorithm(QgepAlgorithm):
         loop_sink = None
         loop_dest_id = None
         if create_loop_layer:
-            (loop_sink, loop_dest_id) = self.parameterAsSink(
+            loop_sink, loop_dest_id = self.parameterAsSink(
                 parameters,
                 self.LOOP_OUTPUT,
                 context,
